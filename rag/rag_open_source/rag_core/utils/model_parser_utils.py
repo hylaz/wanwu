@@ -10,7 +10,7 @@ import requests
 
 from datetime import datetime, timedelta
 from logging_config import setup_logging
-logger_name='rag_ocr_utils'
+logger_name='rag_model_parser_utils'
 app_name = os.getenv("LOG_FILE")
 logger = setup_logging(app_name,logger_name)
 logger.info(logger_name+'---------LOG_FILE：'+repr(app_name))
@@ -31,10 +31,10 @@ from pathlib import Path
 
 def get_page_data(page_num, add_file_path, ocr_model_id):
     """
-    获取单页的数据并调用OCR服务
+    获取单页的数据并调用模型解析服务
     :param page_num: 页码
     :param add_file_path: 文件路径
-    :return: OCR结果
+    :return: 模型解析结果
     """
     # file_name = os.path.split(add_file_path)[-1]
     directory = os.path.dirname(add_file_path)
@@ -57,13 +57,13 @@ def get_page_data(page_num, add_file_path, ocr_model_id):
         page_pdf_path = f"{file_name}_page_{page_num}.pdf"
         # 组合成新的文件路径
         output_pdf_path = os.path.join(directory, page_pdf_path)
-        logger.info("======>ocr_utils,get_page_data=%s" % output_pdf_path)
+        logger.info("======>model_parser_utils,get_page_data=%s" % output_pdf_path)
         new_pdf = fitz.open()  # 新建一个空的PDF文档
         new_pdf.insert_pdf(pdf_document, from_page=page_num - 1, to_page=page_num - 1)
         new_pdf.save(output_pdf_path)
         new_pdf.close()
 
-        files = {"file": (output_pdf_path, open(output_pdf_path, 'rb'))}
+        files = {"file": (page_pdf_path, open(output_pdf_path, 'rb'))}
 
         data = {
             "file_name": page_pdf_path,
@@ -214,7 +214,7 @@ def model_parser(add_file_path, ocr_model_id):
         # with open("./parser_data/%s.txt" % file_name, 'w', encoding='utf-8') as c_file:
         #     c_file.write(full_text)
     except Exception as err:
-        logger.error("====> ocr_parser error %s" % err)
+        logger.error("====> model_parser error %s" % err)
         logger.error("Failed to process the entire PDF document.")
         import traceback
         logger.error(traceback.format_exc())
