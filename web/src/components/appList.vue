@@ -108,7 +108,6 @@
               </el-dropdown-item>
               <el-dropdown-item
                 command="copy"
-                v-if="n.appType === 'workflow'"
               >
                 {{$t('common.button.copy')}}
               </el-dropdown-item>
@@ -171,7 +170,7 @@
 
 <script>
 import { AppType } from "@/utils/commonSet";
-import { deleteApp, appCancelPublish, copyAgnetTemplate, appPublish } from "@/api/appspace";
+import { deleteApp, appCancelPublish, copyAgnetTemplate, appPublish,copyTextQues } from "@/api/appspace";
 import { copyWorkFlow, publishWorkFlow, copyExample, exportWorkflow } from "@/api/workflow";
 import { setFavorite } from "@/api/explore";
 export default {
@@ -426,6 +425,14 @@ export default {
       this.row = row;
       this.handleDelete();
     },
+    txtQuesCopy(row){
+      copyTextQues({ragId:row.appId}).then(res=>{
+        if(res.code === 0){
+          this.$message.success('复制成功');
+          this.$emit("reloadData");
+        }
+      }).catch(()=>{})
+    },
     txtQuesOperation(method, row) {
       switch (method) {
         case "edit":
@@ -435,6 +442,10 @@ export default {
         case "delete":
           // 文本问答删除
           this.txtQuesDelete(row);
+          break;
+        case "copy":
+          // 文本问答复制
+          this.txtQuesCopy(row);
           break;
         case "cancelPublish":
           this.cancelPublish(row);
