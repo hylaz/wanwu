@@ -25,13 +25,13 @@
 body,html{
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  //overflow: hidden;
   /*font-family:'Microsoft YaHei', Arial, sans-serif;*/
   font-family: 'Source Han Sans SC', 'Segoe UI';
 }
 
 #app {
-  min-width: 1340px;
+  /*min-width: 1340px;*/
 }
 
 /*优化弹窗出现表格左移问题*/
@@ -72,8 +72,8 @@ body.el-popup-parent--hidden {
   --main-title-hei: 100px;
   --main-padding: 0 75px;
   --box-shadow:1px 1px 12px #f1f1f1;
-  width: 100%;
-  height:100%;
+  /*width: 100%;
+  height:100%;*/
 }
 .flex{
   display: flex;
