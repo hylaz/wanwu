@@ -363,19 +363,19 @@ func GetConversationDetailList(ctx *gin.Context, userId, orgId string, req reque
 	var convertedList []response.ConversationDetailInfo
 	for _, item := range resp.Data {
 		convertedItem := response.ConversationDetailInfo{
-			Id:              item.Id,
-			AssistantId:     item.AssistantId,
-			ConversationId:  item.ConversationId,
-			Prompt:          item.Prompt,
-			SysPrompt:       item.SysPrompt,
-			Response:        item.Response,
-			QaType:          item.QaType,
-			CreatedBy:       item.CreatedBy,
-			CreatedAt:       item.CreatedAt,
-			UpdatedAt:       item.UpdatedAt,
-			RequestFileUrls: item.RequestFileUrls,
-			FileSize:        item.FileSize,
-			FileName:        item.FileName,
+			Id:             item.Id,
+			AssistantId:    item.AssistantId,
+			ConversationId: item.ConversationId,
+			Prompt:         item.Prompt,
+			SysPrompt:      item.SysPrompt,
+			Response:       item.Response,
+			QaType:         item.QaType,
+			CreatedBy:      item.CreatedBy,
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+			RequestFiles:   transRequestFiles(item.RequestFiles),
+			FileSize:       item.FileSize,
+			FileName:       item.FileName,
 		}
 
 		// 将SearchList从string转换为interface{}
@@ -723,4 +723,19 @@ func buildAssistantMetaFilterParams(metaFilterList []*assistant_service.MetaFilt
 		})
 	}
 	return metaList
+}
+
+func transRequestFiles(files []*assistant_service.RequestFile) []response.RequestFile {
+	if files == nil {
+		return nil
+	}
+	var result []response.RequestFile
+	for _, file := range files {
+		result = append(result, response.RequestFile{
+			FileName: file.FileName,
+			FileSize: file.FileSize,
+			FileUrl:  file.FileUrl,
+		})
+	}
+	return result
 }

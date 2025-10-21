@@ -364,7 +364,7 @@ message ConversionDetailInfo{
   string prompt = 4;
   string sysPrompt = 5;
   string algPrompt = 6;
-  repeated string requestFileUrls = 7;
+  repeated RequestFile requestFiles = 7;
   string response = 8;
   string searchList = 9;
   int32 qaType = 10;
@@ -376,10 +376,16 @@ message ConversionDetailInfo{
   int64 fileSize = 16;
 }
 
+message RequestFile {
+  string FileName = 1;
+  int64 FileSize = 2;
+  string FileUrl = 3;
+}
+
 message AssistantConversionStreamReq {
   string assistantId = 1;
   string conversationId = 2;
-  ConversionStreamFile fileInfo = 3;
+  repeated ConversionStreamFile fileInfo = 3;
   bool trial = 4;
   string prompt = 5;
   Identity identity = 6;

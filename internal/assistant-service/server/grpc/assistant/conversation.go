@@ -142,26 +142,21 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 			continue
 		}
 
-		// 替换fileUrl为minio对外下载url
-		downloadURL := os.Getenv("MINIO_DOWNLOAD_URL")
-		minioEndpoint := os.Getenv("MINIO_ENDPOINT")
-		detail.FileUrl = strings.Replace(detail.FileUrl, "http://"+minioEndpoint+"/", downloadURL, 1)
-
 		conversationDetails = append(conversationDetails, &assistant_service.ConversionDetailInfo{
-			Id:              detail.Id,
-			AssistantId:     detail.AssistantId,
-			ConversationId:  detail.ConversationId,
-			Prompt:          detail.Prompt,
-			SysPrompt:       detail.SysPrompt,
-			Response:        detail.Response,
-			SearchList:      detail.SearchList,
-			QaType:          detail.QaType,
-			CreatedBy:       detail.UserId, // 使用CreatedBy字段映射UserId
-			CreatedAt:       detail.CreatedAt,
-			UpdatedAt:       detail.UpdatedAt,
-			RequestFileUrls: []string{detail.FileUrl},
-			FileSize:        detail.FileSize,
-			FileName:        detail.FileName,
+			Id:             detail.Id,
+			AssistantId:    detail.AssistantId,
+			ConversationId: detail.ConversationId,
+			Prompt:         detail.Prompt,
+			SysPrompt:      detail.SysPrompt,
+			Response:       detail.Response,
+			SearchList:     detail.SearchList,
+			QaType:         detail.QaType,
+			CreatedBy:      detail.UserId, // 使用CreatedBy字段映射UserId
+			CreatedAt:      detail.CreatedAt,
+			UpdatedAt:      detail.UpdatedAt,
+			RequestFiles:   transRequestFiles(detail.FileInfo),
+			FileSize:       detail.FileSize,
+			FileName:       detail.FileName,
 		})
 	}
 
@@ -250,10 +245,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		sseReq.SystemRole = assistant.Instructions
 	}
 
-	if req.FileInfo.FileUrl != "" {
-		sseReq.UploadFileUrl = req.FileInfo.FileUrl
-		sseReq.FileName = req.FileInfo.FileName
-	}
+	sseReq.UploadFileUrl = extractFileUrls(req.FileInfo)
 
 	// 模型参数配置
 	modelConfig, err := s.setModelConfigParams(sseReq, assistant)
@@ -637,7 +629,7 @@ func (s *Service) setHistoryParams(ctx context.Context, sseReq *config.AgentSSER
 		}
 		history := config.AssistantConversionHistory{
 			Query:         detail.Prompt,
-			UploadFileUrl: detail.FileUrl,
+			UploadFileUrl: extractFileUrlsFromModel(detail.FileInfo),
 			Response:      detail.Response,
 		}
 		historyList = append(historyList, history)
@@ -969,9 +961,7 @@ func saveConversationDetailToES(ctx context.Context, req *assistant_service.Assi
 		AssistantId:    req.AssistantId,
 		ConversationId: req.ConversationId,
 		Prompt:         req.Prompt,
-		FileUrl:        req.FileInfo.FileUrl,
-		FileSize:       req.FileInfo.FileSize,
-		FileName:       req.FileInfo.FileName,
+		FileInfo:       extractFileInfos(req.FileInfo),
 		Response:       response,
 		SearchList:     searchList,
 		UserId:         req.Identity.UserId,
@@ -1014,6 +1004,52 @@ func extractCodeFromStreamData(streamData map[string]interface{}) (int, bool) {
 	default:
 		return 0, false
 	}
+}
+
+// extractFileInfos 从proto FileInfo中提取所有文件信息到model FileInfo
+func extractFileInfos(fileInfos []*assistant_service.ConversionStreamFile) []model.FileInfo {
+	if len(fileInfos) == 0 {
+		return nil
+	}
+	var result []model.FileInfo
+	for _, file := range fileInfos {
+		if file != nil {
+			result = append(result, model.FileInfo{
+				FileName: file.FileName,
+				FileSize: file.FileSize,
+				FileUrl:  file.FileUrl,
+			})
+		}
+	}
+	return result
+}
+
+// extractFileUrls 从proto FileInfo中提取所有文件URL
+func extractFileUrls(fileInfos []*assistant_service.ConversionStreamFile) []string {
+	if len(fileInfos) == 0 {
+		return nil
+	}
+	var fileUrls []string
+	for _, file := range fileInfos {
+		if file != nil && file.FileUrl != "" {
+			fileUrls = append(fileUrls, file.FileUrl)
+		}
+	}
+	return fileUrls
+}
+
+// extractFileUrlsFromModel 从model FileInfo中提取所有文件URL
+func extractFileUrlsFromModel(fileInfos []model.FileInfo) []string {
+	if len(fileInfos) == 0 {
+		return nil
+	}
+	var fileUrls []string
+	for _, file := range fileInfos {
+		if file.FileUrl != "" {
+			fileUrls = append(fileUrls, file.FileUrl)
+		}
+	}
+	return fileUrls
 }
 
 // buildMetaDataFilterParams 构造元数据过滤参数
@@ -1069,4 +1105,27 @@ func buildValueData(valueType string, value string, condition string) (interface
 		return strconv.ParseInt(value, 10, 64)
 	}
 	return value, nil
+}
+
+// transRequestFiles 将 model.FileInfo 转换为 assistant_service.RequestFile，并替换 fileUrl 为 minio 对外下载 url
+func transRequestFiles(files []model.FileInfo) []*assistant_service.RequestFile {
+	if files == nil {
+		return nil
+	}
+
+	downloadURL := os.Getenv("MINIO_DOWNLOAD_URL")
+	minioEndpoint := os.Getenv("MINIO_ENDPOINT")
+
+	var result []*assistant_service.RequestFile
+	for _, file := range files {
+		// 替换 fileUrl 为 minio 对外下载 url
+		replacedUrl := strings.Replace(file.FileUrl, "http://"+minioEndpoint+"/", downloadURL, 1)
+
+		result = append(result, &assistant_service.RequestFile{
+			FileName: file.FileName,
+			FileSize: file.FileSize,
+			FileUrl:  replacedUrl,
+		})
+	}
+	return result
 }

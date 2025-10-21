@@ -75,7 +75,7 @@ func ChatAgent(ctx *gin.Context) {
 			AssistantId:    appID,
 			ConversationId: req.ConversationID,
 			Prompt:         req.Query,
-			FileInfo:       request.ConversionStreamFile{},
+			FileInfo:       []request.ConversionStreamFile{},
 			Trial:          false,
 		}); err != nil {
 			gin_util.Response(ctx, nil, err)
@@ -87,7 +87,7 @@ func ChatAgent(ctx *gin.Context) {
 		AssistantId:    appID,
 		ConversationId: req.ConversationID,
 		Prompt:         req.Query,
-		FileInfo:       request.ConversionStreamFile{},
+		FileInfo:       []request.ConversionStreamFile{},
 		Trial:          false,
 	})
 	if err != nil {

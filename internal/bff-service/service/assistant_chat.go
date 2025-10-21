@@ -64,13 +64,9 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	stream, err := assistant.AssistantConversionStream(ctx.Request.Context(), &assistant_service.AssistantConversionStreamReq{
 		AssistantId:    req.AssistantId,
 		ConversationId: req.ConversationId,
-		FileInfo: &assistant_service.ConversionStreamFile{
-			FileName: req.FileInfo.FileName,
-			FileSize: req.FileInfo.FileSize,
-			FileUrl:  req.FileInfo.FileUrl,
-		},
-		Trial:  req.Trial,
-		Prompt: req.Prompt,
+		FileInfo:       transFileInfo(req.FileInfo),
+		Trial:          req.Trial,
+		Prompt:         req.Prompt,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -104,6 +100,22 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	// 敏感词过滤
 	outputCh := ProcessSensitiveWords(ctx, rawCh, matchDicts, &agentSensitiveService{})
 	return outputCh, nil
+}
+
+// transFileInfo 转换文件信息从请求模型到protobuf模型
+func transFileInfo(fileInfo []request.ConversionStreamFile) []*assistant_service.ConversionStreamFile {
+	if len(fileInfo) == 0 {
+		return nil
+	}
+	result := make([]*assistant_service.ConversionStreamFile, 0, len(fileInfo))
+	for _, file := range fileInfo {
+		result = append(result, &assistant_service.ConversionStreamFile{
+			FileName: file.FileName,
+			FileSize: file.FileSize,
+			FileUrl:  file.FileUrl,
+		})
+	}
+	return result
 }
 
 // buildAgentChatRespLineProcessor 构造agent对话结果行处理器

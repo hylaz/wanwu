@@ -8,9 +8,9 @@ type AgentScopeWorkFlowSchemaResp struct {
 }
 
 type AssistantConversionHistory struct {
-	Query         string `json:"query"`
-	UploadFileUrl string `json:"upload_file_url,omitempty"`
-	Response      string `json:"response"`
+	Query         string   `json:"query"`
+	UploadFileUrl []string `json:"upload_file_url,omitempty"`
+	Response      string   `json:"response"`
 }
 
 type KnParams struct {
@@ -52,7 +52,7 @@ type AgentSSERequest struct {
 	Input          string                       `json:"input"`
 	Stream         bool                         `json:"stream"`
 	SystemRole     string                       `json:"system_role,omitempty"`
-	UploadFileUrl  string                       `json:"upload_file_url,omitempty"`
+	UploadFileUrl  []string                     `json:"upload_file_url,omitempty"`
 	FileName       string                       `json:"file_name,omitempty"`
 	PluginList     []PluginListAlgRequest       `json:"plugin_list,omitempty"`
 	Model          string                       `json:"model,omitempty"`

@@ -116,11 +116,11 @@ type ConversationGetDetailListRequest struct {
 func (c *ConversationGetDetailListRequest) Check() error { return nil }
 
 type ConversionStreamRequest struct {
-	AssistantId    string               `json:"assistantId" form:"assistantId"  validate:"required"`
-	ConversationId string               `json:"conversationId" form:"conversionId"`
-	FileInfo       ConversionStreamFile `json:"fileInfo" form:"fileInfo"`
-	Trial          bool                 `json:"trial" form:"trial"`
-	Prompt         string               `json:"prompt" form:"prompt"  validate:"required"`
+	AssistantId    string                 `json:"assistantId" form:"assistantId"  validate:"required"`
+	ConversationId string                 `json:"conversationId" form:"conversionId"`
+	FileInfo       []ConversionStreamFile `json:"fileInfo" form:"fileInfo"`
+	Trial          bool                   `json:"trial" form:"trial"`
+	Prompt         string                 `json:"prompt" form:"prompt"  validate:"required"`
 }
 
 func (c *ConversionStreamRequest) Check() error {
