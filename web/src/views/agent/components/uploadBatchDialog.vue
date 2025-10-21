@@ -15,7 +15,7 @@
                                 action=""
                                 :show-file-list="false"
                                 :auto-upload="false"
-                                :limit="2"
+                                :limit="fileType === 'image/*' ? 6 : 2"
                                 :accept="tipsArr"
                                 :file-list="fileList"
                                 :on-change="uploadOnChange"
@@ -23,7 +23,6 @@
                                 <div v-if="fileUrl" class="echo-img-box">
                                     <div class="echo-img">
                                         <!-- '/user/api'+fileUrl -->
-                                        <img v-if="fileType === 'image/*'"  :src="imgUrl || fileUrl" />
                                         <video v-if="fileType === 'video/*'" id="video" muted loop playsinline>
                                             <source :src = 'fileUrl' type="video/mp4">
                                             {{$t('common.fileUpload.videoTips')}}
@@ -37,8 +36,23 @@
                                         <div v-if="fileType === 'doc/*'" class="docFile">
                                             <img :src="require('@/assets/imgs/fileicon.png')" />
                                         </div>
-                                        <p>文件名称: {{fileList[0]['name']}}</p>
-                                        <p>文件大小: {{fileList[0]['size'] > 1024 ? (fileList[0]['size'] / (1024 * 1024 )).toFixed(2) + ' MB' : fileList[0]['size'] + ' bytes' }}</p>
+                                        <div v-if="fileType === 'image/*'" class="type-img-container">
+                                            <el-button v-show="canScroll" icon="el-icon-arrow-left " @click="prev($event)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
+                                            <div class="type-img" ref="imgList">
+                                                <div v-for="(f, idx) in fileList" :key="f.uid || idx" style="margin-bottom: 10px;">
+                                                    <img :src="f.imgUrl || fileUrl" />
+                                                    <p class="type-img-info">
+                                                        <span>{{f.name}}</span>
+                                                        <span>[ {{f.size > 1024 ? (f.size / (1024 * 1024 )).toFixed(2) + ' MB' : f.size + ' bytes' }} ]</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <el-button v-show="canScroll" icon="el-icon-arrow-right" @click="next($event)" circle class="scroll-btn right" size="mini" type="primary"></el-button>
+                                        </div>
+                                        <div v-else>
+                                            <p>文件名称: {{fileList[0]['name']}}</p>
+                                            <p>文件大小: {{fileList[0]['size'] > 1024 ? (fileList[0]['size'] / (1024 * 1024 )).toFixed(2) + ' MB' : fileList[0]['size'] + ' bytes' }}</p>
+                                        </div>
                                     </div>
                                     <!--<i  class="el-icon-close" @click.stop="clearFile"></i>-->
                                     <div class="tips">
@@ -49,7 +63,7 @@
                                             max="100"
                                             style="width:360px;margin:0 auto;"
                                         ></el-progress>
-                                        <p>{{$t('common.fileUpload.limitTips')}}<span style="color:#384BF7;"> {{$t('common.fileUpload.click')}} </span>{{$t('common.fileUpload.refreshTips')}}</p>
+                                        <p>图片类型限制6个文件，其它类型限制1个文件<span style="color:#384BF7;"> {{$t('common.fileUpload.click')}} </span>非图片类型文件会替换已有文件</p>
                                     </div>
                                 </div>
                                 <div v-else>
@@ -81,6 +95,7 @@
         mixins: [uploadChunk],
         data(){
             return{
+                canScroll:false,
                 fileIdList:[],
                 fileList:[],
                 fileType:'',
@@ -98,7 +113,7 @@
                     'doc/*':['.txt','.csv','.xlsx','.docx','.html','.pptx','.pdf']
                 },
                 chunkFileName:'',
-                fileInfo:null,
+                fileInfo:[],
                 imgUrl:''
             }
         },
@@ -112,11 +127,30 @@
         },
         created(){
             this.sessionId = this.sessionId || this.$route.query.sessionId
-            // if(this.fileTypeArr.length){
-            //     this.setFileType(this.fileTypeArr)
-            // }
         },
         methods:{
+            checkScrollable() {
+                this.$nextTick(() => {
+                    const container = this.$refs.imgList
+                    if (container) {
+                        this.canScroll = container.scrollWidth > container.clientWidth
+                    }
+                })
+            },
+            prev(e){
+                e.stopPropagation()
+                this.$refs.imgList.scrollBy({
+                    left: -200,
+                    behavior: "smooth",
+                });
+            },
+            next(e){
+                e.stopPropagation()
+                this.$refs.imgList.scrollBy({
+                    left: 200,
+                    behavior: "smooth",
+                });
+            },
             setFileType(fileTypeArr){
                 if(fileTypeArr.length){
                     this.tipsArr = ''
@@ -136,16 +170,17 @@
                 this.fileType = ''
                 this.fileUrl = ''
                 this.imgUrl = ''
+                this.canScroll = false
             },
             handleClose(){
                 this.clearFile()
                 this.dialogVisible = false
             },
             uploadOnChange(file, fileList) {
+                const prevFileType = this.fileType; // 保存上一次的文件类型
                 let filename= file.name
                 //通过上传的文件名判断文件类型，用于回显
                 let fileType = filename.split('.')[filename.split('.').length-1]
-                
                 // 重置图片URL
                 this.imgUrl = '';
                 
@@ -167,27 +202,61 @@
                 
                 // 创建文件预览URL
                 this.fileUrl = URL.createObjectURL(file.raw);
-                this.fileList = [];
-                this.fileList.push(file);
+                
+                if (this.fileType === 'image/*') {
+                    // 图片类型可累加至6个
+                    if (fileList.length > 6) {
+                        this.$message.warning('只能上传6个图片文件');
+                        return;
+                    }
+                    if (prevFileType && prevFileType !== this.fileType) {
+                        this.fileList = [];
+                        this.canScroll = false;
+                        this.fileList.push(file);
+                    }else{
+                        this.fileList = fileList;
+                    }
+                    const currentFileIndex = this.fileList.length - 1; // 当前文件在列表中的索引
+                    if (file.raw) {
+                        this.fileList[currentFileIndex].imgUrl = URL.createObjectURL(file.raw);
+                    }
+                    this.checkScrollable();
+                } else {
+                    // 非图片类型只保留最新一个
+                    this.fileList = [];
+                    this.fileList.push(file);
+                }
                 
                 if(this.fileList.length > 0){
                     this.maxSizeBytes = 0;
                     this.isExpire = true;
-                    this.startUpload();
+                    //this.startUpload();
+                    // 为每个文件启动上传，而不是只上传索引0的文件
+                    for(let i = 0; i < this.fileList.length; i++) {
+                        if (!this.fileList[i].uploaded) { // 添加标记避免重复上传
+                            this.startUpload(i);
+                            this.fileList[i].uploaded = true;
+                        }
+                    }
                 }
             },
-            uploadFile(fileName,oldFileName,fiePath){
-                this.fileInfo = {
+            uploadFile(fileName,oldFileName,fiePath){//文件上传完之后
+                //this.fileInfo = {
+                    //fileName,
+                    //fileSize:this.fileList[0]['size'],
+                    //fileUrl:fiePath,
+                //}
+                this.fileInfo.push({
                     fileName,
-                    fileSize:this.fileList[0]['size'],
+                    fileSize:this.fileList[this.fileIndex]['size'],
                     fileUrl:fiePath,
-                }
+                })
             },
             doBatchUpload(){
-                this.fileInfo = {
-                    ...this.fileInfo,
+                //this.fileInfo = {
+                    //...this.fileInfo,
                     imgUrl:this.imgUrl
-                }
+                //}
                 this.$emit('setFileId',this.fileInfo)
                 this.$emit('setFile',this.fileList)
                 this.handleClose();
@@ -228,6 +297,37 @@
             .echo-img-box{
                 background-color: transparent!important;
                 .echo-img{
+                    .type-img-container{
+                        width:100%;
+                        position:relative;
+                        .scroll-btn{
+                            position:absolute;
+                            top:50%;
+                            transform: translateY(-32px);
+                            &.left{
+                                left:5px;
+                            }
+                            &.right{
+                                right:5px;
+                            }
+                        }
+                    .type-img{
+                        display: flex;
+                        justify-content: center;
+                        gap: 10px;
+                        width:100%;
+                        overflow-x: hidden;
+                        scroll-behavior: smooth;
+                        .type-img-info{
+                            display: flex;
+                            gap: 5px;
+                            justify-content: center;
+                            span{
+                                color:#384BF7;
+                            }
+                        }
+                    }
+                    }
                     img,video{
                         width: auto;
                         height: 80px;

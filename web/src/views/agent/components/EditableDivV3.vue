@@ -3,8 +3,10 @@
     <div class="rl">
         <div class="editable-box">
             <div  v-if="fileType === 'image/*'" class="echo-img-box">
-                <el-image class="echo-img" :src="imgUrl" @click="showBigImg(imgUrl)"  :preview-src-list="[imgUrl]"></el-image>
-                <i class="el-icon-close echo-close" @click="clearFile"></i>
+                <div v-for="file in fileList">
+                    <el-image class="echo-img" :src="file.imgUrl" @click="showBigImg(file.imgUrl)"  :preview-src-list="[file.imgUrl]"></el-image>
+                    <i class="el-icon-close echo-close" @click="clearFile"></i>
+                </div>
             </div>
             <div v-if="fileType === 'audio/*'" class="echo-audio-box">
                 <audio  id="audio" controls>
@@ -176,10 +178,9 @@
             },
             setFileId(fileIdList){
                 this.fileIdList = fileIdList;
-                // this.fileUrl = fileIdList[0].downloadUrl;
                 this.fileUrl = fileIdList.fileUrl;
                 this.imgUrl = fileIdList.imgUrl;
-
+                //解决这里的报错。。。。
                 let fileType = this.fileUrl.split('.')[this.fileUrl.split('.').length-1]
                 if(["jpeg", "PNG", "png", "JPG", "jpg"].includes(fileType)){//'bmp','webp'
                     this.fileType = 'image/*'
@@ -194,6 +195,7 @@
             },
             setFile(fileList){
                 this.fileList = fileList;
+                console.log(this.fileList)
                 if(this.fileList.length > 0){
                     this.hasFile = true;
                 }
