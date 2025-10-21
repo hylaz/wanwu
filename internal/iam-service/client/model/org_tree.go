@@ -82,6 +82,10 @@ func NewOrgTree(orgs []*Org, orgRoles []*OrgRole) (*OrgNode, error) {
 	return head, nil
 }
 
+func (n *OrgNode) GetOrg(orgID uint32) *OrgNode {
+	return n.getOrg(orgID)
+}
+
 func (n *OrgNode) Select(userOrgs []*OrgUser, userRoles []*UserRole) []idName {
 	var roleIDs []uint32
 	for _, userRole := range userRoles {

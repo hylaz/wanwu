@@ -20,45 +20,48 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMService_GetUserSelectNotInOrg_FullMethodName      = "/iam_service.IAMService/GetUserSelectNotInOrg"
-	IAMService_GetUserSelectByUserIDs_FullMethodName     = "/iam_service.IAMService/GetUserSelectByUserIDs"
-	IAMService_GetUserList_FullMethodName                = "/iam_service.IAMService/GetUserList"
-	IAMService_GetUserInfo_FullMethodName                = "/iam_service.IAMService/GetUserInfo"
-	IAMService_CreateUser_FullMethodName                 = "/iam_service.IAMService/CreateUser"
-	IAMService_UpdateUser_FullMethodName                 = "/iam_service.IAMService/UpdateUser"
-	IAMService_DeleteUser_FullMethodName                 = "/iam_service.IAMService/DeleteUser"
-	IAMService_ChangeUserStatus_FullMethodName           = "/iam_service.IAMService/ChangeUserStatus"
-	IAMService_UpdateUserPassword_FullMethodName         = "/iam_service.IAMService/UpdateUserPassword"
-	IAMService_ResetUserPassword_FullMethodName          = "/iam_service.IAMService/ResetUserPassword"
-	IAMService_GetUserPermission_FullMethodName          = "/iam_service.IAMService/GetUserPermission"
-	IAMService_ChangeUserLanguage_FullMethodName         = "/iam_service.IAMService/ChangeUserLanguage"
-	IAMService_UpdateUserAvatar_FullMethodName           = "/iam_service.IAMService/UpdateUserAvatar"
-	IAMService_GetOrgSelect_FullMethodName               = "/iam_service.IAMService/GetOrgSelect"
-	IAMService_GetOrgList_FullMethodName                 = "/iam_service.IAMService/GetOrgList"
-	IAMService_GetOrgInfo_FullMethodName                 = "/iam_service.IAMService/GetOrgInfo"
-	IAMService_CreateOrg_FullMethodName                  = "/iam_service.IAMService/CreateOrg"
-	IAMService_UpdateOrg_FullMethodName                  = "/iam_service.IAMService/UpdateOrg"
-	IAMService_DeleteOrg_FullMethodName                  = "/iam_service.IAMService/DeleteOrg"
-	IAMService_ChangeOrgStatus_FullMethodName            = "/iam_service.IAMService/ChangeOrgStatus"
-	IAMService_AddOrgUser_FullMethodName                 = "/iam_service.IAMService/AddOrgUser"
-	IAMService_RemoveOrgUser_FullMethodName              = "/iam_service.IAMService/RemoveOrgUser"
-	IAMService_GetRoleSelect_FullMethodName              = "/iam_service.IAMService/GetRoleSelect"
-	IAMService_GetRoleList_FullMethodName                = "/iam_service.IAMService/GetRoleList"
-	IAMService_GetRoleInfo_FullMethodName                = "/iam_service.IAMService/GetRoleInfo"
-	IAMService_CreateRole_FullMethodName                 = "/iam_service.IAMService/CreateRole"
-	IAMService_UpdateRole_FullMethodName                 = "/iam_service.IAMService/UpdateRole"
-	IAMService_DeleteRole_FullMethodName                 = "/iam_service.IAMService/DeleteRole"
-	IAMService_ChangeRoleStatus_FullMethodName           = "/iam_service.IAMService/ChangeRoleStatus"
-	IAMService_GetCaptcha_FullMethodName                 = "/iam_service.IAMService/GetCaptcha"
-	IAMService_Login_FullMethodName                      = "/iam_service.IAMService/Login"
-	IAMService_LoginByEmail_FullMethodName               = "/iam_service.IAMService/LoginByEmail"
-	IAMService_LoginSendEmailCode_FullMethodName         = "/iam_service.IAMService/LoginSendEmailCode"
-	IAMService_LoginEmailCheck_FullMethodName            = "/iam_service.IAMService/LoginEmailCheck"
-	IAMService_ChangeUserPasswordByEmail_FullMethodName  = "/iam_service.IAMService/ChangeUserPasswordByEmail"
-	IAMService_RegisterByEmail_FullMethodName            = "/iam_service.IAMService/RegisterByEmail"
-	IAMService_RegisterSendEmailCode_FullMethodName      = "/iam_service.IAMService/RegisterSendEmailCode"
-	IAMService_ResetPasswordSendEmailCode_FullMethodName = "/iam_service.IAMService/ResetPasswordSendEmailCode"
-	IAMService_ResetPasswordByEmail_FullMethodName       = "/iam_service.IAMService/ResetPasswordByEmail"
+	IAMService_GetUserSelectNotInOrg_FullMethodName       = "/iam_service.IAMService/GetUserSelectNotInOrg"
+	IAMService_GetUserSelectByUserIDs_FullMethodName      = "/iam_service.IAMService/GetUserSelectByUserIDs"
+	IAMService_GetUserList_FullMethodName                 = "/iam_service.IAMService/GetUserList"
+	IAMService_GetUserInfo_FullMethodName                 = "/iam_service.IAMService/GetUserInfo"
+	IAMService_GetUserByUserIDs_FullMethodName            = "/iam_service.IAMService/GetUserByUserIDs"
+	IAMService_CreateUser_FullMethodName                  = "/iam_service.IAMService/CreateUser"
+	IAMService_UpdateUser_FullMethodName                  = "/iam_service.IAMService/UpdateUser"
+	IAMService_DeleteUser_FullMethodName                  = "/iam_service.IAMService/DeleteUser"
+	IAMService_ChangeUserStatus_FullMethodName            = "/iam_service.IAMService/ChangeUserStatus"
+	IAMService_UpdateUserPassword_FullMethodName          = "/iam_service.IAMService/UpdateUserPassword"
+	IAMService_ResetUserPassword_FullMethodName           = "/iam_service.IAMService/ResetUserPassword"
+	IAMService_GetUserPermission_FullMethodName           = "/iam_service.IAMService/GetUserPermission"
+	IAMService_ChangeUserLanguage_FullMethodName          = "/iam_service.IAMService/ChangeUserLanguage"
+	IAMService_UpdateUserAvatar_FullMethodName            = "/iam_service.IAMService/UpdateUserAvatar"
+	IAMService_GetOrgSelect_FullMethodName                = "/iam_service.IAMService/GetOrgSelect"
+	IAMService_GetOrgList_FullMethodName                  = "/iam_service.IAMService/GetOrgList"
+	IAMService_GetOrgInfo_FullMethodName                  = "/iam_service.IAMService/GetOrgInfo"
+	IAMService_GetOrgByOrgIDs_FullMethodName              = "/iam_service.IAMService/GetOrgByOrgIDs"
+	IAMService_GetOrgAndSubOrgSelectByUser_FullMethodName = "/iam_service.IAMService/GetOrgAndSubOrgSelectByUser"
+	IAMService_CreateOrg_FullMethodName                   = "/iam_service.IAMService/CreateOrg"
+	IAMService_UpdateOrg_FullMethodName                   = "/iam_service.IAMService/UpdateOrg"
+	IAMService_DeleteOrg_FullMethodName                   = "/iam_service.IAMService/DeleteOrg"
+	IAMService_ChangeOrgStatus_FullMethodName             = "/iam_service.IAMService/ChangeOrgStatus"
+	IAMService_AddOrgUser_FullMethodName                  = "/iam_service.IAMService/AddOrgUser"
+	IAMService_RemoveOrgUser_FullMethodName               = "/iam_service.IAMService/RemoveOrgUser"
+	IAMService_GetRoleSelect_FullMethodName               = "/iam_service.IAMService/GetRoleSelect"
+	IAMService_GetRoleList_FullMethodName                 = "/iam_service.IAMService/GetRoleList"
+	IAMService_GetRoleInfo_FullMethodName                 = "/iam_service.IAMService/GetRoleInfo"
+	IAMService_CreateRole_FullMethodName                  = "/iam_service.IAMService/CreateRole"
+	IAMService_UpdateRole_FullMethodName                  = "/iam_service.IAMService/UpdateRole"
+	IAMService_DeleteRole_FullMethodName                  = "/iam_service.IAMService/DeleteRole"
+	IAMService_ChangeRoleStatus_FullMethodName            = "/iam_service.IAMService/ChangeRoleStatus"
+	IAMService_GetCaptcha_FullMethodName                  = "/iam_service.IAMService/GetCaptcha"
+	IAMService_Login_FullMethodName                       = "/iam_service.IAMService/Login"
+	IAMService_LoginByEmail_FullMethodName                = "/iam_service.IAMService/LoginByEmail"
+	IAMService_LoginSendEmailCode_FullMethodName          = "/iam_service.IAMService/LoginSendEmailCode"
+	IAMService_LoginEmailCheck_FullMethodName             = "/iam_service.IAMService/LoginEmailCheck"
+	IAMService_ChangeUserPasswordByEmail_FullMethodName   = "/iam_service.IAMService/ChangeUserPasswordByEmail"
+	IAMService_RegisterByEmail_FullMethodName             = "/iam_service.IAMService/RegisterByEmail"
+	IAMService_RegisterSendEmailCode_FullMethodName       = "/iam_service.IAMService/RegisterSendEmailCode"
+	IAMService_ResetPasswordSendEmailCode_FullMethodName  = "/iam_service.IAMService/ResetPasswordSendEmailCode"
+	IAMService_ResetPasswordByEmail_FullMethodName        = "/iam_service.IAMService/ResetPasswordByEmail"
 )
 
 // IAMServiceClient is the client API for IAMService service.
@@ -73,6 +76,8 @@ type IAMServiceClient interface {
 	GetUserList(ctx context.Context, in *GetUserListReq, opts ...grpc.CallOption) (*GetUserListResp, error)
 	// 获取用户
 	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*UserInfo, error)
+	// 通过userIds获取用户信息
+	GetUserByUserIDs(ctx context.Context, in *GetUserByUserIDsReq, opts ...grpc.CallOption) (*GetUserByUserIDsResp, error)
 	// 创建用户
 	CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*IDName, error)
 	// 编辑用户
@@ -97,6 +102,10 @@ type IAMServiceClient interface {
 	GetOrgList(ctx context.Context, in *GetOrgListReq, opts ...grpc.CallOption) (*GetOrgListResp, error)
 	// 获取组织
 	GetOrgInfo(ctx context.Context, in *GetOrgInfoReq, opts ...grpc.CallOption) (*OrgInfo, error)
+	// 通过orgIds获取组织信息
+	GetOrgByOrgIDs(ctx context.Context, in *GetOrgByOrgIDsReq, opts ...grpc.CallOption) (*GetOrgByOrgIDsResp, error)
+	// 获取子组织信息
+	GetOrgAndSubOrgSelectByUser(ctx context.Context, in *GetOrgAndSubOrgSelectByUserReq, opts ...grpc.CallOption) (*GetOrgAndSubOrgSelectByUserResp, error)
 	// 创建组织
 	CreateOrg(ctx context.Context, in *CreateOrgReq, opts ...grpc.CallOption) (*IDName, error)
 	// 编辑组织
@@ -189,6 +198,16 @@ func (c *iAMServiceClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserInfo)
 	err := c.cc.Invoke(ctx, IAMService_GetUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetUserByUserIDs(ctx context.Context, in *GetUserByUserIDsReq, opts ...grpc.CallOption) (*GetUserByUserIDsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserByUserIDsResp)
+	err := c.cc.Invoke(ctx, IAMService_GetUserByUserIDs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -309,6 +328,26 @@ func (c *iAMServiceClient) GetOrgInfo(ctx context.Context, in *GetOrgInfoReq, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OrgInfo)
 	err := c.cc.Invoke(ctx, IAMService_GetOrgInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetOrgByOrgIDs(ctx context.Context, in *GetOrgByOrgIDsReq, opts ...grpc.CallOption) (*GetOrgByOrgIDsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrgByOrgIDsResp)
+	err := c.cc.Invoke(ctx, IAMService_GetOrgByOrgIDs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetOrgAndSubOrgSelectByUser(ctx context.Context, in *GetOrgAndSubOrgSelectByUserReq, opts ...grpc.CallOption) (*GetOrgAndSubOrgSelectByUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrgAndSubOrgSelectByUserResp)
+	err := c.cc.Invoke(ctx, IAMService_GetOrgAndSubOrgSelectByUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -557,6 +596,8 @@ type IAMServiceServer interface {
 	GetUserList(context.Context, *GetUserListReq) (*GetUserListResp, error)
 	// 获取用户
 	GetUserInfo(context.Context, *GetUserInfoReq) (*UserInfo, error)
+	// 通过userIds获取用户信息
+	GetUserByUserIDs(context.Context, *GetUserByUserIDsReq) (*GetUserByUserIDsResp, error)
 	// 创建用户
 	CreateUser(context.Context, *CreateUserReq) (*IDName, error)
 	// 编辑用户
@@ -581,6 +622,10 @@ type IAMServiceServer interface {
 	GetOrgList(context.Context, *GetOrgListReq) (*GetOrgListResp, error)
 	// 获取组织
 	GetOrgInfo(context.Context, *GetOrgInfoReq) (*OrgInfo, error)
+	// 通过orgIds获取组织信息
+	GetOrgByOrgIDs(context.Context, *GetOrgByOrgIDsReq) (*GetOrgByOrgIDsResp, error)
+	// 获取子组织信息
+	GetOrgAndSubOrgSelectByUser(context.Context, *GetOrgAndSubOrgSelectByUserReq) (*GetOrgAndSubOrgSelectByUserResp, error)
 	// 创建组织
 	CreateOrg(context.Context, *CreateOrgReq) (*IDName, error)
 	// 编辑组织
@@ -651,6 +696,9 @@ func (UnimplementedIAMServiceServer) GetUserList(context.Context, *GetUserListRe
 func (UnimplementedIAMServiceServer) GetUserInfo(context.Context, *GetUserInfoReq) (*UserInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
+func (UnimplementedIAMServiceServer) GetUserByUserIDs(context.Context, *GetUserByUserIDsReq) (*GetUserByUserIDsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUserIDs not implemented")
+}
 func (UnimplementedIAMServiceServer) CreateUser(context.Context, *CreateUserReq) (*IDName, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
@@ -686,6 +734,12 @@ func (UnimplementedIAMServiceServer) GetOrgList(context.Context, *GetOrgListReq)
 }
 func (UnimplementedIAMServiceServer) GetOrgInfo(context.Context, *GetOrgInfoReq) (*OrgInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrgInfo not implemented")
+}
+func (UnimplementedIAMServiceServer) GetOrgByOrgIDs(context.Context, *GetOrgByOrgIDsReq) (*GetOrgByOrgIDsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrgByOrgIDs not implemented")
+}
+func (UnimplementedIAMServiceServer) GetOrgAndSubOrgSelectByUser(context.Context, *GetOrgAndSubOrgSelectByUserReq) (*GetOrgAndSubOrgSelectByUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrgAndSubOrgSelectByUser not implemented")
 }
 func (UnimplementedIAMServiceServer) CreateOrg(context.Context, *CreateOrgReq) (*IDName, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrg not implemented")
@@ -845,6 +899,24 @@ func _IAMService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IAMServiceServer).GetUserInfo(ctx, req.(*GetUserInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetUserByUserIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByUserIDsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetUserByUserIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetUserByUserIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetUserByUserIDs(ctx, req.(*GetUserByUserIDsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1061,6 +1133,42 @@ func _IAMService_GetOrgInfo_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IAMServiceServer).GetOrgInfo(ctx, req.(*GetOrgInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetOrgByOrgIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrgByOrgIDsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetOrgByOrgIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetOrgByOrgIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetOrgByOrgIDs(ctx, req.(*GetOrgByOrgIDsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetOrgAndSubOrgSelectByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrgAndSubOrgSelectByUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetOrgAndSubOrgSelectByUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetOrgAndSubOrgSelectByUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetOrgAndSubOrgSelectByUser(ctx, req.(*GetOrgAndSubOrgSelectByUserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1503,6 +1611,10 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IAMService_GetUserInfo_Handler,
 		},
 		{
+			MethodName: "GetUserByUserIDs",
+			Handler:    _IAMService_GetUserByUserIDs_Handler,
+		},
+		{
 			MethodName: "CreateUser",
 			Handler:    _IAMService_CreateUser_Handler,
 		},
@@ -1549,6 +1661,14 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrgInfo",
 			Handler:    _IAMService_GetOrgInfo_Handler,
+		},
+		{
+			MethodName: "GetOrgByOrgIDs",
+			Handler:    _IAMService_GetOrgByOrgIDs_Handler,
+		},
+		{
+			MethodName: "GetOrgAndSubOrgSelectByUser",
+			Handler:    _IAMService_GetOrgAndSubOrgSelectByUser_Handler,
 		},
 		{
 			MethodName: "CreateOrg",

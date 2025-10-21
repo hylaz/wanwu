@@ -46,6 +46,10 @@ service IAMService {
   rpc GetOrgList(GetOrgListReq) returns (GetOrgListResp) {}
   // 获取组织
   rpc GetOrgInfo(GetOrgInfoReq) returns (OrgInfo) {}
+  // 通过orgIds获取组织信息
+  rpc GetOrgByOrgIDs(GetOrgByOrgIDsReq) returns (GetOrgByOrgIDsResp) {}
+  // 获取子组织信息
+  rpc GetOrgAndSubOrgSelectByUser(GetOrgAndSubOrgSelectByUserReq) returns (GetOrgAndSubOrgSelectByUserResp) {}
   // 创建组织
   rpc CreateOrg(CreateOrgReq) returns (IDName) {}
   // 编辑组织
@@ -250,6 +254,23 @@ message OrgInfo {
   bool status = 4;
   int64 createdAt = 5;
   IDName creator = 6;
+}
+
+message GetOrgByOrgIDsReq {
+  repeated string orgIds = 1;
+}
+
+message GetOrgByOrgIDsResp {
+  repeated IDName orgs = 1;
+}
+
+message GetOrgAndSubOrgSelectByUserReq {
+  string userId = 1;
+  string orgId = 2;
+}
+
+message GetOrgAndSubOrgSelectByUserResp {
+  repeated IDName orgs = 1;
 }
 
 message GetOrgSelectReq {

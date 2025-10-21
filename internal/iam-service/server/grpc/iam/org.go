@@ -44,6 +44,30 @@ func (s *Service) GetOrgInfo(ctx context.Context, req *iam_service.GetOrgInfoReq
 	return toOrgInfo(org), nil
 }
 
+func (s *Service) GetOrgByOrgIDs(ctx context.Context, req *iam_service.GetOrgByOrgIDsReq) (*iam_service.GetOrgByOrgIDsResp, error) {
+	var orgIDs []uint32
+	for _, userID := range req.OrgIds {
+		orgIDs = append(orgIDs, util.MustU32(userID))
+	}
+	orgs, err := s.cli.GetOrgByOrgIDs(ctx, orgIDs)
+	if err != nil {
+		return nil, errStatus(errs.Code_IAMOrg, err)
+	}
+	return &iam_service.GetOrgByOrgIDsResp{
+		Orgs: toIDNames(orgs),
+	}, nil
+}
+
+func (s *Service) GetOrgAndSubOrgSelectByUser(ctx context.Context, req *iam_service.GetOrgAndSubOrgSelectByUserReq) (*iam_service.GetOrgAndSubOrgSelectByUserResp, error) {
+	orgs, err := s.cli.GetOrgAndSubOrgSelectByUser(ctx, util.MustU32(req.UserId), util.MustU32(req.OrgId))
+	if err != nil {
+		return nil, errStatus(errs.Code_IAMOrg, err)
+	}
+	return &iam_service.GetOrgAndSubOrgSelectByUserResp{
+		Orgs: toIDNames(orgs),
+	}, nil
+}
+
 func (s *Service) CreateOrg(ctx context.Context, req *iam_service.CreateOrgReq) (*iam_service.IDName, error) {
 	orgID, err := s.cli.CreateOrg(ctx, &model.Org{
 		Status:    true,
