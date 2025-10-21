@@ -103,12 +103,14 @@
             </div>
             <div class="card-bottom">
               <div
-                :class="['card-bottom-provider', {'no-publishData': !item.publishDate}]"
+                :class="['card-bottom-provider', {'no-publishData': !item.updatedAt}]"
                 :title="providerObj[item.provider] || '--'"
               >
                 {{$t('modelAccess.table.publisher')}}: {{providerObj[item.provider] || '--'}}
               </div>
-              <div style="float: right">{{item.publishDate || '--'}} {{$t('modelAccess.table.publish')}}</div>
+              <div style="float: right">
+                {{item.updatedAt ? item.updatedAt.split(' ')[0] : '--'}} {{$t('modelAccess.table.update')}}
+              </div>
             </div>
           </div>
         </div>
@@ -339,8 +341,7 @@
   .card-bottom {
     position: absolute;
     color: #88888B;
-    line-height: 22px;
-    bottom: 20px;
+    bottom: 14px;
     left: 15px;
     right: 12px;
     div {
