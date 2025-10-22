@@ -83,6 +83,12 @@ custom-info:
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
   links:
+    - key: api-rag
+      val: wanwu-openapi/1.文本问答API.md
+    - key: api-agent
+      val: wanwu-openapi/2.智能体API.md
+    - key: api-workflow
+      val: wanwu-openapi/3.工作流API.md
     - key: model
       val: 模型导入方式-详细版.md
     - key: knowledge

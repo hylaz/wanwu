@@ -4275,8 +4275,8 @@
                 }
             }
         },
-        "/knowledge/meta/value": {
-            "get": {
+        "/knowledge/meta/value/list": {
+            "post": {
                 "security": [
                     {
                         "JWT": []
@@ -4324,7 +4324,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/knowledge/meta/value/update": {
             "post": {
                 "security": [
                     {
@@ -9727,6 +9729,9 @@
                     "description": "版权开关",
                     "type": "boolean"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "disclaimer": {
                     "description": "免责声明",
                     "type": "string"
@@ -9795,6 +9800,9 @@
                 "copyrightEnable": {
                     "description": "版权开关",
                     "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "disclaimer": {
                     "description": "免责声明",
@@ -12114,7 +12122,6 @@
         "request.UpdateMetaValueReq": {
             "type": "object",
             "required": [
-                "applyToSelected",
                 "docIdList"
             ],
             "properties": {
@@ -12469,6 +12476,10 @@
                 },
                 "createdAt": {
                     "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "应用描述",
                     "type": "string"
                 },
                 "disclaimer": {

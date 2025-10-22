@@ -163,6 +163,7 @@ message AppUrlInfo {
   bool status = 14;
   string userId = 15;
   string orgId = 16;
+  string description =17;
 }
 
 message AppUrlCreateReq {

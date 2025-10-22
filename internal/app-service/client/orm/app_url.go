@@ -45,7 +45,7 @@ func (c *Client) UpdateAppUrl(ctx context.Context, appUrl *model.AppUrl) *err_co
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithAppID(appUrlCfg.AppID),
 		sqlopt.WithAppType(appUrlCfg.AppType),
-		sqlopt.WithName(appUrlCfg.Name),
+		sqlopt.WithName(appUrl.Name),
 	).Apply(c.db.WithContext(ctx)).Where("id != ?", appUrl.ID).Model(&model.AppUrl{}).Count(&count).Error; err != nil {
 		return toErrStatus("app_url_get_by_name", appUrl.Name, err.Error())
 	}
@@ -62,6 +62,7 @@ func (c *Client) UpdateAppUrl(ctx context.Context, appUrl *model.AppUrl) *err_co
 		"privacy_policy_enable": appUrl.PrivacyPolicyEnable,
 		"disclaimer":            appUrl.Disclaimer,
 		"disclaimer_enable":     appUrl.DisclaimerEnable,
+		"description":           appUrl.Description,
 	}).Error; err != nil {
 		return toErrStatus("app_url_update", appUrl.Name, err.Error())
 	}

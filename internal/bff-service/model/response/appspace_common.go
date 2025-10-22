@@ -31,6 +31,7 @@ type AppUrlInfo struct {
 	Status              bool   `json:"status"`              // 应用Url开关
 	UserId              string `json:"userId"`              // 用户ID
 	OrgId               string `json:"orgId"`               // 组织ID
+	Description         string `json:"description"`         // 应用描述
 }
 
 type AppUrlConfig struct {

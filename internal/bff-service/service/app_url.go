@@ -41,6 +41,7 @@ func AppUrlCreate(ctx *gin.Context, userId, orgId string, req request.AppUrlCrea
 			DisclaimerEnable:    req.DisclaimerEnable,
 			UserId:              userId,
 			OrgId:               orgId,
+			Description:         req.Description,
 		},
 	})
 	return err
@@ -73,6 +74,7 @@ func AppUrlUpdate(ctx *gin.Context, req request.AppUrlUpdateRequest) error {
 			PrivacyPolicyEnable: req.PrivacyPolicyEnable,
 			Disclaimer:          req.Disclaimer,
 			DisclaimerEnable:    req.DisclaimerEnable,
+			Description:         req.Description,
 		},
 	})
 	return err
@@ -129,6 +131,7 @@ func transAppUrlInfo(resp *app_service.AppUrlInfo) *response.AppUrlInfo {
 		Status:              resp.Status,
 		UserId:              resp.UserId,
 		OrgId:               resp.OrgId,
+		Description:         resp.Description,
 	}
 	if resp.ExpiredAt != 0 {
 		ret.ExpiredAt = util.Time2Str(resp.ExpiredAt)

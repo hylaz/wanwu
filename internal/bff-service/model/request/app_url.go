@@ -15,6 +15,7 @@ type AppUrlConfig struct {
 	PrivacyPolicyEnable bool   `json:"privacyPolicyEnable"`      // 隐私协议开关
 	Disclaimer          string `json:"disclaimer"`               // 免责声明
 	DisclaimerEnable    bool   `json:"disclaimerEnable"`         // 免责声明开关
+	Description         string `json:"description"`
 }
 
 func (cfg AppUrlConfig) Check() error {

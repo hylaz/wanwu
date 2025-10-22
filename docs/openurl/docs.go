@@ -1069,6 +1069,10 @@ const docTemplate = `{
                     "description": "创建时间",
                     "type": "string"
                 },
+                "description": {
+                    "description": "应用描述",
+                    "type": "string"
+                },
                 "disclaimer": {
                     "description": "免责声明",
                     "type": "string"

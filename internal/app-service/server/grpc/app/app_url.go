@@ -27,6 +27,7 @@ func (s *Service) AppUrlCreate(ctx context.Context, req *app_service.AppUrlCreat
 		UserId:              req.AppUrlInfo.UserId,
 		OrgId:               req.AppUrlInfo.OrgId,
 		Suffix:              util.GenUUID(),
+		Description:         req.AppUrlInfo.Description,
 	}
 	// 调用client方法创建智能体Url
 	if err := s.cli.CreateAppUrl(ctx, appUrl); err != nil {
@@ -57,6 +58,7 @@ func (s *Service) AppUrlUpdate(ctx context.Context, req *app_service.AppUrlUpdat
 		PrivacyPolicyEnable: req.AppUrlInfo.PrivacyPolicyEnable,
 		Disclaimer:          req.AppUrlInfo.Disclaimer,
 		DisclaimerEnable:    req.AppUrlInfo.DisclaimerEnable,
+		Description:         req.AppUrlInfo.Description,
 	}); status != nil {
 		return nil, errStatus(errs.Code_AppUrl, status)
 	}
@@ -115,5 +117,6 @@ func appUrl2pb(appUrl *model.AppUrl) *app_service.AppUrlInfo {
 		Status:              appUrl.Status,
 		OrgId:               appUrl.OrgId,
 		UserId:              appUrl.UserId,
+		Description:         appUrl.Description,
 	}
 }

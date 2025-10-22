@@ -4282,8 +4282,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/knowledge/meta/value": {
-            "get": {
+        "/knowledge/meta/value/list": {
+            "post": {
                 "security": [
                     {
                         "JWT": []
@@ -4331,7 +4331,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/knowledge/meta/value/update": {
             "post": {
                 "security": [
                     {
@@ -9734,6 +9736,9 @@ const docTemplate = `{
                     "description": "版权开关",
                     "type": "boolean"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "disclaimer": {
                     "description": "免责声明",
                     "type": "string"
@@ -9802,6 +9807,9 @@ const docTemplate = `{
                 "copyrightEnable": {
                     "description": "版权开关",
                     "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "disclaimer": {
                     "description": "免责声明",
@@ -12121,7 +12129,6 @@ const docTemplate = `{
         "request.UpdateMetaValueReq": {
             "type": "object",
             "required": [
-                "applyToSelected",
                 "docIdList"
             ],
             "properties": {
@@ -12476,6 +12483,10 @@ const docTemplate = `{
                 },
                 "createdAt": {
                     "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "应用描述",
                     "type": "string"
                 },
                 "disclaimer": {

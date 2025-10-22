@@ -17,4 +17,5 @@ type AppUrl struct {
 	UserId              string `gorm:"column:user_id;index:idx_assistant_url_user_id;comment:用户Id;index:idx_app_url_user_id"`
 	OrgId               string `gorm:"column:org_id;index:idx_assistant_url_org_id;comment:组织Id;index:idx_app_url_org_id"`
 	Status              bool   `gorm:"column:status;type:tinyint;default:true;comment:应用Url开关;index:idx_app_url_status"`
+	Description         string `gorm:"column:description;type:text;comment:app描述"`
 }

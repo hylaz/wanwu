@@ -917,6 +917,8 @@ definitions:
       copyrightEnable:
         description: 版权开关
         type: boolean
+      description:
+        type: string
       disclaimer:
         description: 免责声明
         type: string
@@ -967,6 +969,8 @@ definitions:
       copyrightEnable:
         description: 版权开关
         type: boolean
+      description:
+        type: string
       disclaimer:
         description: 免责声明
         type: string
@@ -2550,7 +2554,6 @@ definitions:
           $ref: '#/definitions/request.DocMetaData'
         type: array
     required:
-    - applyToSelected
     - docIdList
     type: object
   request.UpdateSensitiveWordTableReplyReq:
@@ -2790,6 +2793,9 @@ definitions:
         type: boolean
       createdAt:
         description: 创建时间
+        type: string
+      description:
+        description: 应用描述
         type: string
       disclaimer:
         description: 免责声明
@@ -7118,8 +7124,8 @@ paths:
       summary: 获取知识库元数据
       tags:
       - knowledge
-  /knowledge/meta/value:
-    get:
+  /knowledge/meta/value/list:
+    post:
       consumes:
       - application/json
       description: 获取文档元数据列表
@@ -7147,6 +7153,7 @@ paths:
       summary: 获取文档元数据列表
       tags:
       - knowledge
+  /knowledge/meta/value/update:
     post:
       consumes:
       - application/json
