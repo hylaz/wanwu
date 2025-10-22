@@ -38,3 +38,8 @@ type AppUrlConfig struct {
 	Assistant  *Assistant  `json:"assistant"`  // 基本信息
 	AppUrlInfo *AppUrlInfo `json:"appUrlInfo"` // 应用Url信息
 }
+
+type VisionConfig struct {
+	MaxPicNum int32 `json:"maxPicNum"` // 最大图片数量
+	PicNum    int32 `json:"picNum"`    // 视觉配置图片数量
+}

@@ -103,3 +103,7 @@ type SensitiveTable struct {
 	TableId   string `json:"tableId" validate:"required"` // 敏感词表id
 	TableName string `json:"tableName"`                   // 敏感词表名称(请求非必填)
 }
+
+type VisionConfig struct {
+	PicNum int32 `json:"picNum"` // 视觉配置图片数量
+}

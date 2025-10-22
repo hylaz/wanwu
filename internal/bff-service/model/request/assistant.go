@@ -19,6 +19,7 @@ type AssistantConfig struct {
 	SafetyConfig        AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
 	RerankConfig        AppModelConfig         `json:"rerankConfig"`        // Rerank模型
 	OnlineSearchConfig  OnlineSearchConfig     `json:"onlineSearchConfig"`  // 在线搜索
+	VisionConfig        VisionConfig           `json:"visionConfig"`        // 视觉配置
 }
 
 func (a *AssistantConfig) Check() error { return nil }

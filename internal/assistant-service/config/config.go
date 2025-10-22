@@ -55,7 +55,8 @@ type DBConfig struct {
 }
 
 type Assistant struct {
-	SseUrl string `mapstructure:"sse-url" json:"sse-url" yaml:"sse-url"`
+	SseUrl    string `mapstructure:"sse-url" json:"sse-url" yaml:"sse-url"`
+	MaxPicNum int32  `mapstructure:"max_pic_num" json:"max_pic_num" yaml:"max_pic_num"`
 }
 
 type MinioConfig struct {

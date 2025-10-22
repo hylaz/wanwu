@@ -77,6 +77,7 @@ minio:
 # 智能体相关接口
 assistant:
   sse-url: "http://agent-wanwu:7258/agent"
+  max_pic_num: 6
 
 knowledge:
   host: knowledge-service:8889

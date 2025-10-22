@@ -10,6 +10,7 @@ import (
 	"github.com/UnicomAI/wanwu/api/proto/common"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
+	"github.com/UnicomAI/wanwu/internal/assistant-service/config"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -204,6 +205,18 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 		existingAssistant.SafetyConfig = string(safetyConfigBytes)
 	}
 
+	// 处理visionConfig，转换成json字符串之后再更新
+	if req.VisionConfig != nil {
+		visionConfigBytes, err := json.Marshal(req.VisionConfig)
+		if err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_visionConfig_marshal",
+				Args:    []string{err.Error()},
+			})
+		}
+		existingAssistant.VisionConfig = string(visionConfigBytes)
+	}
+
 	// 调用client方法更新智能体
 	if status := s.cli.UpdateAssistant(ctx, existingAssistant); status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
@@ -352,6 +365,19 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		}
 	}
 
+	// 处理assistant.VisionConfig，转换成AssistantVisionConfig
+	var visionConfig *assistant_service.AssistantVisionConfig
+	if assistant.VisionConfig != "" {
+		visionConfig = &assistant_service.AssistantVisionConfig{}
+		if err := json.Unmarshal([]byte(assistant.VisionConfig), visionConfig); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_visionConfig_unmarshal",
+				Args:    []string{err.Error()},
+			})
+		}
+		visionConfig.MaxPicNum = config.Cfg().Assistant.MaxPicNum
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: strconv.FormatUint(uint64(assistant.ID), 10),
 		Identity: &assistant_service.Identity{
@@ -371,6 +397,7 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		RerankConfig:        rerankConfig,
 		OnlineSearchConfig:  onlineSearchConfig,
 		SafetyConfig:        safetyConfig,
+		VisionConfig:        visionConfig,
 		Scope:               int32(assistant.Scope),
 		WorkFlowInfos:       workFlowInfos,
 		McpInfos:            mcpInfos,

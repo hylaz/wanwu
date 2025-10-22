@@ -73,6 +73,9 @@ func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.A
 			Enable:         req.SafetyConfig.Enable,
 			SensitiveTable: transSafetyConfig2Proto(req.SafetyConfig.Tables),
 		},
+		VisionConfig: &assistant_service.AssistantVisionConfig{
+			PicNum: req.VisionConfig.PicNum,
+		},
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -586,6 +589,13 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 	if err != nil {
 		return nil, err
 	}
+	var visionConfig response.VisionConfig
+	if resp.VisionConfig != nil {
+		visionConfig = response.VisionConfig{
+			MaxPicNum: resp.VisionConfig.MaxPicNum,
+			PicNum:    resp.VisionConfig.PicNum,
+		}
+	}
 	assistantModel := response.Assistant{
 		AssistantId:         resp.AssistantId,
 		AppBriefConfig:      appBriefConfigProto2Model(ctx, resp.AssistantBrief, constant.AppTypeAgent),
@@ -597,6 +607,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		RerankConfig:        rerankConfig,
 		OnlineSearchConfig:  onlineSearchConfig,
 		SafetyConfig:        request.AppSafetyConfig{Enable: resp.SafetyConfig.GetEnable()},
+		VisionConfig:        visionConfig,
 		Scope:               resp.Scope,
 		WorkFlowInfos:       assistantWorkFlowInfos,
 		MCPInfos:            assistantMCPInfos,

@@ -24,7 +24,6 @@ const (
 	IAMService_GetUserSelectByUserIDs_FullMethodName      = "/iam_service.IAMService/GetUserSelectByUserIDs"
 	IAMService_GetUserList_FullMethodName                 = "/iam_service.IAMService/GetUserList"
 	IAMService_GetUserInfo_FullMethodName                 = "/iam_service.IAMService/GetUserInfo"
-	IAMService_GetUserByUserIDs_FullMethodName            = "/iam_service.IAMService/GetUserByUserIDs"
 	IAMService_CreateUser_FullMethodName                  = "/iam_service.IAMService/CreateUser"
 	IAMService_UpdateUser_FullMethodName                  = "/iam_service.IAMService/UpdateUser"
 	IAMService_DeleteUser_FullMethodName                  = "/iam_service.IAMService/DeleteUser"
@@ -76,8 +75,6 @@ type IAMServiceClient interface {
 	GetUserList(ctx context.Context, in *GetUserListReq, opts ...grpc.CallOption) (*GetUserListResp, error)
 	// 获取用户
 	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*UserInfo, error)
-	// 通过userIds获取用户信息
-	GetUserByUserIDs(ctx context.Context, in *GetUserByUserIDsReq, opts ...grpc.CallOption) (*GetUserByUserIDsResp, error)
 	// 创建用户
 	CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*IDName, error)
 	// 编辑用户
@@ -198,16 +195,6 @@ func (c *iAMServiceClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserInfo)
 	err := c.cc.Invoke(ctx, IAMService_GetUserInfo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMServiceClient) GetUserByUserIDs(ctx context.Context, in *GetUserByUserIDsReq, opts ...grpc.CallOption) (*GetUserByUserIDsResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserByUserIDsResp)
-	err := c.cc.Invoke(ctx, IAMService_GetUserByUserIDs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -596,8 +583,6 @@ type IAMServiceServer interface {
 	GetUserList(context.Context, *GetUserListReq) (*GetUserListResp, error)
 	// 获取用户
 	GetUserInfo(context.Context, *GetUserInfoReq) (*UserInfo, error)
-	// 通过userIds获取用户信息
-	GetUserByUserIDs(context.Context, *GetUserByUserIDsReq) (*GetUserByUserIDsResp, error)
 	// 创建用户
 	CreateUser(context.Context, *CreateUserReq) (*IDName, error)
 	// 编辑用户
@@ -695,9 +680,6 @@ func (UnimplementedIAMServiceServer) GetUserList(context.Context, *GetUserListRe
 }
 func (UnimplementedIAMServiceServer) GetUserInfo(context.Context, *GetUserInfoReq) (*UserInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
-}
-func (UnimplementedIAMServiceServer) GetUserByUserIDs(context.Context, *GetUserByUserIDsReq) (*GetUserByUserIDsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUserIDs not implemented")
 }
 func (UnimplementedIAMServiceServer) CreateUser(context.Context, *CreateUserReq) (*IDName, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
@@ -899,24 +881,6 @@ func _IAMService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IAMServiceServer).GetUserInfo(ctx, req.(*GetUserInfoReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMService_GetUserByUserIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserByUserIDsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMServiceServer).GetUserByUserIDs(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMService_GetUserByUserIDs_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMServiceServer).GetUserByUserIDs(ctx, req.(*GetUserByUserIDsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1609,10 +1573,6 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserInfo",
 			Handler:    _IAMService_GetUserInfo_Handler,
-		},
-		{
-			MethodName: "GetUserByUserIDs",
-			Handler:    _IAMService_GetUserByUserIDs_Handler,
 		},
 		{
 			MethodName: "CreateUser",

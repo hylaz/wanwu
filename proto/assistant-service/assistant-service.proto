@@ -90,6 +90,7 @@ message AssistantConfigUpdateReq {
   AssistantOnlineSearchConfig onlineSearchConfig = 8;             // 在线搜索配置
   Identity identity = 9;
   AssistantSafetyConfig safetyConfig = 10;
+  AssistantVisionConfig visionConfig = 11;
 }
 
 message AssistantSafetyConfig {
@@ -100,6 +101,11 @@ message AssistantSafetyConfig {
 message SensitiveTable {
   string tableId = 1;
   string tableName = 2;
+}
+
+message AssistantVisionConfig {
+  int32 maxPicNum = 1;
+  int32 picNum = 2;
 }
 
 message AssistantDeleteReq {
@@ -162,7 +168,7 @@ message AssistantInfo {
   repeated string recommendQuestion = 6;
   common.AppModelConfig modelConfig = 7;                 // 模型配置
   AssistantKnowledgeBaseConfig knowledgeBaseConfig = 8;  // 知识库
-  common.AppModelConfig rerankConfig = 9;                // Rerank模型  
+  common.AppModelConfig rerankConfig = 9;                // Rerank模型
   AssistantOnlineSearchConfig onlineSearchConfig = 10;   // 在线搜索配置
   int32 scope = 11;
   repeated AssistantWorkFlowInfos workFlowInfos = 12;
@@ -171,6 +177,7 @@ message AssistantInfo {
   int64 creatTime = 15;
   int64 updateTime = 16;
   AssistantSafetyConfig safetyConfig = 17;
+  AssistantVisionConfig visionConfig = 18;
 }
 
 
