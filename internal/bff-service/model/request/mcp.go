@@ -19,3 +19,15 @@ type MCPCreate struct {
 func (req *MCPCreate) Check() error {
 	return nil
 }
+
+type MCPUpdate struct {
+	MCPID  string `json:"mcpId" validate:"required"`
+	Name   string `json:"name"`   // 名称
+	Desc   string `json:"desc"`   // 描述
+	From   string `json:"from"`   // 来源
+	SSEURL string `json:"sseUrl"` // SSE URL
+}
+
+func (req *MCPUpdate) Check() error {
+	return nil
+}

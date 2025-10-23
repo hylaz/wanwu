@@ -4941,6 +4941,38 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "修改自定义MCP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "修改自定义MCP",
+                "parameters": [
+                    {
+                        "description": "自定义MCP信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "创建自定义MCP",
                 "consumes": [
@@ -9982,6 +10014,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppSafetyConfig"
                         }
                     ]
+                },
+                "visionConfig": {
+                    "description": "视觉配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.VisionConfig"
+                        }
+                    ]
                 }
             }
         },
@@ -10389,7 +10429,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "fileInfo": {
-                    "$ref": "#/definitions/request.ConversionStreamFile"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.ConversionStreamFile"
+                    }
                 },
                 "prompt": {
                     "type": "string"
@@ -11527,6 +11570,33 @@ const docTemplate = `{
                 }
             }
         },
+        "request.MCPUpdate": {
+            "type": "object",
+            "required": [
+                "mcpId"
+            ],
+            "properties": {
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "from": {
+                    "description": "来源",
+                    "type": "string"
+                },
+                "mcpId": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "sseUrl": {
+                    "description": "SSE URL",
+                    "type": "string"
+                }
+            }
+        },
         "request.MergeFileReq": {
             "type": "object",
             "required": [
@@ -12428,6 +12498,15 @@ const docTemplate = `{
                 }
             }
         },
+        "request.VisionConfig": {
+            "type": "object",
+            "properties": {
+                "picNum": {
+                    "description": "视觉配置图片数量",
+                    "type": "integer"
+                }
+            }
+        },
         "request.WorkflowIDReq": {
             "type": "object",
             "required": [
@@ -12692,6 +12771,14 @@ const docTemplate = `{
                     "description": "更新时间",
                     "type": "string"
                 },
+                "visionConfig": {
+                    "description": "视觉配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.VisionConfig"
+                        }
+                    ]
+                },
                 "workFlowInfos": {
                     "description": "工作流信息",
                     "type": "array",
@@ -12915,10 +13002,10 @@ const docTemplate = `{
                 "qa_type": {
                     "type": "integer"
                 },
-                "requestFileUrls": {
+                "requestFiles": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/response.RequestFile"
                     }
                 },
                 "response": {
@@ -14649,6 +14736,20 @@ const docTemplate = `{
                 }
             }
         },
+        "response.RequestFile": {
+            "type": "object",
+            "properties": {
+                "fileUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.Response": {
             "type": "object",
             "properties": {
@@ -15146,6 +15247,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.UserOrgPermission"
                         }
                     ]
+                }
+            }
+        },
+        "response.VisionConfig": {
+            "type": "object",
+            "properties": {
+                "maxPicNum": {
+                    "description": "最大图片数量",
+                    "type": "integer"
+                },
+                "picNum": {
+                    "description": "视觉配置图片数量",
+                    "type": "integer"
                 }
             }
         },

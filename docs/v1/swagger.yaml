@@ -1049,6 +1049,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppSafetyConfig'
         description: 敏感词表配置
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/request.VisionConfig'
+        description: 视觉配置
     required:
     - assistantId
     type: object
@@ -1323,7 +1327,9 @@ definitions:
       conversationId:
         type: string
       fileInfo:
-        $ref: '#/definitions/request.ConversionStreamFile'
+        items:
+          $ref: '#/definitions/request.ConversionStreamFile'
+        type: array
       prompt:
         type: string
       trial:
@@ -2102,6 +2108,25 @@ definitions:
     required:
     - mcpId
     type: object
+  request.MCPUpdate:
+    properties:
+      desc:
+        description: 描述
+        type: string
+      from:
+        description: 来源
+        type: string
+      mcpId:
+        type: string
+      name:
+        description: 名称
+        type: string
+      sseUrl:
+        description: SSE URL
+        type: string
+    required:
+    - mcpId
+    type: object
   request.MergeFileReq:
     properties:
       chunkName:
@@ -2720,6 +2745,12 @@ definitions:
     - phone
     - userId
     type: object
+  request.VisionConfig:
+    properties:
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
+    type: object
   request.WorkflowIDReq:
     properties:
       workflow_id:
@@ -2895,6 +2926,10 @@ definitions:
       updatedAt:
         description: 更新时间
         type: string
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/response.VisionConfig'
+        description: 视觉配置
       workFlowInfos:
         description: 工作流信息
         items:
@@ -3049,9 +3084,9 @@ definitions:
         type: string
       qa_type:
         type: integer
-      requestFileUrls:
+      requestFiles:
         items:
-          type: string
+          $ref: '#/definitions/response.RequestFile'
         type: array
       response:
         type: string
@@ -4194,6 +4229,15 @@ definitions:
     - ragId
     - rerankConfig
     type: object
+  response.RequestFile:
+    properties:
+      fileUrl:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
+    type: object
   response.Response:
     properties:
       code:
@@ -4524,6 +4568,15 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.UserOrgPermission'
         description: 用户所在组织权限
+    type: object
+  response.VisionConfig:
+    properties:
+      maxPicNum:
+        description: 最大图片数量
+        type: integer
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
     type: object
   response.WorkFlowInfos:
     properties:
@@ -7553,6 +7606,27 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 创建自定义MCP
+      tags:
+      - tool
+    put:
+      consumes:
+      - application/json
+      description: 修改自定义MCP
+      parameters:
+      - description: 自定义MCP信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 修改自定义MCP
       tags:
       - tool
   /mcp/list:

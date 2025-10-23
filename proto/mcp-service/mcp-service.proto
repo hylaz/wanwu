@@ -13,6 +13,7 @@ service MCPService {
     
     // --- custom mcp ---
     rpc CreateCustomMCP(CreateCustomMCPReq) returns (google.protobuf.Empty) {}
+    rpc UpdateCustomMCP(UpdateCustomMCPReq) returns (google.protobuf.Empty) {}
     rpc GetCustomMCP(GetCustomMCPReq) returns (CustomMCPDetail) {}
     rpc DeleteCustomMCP(DeleteCustomMCPReq) returns (google.protobuf.Empty) {}
     rpc GetCustomMCPList(GetCustomMCPListReq) returns (CustomMCPList) {}
@@ -58,6 +59,16 @@ message CreateCustomMCPReq {
     string orgId = 1;
     string userId = 2;
     string mcpSquareId = 3;
+    string name = 4;
+    string desc = 5;
+    string from = 6;
+    string sseUrl = 7;
+}
+
+message UpdateCustomMCPReq {
+    string orgId = 1;
+    string userId = 2;
+    string mcpId = 3;
     string name = 4;
     string desc = 5;
     string from = 6;

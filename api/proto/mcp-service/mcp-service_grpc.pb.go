@@ -23,6 +23,7 @@ const (
 	MCPService_GetSquareMCP_FullMethodName                    = "/mcp_service.MCPService/GetSquareMCP"
 	MCPService_GetSquareMCPList_FullMethodName                = "/mcp_service.MCPService/GetSquareMCPList"
 	MCPService_CreateCustomMCP_FullMethodName                 = "/mcp_service.MCPService/CreateCustomMCP"
+	MCPService_UpdateCustomMCP_FullMethodName                 = "/mcp_service.MCPService/UpdateCustomMCP"
 	MCPService_GetCustomMCP_FullMethodName                    = "/mcp_service.MCPService/GetCustomMCP"
 	MCPService_DeleteCustomMCP_FullMethodName                 = "/mcp_service.MCPService/DeleteCustomMCP"
 	MCPService_GetCustomMCPList_FullMethodName                = "/mcp_service.MCPService/GetCustomMCPList"
@@ -48,6 +49,7 @@ type MCPServiceClient interface {
 	GetSquareMCPList(ctx context.Context, in *GetSquareMCPListReq, opts ...grpc.CallOption) (*SquareMCPList, error)
 	// --- custom mcp ---
 	CreateCustomMCP(ctx context.Context, in *CreateCustomMCPReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateCustomMCP(ctx context.Context, in *UpdateCustomMCPReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCustomMCP(ctx context.Context, in *GetCustomMCPReq, opts ...grpc.CallOption) (*CustomMCPDetail, error)
 	DeleteCustomMCP(ctx context.Context, in *DeleteCustomMCPReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetCustomMCPList(ctx context.Context, in *GetCustomMCPListReq, opts ...grpc.CallOption) (*CustomMCPList, error)
@@ -99,6 +101,16 @@ func (c *mCPServiceClient) CreateCustomMCP(ctx context.Context, in *CreateCustom
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, MCPService_CreateCustomMCP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mCPServiceClient) UpdateCustomMCP(ctx context.Context, in *UpdateCustomMCPReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MCPService_UpdateCustomMCP_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -254,6 +266,7 @@ type MCPServiceServer interface {
 	GetSquareMCPList(context.Context, *GetSquareMCPListReq) (*SquareMCPList, error)
 	// --- custom mcp ---
 	CreateCustomMCP(context.Context, *CreateCustomMCPReq) (*emptypb.Empty, error)
+	UpdateCustomMCP(context.Context, *UpdateCustomMCPReq) (*emptypb.Empty, error)
 	GetCustomMCP(context.Context, *GetCustomMCPReq) (*CustomMCPDetail, error)
 	DeleteCustomMCP(context.Context, *DeleteCustomMCPReq) (*emptypb.Empty, error)
 	GetCustomMCPList(context.Context, *GetCustomMCPListReq) (*CustomMCPList, error)
@@ -289,6 +302,9 @@ func (UnimplementedMCPServiceServer) GetSquareMCPList(context.Context, *GetSquar
 }
 func (UnimplementedMCPServiceServer) CreateCustomMCP(context.Context, *CreateCustomMCPReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomMCP not implemented")
+}
+func (UnimplementedMCPServiceServer) UpdateCustomMCP(context.Context, *UpdateCustomMCPReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCustomMCP not implemented")
 }
 func (UnimplementedMCPServiceServer) GetCustomMCP(context.Context, *GetCustomMCPReq) (*CustomMCPDetail, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCustomMCP not implemented")
@@ -403,6 +419,24 @@ func _MCPService_CreateCustomMCP_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MCPServiceServer).CreateCustomMCP(ctx, req.(*CreateCustomMCPReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MCPService_UpdateCustomMCP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCustomMCPReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).UpdateCustomMCP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_UpdateCustomMCP_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).UpdateCustomMCP(ctx, req.(*UpdateCustomMCPReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -677,6 +711,10 @@ var MCPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCustomMCP",
 			Handler:    _MCPService_CreateCustomMCP_Handler,
+		},
+		{
+			MethodName: "UpdateCustomMCP",
+			Handler:    _MCPService_UpdateCustomMCP_Handler,
 		},
 		{
 			MethodName: "GetCustomMCP",

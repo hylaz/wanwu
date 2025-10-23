@@ -61,6 +61,19 @@ func CreateMCP(ctx *gin.Context, userID, orgID string, req request.MCPCreate) er
 	return err
 }
 
+func UpdateMCP(ctx *gin.Context, userID, orgID string, req request.MCPUpdate) error {
+	_, err := mcp.UpdateCustomMCP(ctx.Request.Context(), &mcp_service.UpdateCustomMCPReq{
+		OrgId:  orgID,
+		UserId: userID,
+		McpId:  req.MCPID,
+		Name:   req.Name,
+		Desc:   req.Desc,
+		From:   req.From,
+		SseUrl: req.SSEURL,
+	})
+	return err
+}
+
 func GetMCP(ctx *gin.Context, mcpID string) (*response.MCPDetail, error) {
 	mcpDetail, err := mcp.GetCustomMCP(ctx.Request.Context(), &mcp_service.GetCustomMCPReq{
 		McpId: mcpID,

@@ -64,6 +64,20 @@ func (c *Client) CreateMCP(ctx context.Context, tab *model.MCPClient) *errs.Stat
 	})
 }
 
+func (c *Client) UpdateMCP(ctx context.Context, tab *model.MCPClient) *errs.Status {
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithID(tab.ID),
+	).Apply(c.db).WithContext(ctx).Model(tab).Updates(map[string]interface{}{
+		"name":    tab.Name,
+		"from":    tab.From,
+		"desc":    tab.Desc,
+		"sse_url": tab.SseUrl,
+	}).Error; err != nil {
+		return toErrStatus("mcp_update_err", err.Error())
+	}
+	return nil
+}
+
 func (c *Client) DeleteMCP(ctx context.Context, mcpID uint32) *errs.Status {
 	if err := sqlopt.WithID(mcpID).Apply(c.db).WithContext(ctx).Delete(&model.MCPClient{}).Error; err != nil {
 		return toErrStatus("mcp_delete_err", err.Error())
