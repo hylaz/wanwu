@@ -662,7 +662,6 @@ export default {
   },
   mounted() {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
-    this.setMaxPicNum(this.editForm.visionConfig.maxPicNum);
   },
   created() {
     this.getModelData(); //获取模型列表
@@ -1083,6 +1082,8 @@ export default {
           ...this.actionInfos.map((item) => ({ ...item, type: "action" })),
         ];
 
+        this.setMaxPicNum(this.editForm.visionConfig.picNum);
+        
         this.$nextTick(() => {
           this.isSettingFromDetail = false;
         });

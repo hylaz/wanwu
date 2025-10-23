@@ -12,7 +12,7 @@
             >
                 <el-slider
                     v-model="ruleForm.visionConfig.picNum"
-                    :min="3"
+                    :min="1"
                     :max="ruleForm.visionConfig.maxPicNum"
                     :step="1"
                     show-input>
