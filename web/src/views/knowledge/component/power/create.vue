@@ -76,8 +76,8 @@
               </div>
               <div class="org-users">
                 <div
-                  v-for="user in orgGroup.users"
-                  :key="user.id"
+                  v-for="(user, index) in orgGroup.users"
+                  :key="orgGroup.organization + '-' + user.id + '-' + index"
                   class="selected-user-item"
                 >
                   <span class="user-info">{{ user.name }}</span>
@@ -100,9 +100,7 @@ export default {
     knowledgeId: {
       type: String,
       default: ''
-    }
-  },
-  props: {
+    },
     transferMode: {
       type: Boolean,
       default: false
@@ -142,10 +140,11 @@ export default {
       originalTreeData: null,
       treeProps: {
         children: 'children',
-        label: 'orgName'
+        label: 'userName'
       },
       treeData: [],
-      selectedUsers: []
+      selectedUsers: [],
+      isSettingChecked: false
     }
   },
   watch: {
@@ -171,16 +170,27 @@ export default {
     getOrgList(){
       getOrgList({}).then(res => {
          if(res.code === 0){
-          this.organizationList = res.data
+          this.organizationList = res.data.knowOrgInfoList || []
          }
       })
+    },
+    getResults(){
+      if(this.transferMode){
+        return this.selectedUsers
+      }else{
+        return {node: this.groupedSelectedUsers, selectedPermission: this.selectedPermission}
+      }
     },
     isNodeSelected(nodeId) {
       return this.selectedUsers.some(user => user.id === nodeId)
     },
     filterNode(value,data){
       if (!value) return true;
-      return data.name.indexOf(value) !== -1;
+      // 搜索用户名，需要判断属性是否存在
+      if (data.userName) {
+        return data.userName.indexOf(value) !== -1;
+      }
+      return false;
     },
     handleOrgChange(orgId) {
       // 当组织选择改变时，过滤树形数据
@@ -193,11 +203,52 @@ export default {
     },
     getOrgUser(orgId){
       if (!orgId) return
+      var self = this;
       getOrgUser({knowledgeId:this.knowledgeId,orgId}).then(res => {
         if(res.code === 0){
-           this.treeData = res.data || []
+           var userList = res.data.userInfoList || [];
+           var orgIdValue = res.data.orgId;
+           // 给每一项添加 orgId
+           self.treeData = userList.map(function(item) {
+             item.orgId = orgIdValue;
+             return item;
+           });
+           // 加载完数据后，设置当前组织已选中的用户
+           self.$nextTick(function() {
+             self.setCheckedUsersForCurrentOrg();
+           });
         }
       })
+    },
+    setCheckedUsersForCurrentOrg() {
+      var self = this;
+      //获取当前组织id
+      var currentOrgId = this.selectedOrganization;
+      
+      // 找出当前组织ID下已选中的用户ID列表
+      // 必须同时匹配用户的 orgId 和当前选择的组织 ID
+      var checkedUserIds = this.selectedUsers
+        .filter(function(user) {
+          return user.orgId === currentOrgId;
+        })
+        .map(function(user) {
+          return user.id;
+        });
+      
+      // 设置树形控件的选中状态
+      if (this.$refs.tree) {
+        // 设置标志位，防止触发 handleTreeCheck
+        this.isSettingChecked = true;
+        if (checkedUserIds.length > 0) {
+          this.$refs.tree.setCheckedKeys(checkedUserIds);
+        } else {
+          this.$refs.tree.setCheckedKeys([]);
+        }
+        // 延迟重置标志位
+        this.$nextTick(function() {
+          self.isSettingChecked = false;
+        });
+      }
     },
     handleInputFocus() {
       // 当用户名输入框获得焦点时，如果没有选择组织，给出提示
@@ -216,30 +267,65 @@ export default {
       this.treeData = filterData(this.originalTreeData);
     },
     handleTreeCheck(data, checkedInfo) {
-      const checkedNodes = checkedInfo.checkedNodes || []
-      const halfCheckedNodes = checkedInfo.halfCheckedNodes || []
+      // 如果是程序设置的选中状态，不处理
+      if (this.isSettingChecked) {
+        return;
+      }
       
-      const selectedUserNodes = checkedNodes.filter(node => node.type === 'user')
+      const checkedNodes = checkedInfo.checkedNodes || [];
       
-      this.selectedUsers = selectedUserNodes.map(node => ({
-        id: node.id,
-        name: node.name,
-        organization: node.organization
-      }))
+      // 获取当前组织ID和组织名称
+      const currentOrg = this.organizationList.find(function(org) {
+        return org.orgId === this.selectedOrganization;
+      }.bind(this));
+      const currentOrgId = this.selectedOrganization;
+      const currentOrgName = currentOrg ? currentOrg.orgName : '';
       
-      this.updateTreeSelectionState(checkedNodes)
+      // 先移除当前组织的所有用户
+      //var otherOrgUsers = this.selectedUsers.filter(function(user) {
+        //return user.orgId !== currentOrgId;
+      //});
+      
+      // 收集当前选中的用户（去重）
+      var currentOrgUsers = [];
+      var addedUserIds = {};
+      
+      checkedNodes.forEach(function(node) {
+        if (node.userId && !addedUserIds[node.userId]) {
+          addedUserIds[node.userId] = true;
+          currentOrgUsers.push({
+            id: node.userId,
+            name: node.userName,
+            orgId: node.orgId,
+            organization: currentOrgName
+          });
+        }
+      });
+      // 合并其他组织的用户和当前组织的用户
+      var mergedUsers = otherOrgUsers.concat(currentOrgUsers);
+      
+      // 最终去重：使用 userId + orgId 作为唯一标识
+      var uniqueUsers = [];
+      var uniqueKeys = {};
+      
+      mergedUsers.forEach(function(user) {
+        var key = user.id + '_' + user.orgId;
+        if (!uniqueKeys[key]) {
+          uniqueKeys[key] = true;
+          uniqueUsers.push(user);
+        }
+      });
+      
+      this.selectedUsers = uniqueUsers;
     },
     handleNodeClick(data, node) {
-      if (this.transferMode && data.type === 'user') {
+      if (this.transferMode) {
         this.selectedUsers = [{
-          id: data.id,
-          name: data.name,
-          organization: data.organization
+          userId: data.id,
+          orgId: data.orgId,
+          permissionType: data.organization
         }]
-        
-        this.updateTreeSelectionState([data])
-        
-        this.updateSelectedNodeBackground()
+        //this.updateSelectedNodeBackground()
       }
     },
     removeUser(user) {
@@ -275,24 +361,6 @@ export default {
         })
       }
       updateNode(this.treeData)
-    },
-    updateTreeSelectionState(checkedNodes) {
-
-      const updateNode = (nodes) => {
-        nodes.forEach(node => {
-          if (node.type === 'user') {
-            const isChecked = checkedNodes.some(checkedNode => checkedNode.id === node.id)
-            node.selected = isChecked
-          }
-          if (node.children) {
-            updateNode(node.children)
-          }
-        })
-      }
-      updateNode(this.treeData)
-    },
-    createNewGroup() {
-      this.$message.info('创建新群组功能')
     },
     updateSelectedNodeBackground() {
       this.$nextTick(() => {

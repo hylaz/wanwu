@@ -76,7 +76,7 @@
 <script>
 import CommonLayout from "@/components/exploreContainer.vue";
 import Chat from "./components/chat.vue";
-import { mapGetters } from "vuex";
+import { mapGetters,mapActions } from "vuex";
 // import ApiKeyDialog from "./components/ApiKeyDialog.vue";
 import {
   getAgentInfo,
@@ -148,8 +148,10 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("storage", this.handleStorageEvent);
+    this.clearMaxPicNum();
   },
   methods: {
+    ...mapActions("app", ["setMaxPicNum","clearMaxPicNum"]),
     initUUID() {
       const storedUUID = localStorage.getItem("chatUUID");
       this.uuid = storedUUID || this.$guid();
@@ -196,6 +198,7 @@ export default {
         this.editForm.name = data.name;
         this.editForm.desc = data.desc;
         this.editForm.prologue = data.prologue;
+        this.setMaxPicNum(data.visionConfig.picNum);
         this.editForm.recommendQuestion = data.recommendQuestion.map(
           (item) => ({ value: item })
         );

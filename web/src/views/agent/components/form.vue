@@ -355,7 +355,7 @@
             </span>
           </p>
         </div>
-        <div class="block prompt-box link-box">
+        <div class="block prompt-box link-box" v-if="editForm.visionsupport === 'support'">
           <p class="block-title tool-title">
             <span>
               视觉

@@ -38,7 +38,7 @@
                                         </div>
                                         <div v-if="fileType === 'image/*'" class="type-img-container">
                                             <el-button v-show="canScroll" icon="el-icon-arrow-left " @click="prev($event)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
-                                            <div class="type-img" ref="imgList" :style="{justifyContent: fileList.length === 1 ? 'center':'unset'}">
+                                            <div class="type-img" ref="imgList" :style="{justifyContent: !canScroll ? 'center':'unset'}">
                                                 <div v-for="(f, idx) in fileList" :key="f.uid || idx"  class="type-img-item">
                                                     <img :src="f.fileUrl" />
                                                     <p class="type-img-info">

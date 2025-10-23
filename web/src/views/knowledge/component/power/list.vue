@@ -15,10 +15,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="organization" label="组织" width="200">
+        <el-table-column prop="orgName" label="组织" width="200">
           <template slot-scope="scope">
             <div class="org-cell">
-              <span class="org-text">{{ scope.row.organization || '-' }}</span>
+              <span class="org-text">{{ scope.row.orgName || '-' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -30,7 +30,6 @@
                 v-else 
                 v-model="scope.row.permissionType" 
                 size="small" 
-                @change="handlePermissionChange(scope.row)"
                 class="permission-select"
               >
                 <el-option label="可读" :value="0"></el-option>
@@ -44,7 +43,7 @@
           <template slot-scope="scope">
             <div class="action-buttons">
               <!-- 管理员权限：只显示转让按钮 -->
-              <template v-if="scope.row.type === '管理员'">
+              <template v-if="scope.row.permissionType === 20">
                 <el-button
                   type="text"
                   size="small"
@@ -108,7 +107,7 @@
 </template>
 
 <script>
-import { getUserPower } from "@/api/knowledge";
+import { getUserPower,editUserPower } from "@/api/knowledge";
 import { POWER_TYPE } from "@/views/knowledge/config";
 export default {
   name: 'PowerList',
@@ -131,7 +130,11 @@ export default {
     getUserPower() {
       getUserPower({knowledgeId:this.knowledgeId}).then(res => {
         if(res.code === 0){
-          this.tableData = res.data.knowledgeUserInfoList||[]
+          var list = res.data.knowledgeUserInfoList || [];
+          this.tableData = list.map(function(item) {
+            item.editing = false;
+            return item;
+          });
         }
       }).catch(() => {})
     },
@@ -144,16 +147,25 @@ export default {
       // 保存编辑
       row.editing = false
       row.originalType = row.type
-      this.$message.success('权限修改成功')
+      const knowledgeUserList = [
+        {
+          orgId:row.orgId,
+          userId:row.userId,
+          permissionType:row.permissionType,
+          permissionId:row.permissionId
+        }
+      ]
+      editUserPower({knowledgeId:this.knowledgeId,knowledgeUserList:knowledgeUserList}).then(res => {
+        if(res.code === 0){
+          this.$message.success('权修改成功')
+          this.getUserPower()
+        }
+      }).catch(() => {})
     },
     handleCancel(row) {
       // 取消编辑，恢复原始值
       row.type = row.originalType
       row.editing = false
-    },
-    handlePermissionChange(row) {
-      // 权限改变时的处理
-      console.log('权限已修改为:', row.type)
     },
     handleTransfer(row) {
       // 显示确认提示
@@ -174,7 +186,6 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        console.log('删除', row)
         // 删除逻辑
         this.$message.success('删除成功')
       }).catch(() => {

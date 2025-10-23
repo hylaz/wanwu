@@ -27,7 +27,7 @@
         </div>
         <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId"/>
         <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId" />
-        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :transfer-data="transferData" />
+        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :transfer-data="transferData" :knowledgeId="knowledgeId" />
       <div
         slot="footer"
         class="dialog-footer"
@@ -58,7 +58,7 @@
 <script>
 import PowerList from "./list.vue";
 import PowerCreate from "./create.vue";
-import { transferUserPower } from "@/api/knowledge";
+import { transferUserPower,addUserPower } from "@/api/knowledge";
 export default {
   name: "PowerManagement",
   components: {
@@ -86,12 +86,14 @@ export default {
       return "权限管理";
     },
   },
+  mounted() {
+    this.knowledgeId = this.$route.query.knowledgeId;
+  },
   methods: {
     showDialog() {
       this.currentView = "list";
       this.dialogVisible = true;
     },
-
     showCreate() {
       this.currentView = "create";
     },
@@ -110,21 +112,35 @@ export default {
     },
 
     handleConfirm() {
-      const createData = this.$refs.powerCreate;
-      if (createData) {
-        console.log("添加权限数据:", {
-          selectedPermission: createData.selectedPermission,
-          selectedUsers: createData.selectedUsers,
-        });
-
-        this.$message.success("权限添加成功");
-
-        this.showList();
-
-        this.refreshList();
+      const userData = this.handleData();
+      if (userData && userData.length > 0) {
+        addUserPower({knowledgeId:this.knowledgeId,knowledgeUserList:userData}).then(res => {
+          if(res.code === 0){
+            this.$message.success("添加成功");
+            this.showList();
+            this.refreshList();
+          }
+        }).catch(() => {})
+      }else{
+        this.$message.error("请选择用户");
       }
     },
-
+    handleData(){
+      const createData = this.$refs.powerCreate.getResults();
+      if (createData.node.length > 0) {
+        var userList = [];
+        createData.node.forEach(function(group) {
+          group.users.forEach(function(user) {
+            userList.push({
+              userId: user.id,
+              orgId: user.orgId,
+            });
+          });
+        });
+        return userList;
+      }
+      return [];
+    },
     handleDialogClose() {
       this.currentView = "list";
 
@@ -135,30 +151,24 @@ export default {
 
     // 确认转让权限
     handleTransferConfirm() {
-      const transferData = this.$refs.powerTransfer.selectedUsers;
+      const transferData = this.handleData();
       if (transferData) {
-        const data = {
-          knowledgeId: this.knowledgeId,
-          knowledgeUserList:{
-            userId: transferData.userId,
-            permissionType: transferData.permissionType
-          }
-        }
-        transferUserPower({data}).then(res => {
+        transferUserPower({knowledgeUserList:transferData, knowledgeId:this.knowledgeId}).then(res => {
           if(res.code === 0){
-            this.$message.success("权限转让成功");
+            this.$message.success("转让成功");
             this.showCreate();
             this.refreshList();
           }
         }).catch(() => {
-          this.$message.error("权限转让失败");
+          this.$message.error("转让失败");
         })
+      }else{
+        this.$message.error("请选择用户");
       }
     },
-
     refreshList() {
       if (this.$refs.powerList) {
-        console.log("刷新权限列表");
+        this.$refs.powerList.getUserPower()
       }
     },
   },

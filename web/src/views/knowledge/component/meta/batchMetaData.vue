@@ -194,7 +194,7 @@ export default {
     },
     getMetaList() {
       this.docLoading = true;
-      getDocMetaList({ docIdList: this.selectedDocIds })
+      getDocMetaList({ docIdList: this.selectedDocIds,knowledgeId: this.$route.params.id })
         .then((res) => {
           if (res.code === 0) {
             this.metaDataList = (res.data.knowledgeMetaValues || []).map(
@@ -258,6 +258,7 @@ export default {
           const data = {
             applyToSelected: this.applyToSelected,
             docIdList: this.selectedDocIds,
+            knowledgeId: this.$route.params.id,
             metaValueList: [
               {
                 metaId: item.metaId,
@@ -322,6 +323,7 @@ export default {
         applyToSelected: this.applyToSelected,
         docIdList: this.selectedDocIds,
         metaValueList: processedUpdateData,
+        knowledgeId: this.$route.params.id,
       };
       this.unpdateMetaApi(data, "submit");
     },

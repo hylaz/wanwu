@@ -48,12 +48,12 @@
                   class="echo-doc-box"
                   v-if="hasFiles(n)"
                 >
-                 <div v-for="(file,j) in n.fileList" :key="`${j}sdsl`">
-                  <div v-if="hasImgs(n,file)" class="docInfo-img-container">
-                      <img
+                <el-button v-show="canScroll" icon="el-icon-arrow-left " @click="prev($event)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
+                 <div class="imgList" :ref="`imgList-${i}`" :style="{justifyContent: !canScroll ? 'center':'flex-end'}">
+                 <div v-for="(file,j) in n.fileList" :key="`${j}sdsl`" class="docInfo-img-container">
+                      <img v-if="hasImgs(n,file)"
                         :src="file.fileUrl"
                         class="docIcon imgIcon" />
-                  </div>
                   <div v-else class="docInfo-container">
                   <img
                     :src="require('@/assets/imgs/fileicon.png')"
@@ -66,6 +66,8 @@
                   </div>
                   </div>
                  </div>
+                 </div>
+                 <el-button v-show="canScroll" icon="el-icon-arrow-right" @click="next($event)" circle class="scroll-btn right" size="mini" type="primary"></el-button>
                 </div>
               </div>
 
@@ -368,7 +370,9 @@ export default {
       },
       imgConfig: ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"],
       audioConfig: ["mp3", "wav"],
-      debounceTimer: null
+      debounceTimer: null,
+      canScroll:false,
+      isCheckingScroll: false
     };
   },
   computed: {
@@ -399,7 +403,52 @@ export default {
       document.body.removeEventListener("error", this.imageErrorHandler, true);
     }
   },
+  updated() {
+    if (!this.isCheckingScroll) {
+    this.checkScrollable();
+    }
+  },
   methods: {
+    checkScrollable() {
+      this.isCheckingScroll = true;
+      this.$nextTick(() => {
+        Object.keys(this.$refs).forEach(key => {
+        if (key.startsWith('imgList-')) {
+            const container = this.$refs[key][0];
+            if (container) {
+              this.canScroll = container.scrollWidth > container.clientWidth
+            }
+          }
+        });
+        this.$nextTick(() => {
+          this.isCheckingScroll = false;
+        })
+      })
+    },
+    prev(e){
+      e.stopPropagation()
+      Object.keys(this.$refs).forEach(key => {
+        if (key.startsWith('imgList-')) {
+            const container = this.$refs[key];
+            container[0].scrollBy({
+              left: -200,
+              behavior: "smooth",
+            });
+          }
+      });
+    },
+    next(e){
+      e.stopPropagation()
+      Object.keys(this.$refs).forEach(key => {
+        if (key.startsWith('imgList-')) {
+            const container = this.$refs[key];
+            container[0].scrollBy({
+              left: 200,
+              behavior: "smooth",
+            });
+          }
+      });
+    },
     hasFiles(n){
        return n.fileList && n.fileList.length > 0;
     },
@@ -894,6 +943,7 @@ export default {
     background: none !important;
   }
   .answer-content {
+    width: 100%;
     img {
       width: 80% !important;
     }
@@ -957,6 +1007,7 @@ export default {
         flex-wrap: wrap;
         flex-direction: column;
         align-items: flex-end;
+        width: 100%;
         .answer-text {
           background: #7288fa;
           color: #fff;
@@ -971,11 +1022,32 @@ export default {
         }
         .echo-doc-box {
           margin-top: 10px;
-          width: auto;
+          width: 100%;
+          max-width: 100%;
           display: flex;
           gap:8px;
           justify-content: space-between;
           align-items: center;
+          position: relative;
+          .scroll-btn{
+            position:absolute;
+            top:50%;
+            transform: translateY(-15px);
+            &.left{
+                left:5px;
+            }
+            &.right{
+                right:5px;
+            }
+          }
+          .imgList{
+            width:100%;
+            gap: 10px;
+            overflow-x:hidden;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-wrap: nowrap;
+          }
           .docInfo-container{
             display: flex;
             align-items: center;
@@ -985,6 +1057,8 @@ export default {
             border-radius: 5px;
           }
           .docInfo-img-container{
+            flex-shrink: 0;  /* 防止图片被压缩 */
+            width: auto;  /* 或固定宽度 */
             p{
               text-align: center;
               color: #384bf7;
