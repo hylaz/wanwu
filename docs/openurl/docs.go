@@ -1226,6 +1226,14 @@ const docTemplate = `{
                     "description": "更新时间",
                     "type": "string"
                 },
+                "visionConfig": {
+                    "description": "视觉配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.VisionConfig"
+                        }
+                    ]
+                },
                 "workFlowInfos": {
                     "description": "工作流信息",
                     "type": "array",
@@ -1397,6 +1405,19 @@ const docTemplate = `{
                 "data": {},
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "response.VisionConfig": {
+            "type": "object",
+            "properties": {
+                "maxPicNum": {
+                    "description": "最大图片数量",
+                    "type": "integer"
+                },
+                "picNum": {
+                    "description": "视觉配置图片数量",
+                    "type": "integer"
                 }
             }
         },

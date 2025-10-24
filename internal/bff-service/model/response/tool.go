@@ -1,6 +1,9 @@
 package response
 
-import "github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+import (
+	"github.com/ThinkInAIXYZ/go-mcp/protocol"
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+)
 
 type CustomToolDetail struct {
 	CustomToolInfo
@@ -49,4 +52,28 @@ type ToolSquareActions struct {
 	Tools           []MCPTool `json:"tools"`           // action列表
 	Detail          string    `json:"detail"`          // 详细描述
 	ActionSum       int64     `json:"actionSum"`       // action总数
+}
+
+type ToolSelect struct {
+	UniqueId string `json:"uniqueId"` // unique id
+	ToolInfo
+}
+
+type ToolInfo struct {
+	ToolId          string `json:"toolId"`          // 工具id
+	ToolName        string `json:"toolName"`        // 工具名称
+	ToolType        string `json:"toolType"`        // 工具类型
+	Desc            string `json:"desc"`            // 工具描述
+	NeedApiKeyInput bool   `json:"needApiKeyInput"` // 是否需要apiKey输入
+	APIKey          string `json:"apiKey"`          // apiKey
+}
+
+type ToolActionList struct {
+	Actions []*protocol.Tool `json:"actions"` // action列表
+}
+
+type ToolActionDetail struct {
+	NeedApiKeyInput bool           `json:"needApiKeyInput"` // 是否需要apiKey输入
+	APIKey          string         `json:"apiKey"`          // apiKey
+	Action          *protocol.Tool `json:"action"`          // action列表
 }

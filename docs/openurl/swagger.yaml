@@ -559,6 +559,10 @@ definitions:
       updatedAt:
         description: 更新时间
         type: string
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/response.VisionConfig'
+        description: 视觉配置
       workFlowInfos:
         description: 工作流信息
         items:
@@ -676,6 +680,15 @@ definitions:
       data: {}
       msg:
         type: string
+    type: object
+  response.VisionConfig:
+    properties:
+      maxPicNum:
+        description: 最大图片数量
+        type: integer
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
     type: object
   response.WorkFlowInfos:
     properties:

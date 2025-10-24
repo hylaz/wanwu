@@ -2467,6 +2467,46 @@ definitions:
     required:
     - tagId
     type: object
+  request.ToolActionListReq:
+    properties:
+      toolId:
+        description: 工具id
+        type: string
+      toolType:
+        description: 工具类型
+        enum:
+        - builtin
+        - custom
+        type: string
+    required:
+    - toolId
+    - toolType
+    type: object
+  request.ToolActionReq:
+    properties:
+      actionName:
+        description: action名称
+        type: string
+      toolId:
+        description: 工具id
+        type: string
+      toolType:
+        description: 工具类型
+        enum:
+        - builtin
+        - custom
+        type: string
+    required:
+    - actionName
+    - toolId
+    - toolType
+    type: object
+  request.ToolSelectReq:
+    properties:
+      toolName:
+        description: 工具名称
+        type: string
+    type: object
   request.ToolSquareAPIKeyReq:
     properties:
       apiKey:
@@ -4405,6 +4445,27 @@ definitions:
         type: string
       desc:
         type: string
+    type: object
+  response.ToolActionDetail:
+    properties:
+      action:
+        allOf:
+        - $ref: '#/definitions/protocol.Tool'
+        description: action列表
+      apiKey:
+        description: apiKey
+        type: string
+      needApiKeyInput:
+        description: 是否需要apiKey输入
+        type: boolean
+    type: object
+  response.ToolActionList:
+    properties:
+      actions:
+        description: action列表
+        items:
+          $ref: '#/definitions/protocol.Tool'
+        type: array
     type: object
   response.ToolDetail4Workflow:
     properties:
@@ -9141,6 +9202,60 @@ paths:
       summary: 修改自定义工具
       tags:
       - tool
+  /tool/custom-builtin/action/detail:
+    post:
+      consumes:
+      - application/json
+      description: 获取工具详情
+      parameters:
+      - description: 工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ToolActionReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolActionDetail'
+              type: object
+      summary: 获取工具详情
+      tags:
+      - tool
+  /tool/custom-builtin/action/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取工具列表
+      parameters:
+      - description: 工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ToolActionListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolActionList'
+              type: object
+      summary: 获取工具列表
+      tags:
+      - tool
   /tool/custom/list:
     get:
       consumes:
@@ -9237,6 +9352,40 @@ paths:
                     type: object
               type: object
       summary: 获取自定义工具列表（用于下拉选择）
+      tags:
+      - tool
+  /tool/select:
+    post:
+      consumes:
+      - application/json
+      description: 获取工具列表（用于下拉选择）
+      parameters:
+      - description: 工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ToolSelectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ToolActionList'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取工具列表（用于下拉选择）
       tags:
       - tool
   /tool/square:

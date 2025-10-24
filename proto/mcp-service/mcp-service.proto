@@ -34,6 +34,11 @@ service MCPService {
     // --- square tool ---
     rpc GetSquareTool(GetSquareToolReq) returns (SquareToolDetail) {}
     rpc GetSquareToolList(GetSquareToolListReq) returns (SquareToolList) {}
+
+    // --- custom & builtin tool ---
+    rpc GetToolSelect(GetToolSelectReq) returns (GetToolListResp) {}
+    rpc GetToolActionList(GetToolActionListReq) returns (GetToolActionListResp) {}
+    rpc GetToolAction(GetToolActionReq) returns (GetToolActionResp) {}
 }
 
 // --- req ---
@@ -277,9 +282,72 @@ message BuiltInTools {
     int32 actionSum = 4;
     bool needApiKeyInput = 5;
 }
- message GetSquareToolListReq {
+
+message GetSquareToolListReq {
     string name = 1;
 }
+
 message SquareToolList {
     repeated ToolSquareInfo infos = 1;
+}
+
+message GetToolSelectReq {
+    string name = 1;
+    Identity identity = 2;
+}
+
+message GetToolItem {
+    string toolId = 1;
+    string toolName = 2;
+    string toolType = 3;
+    string desc = 4;
+    string apiKey = 5;
+    bool needApiKeyInput = 6;
+}
+
+message GetToolListResp {
+    repeated GetToolItem list = 1;
+    int32 total = 2;
+}
+
+message GetToolActionListReq {
+    string toolId = 1;
+    string toolType = 2;
+    Identity identity = 3;
+}
+
+message ToolActionInfo {
+    string name = 1;
+    string desc = 2;
+    ToolInputSchema inputSchema = 3;
+}
+
+message ToolInputSchema {
+    string type = 1; // 固定 object
+    map<string, ToolInputSchemaValue> properties = 2;
+    repeated string required = 3;
+}
+
+message ToolInputSchemaValue {
+    string type = 1;
+    string description = 2;
+}
+
+
+message GetToolActionListResp {
+    repeated ToolActionInfo actions = 1;
+}
+
+message GetToolActionReq {
+    string toolId = 1;
+    string toolType = 2;
+    string actionName = 3;
+    Identity identity = 4;
+}
+
+
+message GetToolActionResp {
+    string apiKey = 1;
+    bool needApiKeyInput = 2;
+    ToolActionInfo action = 3;
 }

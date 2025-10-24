@@ -30,4 +30,9 @@ func registerTool(apiV1 *gin.RouterGroup) {
 	mid.Sub("tool").Reg(apiV1, "/tool/square", http.MethodGet, v1.GetToolSquareDetail, "获取内置工具详情")
 	mid.Sub("tool").Reg(apiV1, "/tool/square/list", http.MethodGet, v1.GetToolSquareList, "获取内置工具列表")
 	mid.Sub("tool").Reg(apiV1, "/tool/builtin", http.MethodPost, v1.UpdateToolSquareAPIKey, "修改内置工具")
+
+	// 自定义工具与内置工具
+	mid.Sub("tool").Reg(apiV1, "/tool/select", http.MethodPost, v1.GetToolSelect, "智能体工具下拉列表（自定义与内置）")
+	mid.Sub("tool").Reg(apiV1, "/tool/action/list", http.MethodGet, v1.GetToolActionList, "智能体工具action下拉列表（自定义与内置）")
+	mid.Sub("tool").Reg(apiV1, "/tool/action/detail", http.MethodGet, v1.GetToolActionDetail, "智能体工具action详情（自定义与内置）")
 }

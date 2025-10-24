@@ -7491,6 +7491,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/tool/custom-builtin/action/detail": {
+            "post": {
+                "description": "获取工具详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取工具详情",
+                "parameters": [
+                    {
+                        "description": "工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ToolActionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ToolActionDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/tool/custom-builtin/action/list": {
+            "post": {
+                "description": "获取工具列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取工具列表",
+                "parameters": [
+                    {
+                        "description": "工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ToolActionListReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ToolActionList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/tool/custom/list": {
             "get": {
                 "description": "获取自定义工具列表",
@@ -7654,6 +7746,67 @@ const docTemplate = `{
                                                             "type": "array",
                                                             "items": {
                                                                 "$ref": "#/definitions/response.CustomToolSelect"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/tool/select": {
+            "post": {
+                "description": "获取工具列表（用于下拉选择）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取工具列表（用于下拉选择）",
+                "parameters": [
+                    {
+                        "description": "工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ToolSelectReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ToolActionList"
                                                             }
                                                         }
                                                     }
@@ -12353,6 +12506,62 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ToolActionListReq": {
+            "type": "object",
+            "required": [
+                "toolId",
+                "toolType"
+            ],
+            "properties": {
+                "toolId": {
+                    "description": "工具id",
+                    "type": "string"
+                },
+                "toolType": {
+                    "description": "工具类型",
+                    "type": "string",
+                    "enum": [
+                        "builtin",
+                        "custom"
+                    ]
+                }
+            }
+        },
+        "request.ToolActionReq": {
+            "type": "object",
+            "required": [
+                "actionName",
+                "toolId",
+                "toolType"
+            ],
+            "properties": {
+                "actionName": {
+                    "description": "action名称",
+                    "type": "string"
+                },
+                "toolId": {
+                    "description": "工具id",
+                    "type": "string"
+                },
+                "toolType": {
+                    "description": "工具类型",
+                    "type": "string",
+                    "enum": [
+                        "builtin",
+                        "custom"
+                    ]
+                }
+            }
+        },
+        "request.ToolSelectReq": {
+            "type": "object",
+            "properties": {
+                "toolName": {
+                    "description": "工具名称",
+                    "type": "string"
+                }
+            }
+        },
         "request.ToolSquareAPIKeyReq": {
             "type": "object",
             "required": [
@@ -15248,6 +15457,39 @@ const docTemplate = `{
                 },
                 "desc": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ToolActionDetail": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "action列表",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/protocol.Tool"
+                        }
+                    ]
+                },
+                "apiKey": {
+                    "description": "apiKey",
+                    "type": "string"
+                },
+                "needApiKeyInput": {
+                    "description": "是否需要apiKey输入",
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.ToolActionList": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "description": "action列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/protocol.Tool"
+                    }
                 }
             }
         },

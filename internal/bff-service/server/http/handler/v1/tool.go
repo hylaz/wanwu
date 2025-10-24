@@ -172,3 +172,60 @@ func UpdateToolSquareAPIKey(ctx *gin.Context) {
 	}
 	gin_util.Response(ctx, nil, service.UpdateToolSquareAPIKey(ctx, getUserID(ctx), getOrgID(ctx), req))
 }
+
+// GetToolSelect
+//
+//	@Tags			tool
+//	@Summary		获取工具列表（用于下拉选择）
+//	@Description	获取工具列表（用于下拉选择）
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ToolSelectReq	true	"工具信息"
+//	@Success		200		{object}	response.Response{data=response.ListResult{list=[]response.ToolActionList}}
+//	@Router			/tool/select [post]
+func GetToolSelect(ctx *gin.Context) {
+	var req request.ToolSelectReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.GetToolSelect(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// GetToolActionList
+//
+//	@Tags			tool
+//	@Summary		获取工具列表
+//	@Description	获取工具列表
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ToolActionListReq	true	"工具信息"
+//	@Success		200		{object}	response.Response{data=response.ToolActionList}
+//	@Router			/tool/custom-builtin/action/list [post]
+func GetToolActionList(ctx *gin.Context) {
+	var req request.ToolActionListReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetToolActionList(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// GetToolActionDetail
+//
+//	@Tags			tool
+//	@Summary		获取工具详情
+//	@Description	获取工具详情
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ToolActionReq	true	"工具信息"
+//	@Success		200		{object}	response.Response{data=response.ToolActionDetail}
+//	@Router			/tool/custom-builtin/action/detail [post]
+func GetToolActionDetail(ctx *gin.Context) {
+	var req request.ToolActionReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetToolActionDetail(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}
