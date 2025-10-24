@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/UnicomAI/wanwu/pkg/db"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
@@ -11,11 +12,21 @@ var (
 )
 
 type Config struct {
-	Server ServerConfig  `json:"server" mapstructure:"server"`
-	Log    LogConfig     `json:"log" mapstructure:"log"`
-	DB     db.Config     `json:"db" mapstructure:"db"`
-	Mcps   []*McpConfig  `json:"mcps" mapstructure:"mcps"`
-	Tools  []*ToolConfig `json:"tools" mapstructure:"tools"`
+	Server  ServerConfig  `json:"server" mapstructure:"server"`
+	Log     LogConfig     `json:"log" mapstructure:"log"`
+	DB      db.Config     `json:"db" mapstructure:"db"`
+	Mcps    []*McpConfig  `json:"mcps" mapstructure:"mcps"`
+	Tools   []*ToolConfig `json:"tools" mapstructure:"tools"`
+	McpCfg  McpCfg        `json:"mcp" mapstructure:"mcp"`
+	ToolCfg ToolCfg       `json:"tool" mapstructure:"tool"`
+}
+
+type McpCfg struct {
+	ConfigPath string `json:"configPath" mapstructure:"configPath"`
+}
+
+type ToolCfg struct {
+	ConfigPath string `json:"configPath" mapstructure:"configPath"`
 }
 
 type ServerConfig struct {
@@ -33,6 +44,14 @@ func LoadConfig(in string) error {
 	_c = &Config{}
 	if err := util.LoadConfig(in, _c); err != nil {
 		return err
+	}
+	mcpIn := _c.McpCfg.ConfigPath
+	toolIn := _c.ToolCfg.ConfigPath
+	if err := util.LoadConfig(mcpIn, _c); err != nil {
+		return fmt.Errorf("load mcp config err: %v", err)
+	}
+	if err := util.LoadConfig(toolIn, _c); err != nil {
+		return fmt.Errorf("load tool config err: %v", err)
 	}
 	for _, mcp := range _c.Mcps {
 		if err := mcp.load(); err != nil {
