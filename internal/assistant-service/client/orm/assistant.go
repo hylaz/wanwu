@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
@@ -132,6 +133,77 @@ func (c *Client) CheckSameAssistantName(ctx context.Context, userID, orgID, name
 		// 存在同名智能体
 		if count > 0 {
 			return toErrStatus("assistant_same_name", name)
+		}
+		return nil
+	})
+}
+
+func (c *Client) CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantCustom) (uint32, *err_code.Status) {
+	// 智能体名称前缀
+	prefix := assistant.Name + "_"
+
+	// 查询所有以“原名称_”为前缀的名称
+	var existingNames []string
+	err := c.db.WithContext(ctx).Model(&model.Assistant{}).
+		Where("name LIKE ?", prefix+"%").
+		Pluck("name", &existingNames).Error
+
+	if err != nil {
+		return 0, toErrStatus("assistant_copy", err.Error())
+	}
+
+	// 解析名称
+	maxNum := 0
+	for _, name := range existingNames {
+		numStr := strings.TrimPrefix(name, prefix)
+		num, err := strconv.Atoi(numStr)
+		if err != nil {
+			continue
+		}
+		if num > maxNum {
+			maxNum = num
+		}
+	}
+
+	// 生成新名称
+	newName := prefix + strconv.Itoa(maxNum+1)
+
+	var newAssistantId uint32
+	return newAssistantId, c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
+		// 复制并保存新智能体
+		newAssistant := *assistant
+		newAssistant.ID = 0
+		newAssistant.Name = newName
+		if err = tx.Create(&newAssistant).Error; err != nil {
+			return toErrStatus("assistant_create", err.Error())
+		}
+		newAssistantId = newAssistant.ID
+
+		// 复制并保存新智能体工作流
+		for _, workflow := range workflows {
+			workflow.ID = 0
+			workflow.AssistantId = newAssistantId
+			if err = tx.Create(&workflow).Error; err != nil {
+				return toErrStatus("assistant_workflow_create", err.Error())
+			}
+		}
+
+		// 复制并保存新智能体MCP
+		for _, mcp := range mcps {
+			mcp.ID = 0
+			mcp.AssistantId = newAssistantId
+			if err = tx.Create(&mcp).Error; err != nil {
+				return toErrStatus("assistant_mcp_create", err.Error())
+			}
+		}
+
+		// 复制并保存新智能体自定义工具
+		for _, customTool := range customTools {
+			customTool.ID = 0
+			customTool.AssistantId = newAssistantId
+			if err = tx.Create(&customTool).Error; err != nil {
+				return toErrStatus("assistant_custom_tool_create", err.Error())
+			}
 		}
 		return nil
 	})

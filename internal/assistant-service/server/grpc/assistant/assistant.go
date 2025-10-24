@@ -406,3 +406,43 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		UpdateTime:          assistant.UpdatedAt,
 	}, nil
 }
+
+func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.AssistantCopyReq) (*assistant_service.AssistantCreateResp, error) {
+	assistantId, err := util.U32(req.AssistantId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取父智能体信息
+	parentAssistant, status := s.cli.GetAssistant(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 workflow
+	workflows, status := s.cli.GetAssistantWorkflowsByAssistantID(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 mcp
+	mcps, status := s.cli.GetAssistantMCPList(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 custom tool
+	customTools, status := s.cli.GetAssistantCustomList(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 复制智能体
+	assistantID, status := s.cli.CopyAssistant(ctx, parentAssistant, workflows, mcps, customTools)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+	return &assistant_service.AssistantCreateResp{
+		AssistantId: util.Int2Str(assistantID),
+	}, nil
+}

@@ -99,6 +99,22 @@ func GetAssistantInfo(ctx *gin.Context, userId, orgId string, req request.Assist
 	return transAssistantResp2Model(ctx, resp)
 }
 
+func AssistantCopy(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest) (*response.AssistantCreateResp, error) {
+	resp, err := assistant.AssistantCopy(ctx.Request.Context(), &assistant_service.AssistantCopyReq{
+		AssistantId: req.AssistantId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &response.AssistantCreateResp{
+		AssistantId: resp.AssistantId,
+	}, nil
+}
+
 func AssistantWorkFlowCreate(ctx *gin.Context, userId, orgId string, req request.AssistantWorkFlowAddRequest) error {
 	_, err := assistant.AssistantWorkFlowCreate(ctx.Request.Context(), &assistant_service.AssistantWorkFlowCreateReq{
 		AssistantId: req.AssistantId,

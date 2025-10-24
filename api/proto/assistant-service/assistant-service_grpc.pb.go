@@ -27,6 +27,7 @@ const (
 	AssistantService_AssistantDelete_FullMethodName                         = "/assistant_service.AssistantService/AssistantDelete"
 	AssistantService_GetAssistantListMyAll_FullMethodName                   = "/assistant_service.AssistantService/GetAssistantListMyAll"
 	AssistantService_GetAssistantInfo_FullMethodName                        = "/assistant_service.AssistantService/GetAssistantInfo"
+	AssistantService_AssistantCopy_FullMethodName                           = "/assistant_service.AssistantService/AssistantCopy"
 	AssistantService_AssistantWorkFlowCreate_FullMethodName                 = "/assistant_service.AssistantService/AssistantWorkFlowCreate"
 	AssistantService_AssistantWorkFlowDelete_FullMethodName                 = "/assistant_service.AssistantService/AssistantWorkFlowDelete"
 	AssistantService_AssistantWorkFlowEnableSwitch_FullMethodName           = "/assistant_service.AssistantService/AssistantWorkFlowEnableSwitch"
@@ -61,6 +62,7 @@ type AssistantServiceClient interface {
 	AssistantDelete(ctx context.Context, in *AssistantDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAssistantListMyAll(ctx context.Context, in *GetAssistantListMyAllReq, opts ...grpc.CallOption) (*AppBriefList, error)
 	GetAssistantInfo(ctx context.Context, in *GetAssistantInfoReq, opts ...grpc.CallOption) (*AssistantInfo, error)
+	AssistantCopy(ctx context.Context, in *AssistantCopyReq, opts ...grpc.CallOption) (*AssistantCreateResp, error)
 	// --- workFlow ---
 	AssistantWorkFlowCreate(ctx context.Context, in *AssistantWorkFlowCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantWorkFlowDelete(ctx context.Context, in *AssistantWorkFlowDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -159,6 +161,16 @@ func (c *assistantServiceClient) GetAssistantInfo(ctx context.Context, in *GetAs
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AssistantInfo)
 	err := c.cc.Invoke(ctx, AssistantService_GetAssistantInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) AssistantCopy(ctx context.Context, in *AssistantCopyReq, opts ...grpc.CallOption) (*AssistantCreateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssistantCreateResp)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantCopy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -386,6 +398,7 @@ type AssistantServiceServer interface {
 	AssistantDelete(context.Context, *AssistantDeleteReq) (*emptypb.Empty, error)
 	GetAssistantListMyAll(context.Context, *GetAssistantListMyAllReq) (*AppBriefList, error)
 	GetAssistantInfo(context.Context, *GetAssistantInfoReq) (*AssistantInfo, error)
+	AssistantCopy(context.Context, *AssistantCopyReq) (*AssistantCreateResp, error)
 	// --- workFlow ---
 	AssistantWorkFlowCreate(context.Context, *AssistantWorkFlowCreateReq) (*emptypb.Empty, error)
 	AssistantWorkFlowDelete(context.Context, *AssistantWorkFlowDeleteReq) (*emptypb.Empty, error)
@@ -440,6 +453,9 @@ func (UnimplementedAssistantServiceServer) GetAssistantListMyAll(context.Context
 }
 func (UnimplementedAssistantServiceServer) GetAssistantInfo(context.Context, *GetAssistantInfoReq) (*AssistantInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAssistantInfo not implemented")
+}
+func (UnimplementedAssistantServiceServer) AssistantCopy(context.Context, *AssistantCopyReq) (*AssistantCreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantCopy not implemented")
 }
 func (UnimplementedAssistantServiceServer) AssistantWorkFlowCreate(context.Context, *AssistantWorkFlowCreateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssistantWorkFlowCreate not implemented")
@@ -644,6 +660,24 @@ func _AssistantService_GetAssistantInfo_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AssistantServiceServer).GetAssistantInfo(ctx, req.(*GetAssistantInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_AssistantCopy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantCopyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).AssistantCopy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_AssistantCopy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).AssistantCopy(ctx, req.(*AssistantCopyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1035,6 +1069,10 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAssistantInfo",
 			Handler:    _AssistantService_GetAssistantInfo_Handler,
+		},
+		{
+			MethodName: "AssistantCopy",
+			Handler:    _AssistantService_AssistantCopy_Handler,
 		},
 		{
 			MethodName: "AssistantWorkFlowCreate",

@@ -16,6 +16,7 @@ service AssistantService {
   rpc AssistantDelete(AssistantDeleteReq) returns (google.protobuf.Empty) {}
   rpc GetAssistantListMyAll(GetAssistantListMyAllReq) returns (AppBriefList) {}
   rpc GetAssistantInfo(GetAssistantInfoReq) returns (AssistantInfo) {}
+  rpc AssistantCopy(AssistantCopyReq) returns (AssistantCreateResp) {}
 
   // --- workFlow ---
   rpc AssistantWorkFlowCreate(AssistantWorkFlowCreateReq) returns (google.protobuf.Empty) {}
@@ -205,6 +206,10 @@ message GetAssistantInfoReq {
   Identity identity = 2;
 }
 
+message AssistantCopyReq {
+  string assistantId = 1;
+  Identity identity = 2;
+}
 
 message AssistantWorkFlowCreateReq {
   string assistantId = 1;

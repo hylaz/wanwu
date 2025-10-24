@@ -91,6 +91,27 @@ func GetAssistantInfo(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
+// AssistantCopy
+//
+//	@Tags			agent
+//	@Summary		复制智能体
+//	@Description	复制智能体，创建一个新的智能体，基本信息和配置都和原智能体一致
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data		body		request.AssistantIdRequest	true	"智能体id"
+//	@Success		200			{object}	response.Response{data=response.AssistantCreateResp}
+//	@Router			/assistant/copy [post]
+func AssistantCopy(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.AssistantIdRequest
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.AssistantCopy(ctx, userId, orgId, req)
+	gin_util.Response(ctx, resp, err)
+}
+
 // AssistantWorkFlowCreate
 //
 //	@Tags			agent
