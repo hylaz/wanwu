@@ -261,6 +261,7 @@
 {"code":310020,"key":"mcp_delete_mcp_server_tool_err","langs":{"zh":"删除MCP服务工具异常:%v"}}
 {"code":310021,"key":"mcp_get_mcp_server_tool_info_err","langs":{"zh":"获取MCP服务工具详情异常:%v"}}
 {"code":310022,"key":"mcp_get_mcp_server_tool_list_err","langs":{"zh":"获取MCP服务工具列表异常:%v"}}
+{"code":310023,"key":"mcp_update_err","langs":{"zh":"编辑MCP异常:%v"}}
 {"code":150001,"key":"rag_role_err","langs":{"zh":"角色权限错误：%v"}}
 {"code":150002,"key":"rag_info_not_exist","langs":{"zh":"文本问答信息不存在：%v"}}
 {"code":150003,"key":"rag_delete_err","langs":{"zh":"删除文本问答错误：%v"}}

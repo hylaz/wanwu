@@ -16,3 +16,12 @@ type GetWorkflowListReq struct {
 func (g *GetWorkflowListReq) Check() error {
 	return nil
 }
+
+type CreateWorkflowByTemplateReq struct {
+	TemplateId string `json:"templateId" validate:"required"`
+	AppBriefConfig
+}
+
+func (r *CreateWorkflowByTemplateReq) Check() error {
+	return nil
+}

@@ -150,3 +150,18 @@ func GetWorkflowToolDetail(ctx *gin.Context) {
 	}
 	gin_util.Response(ctx, data, err)
 }
+
+// CreateWorkflowByTemplate
+//
+//	@Tags		workflow
+//	@Summary	复制工作流模板
+//	@Description复制工作流模板
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Param		data	body		request.CreateWorkflowByTemplateReq	true	"通过模板创建Workflow的请求参数"
+//	@Success	200		{object}	response.Response{data=response.CozeWorkflowIDData}
+//	@Router		/workflow/template [post]
+func CreateWorkflowByTemplate(ctx *gin.Context) {
+
+}

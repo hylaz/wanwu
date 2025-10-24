@@ -1273,10 +1273,10 @@ const docTemplate = `{
                 "qa_type": {
                     "type": "integer"
                 },
-                "requestFileUrls": {
+                "requestFiles": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/response.RequestFile"
                     }
                 },
                 "response": {
@@ -1371,6 +1371,20 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "response.RequestFile": {
+            "type": "object",
+            "properties": {
+                "fileUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
                 }
             }
         },

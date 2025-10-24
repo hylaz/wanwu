@@ -56,6 +56,19 @@ func (s *Service) CreateCustomMCP(ctx context.Context, req *mcp_service.CreateCu
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) UpdateCustomMCP(ctx context.Context, req *mcp_service.UpdateCustomMCPReq) (*emptypb.Empty, error) {
+	if err := s.cli.UpdateMCP(ctx, &model.MCPClient{
+		ID:     util.MustU32(req.McpId),
+		Name:   req.Name,
+		From:   req.From,
+		Desc:   req.Desc,
+		SseUrl: req.SseUrl,
+	}); err != nil {
+		return nil, errStatus(errs.Code_MCPUpdateCustomMCPErr, err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *Service) GetCustomMCP(ctx context.Context, req *mcp_service.GetCustomMCPReq) (*mcp_service.CustomMCPDetail, error) {
 	mcp, err := s.cli.GetMCP(ctx, util.MustU32(req.McpId))
 	if err != nil {

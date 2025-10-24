@@ -72,6 +72,24 @@ func CreateMCP(ctx *gin.Context) {
 	gin_util.Response(ctx, nil, service.CreateMCP(ctx, getUserID(ctx), getOrgID(ctx), req))
 }
 
+// UpdateMCP
+//
+//	@Tags			tool
+//	@Summary		修改自定义MCP
+//	@Description	修改自定义MCP
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MCPUpdate	true	"自定义MCP信息"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/mcp [put]
+func UpdateMCP(ctx *gin.Context) {
+	var req request.MCPUpdate
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.UpdateMCP(ctx, getUserID(ctx), getOrgID(ctx), req))
+}
+
 // GetMCP
 //
 //	@Tags			tool

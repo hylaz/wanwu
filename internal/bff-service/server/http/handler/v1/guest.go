@@ -165,3 +165,64 @@ func ResetPasswordByEmail(ctx *gin.Context) {
 	}
 	gin_util.Response(ctx, nil, service.ResetPasswordByEmail(ctx, &req))
 }
+
+// GetWorkflowTemplateList
+//
+//	@Tags			guest
+//	@Summary		获取工作流模板列表
+//	@Description	获取工作流模板列表
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			name		query		string	false	"模板名称"
+//	@Param			category	query		string	false	"模板分类"
+//	@Success		200			{object}	response.Response{data=response.GetWorkflowTemplateListResp}
+//	@Router			/workflow/template/list [get]
+func GetWorkflowTemplateList(ctx *gin.Context) {
+
+}
+
+// GetWorkflowTemplateDetail
+//
+//	@Tags			guest
+//	@Summary		获取工作流模板详情
+//	@Description	获取工作流模板详情
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			templateId	query		string	true	"模板ID"
+//	@Success		200			{object}	response.Response{data=response.WorkflowTemplateDetail}
+//	@Router			/workflow/template/detail [get]
+func GetWorkflowTemplateDetail(ctx *gin.Context) {
+
+}
+
+// GetWorkflowTemplateRecommend
+//
+//	@Tags			guest
+//	@Summary		获取工作流模板推荐
+//	@Description	获取工作流模板推荐
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			templateId	query		string	false	"模板ID"
+//	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.WorkflowTemplateInfo}}
+//	@Router			/workflow/template/recommend [get]
+func GetWorkflowTemplateRecommend(ctx *gin.Context) {
+
+}
+
+// DownloadWorkflowTemplate
+//
+//	@Tags			guest
+//	@Summary		下载工作流模板
+//	@Description	下载工作流模板
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		application/octet-stream
+//	@Param			templateId	query		string	true	"模板ID"
+//	@Success		200			{object}	response.Response
+//	@Router			/workflow/template/download [get]
+func DownloadWorkflowTemplate(ctx *gin.Context) {
+
+}

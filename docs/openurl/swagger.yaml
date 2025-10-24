@@ -593,9 +593,9 @@ definitions:
         type: string
       qa_type:
         type: integer
-      requestFileUrls:
+      requestFiles:
         items:
-          type: string
+          $ref: '#/definitions/response.RequestFile'
         type: array
       response:
         type: string
@@ -659,6 +659,15 @@ definitions:
         type: string
       valid:
         type: boolean
+    type: object
+  response.RequestFile:
+    properties:
+      fileUrl:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
     type: object
   response.Response:
     properties:

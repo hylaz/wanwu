@@ -24,4 +24,9 @@ func registerGuest(apiV1 *gin.RouterGroup) {
 	mid.Sub("guest").Reg(apiV1, "/base/captcha", http.MethodGet, v1.GetCaptcha, "获取验证码")
 	mid.Sub("guest").Reg(apiV1, "/base/custom", http.MethodGet, v1.GetLogoCustomInfo, "自定义logo和title")
 	mid.Sub("guest").Reg(apiV1, "/base/language/select", http.MethodGet, v1.GetLanguageSelect, "获取语言列表（用于下拉选择）")
+
+	mid.Sub("guest").Reg(apiV1, "/workflow/template/list", http.MethodGet, v1.GetWorkflowTemplateList, "获取工作流模板列表")
+	mid.Sub("guest").Reg(apiV1, "/workflow/template/detail", http.MethodGet, v1.GetWorkflowTemplateDetail, "获取工作流模板详情")
+	mid.Sub("guest").Reg(apiV1, "/workflow/template/recommend", http.MethodGet, v1.GetWorkflowTemplateRecommend, "获取工作流模板推荐")
+	mid.Sub("guest").Reg(apiV1, "/workflow/template/download", http.MethodGet, v1.DownloadWorkflowTemplate, "下载工作流模板")
 }
