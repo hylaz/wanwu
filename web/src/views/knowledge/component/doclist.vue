@@ -33,10 +33,10 @@
               </div>
 
               <div class="content_title">
-                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload">{{$t('common.gpuDialog.reload')}}</el-button>
-                <el-button size="mini" type="primary" @click="showBatchMeta">批量编辑元数据值</el-button>
-                <el-button size="mini" type="primary" @click="showMeta">元数据管理</el-button>
-                <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&name=${knowledgeName}`)">命中测试</el-button>
+                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" :disabled="permission === 0">{{$t('common.gpuDialog.reload')}}</el-button>
+                <el-button size="mini" type="primary" @click="showBatchMeta" :disabled="permission === 0">批量编辑元数据值</el-button>
+                <el-button size="mini" type="primary" @click="showMeta" :disabled="permission === 0">元数据管理</el-button>
+                <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&name=${knowledgeName}`)" :disabled="permission === 0">命中测试</el-button>
                 <el-button
                   size="mini"
                   type="primary"
@@ -137,14 +137,14 @@
                       size="mini"
                       round
                       @click="handleDel(scope.row)"
-                      :disabled="[2,3].includes(Number(scope.row.status))"
+                      :disabled="[2,3].includes(Number(scope.row.status)) || permission === 0"
                       :type="[2,3].includes(Number(scope.row.status))?'info':''"
                     >{{$t('common.button.delete')}}</el-button>
                     <el-button
                       size="mini"
                       round
                       :type="[0,3,5].includes(Number(scope.row.status))?'info':''"
-                      :disabled="[0,3,5].includes(Number(scope.row.status))"
+                      :disabled="[0,3,5].includes(Number(scope.row.status)) || permission === 0"
                       @click="handleView(scope.row)"
                     >{{$t('knowledgeManage.view')}}</el-button>
                   </template>
@@ -193,6 +193,7 @@ export default {
   data() {
     return {
       knowledgeName:this.$route.query.name || '',
+      permission:this.$route.query.permission || '',
       loading:false,
       tableLoading:false,
       docQuery: {

@@ -159,7 +159,7 @@ export default {
       }).then(() => {})
     },
     toDocList(n){
-      this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name}});
+      this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name,permission:n.permissionType}});
     },
     showPowerManagement(knowledgeItem) {
       this.$refs.powerManagement.knowledgeId = knowledgeItem.knowledgeId;

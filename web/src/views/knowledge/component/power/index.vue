@@ -27,7 +27,7 @@
         </div>
         <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId"/>
         <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId" />
-        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :transfer-data="transferData" :knowledgeId="knowledgeId" />
+        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :knowledgeId="knowledgeId" />
       <div
         slot="footer"
         class="dialog-footer"
@@ -48,7 +48,7 @@
         >确定转让</el-button>
         <el-button
           v-if="currentView === 'list'"
-          @click="handleCancel"
+          @click="handleDialogClose"
         >关闭</el-button>
       </div>
     </el-dialog>
@@ -71,7 +71,7 @@ export default {
       dialogVisible: false,
       knowledgeId:'',
       knowledgeName:'',
-      transferData: null,
+      currentTransferUser: null,
     };
   },
   computed: {
@@ -98,21 +98,17 @@ export default {
       this.currentView = "create";
     },
 
-    showTransfer(transferData) {
-      this.transferData = transferData;
+    showTransfer(row) {
       this.currentView = "transfer";
+      this.currentTransferUser = row;
     },
 
     showList() {
       this.currentView = "list";
     },
-
-    handleCancel() {
-      this.dialogVisible = false;
-    },
-
     handleConfirm() {
-      const userData = this.handleData();
+      const createData = this.$refs.powerCreate.getResults();
+      const userData = this.handleData(createData);
       if (userData && userData.length > 0) {
         addUserPower({knowledgeId:this.knowledgeId,knowledgeUserList:userData}).then(res => {
           if(res.code === 0){
@@ -125,8 +121,7 @@ export default {
         this.$message.error("请选择用户");
       }
     },
-    handleData(){
-      const createData = this.$refs.powerCreate.getResults();
+    handleData(createData){
       if (createData.node.length > 0) {
         var userList = [];
         createData.node.forEach(function(group) {
@@ -134,6 +129,7 @@ export default {
             userList.push({
               userId: user.id,
               orgId: user.orgId,
+              permissionType:createData.selectedPermission
             });
           });
         });
@@ -142,26 +138,26 @@ export default {
       return [];
     },
     handleDialogClose() {
-      this.currentView = "list";
-
-      if (this.$refs.powerCreate) {
-        console.log("对话框关闭，重置数据");
-      }
+      this.dialogVisible = false;
     },
 
     // 确认转让权限
     handleTransferConfirm() {
-      const transferData = this.handleData();
-      if (transferData) {
-        transferUserPower({knowledgeUserList:transferData, knowledgeId:this.knowledgeId}).then(res => {
+      const data = this.$refs.powerTransfer.getTransferData();
+      data.knowledgeUserList = data.knowledgeUserList.map(user => {
+        return {
+          ...user,
+          permissionId: this.currentTransferUser.permissionId
+        }
+      });
+      if (data.knowledgeUserList.length > 0) {
+        transferUserPower(data).then(res => {
           if(res.code === 0){
             this.$message.success("转让成功");
             this.showCreate();
             this.refreshList();
           }
-        }).catch(() => {
-          this.$message.error("转让失败");
-        })
+        }).catch(() => {})
       }else{
         this.$message.error("请选择用户");
       }

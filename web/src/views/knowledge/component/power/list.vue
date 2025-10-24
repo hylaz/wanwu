@@ -163,18 +163,15 @@ export default {
       }).catch(() => {})
     },
     handleCancel(row) {
-      // 取消编辑，恢复原始值
       row.type = row.originalType
       row.editing = false
     },
     handleTransfer(row) {
-      // 显示确认提示
       this.$confirm('确定要转让管理员权限吗？转让后您将失去管理员权限。', '转让确认', {
         confirmButtonText: '确定转让',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 确认后触发转让事件，让父组件处理
         this.$emit('transfer', row)
       }).catch(() => {
         this.$message.info('已取消转让')

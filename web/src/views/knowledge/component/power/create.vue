@@ -35,8 +35,8 @@
             :props="treeProps"
             :show-checkbox="!transferMode"
             node-key="id"
+            highlight-current
             :default-expand-all="true"
-            :check-strictly="false"
             @check="handleTreeCheck"
             @node-click="handleNodeClick"
             :filter-node-method="filterNode"
@@ -175,11 +175,7 @@ export default {
       })
     },
     getResults(){
-      if(this.transferMode){
-        return this.selectedUsers
-      }else{
-        return {node: this.groupedSelectedUsers, selectedPermission: this.selectedPermission}
-      }
+      return {node: this.groupedSelectedUsers, selectedPermission: this.selectedPermission}
     },
     isNodeSelected(nodeId) {
       return this.selectedUsers.some(user => user.id === nodeId)
@@ -321,11 +317,15 @@ export default {
     handleNodeClick(data, node) {
       if (this.transferMode) {
         this.selectedUsers = [{
-          userId: data.id,
+          userId: data.userId,
           orgId: data.orgId,
-          permissionType: data.organization
         }]
-        //this.updateSelectedNodeBackground()
+      }
+    },
+    getTransferData(){
+      return {
+        knowledgeId: this.knowledgeId,
+        knowledgeUserList: this.selectedUsers
       }
     },
     removeUser(user) {
