@@ -144,14 +144,12 @@ export default {
     // 确认转让权限
     handleTransferConfirm() {
       const data = this.$refs.powerTransfer.getTransferData();
-      data.knowledgeUserList = data.knowledgeUserList.map(user => {
-        return {
-          ...user,
-          permissionId: this.currentTransferUser.permissionId
-        }
-      });
-      if (data.knowledgeUserList.length > 0) {
-        transferUserPower(data).then(res => {
+      const params = {
+        ...data,
+        permissionId: this.currentTransferUser.permissionId
+      }
+      if (data.knowledgeUser.length > 0) {
+        transferUserPower(params).then(res => {
           if(res.code === 0){
             this.$message.success("转让成功");
             this.showCreate();

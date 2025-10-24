@@ -257,7 +257,6 @@ export default {
         this.$refs.tree.filter('');
         return;
       }
-
       
       // 应用过滤
       this.treeData = filterData(this.originalTreeData);
@@ -324,7 +323,7 @@ export default {
     getTransferData(){
       return {
         knowledgeId: this.knowledgeId,
-        knowledgeUserList: this.selectedUsers
+        knowledgeUser: this.selectedUsers
       }
     },
     removeUser(user) {
