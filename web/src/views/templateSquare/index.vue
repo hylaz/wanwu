@@ -31,9 +31,6 @@ export default {
   created() {
     this.isPublic = this.$route.path.includes('/public/')
     this.type = this.$route.query.type || WORKFLOW
-    /*const {data} = this.$store.state.user.commonInfo || {}
-     const {home = {}} = data || {}
-     this.bgColor = home.backgroundColor*/
   },
   methods: {
     tabClick(type) {

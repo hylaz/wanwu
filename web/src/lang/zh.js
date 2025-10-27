@@ -452,7 +452,7 @@ export default {
         pluginDesc: '工作流描述',
         createplugin: '工作流创建',
         editplugin: '工作流编辑',
-        copy_Demo: '复制样例',
+        copy_Demo: '复制工作流',
         status:'状态',
         published:'已发布',
         unpublished:'未发布',

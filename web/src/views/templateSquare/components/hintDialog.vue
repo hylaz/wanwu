@@ -8,7 +8,7 @@
   >
     <div style="text-align: center; margin-bottom: 25px">
       <div>我们提供了丰富的工作流模板，欢迎您前往查看并下载。</div>
-      <div class="link-text">跳转</div>
+      <div class="link-text" @click="jumpToPublicTemplate">{{templateUrl || '跳转'}}</div>
     </div>
   </el-dialog>
 </template>
@@ -17,7 +17,7 @@
 
 export default {
   props: {
-    linkUrl: ''
+    templateUrl: ''
   },
   data() {
     return {
@@ -27,6 +27,9 @@ export default {
   methods: {
     openDialog() {
       this.dialogVisible = true
+    },
+    jumpToPublicTemplate() {
+      if (this.templateUrl) window.open(this.templateUrl)
     }
   },
 };

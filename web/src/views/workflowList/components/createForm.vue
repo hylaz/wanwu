@@ -26,26 +26,19 @@
             </p>
           </el-upload>
         </el-form-item>
-        <el-form-item :label="$t('list.pluginName')+':'" prop="configName">
+        <el-form-item :label="$t('list.pluginName')+':'" prop="name">
           <el-input
             :placeholder="$t('list.nameplaceholder')"
-            v-model="form.configName"
+            v-model="form.name"
             maxlength="30"
             show-word-limit
           ></el-input>
         </el-form-item>
-        <!--<el-form-item label="插件英文名:" prop="configENName">
-          <el-input
-            type="input"
-            placeholder="插件英文名将用于被大模型识别及调用，仅支持英文、数字、下划线，以英文字母开头"
-            v-model="form.configENName"
-          ></el-input>
-        </el-form-item>-->
-        <el-form-item :label="$t('list.pluginDesc')+':'" prop="configDesc">
+        <el-form-item :label="$t('list.pluginDesc')+':'" prop="desc">
           <el-input
             type="textarea"
             :placeholder="$t('list.descplaceholder')"
-            v-model="form.configDesc"
+            v-model="form.desc"
             show-word-limit
             maxlength="600"
           ></el-input>
@@ -67,7 +60,8 @@
 </template>
 
 <script>
-import { createWorkFlow, copyExample, uploadFile } from "@/api/workflow";
+import { createWorkFlow, uploadFile } from "@/api/workflow"
+import { copyWorkflowTemplate } from "@/api/templateSquare"
 
 export default {
   props: {
@@ -85,10 +79,8 @@ export default {
       defaultLogo: require("@/assets/imgs/bg-logo.png"),
       defaultIcon: '',
       form: {
-        configName: "",
-        configENName: "",
-        configDesc: "",
-        isStream: false,
+        name: "",
+        desc: "",
         avatar: {
           key: '',
           path: ''
@@ -100,8 +92,9 @@ export default {
         clone: this.$t('list.copy_Demo'),
       },
       workflowID: "",
+      templateId: '',
       rules: {
-        configName: [
+        name: [
           { required: true, message: this.$t('list.nameRules'), trigger: "change" },
           { max:30, message:this.$t('list.pluginNameRules'), trigger: "change" },
           {
@@ -120,27 +113,7 @@ export default {
             trigger: "change",
           },
         ],
-        configENName: [
-          { required: false, message: this.$t('list.enNameRules'), trigger: "blur" },
-          {
-            validator: (rule, value, callback) => {
-                if(!value){
-                    callback();
-                }else{
-                    if (/^[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) {
-                        callback();
-                    } else {
-                        callback(
-                            new Error(this.$t('list.enNameErrorRules'))
-                        );
-                    }
-                }
-
-            },
-            trigger: "change",
-          },
-        ],
-        configDesc: [
+        desc: [
           { required: true, message: this.$t('list.pluginDescRules'), trigger: "blur" },
           { max: 600, message:this.$t('list.pluginLimitRules'),trigger: "blur"}
         ],
@@ -198,19 +171,21 @@ export default {
       } else {
         this.clearForm();
       }
-      if(row){
-        this.workflowID = row.id;
+      if(row) {
+        console.log(row, '-----------------------row')
+        const {templateId, name, desc, avatar} = row
+        this.templateId = templateId
+        this.form = {name, desc, avatar}
       }
       this.dialogVisible = true;
       this.$nextTick(()=>{
-          this.$refs['form'].clearValidate()
+        this.$refs['form'].clearValidate()
       })
     },
     clearForm() {
       this.form = {
-        configName: "",
-        configENName: "",
-        configDesc: "",
+        name: "",
+        desc: "",
         avatar: {
           key: '',
           path: ''
@@ -225,38 +200,23 @@ export default {
           valid = true;
         }
       });
-      if (!valid) return;
-      if (this.type == "edit") {
-        this.$emit("save");
-        this.dialogVisible = false;
-        return;
-      }
-      if (this.type == "clone") {
-        this.form.workflowID = this.workflowID;
-        let res = await copyExample(this.form);
+      if (!valid) return
+      if (this.type === "clone") {
+        let res = await copyWorkflowTemplate({...this.form, templateId: this.templateId})
         if (res.code === 0) {
-          this.$message.success(this.$t('list.copySuccess'));
-          this.dialogVisible = false;
-          let { workflowID } = res.data;
-          this.$router.push({ path: "/workflow", query: { id: workflowID } });
+          this.$message.success(this.$t('list.copySuccess'))
+          this.dialogVisible = false
+          this.$router.push({ path: "/appSpace/workflow" })
         }
-        return;
+        return
       }
-      const { configName, configDesc, avatar } = this.form || {}
-      const res = await createWorkFlow({
-        name: configName,
-        desc: configDesc,
-        avatar,
-      });
+      const res = await createWorkFlow(this.form)
       if (res.code === 0) {
-        this.$message.success(this.$t('list.createSuccess'));
-        this.dialogVisible = false;
-        let { workflow_id } = res.data;
-        let querys = { id: workflow_id };
-        if(this.form.isStream){
-          querys.isStream = true
-        }
-        this.$router.push({ path: "/workflow", query: querys });
+        this.$message.success(this.$t('list.createSuccess'))
+        this.dialogVisible = false
+        const { workflow_id } = res.data || {}
+        const querys = { id: workflow_id }
+        this.$router.push({ path: "/workflow", query: querys })
       }
     },
   },

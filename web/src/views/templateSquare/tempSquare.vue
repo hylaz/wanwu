@@ -35,20 +35,20 @@
                     <img
                       class="card-logo"
                       v-if="item.avatar && item.avatar.path"
-                      :src="basePath + '/user/api/' + item.avatar.path"
+                      :src="item.avatar.path"
                     />
                     <div class="mcp_detailBox">
                       <span class="mcp_name">{{ item.name }}</span>
                       <span class="mcp_from">
                         <label>
-                          作者：{{ item.from }}
+                          作者：{{ item.author }}
                         </label>
                       </span>
                     </div>
                   </div>
                   <div class="card-des">{{ item.desc }}</div>
                   <div class="card-bottom">
-                    <div class="card-bottom-left">下载量：{{item.downloadNum || '--'}}</div>
+                    <div class="card-bottom-left">下载量：{{item.downloadCount || 0}}</div>
                     <div class="card-bottom-right">
                       <i v-if="isLogin" class="el-icon-copy-document" title="复制" @click.stop="copyTemplate(item)"></i>
                       <i class="el-icon-download" title="下载" @click.stop="downloadTemplate(item)"></i>
@@ -64,15 +64,17 @@
         </div>
       </div>
     </div>
-    <HintDialog ref="hintDialog" />
+    <HintDialog :templateUrl="templateUrl" ref="hintDialog" />
+    <CreateForm type="clone" ref="cloneWorkflowDialog" />
   </div>
 </template>
 <script>
-import { getWorkflowTempList } from "@/api/templateSquare"
+import { getWorkflowTempList, downloadWorkflow } from "@/api/templateSquare"
 import SearchInput from "@/components/searchInput.vue"
 import HintDialog from "./components/hintDialog.vue"
+import CreateForm from "@/views/workflowList/components/createForm.vue"
 export default {
-  components: { SearchInput, HintDialog },
+  components: { SearchInput, HintDialog, CreateForm },
   props: {
     isPublic: true,
     type: ''
@@ -83,17 +85,19 @@ export default {
       category: '全部',
       list: [
         {
-          "mcpSquareId": "gaodemap",
+          "author": "XXX",
           "avatar": {
-            "key": "",
-            "path": "/v1/cache/icon-Workflow-v2.jpg"
+            "key": "string",
+            "path": "http://192.168.0.21:8081/user/api/v1/cache/icon-Workflow-v2.jpg"
           },
+          "category": "string",
           "name": "工作流名称",
           "desc": "工作流描述",
-          "from": "XXX",
-          "category": "search"
-        },
+          "downloadCount": 0,
+          "templateId": "gaodemap"
+        }
       ],
+      templateUrl: 'https://baidu.com',
       isLogin: false,
       loading:false,
       typeRadio: 'all',
@@ -126,7 +130,6 @@ export default {
       this.$refs.hintDialog.openDialog()
     },
     doGetWorkflowTempList() {
-      return
       const searchInput = this.$refs.searchInput
       let params = {
         name: searchInput.value,
@@ -135,21 +138,32 @@ export default {
 
       getWorkflowTempList(params)
         .then((res) => {
-          this.list = res.data.list || []
+          const {downloadLink = {}, list} = res.data || {}
+          this.templateUrl = downloadLink.url
+          if (downloadLink.templateUrl) this.showHintDialog()
+
+          this.list = list || []
           this.loading = false
         })
         .catch(() => this.loading = false)
     },
     copyTemplate(item) {
-      console.log(item, '------------------------copy')
+      this.$refs.cloneWorkflowDialog.openDialog(item)
     },
     downloadTemplate(item) {
-      console.log(item, '------------------------download')
-      this.showHintDialog()
+      downloadWorkflow({ templateId : item.templateId }).then(response => {
+        const blob = new Blob([response], { type: response.type })
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a")
+        link.href = url
+        link.download = row.name + '.json'
+        link.click()
+        window.URL.revokeObjectURL(link.href)
+      })
     },
     handleClick(val) {
       const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`
-      this.$router.push({path, query: { templateSquareId: val.mcpSquareId, type: this.type }})
+      this.$router.push({path, query: { templateSquareId: val.templateId, type: this.type }})
     },
   },
 };

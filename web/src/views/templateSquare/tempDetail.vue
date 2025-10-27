@@ -2,8 +2,8 @@
   <div class="tempSquare-detail" :style="`background: ${isPublic ? bgColor : 'none'}`">
     <span class="back" @click="back">{{$t('menu.back') + $t('menu.templateSquare')}}</span>
     <div class="tempSquare-title">
-      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="basePath + '/user/api/' + detail.avatar.path" />
-      <div :class="['info',{fold:foldStatus}]">
+      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="detail.avatar.path" />
+      <div :class="['info', {fold:foldStatus}]">
         <p class="name">{{detail.name}}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
           {{foldStatus ? detail.desc : detail.desc.slice(0,268) + '...'}}
@@ -37,13 +37,13 @@
               </div>
             </div>
           </div>
-          <div class="overview bg-border" >
+          <div class="overview bg-border" v-if="detail.note">
             <div class="overview-item">
-              <div class="item-title">• &nbsp;使用说明</div>
-              <div class="item-desc" v-html="parseTxt(detail.manual)"></div>
+              <div class="item-title">• &nbsp;注意事项</div>
+              <div class="item-desc" v-html="parseTxt(detail.note)"></div>
             </div>
           </div>
-          <div class="overview bg-border" >
+          <div class="overview bg-border" v-if="detail.detail">
             <div class="overview-item">
               <div class="item-title">• &nbsp;详情</div>
               <div class="item-desc">
@@ -57,7 +57,7 @@
       <div class="right-recommend">
         <p style="margin: 20px 0;color: #333;">其他模板查看</p>
         <div class="recommend-item" v-for="(item ,i) in recommendList" :key="`${i}rc`" @click="handleClick(item)">
-          <img class="logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+          <img class="logo" v-if="item.avatar && item.avatar.path" :src="item.avatar.path" />
           <p class="name">{{item.name}}</p>
           <p class="intro">{{item.desc}}</p>
         </div>
@@ -77,14 +77,42 @@ export default {
       isPublic: true,
       bgColor: 'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
       type: '',
-      md:md,
+      md: md,
       isFromSquare: true,
-      templateSquareId:'',
-      detail: {},
-      tools: [],
-      foldStatus:false,
-      tabActive:0,
-      recommendList: [],
+      templateSquareId: '',
+      detail:  {
+        "author": "string",
+        "avatar": {
+          "key": "string",
+          "path": "http://192.168.0.21:8081/user/api/v1/cache/icon-Workflow-v2.jpg"
+        },
+        "category": "string",
+        "downloadCount": 0,
+        "feature": "string",
+        "graph": "string",
+        "name": "工作流名称",
+        "desc": "工作流描述",
+        "note": "string",
+        "scenario": "string",
+        "summary": "string",
+        "templateId": "string"
+      },
+      foldStatus: false,
+      tabActive: 0,
+      recommendList: [
+        {
+          "author": "XXX",
+          "avatar": {
+            "key": "string",
+            "path": "http://192.168.0.21:8081/user/api/v1/cache/icon-Workflow-v2.jpg"
+          },
+          "category": "string",
+          "name": "工作流名称",
+          "desc": "工作流描述",
+          "downloadCount": 0,
+          "templateId": "gaodemap"
+        }
+      ],
       dialogVisible: false,
     };
   },
@@ -115,13 +143,13 @@ export default {
       const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
-    getDetailData(){
-      getWorkflowTempInfo({mcpSquareId: this.templateSquareId}).then((res) => {
+    getDetailData() {
+      getWorkflowTempInfo({templateId: this.templateSquareId}).then((res) => {
         this.detail = res.data || {}
       })
     },
     getRecommendList() {
-      const params = { mcpSquareId: this.templateSquareId }
+      const params = { templateId: this.templateSquareId }
       getWorkflowRecommendsList(params).then((res) => {
         this.recommendList = res.data.list
       })
@@ -129,19 +157,19 @@ export default {
     getPath() {
       return this.isPublic ? '/public/templateSquare' : '/templateSquare'
     },
-    handleClick(val){
-      this.$router.push(`${this.getPath()}/detail?templateSquareId=${val.mcpSquareId}`)
+    handleClick(val) {
+      this.$router.push(`${this.getPath()}/detail?templateSquareId=${val.templateId}`)
     },
     // 解析文本，遇到.换行等
-    parseTxt(txt){
+    parseTxt(txt) {
       if (!txt) return ''
       const text = txt.replaceAll('\n\t','<br/>&nbsp;').replaceAll('\n','<br/>').replaceAll('\t', '   &nbsp;')
       return text
     },
-    tabClick(status){
+    tabClick(status) {
       this.tabActive = status
     },
-    fold(){
+    fold() {
       this.foldStatus = !this.foldStatus
     },
     back() {
