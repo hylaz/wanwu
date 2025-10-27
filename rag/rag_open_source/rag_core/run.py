@@ -380,7 +380,7 @@ def search_knowledge_base():
         # user_id = init_info['userId']
         # kb_name = init_info.get("knowledgeBase", "")
         # kb_id = init_info.get("kb_id", "")
-        knowledge_base_info = init_info.get("knowledgeBaseInfo", {})
+        knowledge_base_info = init_info.get("knowledge_base_info", {})
         question = init_info['question']
         rate = float(init_info.get('threshold', 0))
         top_k = int(init_info.get('topK', 5))

@@ -338,7 +338,7 @@ async def search(request: Request):
     json_request = await request.json()
     # user_id = request.headers.get("X-uid")
     # kb_name = json_request["knowledgeBase"]
-    knowledge_base_info = json_request.get("knowledgeBaseInfo", {})
+    knowledge_base_info = json_request.get("knowledge_base_info", {})
     question = json_request["question"]
     rate = float(json_request["threshold"])
     top_k = int(json_request["topK"])
