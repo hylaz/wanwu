@@ -33,15 +33,16 @@
               </div>
 
               <div class="content_title">
-                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" :disabled="permission === 0">{{$t('common.gpuDialog.reload')}}</el-button>
-                <el-button size="mini" type="primary" @click="showBatchMeta" :disabled="permission === 0">批量编辑元数据值</el-button>
-                <el-button size="mini" type="primary" @click="showMeta" :disabled="permission === 0">元数据管理</el-button>
-                <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&name=${knowledgeName}`)" :disabled="permission === 0">命中测试</el-button>
+                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" >{{$t('common.gpuDialog.reload')}}</el-button>
+                <el-button size="mini" type="primary" @click="showBatchMeta" v-if="[10,20,30].includes(permissionType)">批量编辑元数据值</el-button>
+                <el-button size="mini" type="primary" @click="showMeta" v-if="[10,20,30].includes(permissionType)">元数据管理</el-button>
+                <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&name=${knowledgeName}`)">命中测试</el-button>
                 <el-button
                   size="mini"
                   type="primary"
                   :underline="false"
                   @click="handleUpload"
+                  v-if="[10,20,30].includes(permissionType)"
                 >{{$t('knowledgeManage.fileUpload')}}</el-button>
               </div>
             </el-header>
@@ -137,14 +138,15 @@
                       size="mini"
                       round
                       @click="handleDel(scope.row)"
-                      :disabled="[2,3].includes(Number(scope.row.status)) || permission === 0"
+                      :disabled="[2,3].includes(Number(scope.row.status))"
+                      v-if="[10,20,30].includes(permissionType)"
                       :type="[2,3].includes(Number(scope.row.status))?'info':''"
                     >{{$t('common.button.delete')}}</el-button>
                     <el-button
                       size="mini"
                       round
                       :type="[0,3,5].includes(Number(scope.row.status))?'info':''"
-                      :disabled="[0,3,5].includes(Number(scope.row.status)) || permission === 0"
+                      :disabled="[0,3,5].includes(Number(scope.row.status))"
                       @click="handleView(scope.row)"
                     >{{$t('knowledgeManage.view')}}</el-button>
                   </template>
@@ -188,12 +190,12 @@ import SearchInput from "@/components/searchInput.vue";
 import mataData from './metadata.vue'
 import batchMetaData from './meta/batchMetaData.vue'
 import {getDocList,delDocItem,uploadFileTips,updateDocMeta} from "@/api/knowledge";
+import {mapGetters} from 'vuex';
 export default {
   components: { Pagination,SearchInput,mataData,batchMetaData},
   data() {
     return {
       knowledgeName:this.$route.query.name || '',
-      permission:this.$route.query.permission || '',
       loading:false,
       tableLoading:false,
       docQuery: {
@@ -237,6 +239,9 @@ export default {
         }
       }
     }
+  },
+  computed: {
+    ...mapGetters('app', ['permissionType'])
   },
   mounted(){
     this.getTableData(this.docQuery)

@@ -135,7 +135,7 @@ export default {
     return {
       searchKeyword: '',
       selectedOrganization: '',
-      selectedPermission: '可读',
+      selectedPermission:0,
       organizationList: [],
       originalTreeData: null,
       treeProps: {

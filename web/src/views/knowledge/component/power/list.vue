@@ -39,7 +39,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" align="center">
+        <el-table-column label="操作" width="180" align="center" v-if="[20,30].includes(permissionType)">
           <template slot-scope="scope">
             <div class="action-buttons">
               <!-- 系统管理员权限：只显示转让按钮 -->
@@ -54,12 +54,8 @@
                   转让
                 </el-button>
               </template>
-              <!--管理员权限 -->
-              <template v-if="scope.row.permissionType === 20">
-                <span>--</span>
-              </template>
               <!-- 非管理员权限：显示编辑和删除按钮 -->
-              <template v-if="scope.row.permissionType === 0 || scope.row.permissionType === 10">
+              <template v-if="[0, 10].includes(scope.row.permissionType) || (permissionType === 30 && scope.row.permissionType === 20)">
                 <el-button
                   v-if="!scope.row.editing"
                   type="text"
@@ -118,6 +114,10 @@ export default {
     knowledgeId: {
       type: String,
       default: ''
+    },
+    permissionType:{
+      type:Number,
+      default:0
     }
   },
   data() {

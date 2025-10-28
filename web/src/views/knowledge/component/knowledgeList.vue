@@ -55,8 +55,8 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="edit">{{$t('common.button.edit')}}</el-dropdown-item>
-                <el-dropdown-item command="delete">{{$t('common.button.delete')}}</el-dropdown-item>
-                <el-dropdown-item command="power">权限</el-dropdown-item>
+                <el-dropdown-item command="delete" v-if="n.transfer">{{$t('common.button.delete')}}</el-dropdown-item>
+                <el-dropdown-item command="power" v-if="[20,30].includes(n.permissionType)">权限</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -74,6 +74,7 @@ import { delKnowledgeItem } from "@/api/knowledge";
 import { AppType } from "@/utils/commonSet"
 import tagDialog from './tagDialog.vue';
 import PowerManagement from './power/index.vue';
+import {mapActions} from 'vuex';
 export default {
   components:{tagDialog, PowerManagement},
   props:{
@@ -100,7 +101,13 @@ export default {
       title:'创建标签'
     }
   },
+  
+  beforeDestroy() {
+    this.clearPermissionType();
+  },
+  
   methods:{
+  ...mapActions("app", ["setPermissionType","clearPermissionType"]),
   formattedTagNames(data){
     if(data.length === 0){
       return [];
@@ -165,11 +172,13 @@ export default {
       }).then(() => {})
     },
     toDocList(n){
-      this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name,permission:n.permissionType}});
+      this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name}});
     },
     showPowerManagement(knowledgeItem) {
       this.$refs.powerManagement.knowledgeId = knowledgeItem.knowledgeId;
       this.$refs.powerManagement.knowledgeName = knowledgeItem.knowledgeName;
+      this.$refs.powerManagement.permissionType = knowledgeItem.permissionType;
+      this.setPermissionType(knowledgeItem.permissionType)
       this.$refs.powerManagement.showDialog();
     },
   }

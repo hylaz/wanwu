@@ -48,7 +48,7 @@
             </el-tooltip>
           </template>
           <span v-else>无数据</span>
-          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])" v-if="metaDataList"></span>
+          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])" v-if="metaDataList && [10,20,30].includes(permissionType)"></span>
         </el-descriptions-item>
         <el-descriptions-item label="元数据规则">
           <template v-if="metaRuleList && metaRuleList.length > 0">
@@ -72,6 +72,7 @@
           @click="createChunk(false)"
           size="mini"
           :loading="loading.start"
+          v-if="[10,20,30].includes(permissionType)"
           >新增分段</el-button
         >
         <el-button
@@ -79,6 +80,7 @@
           @click="handleStatus('start')"
           size="mini"
           :loading="loading.start"
+          v-if="[10,20,30].includes(permissionType)"
           >{{$t('knowledgeManage.allRun')}}</el-button
         >
         <el-button
@@ -86,6 +88,7 @@
           @click="handleStatus('stop')"
           size="mini"
           :loading="loading.stop"
+          v-if="[10,20,30].includes(permissionType)"
           >{{$t('knowledgeManage.allStop')}}</el-button
         >
       </div>
@@ -111,10 +114,11 @@
                     style="padding: 3px 0;"
                     v-model="item.available"
                     active-color="var(--color)"
+                    v-if="[10,20,30].includes(permissionType)"
                     @change="handleStatusChange(item, index)"
                   >
                   </el-switch>
-                  <el-dropdown @command="handleCommand" placement="bottom">
+                  <el-dropdown @command="handleCommand" placement="bottom" :disabled="[0].includes(permissionType)">
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
@@ -174,6 +178,7 @@
           style="float: right; padding: 3px 0"
           v-model="cardObj[0].available"
           active-color="var(--color)"
+          v-if="[10,20,30].includes(permissionType)"
         >
         </el-switch>
       </div>
@@ -198,9 +203,10 @@
                 v-model="scope.row.content"
                 :autosize="{ minRows: 3, maxRows: 5}"
                 class="full-width-textarea"
+                :disabled="[0].includes(permissionType)"
                 >
               </el-input>
-              <div  v-if="cardObj[0]['isParent']" style="display: flex;justify-content: flex-end;padding: 10px 0;">
+              <div  v-if="cardObj[0]['isParent'] && [10,20,30].includes(permissionType)" style="display: flex;justify-content: flex-end;padding: 10px 0;">
                 <el-button type="primary" @click="handleSubmit"  :loading="submitLoading">保存并重新解析子分段</el-button>
               </div>
               <div class="segment-list" v-if="scope.row.childContent.length > 0">
@@ -217,10 +223,10 @@
                     <template slot="title">
                       <span class="segment-badge">C-{{ index + 1 }}</span>
                       <div class="segment-actions">
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
+                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [10,20,30].includes(permissionType)" class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
                           <i class="el-icon-edit-outline"></i>编辑
                         </span>
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
+                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [10,20,30].includes(permissionType)" class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
                           <i class="el-icon-delete"></i>删除
                         </span>
                         <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn save-btn" @click.stop="confirmEdit(scope.row, index)">
@@ -255,8 +261,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleSubmit" :loading="submitLoading" v-if="!cardObj[0]['isParent']">确定</el-button>
-        <!-- <el-button type="primary" @click="handleSubmit"  v-if="cardObj[0]['isParent']" :loading="submitLoading">保存并重新解析子分段</el-button> -->
-        <el-button type="primary" @click="createChunk(true)" v-if="cardObj[0]['isParent']" :disabled="submitLoading">新增子分段</el-button>
+        <el-button type="primary" @click="createChunk(true)" v-if="cardObj[0]['isParent'] && [10,20,30].includes(permissionType)"" :disabled="submitLoading">新增子分段</el-button>
         <el-button type="primary" @click="handleClose" :disabled="submitLoading">{{$t('knowledgeManage.close')}}</el-button>
       </span>
     </el-dialog>
@@ -270,6 +275,7 @@ import { getSectionList,setSectionStatus,sectionLabels,delSegment,editSegment,ge
 import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue'
+import {mapGetters} from 'vuex';
 export default {
   components:{dataBaseDialog,tagDialog,createChunk},
   data() {
@@ -315,6 +321,9 @@ export default {
       timer:null,
       refreshCount:0,
     };
+  },
+  computed: {
+    ...mapGetters('app', ['permissionType'])
   },
   created() {
     this.obj = this.$route.query;

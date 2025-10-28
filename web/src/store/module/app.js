@@ -21,10 +21,17 @@ export const app = {
         cacheData:{},
         historyAppList:[],
         embeddingList:[],
-        fromList:''
+        fromList:'',
+        permissionType:''
     },
 
     mutations: {
+        SET_PERMISSION_TYPE(state,data){
+            state.permissionType = data
+        },
+        CLEAR_PERMISSION_TYPE(state){
+            state.permissionType = ''
+        },
         SET_MAX_PICNUM(state,data){
             state.maxPicNum = data
         },
@@ -77,6 +84,12 @@ export const app = {
         }
     },
     actions: {
+        setPermissionType({ commit },data){
+            commit('SET_PERMISSION_TYPE',data)
+        },
+        clearPermissionType({ commit }){
+            commit('CLEAR_PERMISSION_TYPE')
+        },
         setMaxPicNum({ commit },data){
             commit('SET_MAX_PICNUM',data)
         },
@@ -138,6 +151,7 @@ export const app = {
         historyAppList:(state) => state.historyAppList,
         embeddingList:(state) => state.embeddingList,
         fromList:(state) => state.fromList,
-        maxPicNum:(state) => state.maxPicNum
+        maxPicNum:(state) => state.maxPicNum,
+        permissionType:(state) => state.permissionType
     }
 }
