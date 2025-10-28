@@ -480,6 +480,7 @@ async def search(request: Request):
                                                                rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                                weights=weights,
                                                                metadata_filtering_conditions=metadata_filtering_conditions,
+                                                               knowledge_base_info=knowledge_base_info
                                                                )
             else:
                 rerank_result = get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent,
@@ -488,6 +489,7 @@ async def search(request: Request):
                                                            rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                            weights=weights,
                                                            metadata_filtering_conditions=metadata_filtering_conditions,
+                                                           knowledge_base_info=knowledge_base_info
                                                            )
 
             logger.info("===>data_flywheel=%s,has_effective_cache=%s,rerank_result=%s" % (data_flywheel,has_effective_cache,json.dumps(rerank_result, ensure_ascii=False)))
