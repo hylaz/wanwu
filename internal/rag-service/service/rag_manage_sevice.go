@@ -32,7 +32,8 @@ const (
 )
 
 type RagChatParams struct {
-	KnowledgeBase        []string              `json:"knowledgeBase"`
+	KnowledgeBase        []string              `json:"knowledgeBase"`   // 知识库名字列表
+	KnowledgeIdList      []string              `json:"knowledgeIdList"` // 知识库ID列表
 	Question             string                `json:"question"`
 	Threshold            float32               `json:"threshold"` // Score阈值
 	TopK                 int32                 `json:"topK"`
@@ -171,7 +172,7 @@ func buildHttpParams(userId string, req *RagChatParams) (*http_client.HttpReques
 }
 
 // BuildChatConsultParams 构造rag 会话参数
-func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeInfoList *knowledgeBase_service.KnowledgeDetailSelectListResp) (*RagChatParams, error) {
+func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeInfoList *knowledgeBase_service.KnowledgeDetailSelectListResp, knowledgeIds []string) (*RagChatParams, error) {
 	// 知识库参数
 	ragChatParams := &RagChatParams{}
 	knowledgeConfig := rag.KnowledgeBaseConfig
@@ -190,6 +191,7 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 		}
 	}
 	ragChatParams.KnowledgeBase = kbNameList
+	ragChatParams.KnowledgeIdList = knowledgeIds
 	ragChatParams.RerankModelId = buildRerankId(knowledgeConfig.PriorityMatch, rag.RerankConfig.ModelId)
 	if rag.KnowledgeBaseConfig.TermWeightEnable {
 		ragChatParams.TermWeight = float32(rag.KnowledgeBaseConfig.TermWeight)

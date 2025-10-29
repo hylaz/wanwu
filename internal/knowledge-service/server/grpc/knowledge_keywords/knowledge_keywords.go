@@ -86,7 +86,7 @@ func GetKnowledgeInfo(ctx context.Context, k *model.KnowledgeKeywords) ([]string
 		return nil, nil, err
 	}
 	// 根据id获取知识库列表
-	knowledgeList, errk := orm.SelectKnowledgeByIdList(ctx, knowledgeIds, k.UserId, k.OrgId)
+	knowledgeList, _, errk := orm.SelectKnowledgeByIdList(ctx, knowledgeIds, k.UserId, k.OrgId)
 	if errk != nil {
 		log.Errorf("查询知识库名称失败")
 		return nil, nil, errk

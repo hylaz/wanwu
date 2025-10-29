@@ -127,6 +127,7 @@ type KnowledgeDocConfig struct {
 
 type RagServerConfig struct {
 	Endpoint                  string `mapstructure:"endpoint" json:"endpoint"`
+	ProxyPoint                string `mapstructure:"proxy-point" json:"proxy-point"`
 	UrlImportEndpoint         string `mapstructure:"url-import-endpoint" json:"url-import-endpoint"`
 	UrlAnalysisEndpoint       string `mapstructure:"url-analysis-endpoint" json:"url-analysis-endpoint"`
 	InitKnowledgeUri          string `mapstructure:"init-knowledge-uri" json:"init-knowledge-uri"`

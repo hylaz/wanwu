@@ -292,4 +292,9 @@ default-icon:
   workflow: "/v1/static/icon/workflow-default-icon.png"
   tool: "/v1/static/icon/custom-tool-default-icon.png"
 
+rag-knowledge:
+  endpoint: 'http://rag-wanwu:8681'
+  chat-endpoint: 'http://rag-wanwu:10891'
+  search-knowledge-base-uri: '/rag/search-knowledge-base'
+  knowledge-chat-uri: '/rag/knowledge/stream/search'
 

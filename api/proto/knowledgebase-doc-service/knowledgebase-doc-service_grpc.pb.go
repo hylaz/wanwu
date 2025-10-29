@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	KnowledgeBaseDocService_GetDocList_FullMethodName              = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocList"
+	KnowledgeBaseDocService_GetDocDetail_FullMethodName            = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocDetail"
 	KnowledgeBaseDocService_ImportDoc_FullMethodName               = "/knowledgebase_doc_service.KnowledgeBaseDocService/ImportDoc"
 	KnowledgeBaseDocService_UpdateDocStatus_FullMethodName         = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocStatus"
 	KnowledgeBaseDocService_UpdateDocMetaData_FullMethodName       = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocMetaData"
@@ -48,6 +49,8 @@ const (
 type KnowledgeBaseDocServiceClient interface {
 	// 获取文档列表
 	GetDocList(ctx context.Context, in *GetDocListReq, opts ...grpc.CallOption) (*GetDocListResp, error)
+	// 获取文档详情
+	GetDocDetail(ctx context.Context, in *GetDocDetailReq, opts ...grpc.CallOption) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(ctx context.Context, in *ImportDocReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新文档状态
@@ -100,6 +103,16 @@ func (c *knowledgeBaseDocServiceClient) GetDocList(ctx context.Context, in *GetD
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetDocListResp)
 	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_GetDocList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) GetDocDetail(ctx context.Context, in *GetDocDetailReq, opts ...grpc.CallOption) (*DocInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DocInfo)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_GetDocDetail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -302,6 +315,8 @@ func (c *knowledgeBaseDocServiceClient) UpdateDocChildSegment(ctx context.Contex
 type KnowledgeBaseDocServiceServer interface {
 	// 获取文档列表
 	GetDocList(context.Context, *GetDocListReq) (*GetDocListResp, error)
+	// 获取文档详情
+	GetDocDetail(context.Context, *GetDocDetailReq) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error)
 	// 更新文档状态
@@ -352,6 +367,9 @@ type UnimplementedKnowledgeBaseDocServiceServer struct{}
 
 func (UnimplementedKnowledgeBaseDocServiceServer) GetDocList(context.Context, *GetDocListReq) (*GetDocListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDocList not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) GetDocDetail(context.Context, *GetDocDetailReq) (*DocInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDocDetail not implemented")
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportDoc not implemented")
@@ -446,6 +464,24 @@ func _KnowledgeBaseDocService_GetDocList_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KnowledgeBaseDocServiceServer).GetDocList(ctx, req.(*GetDocListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_GetDocDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDocDetailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_GetDocDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocDetail(ctx, req.(*GetDocDetailReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -802,6 +838,10 @@ var KnowledgeBaseDocService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDocList",
 			Handler:    _KnowledgeBaseDocService_GetDocList_Handler,
+		},
+		{
+			MethodName: "GetDocDetail",
+			Handler:    _KnowledgeBaseDocService_GetDocDetail_Handler,
 		},
 		{
 			MethodName: "ImportDoc",

@@ -78,5 +78,5 @@ knowledge:
 
 
 ragServer:
-  chatEndpoint: http://rag-wanwu:10891
-  chatUrl: /rag/knowledge/stream/search
+  chatEndpoint: http://bff-service:6668
+  chatUrl: /callback/v1/rag/knowledge/stream/search

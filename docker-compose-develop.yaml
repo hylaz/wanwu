@@ -281,7 +281,7 @@ services:
       WANWU_CALLBACK_SQUARE_TOOL_URL: http://bff-service:6668/callback/v1/workflow/tool/square
       WANWU_CALLBACK_CUSTOM_TOOL_URL: http://bff-service:6668/callback/v1/workflow/tool/custom
       WANWU_CALLBACK_WORKFLOW_LIST_URL: http://bff-service:6668/callback/v1/workflow/list
-      WANWU_KNOWLEDGE_SEARCH_URL: http://rag-wanwu:8681/rag/search-knowledge-base
+      WANWU_KNOWLEDGE_SEARCH_URL: http://bff-service:6668/callback/v1/rag/search-knowledge-base
       WANWU_FILE_GENERATOR_URL: http://agent-wanwu:15002/upload
       WANWU_FILE_PARSER_URL: http://rag-wanwu:8681/rag/doc_parser
       # 用于nginx 8081代理workflow-wanwu:8998 minio presign相关api
@@ -370,6 +370,7 @@ services:
       URL_MODEL: http://bff-service
       URL_MINIO: http://bff-service
       URL_RAG: http://rag-wanwu
+      URL_RAG_STREAM: http://bff-service:6668/callback/v1/rag/knowledge/stream/search
     working_dir: /agent/agent_open_source
     command: bash -c "./start_all.sh && tail -f /dev/null"
 

@@ -248,7 +248,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	sseReq.UploadFileUrl = extractFileUrls(req.FileInfo)
 
 	// 模型参数配置
-	modelConfig, err := s.setModelConfigParams(sseReq, assistant)
+	_, err = s.setModelConfigParams(sseReq, assistant)
 	if err != nil {
 		SSEError(stream, "智能体模型配置解析失败")
 		saveConversation(ctx, req, "智能体模型配置解析失败", "")
@@ -256,28 +256,28 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	}
 
 	// 知识库参数配置
-	if err := s.setKnowledgebaseParams(ctx, sseReq, req, assistant, modelConfig); err != nil {
+	if err = s.setKnowledgebaseParams(ctx, sseReq, req, assistant); err != nil {
 		SSEError(stream, "智能体知识库配置解析失败")
 		saveConversation(ctx, req, "智能体知识库配置解析失败", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "知识库配置解析失败")
 	}
 
 	// plugin参数配置
-	if err := s.setCustomAndWorkflowParams(ctx, sseReq, req.AssistantId); err != nil {
+	if err = s.setCustomAndWorkflowParams(ctx, sseReq, req.AssistantId); err != nil {
 		SSEError(stream, "智能体plugin配置错误")
 		saveConversation(ctx, req, "智能体plugin配置错误", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "plugin配置错误")
 	}
 
 	// 在线搜索参数配置
-	if err := s.setOnlineSearchParams(sseReq, assistant); err != nil {
+	if err = s.setOnlineSearchParams(sseReq, assistant); err != nil {
 		SSEError(stream, "智能体在线搜索配置解析失败")
 		saveConversation(ctx, req, "智能体在线搜索配置解析失败", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "在线搜索配置解析失败")
 	}
 
 	// MCP 信息参数配置
-	if err := s.setMCPParams(ctx, sseReq, assistant); err != nil {
+	if err = s.setMCPParams(ctx, sseReq, assistant); err != nil {
 		SSEError(stream, "智能体MCP配置解析失败")
 		saveConversation(ctx, req, "智能体MCP配置解析失败", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "MCP配置解析失败")
@@ -297,7 +297,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		saveConversation(ctx, req, "请求参数错误", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "请求参数错误")
 	}
-	if err := json.Unmarshal(reqBytes, &requestBody); err != nil {
+	if err = json.Unmarshal(reqBytes, &requestBody); err != nil {
 		log.Errorf("Assistant服务反序列化请求体到map失败，assistantId: %s, error: %v", req.AssistantId, err)
 		SSEError(stream, "请求参数错误")
 		saveConversation(ctx, req, "请求参数错误", "")
@@ -477,25 +477,25 @@ func (s *Service) setModelConfigParams(sseReq *config.AgentSSERequest, assistant
 }
 
 // 设置知识库参数
-func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.AgentSSERequest, req *assistant_service.AssistantConversionStreamReq, assistant *model.Assistant, modelConfig *common.AppModelConfig) error {
-	knowledgebaseConfig := &RAGKnowledgeBaseConfig{}
+func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.AgentSSERequest, req *assistant_service.AssistantConversionStreamReq, assistant *model.Assistant) error {
+	knowledgeBaseConfig := &RAGKnowledgeBaseConfig{}
 	if assistant.KnowledgebaseConfig == "" {
 		return nil
 	}
 
-	if err := json.Unmarshal([]byte(assistant.KnowledgebaseConfig), knowledgebaseConfig); err != nil {
+	if err := json.Unmarshal([]byte(assistant.KnowledgebaseConfig), knowledgeBaseConfig); err != nil {
 		log.Errorf("Assistant服务解析智能体知识库配置失败，assistantId: %s, error: %v, knowledgebaseConfigRaw: %s", req.AssistantId, err, assistant.KnowledgebaseConfig)
 		return err
 	}
-	log.Debugf("Assistant服务解析知识库成功，knowledgebaseConfig: %+v", knowledgebaseConfig)
+	log.Debugf("Assistant服务解析知识库成功，knowledgeBaseConfig: %+v", knowledgeBaseConfig)
 
-	if len(knowledgebaseConfig.KnowledgeBaseIds) > 0 {
-		rerankEndpoint, err := buildRerank(req, knowledgebaseConfig, assistant)
+	if len(knowledgeBaseConfig.KnowledgeBaseIds) > 0 {
+		rerankEndpoint, err := buildRerank(req, knowledgeBaseConfig, assistant)
 		if err != nil {
 			return err
 		}
 		knowledgeInfoList, err := Knowledge.SelectKnowledgeDetailByIdList(ctx, &knowledgebase_service.KnowledgeDetailSelectListReq{
-			KnowledgeIds: knowledgebaseConfig.KnowledgeBaseIds,
+			KnowledgeIds: knowledgeBaseConfig.KnowledgeBaseIds,
 		})
 		if err != nil {
 			log.Errorf("Assistant服务获取知识库详情失败, err: %v", err)
@@ -508,24 +508,25 @@ func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.Age
 			knowNames = append(knowNames, v.Name)
 		}
 
-		params, err := buildMetaDataFilterParams(knowledgebaseConfig.AppKnowledgeBaseList)
+		params, err := buildMetaDataFilterParams(knowledgeBaseConfig.AppKnowledgeBaseList)
 		if err != nil {
 			log.Errorf("Assistant buildMetaDataFilterParams, err: %v", err)
 			return err
 		}
 		sseReq.KnParams = &config.KnParams{
 			KnowledgeBase:        knowNames,
+			KnowledgeIdList:      knowledgeBaseConfig.KnowledgeBaseIds,
 			RerankId:             rerankEndpoint["model_id"],
 			Model:                rerankEndpoint["model"],
 			ModelUrl:             rerankEndpoint["model_url"],
-			RerankMod:            buildRerankMod(knowledgebaseConfig.PriorityMatch),
-			RetrieveMethod:       buildRetrieveMethod(knowledgebaseConfig.MatchType),
-			Weights:              buildWeight(knowledgebaseConfig),
-			MaxHistory:           knowledgebaseConfig.MaxHistory,
-			Threshold:            knowledgebaseConfig.Threshold,
-			TopK:                 knowledgebaseConfig.TopK,
+			RerankMod:            buildRerankMod(knowledgeBaseConfig.PriorityMatch),
+			RetrieveMethod:       buildRetrieveMethod(knowledgeBaseConfig.MatchType),
+			Weights:              buildWeight(knowledgeBaseConfig),
+			MaxHistory:           knowledgeBaseConfig.MaxHistory,
+			Threshold:            knowledgeBaseConfig.Threshold,
+			TopK:                 knowledgeBaseConfig.TopK,
 			RewriteQuery:         true,
-			TermWeight:           buildTermWeight(knowledgebaseConfig),
+			TermWeight:           buildTermWeight(knowledgeBaseConfig),
 			MetaFilter:           len(params) > 0,
 			MetaFilterConditions: params,
 		}

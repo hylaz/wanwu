@@ -39,6 +39,29 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 	}, nil
 }
 
+// GetDocDetail 查询知识库所属文档详情
+func GetDocDetail(ctx *gin.Context, userId, orgId, docId string) (*response.ListDocResp, error) {
+	data, err := knowledgeBaseDoc.GetDocDetail(ctx.Request.Context(), &knowledgebase_doc_service.GetDocDetailReq{
+		DocId:  docId,
+		UserId: userId,
+		OrgId:  orgId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &response.ListDocResp{
+		DocId:         data.DocId,
+		DocName:       data.DocName,
+		DocType:       data.DocType,
+		UploadTime:    data.UploadTime,
+		Status:        int(data.Status),
+		ErrorMsg:      gin_util.I18nKey(ctx, data.ErrorMsg),
+		FileSize:      util.ToFileSizeStr(data.DocSize),
+		KnowledgeId:   data.KnowledgeId,
+		SegmentMethod: data.SegmentMethod,
+	}, nil
+}
+
 // ImportDoc 导入文档
 func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq) error {
 	segment := req.DocSegment

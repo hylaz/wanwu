@@ -14,7 +14,7 @@ import (
 //	@Description	查询知识库标签列表
 //	@Security		JWT
 //	@Accept			json
-//	@Param			data	body	request.KnowledgeTagSelectReq	true	"查询知识库请求参数"
+//	@Param			data	query	request.KnowledgeTagSelectReq	true	"查询知识库请求参数"
 //	@Produce		json
 //	@Success		200	{object}	response.Response{data=response.KnowledgeTagListResp}
 //	@Router			/knowledge/tag [get]
@@ -35,7 +35,7 @@ func GetKnowledgeTagSelect(ctx *gin.Context) {
 //	@Description	查询标签绑定知识库数量
 //	@Security		JWT
 //	@Accept			json
-//	@Param			data	body	request.TagBindCountReq	true	"查询tag绑定数量参数请求参数"
+//	@Param			data	query	request.TagBindCountReq	true	"查询tag绑定数量参数请求参数"
 //	@Produce		json
 //	@Success		200	{object}	response.Response{data=response.KnowledgeTagListResp}
 //	@Router			/knowledge/tag/bind/count [get]

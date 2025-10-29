@@ -14,7 +14,8 @@ type AssistantConversionHistory struct {
 }
 
 type KnParams struct {
-	KnowledgeBase        []string               `json:"knowledgeBase"`
+	KnowledgeBase        []string               `json:"knowledgeBase"`   // 知识库名称列表
+	KnowledgeIdList      []string               `json:"knowledgeIdList"` // 知识库id列表
 	RerankId             interface{}            `json:"rerank_id"`
 	Model                interface{}            `json:"model"`
 	ModelUrl             interface{}            `json:"model_url"`

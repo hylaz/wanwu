@@ -193,7 +193,7 @@ func buildLineProcessor(importTask *model.DocSegmentImportTask, importParams *mo
 		})
 
 		return orm.CreateOneDocSegment(ctx, importTask, &service.RagCreateDocSegmentParams{
-			UserId:           importTask.UserId,
+			UserId:           importParams.KnowledgeCreatorId,
 			KnowledgeBase:    importParams.KnowledgeName,
 			KnowledgeId:      importParams.KnowledgeId,
 			FileName:         importParams.FileName,

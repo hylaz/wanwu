@@ -51,6 +51,18 @@ func GetDocList(ctx context.Context, userId, orgId, knowledgeId, name, tag strin
 	return docList, total, nil
 }
 
+// GetDocDetail 查询知识库文件详情
+func GetDocDetail(ctx context.Context, userId, orgId, docId string) (*model.KnowledgeDoc, error) {
+	var doc = model.KnowledgeDoc{}
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId),
+		sqlopt.WithDocID(docId)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).First(&doc).Error
+	if err != nil {
+		return nil, err
+	}
+	return &doc, nil
+}
+
 // GetDocListByKnowledgeIdNoDeleteCheck 根据知识库id查询知识库文件列表
 func GetDocListByKnowledgeIdNoDeleteCheck(ctx context.Context, userId, orgId string, knowledgeId string) ([]*model.KnowledgeDoc, error) {
 	var docList []*model.KnowledgeDoc
@@ -140,7 +152,7 @@ func buildKnowledgeDocMeta(doc *model.KnowledgeDoc, importTask *model.KnowledgeI
 
 // CreateKnowledgeDoc 创建知识库文件
 func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask *model.KnowledgeImportTask) error {
-	knowledge, err := SelectKnowledgeById(ctx, doc.KnowledgeId, doc.UserId, doc.OrgId)
+	knowledge, err := SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		return err
 	}
@@ -187,7 +199,7 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 			DocId:               doc.DocId,
 			KnowledgeName:       knowledge.Name,
 			CategoryId:          knowledge.KnowledgeId,
-			UserId:              doc.UserId,
+			UserId:              knowledge.UserId,
 			Overlap:             config.Overlap,
 			SegmentSize:         config.MaxSplitter,
 			SegmentType:         service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),

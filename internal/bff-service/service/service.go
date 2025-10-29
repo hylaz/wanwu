@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	knowledgebase_permission_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-permission-service"
 
 	knowledgebase_keywords_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-keywords-service"
 	knowledgebase_splitter_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-splitter-service"
@@ -30,20 +31,21 @@ const (
 )
 
 var (
-	iam                   iam_service.IAMServiceClient
-	perm                  perm_service.PermServiceClient
-	model                 model_service.ModelServiceClient
-	mcp                   mcp_service.MCPServiceClient
-	knowledgeBase         knowledgebase_service.KnowledgeBaseServiceClient
-	knowledgeBaseDoc      knowledgebase_doc_service.KnowledgeBaseDocServiceClient
-	knowledgeBaseTag      knowledgebase_tag_service.KnowledgeBaseTagServiceClient
-	knowledgeBaseSplitter knowledgebase_splitter_service.KnowledgeBaseSplitterServiceClient
-	knowledgeBaseKeywords knowledgebase_keywords_service.KnowledgeBaseKeywordsServiceClient
-	app                   app_service.AppServiceClient
-	rag                   rag_service.RagServiceClient
-	assistant             assistant_service.AssistantServiceClient
-	safety                safety_service.SafetyServiceClient
-	operate               operate_service.OperateServiceClient
+	iam                     iam_service.IAMServiceClient
+	perm                    perm_service.PermServiceClient
+	model                   model_service.ModelServiceClient
+	mcp                     mcp_service.MCPServiceClient
+	knowledgeBase           knowledgebase_service.KnowledgeBaseServiceClient
+	knowledgeBaseDoc        knowledgebase_doc_service.KnowledgeBaseDocServiceClient
+	knowledgeBaseTag        knowledgebase_tag_service.KnowledgeBaseTagServiceClient
+	knowledgeBaseSplitter   knowledgebase_splitter_service.KnowledgeBaseSplitterServiceClient
+	knowledgeBasePermission knowledgebase_permission_service.KnowledgeBasePermissionServiceClient
+	knowledgeBaseKeywords   knowledgebase_keywords_service.KnowledgeBaseKeywordsServiceClient
+	app                     app_service.AppServiceClient
+	rag                     rag_service.RagServiceClient
+	assistant               assistant_service.AssistantServiceClient
+	safety                  safety_service.SafetyServiceClient
+	operate                 operate_service.OperateServiceClient
 )
 
 // --- API ---
@@ -93,6 +95,7 @@ func Init() error {
 	knowledgeBaseTag = knowledgebase_tag_service.NewKnowledgeBaseTagServiceClient(knowledgeBaseConn)
 	knowledgeBaseKeywords = knowledgebase_keywords_service.NewKnowledgeBaseKeywordsServiceClient(knowledgeBaseConn)
 	knowledgeBaseSplitter = knowledgebase_splitter_service.NewKnowledgeBaseSplitterServiceClient(knowledgeBaseConn)
+	knowledgeBasePermission = knowledgebase_permission_service.NewKnowledgeBasePermissionServiceClient(knowledgeBaseConn)
 	rag = rag_service.NewRagServiceClient(ragConn)
 	assistant = assistant_service.NewAssistantServiceClient(assistantConn)
 	safety = safety_service.NewSafetyServiceClient(appConn)

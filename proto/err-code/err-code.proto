@@ -93,6 +93,13 @@ enum Code {
   KnowledgeInvalidArguments = 145019; // 非法参数
   KnowledgeDocSegmentEmpty = 145020; // 文档分段内容为空
   KnowledgeMetaUpdatePartialSuccess = 145021; // 部分元数据更新成功
+  KnowledgePermissionSelectedFailed = 146001;// 获取知识库权限列表失败，请稍后重试
+  KnowledgePermissionDeny = 146002;// 知识库操作权限不足，请联系管理员添加后重试
+  KnowledgeAddPermissionFailed = 146003;// 知识库添加权限失败，请稍后重试
+  KnowledgeEditPermissionFailed = 146004;// 知识库修改权限失败，请稍后重试
+  KnowledgeDeletePermissionFailed = 146005;// 知识库删除权限失败，请稍后重试
+  KnowledgeDeleteGrantPermissionFailed = 146006;// 知识库的授权权限只有用户本人才能删除
+  KnowledgeTransferPermissionFailed = 146007;// 知识库转让失败
 
   // --- rag-service ---
   // [150000, 159999]

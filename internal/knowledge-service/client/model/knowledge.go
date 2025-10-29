@@ -6,6 +6,7 @@ type KnowledgeBase struct {
 	Name           string `gorm:"column:name;index:idx_user_id_name,priority:2;type:varchar(256);not null;default:''" json:"name"`
 	Description    string `gorm:"column:description;type:text;comment:'知识库描述';" json:"description"`
 	DocCount       int    `gorm:"column:doc_count;type:int(11);not null;default:0;comment:'文档数量';" json:"docCount"`
+	ShareCount     int    `gorm:"column:share_count;type:int(11);not null;default:0;comment:'文档共享数量';" json:"shareCount"`
 	DocSize        int64  `gorm:"column:doc_size;type:bigint(20);not null;default:0;comment:'文档大小单位：字节';" json:"docSize"`
 	EmbeddingModel string `gorm:"column:embedding_model;type:longtext;not null;comment:'embedding模型信息';" json:"embeddingModel"`
 	CreatedAt      int64  `gorm:"column:create_at;type:bigint(20);not null;" json:"createAt"` // Create Time

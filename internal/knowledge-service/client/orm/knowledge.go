@@ -2,6 +2,8 @@ package orm
 
 import (
 	"context"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
+	"github.com/samber/lo"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
@@ -15,28 +17,37 @@ import (
 )
 
 // SelectKnowledgeList 查询知识库列表
-func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, tagIdList []string) ([]*model.KnowledgeBase, error) {
+func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, tagIdList []string) ([]*model.KnowledgeBase, map[string]int, error) {
 	var knowledgeIdList []string
 	var err error
 	if len(tagIdList) > 0 {
 		knowledgeIdList, err = SelectKnowledgeIdByTagId(ctx, tagIdList)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
+	//查询有权限的知识库列表，获取有权限的知识库id，目前是getALL，没有通过连表实现
+	permissionKnowledgeList, err := SelectKnowledgeIdByPermission(ctx, userId, orgId, model.PermissionTypeView)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(permissionKnowledgeList) == 0 {
+		return make([]*model.KnowledgeBase, 0), nil, nil
+	}
+	knowledgeIdList = intersectionKnowledgeIdList(knowledgeIdList, buildPermissionKnowledgeIdList(permissionKnowledgeList))
 	var knowledgeList []*model.KnowledgeBase
-	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.WithPermit(orgId, userId), sqlopt.LikeName(name), sqlopt.WithDelete(0)).
+	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.LikeName(name), sqlopt.WithDelete(0)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeBase{}).
 		Order("create_at desc").
 		Find(&knowledgeList).
 		Error
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return knowledgeList, nil
+	return knowledgeList, buildPermissionKnowledgeIdMap(permissionKnowledgeList), nil
 }
 
-// SelectKnowledgeById 查询知识库信息
+// SelectKnowledgeById 查询知识库信息,todo
 func SelectKnowledgeById(ctx context.Context, knowledgeId, userId, orgId string) (*model.KnowledgeBase, error) {
 	var knowledge model.KnowledgeBase
 	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeID(knowledgeId), sqlopt.WithDelete(0)).
@@ -50,16 +61,25 @@ func SelectKnowledgeById(ctx context.Context, knowledgeId, userId, orgId string)
 }
 
 // SelectKnowledgeByIdList 查询知识库信息
-func SelectKnowledgeByIdList(ctx context.Context, knowledgeIdList []string, userId, orgId string) ([]*model.KnowledgeBase, error) {
+func SelectKnowledgeByIdList(ctx context.Context, knowledgeIdList []string, userId, orgId string) ([]*model.KnowledgeBase, map[string]int, error) {
+	//查询有权限的知识库列表，获取有权限的知识库id，目前是getALL，没有通过连表实现
+	permissionKnowledgeList, err := SelectKnowledgeIdByPermission(ctx, userId, orgId, model.PermissionTypeView)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(permissionKnowledgeList) == 0 {
+		return make([]*model.KnowledgeBase, 0), nil, nil
+	}
+	knowledgeIdList = intersectionKnowledgeIdList(knowledgeIdList, buildPermissionKnowledgeIdList(permissionKnowledgeList))
 	var knowledgeList []*model.KnowledgeBase
-	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.WithDelete(0)).
+	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.WithDelete(0)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeBase{}).
 		Find(&knowledgeList).Error
 	if err != nil {
 		log.Errorf("SelectKnowledgeByIdList userId %s err: %v", userId, err)
-		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+		return nil, nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
 	}
-	return knowledgeList, nil
+	return knowledgeList, buildPermissionKnowledgeIdMap(permissionKnowledgeList), nil
 }
 
 // SelectKnowledgeByName 查询知识库信息
@@ -112,7 +132,12 @@ func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embedd
 		if err != nil {
 			return err
 		}
-		//2.通知rag创建知识库
+		//2.插入权限信息
+		err = CreateKnowledgeIdPermission(tx, buildKnowledgePermission(knowledge))
+		if err != nil {
+			return err
+		}
+		//3.通知rag创建知识库
 		return service.RagKnowledgeCreate(ctx, &service.RagCreateParams{
 			UserId:           knowledge.UserId,
 			Name:             knowledge.Name,
@@ -138,6 +163,14 @@ func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBas
 			NewKbName:       name,
 		})
 	})
+}
+
+// UpdateKnowledgeShareCount 更新知识库分享数量
+func UpdateKnowledgeShareCount(tx *gorm.DB, knowledgeId string, count int64) error {
+	var updateParams = map[string]interface{}{
+		"share_count": count,
+	}
+	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Updates(updateParams).Error
 }
 
 // DeleteKnowledge 删除知识库
@@ -200,4 +233,52 @@ func logicDeleteKnowledge(tx *gorm.DB, knowledge *model.KnowledgeBase) error {
 		"deleted": 1,
 	}
 	return tx.Model(&model.KnowledgeBase{}).Where("id=?", knowledge.Id).Updates(updateParams).Error
+}
+
+// buildKnowledgePermission 构建知识库权限信息
+func buildKnowledgePermission(knowledge *model.KnowledgeBase) *model.KnowledgePermission {
+	return &model.KnowledgePermission{
+		PermissionId:   generator.GetGenerator().NewID(),
+		KnowledgeId:    knowledge.KnowledgeId,
+		GrantUserId:    knowledge.UserId,
+		GrantOrgId:     knowledge.OrgId,
+		PermissionType: model.PermissionTypeSystem,
+		CreatedAt:      knowledge.CreatedAt,
+		UpdatedAt:      knowledge.UpdatedAt,
+		UserId:         knowledge.UserId,
+		OrgId:          knowledge.OrgId,
+	}
+}
+
+func buildPermissionKnowledgeIdList(permissionList []*model.KnowledgePermission) []string {
+	return lo.Map(permissionList, func(item *model.KnowledgePermission, index int) string {
+		return item.KnowledgeId
+	})
+}
+
+func buildPermissionKnowledgeIdMap(permissionList []*model.KnowledgePermission) map[string]int {
+	var permissionMap = make(map[string]int)
+	for _, permission := range permissionList {
+		permissionMap[permission.KnowledgeId] = permission.PermissionType
+	}
+	return permissionMap
+}
+
+// intersectionKnowledgeIdList 计算两个知识库id 列表的交集
+func intersectionKnowledgeIdList(knowledgeIdList, permissionKnowledgeIdList []string) []string {
+	//特殊逻辑，如果用户没有指定tag，则返回用户有权限的知识库id列表
+	if len(knowledgeIdList) == 0 {
+		return permissionKnowledgeIdList
+	}
+	var knowledgeIdMap = make(map[string]bool)
+	for _, permissionKnowledgeId := range permissionKnowledgeIdList {
+		knowledgeIdMap[permissionKnowledgeId] = true
+	}
+	var retKnowledgeIdList []string
+	for _, knowledgeId := range knowledgeIdList {
+		if knowledgeIdMap[knowledgeId] {
+			retKnowledgeIdList = append(retKnowledgeIdList, knowledgeId)
+		}
+	}
+	return retKnowledgeIdList
 }

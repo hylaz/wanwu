@@ -38,6 +38,7 @@ type Config struct {
 
 	Workflow           WorkflowServiceConfig           `json:"workflow" mapstructure:"workflow"`
 	AgentScopeWorkFlow AgentScopeWorkFlowServiceConfig `json:"agentscope-workflow" mapstructure:"agentscope-workflow"`
+	RagKnowledgeConfig RagKnowledgeConfig              `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 }
 
 type ServerConfig struct {
@@ -89,6 +90,13 @@ type WorkflowServiceConfig struct {
 	UploadCommonUri    string               `json:"upload_common_uri" mapstructure:"upload_common_uri"`
 	SignImgUri         string               `json:"sign_img_uri" mapstructure:"sign_img_uri"`
 	ModelParams        []WorkflowModelParam `json:"model_params" mapstructure:"model_params"`
+}
+
+type RagKnowledgeConfig struct {
+	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
+	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
+	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
+	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
 }
 
 type WorkflowModelParam struct {

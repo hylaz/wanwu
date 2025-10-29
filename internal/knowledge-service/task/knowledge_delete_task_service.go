@@ -155,6 +155,11 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		if err != nil {
 			return err
 		}
+		//删除相关权限
+		err1 := orm.AsyncDeletePermissionByKnowledgeId(knowledge.KnowledgeId)
+		if err1 != nil {
+			log.Errorf("deleteKnowledgeIdPermission err: %s", err1)
+		}
 		return nil
 	})
 	return Result{Error: err}

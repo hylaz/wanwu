@@ -19,7 +19,7 @@ import (
 
 func (s *Service) CreateDocSegment(ctx context.Context, req *knowledgebase_doc_service.CreateDocSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -31,7 +31,7 @@ func (s *Service) CreateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentCreateFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -72,7 +72,7 @@ func (s *Service) CreateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 		Labels:  labels,
 	})
 	err = service.RagCreateDocSegment(ctx, &service.RagCreateDocSegmentParams{
-		UserId:           req.UserId,
+		UserId:           knowledge.UserId,
 		KnowledgeBase:    knowledge.Name,
 		KnowledgeId:      knowledge.KnowledgeId,
 		FileName:         fileName,
@@ -90,7 +90,7 @@ func (s *Service) CreateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 
 func (s *Service) BatchCreateDocSegment(ctx context.Context, req *knowledgebase_doc_service.BatchCreateDocSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -102,7 +102,7 @@ func (s *Service) BatchCreateDocSegment(ctx context.Context, req *knowledgebase_
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentCreateFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -138,7 +138,7 @@ func (s *Service) BatchCreateDocSegment(ctx context.Context, req *knowledgebase_
 
 func (s *Service) UpdateDocSegment(ctx context.Context, req *knowledgebase_doc_service.UpdateDocSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -150,7 +150,7 @@ func (s *Service) UpdateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentUpdateFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -181,7 +181,7 @@ func (s *Service) UpdateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 	}
 	//8.发送rag请求
 	err = service.RagUpdateDocSegment(ctx, &service.RagUpdateDocSegmentParams{
-		UserId:          req.UserId,
+		UserId:          knowledge.UserId,
 		KnowledgeBase:   knowledge.Name,
 		KnowledgeId:     knowledge.KnowledgeId,
 		FileName:        fileName,
@@ -203,7 +203,7 @@ func (s *Service) UpdateDocSegment(ctx context.Context, req *knowledgebase_doc_s
 
 func (s *Service) DeleteDocSegment(ctx context.Context, req *knowledgebase_doc_service.DeleteDocSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -215,7 +215,7 @@ func (s *Service) DeleteDocSegment(ctx context.Context, req *knowledgebase_doc_s
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentDeleteFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -224,7 +224,7 @@ func (s *Service) DeleteDocSegment(ctx context.Context, req *knowledgebase_doc_s
 	fileName := service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
 	//5.发送rag请求
 	err = service.RagDeleteDocSegment(ctx, &service.RagDeleteDocSegmentParams{
-		UserId:        req.UserId,
+		UserId:        knowledge.UserId,
 		KnowledgeBase: knowledge.Name,
 		KnowledgeId:   knowledge.KnowledgeId,
 		FileName:      fileName,
@@ -239,14 +239,14 @@ func (s *Service) DeleteDocSegment(ctx context.Context, req *knowledgebase_doc_s
 
 func (s *Service) UpdateDocSegmentStatus(ctx context.Context, req *knowledgebase_doc_service.UpdateDocSegmentStatusReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
 	}
 	docInfo := docList[0]
 	//2.查询知识库详情
-	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("查询知识库详情失败 参数(%v)", req)
 		return nil, err
@@ -263,7 +263,7 @@ func (s *Service) UpdateDocSegmentStatus(ctx context.Context, req *knowledgebase
 
 func (s *Service) UpdateDocSegmentLabels(ctx context.Context, req *knowledgebase_doc_service.DocSegmentLabelsReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -275,7 +275,7 @@ func (s *Service) UpdateDocSegmentLabels(ctx context.Context, req *knowledgebase
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentUpdateLabelsFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -287,7 +287,7 @@ func (s *Service) UpdateDocSegmentLabels(ctx context.Context, req *knowledgebase
 		labels = make([]string, 0)
 	}
 	err = service.RagDocSegmentLabels(ctx, &service.RagDocSegmentLabelsParams{
-		UserId:        req.UserId,
+		UserId:        knowledge.UserId,
 		KnowledgeBase: knowledge.Name,
 		KnowledgeId:   knowledge.KnowledgeId,
 		FileName:      fileName,
@@ -303,7 +303,7 @@ func (s *Service) UpdateDocSegmentLabels(ctx context.Context, req *knowledgebase
 
 func (s *Service) CreateDocChildSegment(ctx context.Context, req *knowledgebase_doc_service.CreateDocChildSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -315,7 +315,7 @@ func (s *Service) CreateDocChildSegment(ctx context.Context, req *knowledgebase_
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentCreateFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -339,7 +339,7 @@ func (s *Service) CreateDocChildSegment(ctx context.Context, req *knowledgebase_
 		return nil, err1
 	}
 	err = service.RagCreateDocChildSegment(ctx, &service.RagCreateDocChildSegmentParams{
-		UserId:        req.UserId,
+		UserId:        knowledge.UserId,
 		KnowledgeBase: knowledge.Name,
 		KnowledgeId:   knowledge.KnowledgeId,
 		FileName:      fileName,
@@ -355,7 +355,7 @@ func (s *Service) CreateDocChildSegment(ctx context.Context, req *knowledgebase_
 
 func (s *Service) UpdateDocChildSegment(ctx context.Context, req *knowledgebase_doc_service.UpdateDocChildSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -367,7 +367,7 @@ func (s *Service) UpdateDocChildSegment(ctx context.Context, req *knowledgebase_
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentUpdateFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -393,7 +393,7 @@ func (s *Service) UpdateDocChildSegment(ctx context.Context, req *knowledgebase_
 	}
 	//6.修改子分段信息
 	err = service.RagUpdateDocChildSegment(ctx, &service.RagUpdateDocChildSegmentParams{
-		UserId:          req.UserId,
+		UserId:          knowledge.UserId,
 		KnowledgeBase:   knowledge.Name,
 		KnowledgeId:     knowledge.KnowledgeId,
 		FileName:        fileName,
@@ -413,7 +413,7 @@ func (s *Service) UpdateDocChildSegment(ctx context.Context, req *knowledgebase_
 
 func (s *Service) DeleteDocChildSegment(ctx context.Context, req *knowledgebase_doc_service.DeleteDocChildSegmentReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库文档的权限 参数(%v)", req)
 		return nil, err
@@ -425,7 +425,7 @@ func (s *Service) DeleteDocChildSegment(ctx context.Context, req *knowledgebase_
 		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentDeleteFailed)
 	}
 	//3.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -434,7 +434,7 @@ func (s *Service) DeleteDocChildSegment(ctx context.Context, req *knowledgebase_
 	fileName := service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
 	//5.发送rag请求
 	err = service.RagDeleteDocChildSegment(ctx, &service.RagDeleteDocChildSegmentParams{
-		UserId:                req.UserId,
+		UserId:                knowledge.UserId,
 		KnowledgeBase:         knowledge.Name,
 		KnowledgeId:           knowledge.KnowledgeId,
 		FileName:              fileName,
@@ -463,14 +463,15 @@ func checkContentLength(contentList []string, maxLength int) error {
 func buildDocSegmentImportTask(knowledge *model.KnowledgeBase, fileName, docId string,
 	segmentConfig *model.SegmentConfig, req *knowledgebase_doc_service.BatchCreateDocSegmentReq) (*model.DocSegmentImportTask, error) {
 	params := &model.DocSegmentImportParams{
-		KnowledgeId:     knowledge.KnowledgeId,
-		KnowledgeName:   knowledge.Name,
-		FileName:        fileName,
-		MaxSentenceSize: segmentConfig.MaxSplitter,
-		FileUrl:         req.FileUrl,
-		SegmentMethod:   segmentConfig.SegmentMethod,
-		SubMaxSplitter:  segmentConfig.SubMaxSplitter,
-		SubSplitter:     segmentConfig.SubSplitter,
+		KnowledgeId:        knowledge.KnowledgeId,
+		KnowledgeName:      knowledge.Name,
+		KnowledgeCreatorId: knowledge.UserId,
+		FileName:           fileName,
+		MaxSentenceSize:    segmentConfig.MaxSplitter,
+		FileUrl:            req.FileUrl,
+		SegmentMethod:      segmentConfig.SegmentMethod,
+		SubMaxSplitter:     segmentConfig.SubMaxSplitter,
+		SubSplitter:        segmentConfig.SubSplitter,
 	}
 	marshal, err := json.Marshal(params)
 	if err != nil {
@@ -497,7 +498,7 @@ func buildDocUpdateSegmentStatusParams(req *knowledgebase_doc_service.UpdateDocS
 	if req.All {
 		return &service.DocSegmentStatusUpdateAllParams{
 			DocSegmentStatusUpdateParams: service.DocSegmentStatusUpdateParams{
-				UserId:        req.UserId,
+				UserId:        knowledge.UserId,
 				KnowledgeName: knowledge.Name,
 				FileName:      service.RebuildFileName(docInfo.DocId, docInfo.FileType, docInfo.Name),
 				ContentId:     req.ContentId,
@@ -506,7 +507,7 @@ func buildDocUpdateSegmentStatusParams(req *knowledgebase_doc_service.UpdateDocS
 		}
 	} else {
 		return &service.DocSegmentStatusUpdateParams{
-			UserId:        req.UserId,
+			UserId:        knowledge.UserId,
 			KnowledgeName: knowledge.Name,
 			FileName:      service.RebuildFileName(docInfo.DocId, docInfo.FileType, docInfo.Name),
 			ContentId:     req.ContentId,

@@ -64,7 +64,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 	}
 
 	//  请求rag
-	buildParams, errk := service.BuildChatConsultParams(req, rag, knowledgeInfoList)
+	buildParams, errk := service.BuildChatConsultParams(req, rag, knowledgeInfoList, knowledgeIds)
 	if errk != nil {
 		log.Errorf("errk = %s", errk.Error())
 		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errk.Error())

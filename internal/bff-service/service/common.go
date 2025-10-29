@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"io"
@@ -322,4 +324,44 @@ func calculateResizeParameters(originalWidth, originalHeight, maxSize int) (int,
 		newHeight = 1
 	}
 	return newWidth, newHeight
+}
+
+func writeSSE(ctx *gin.Context, resp *http.Response) error {
+	// 设置 SSE 响应头
+	ctx.Header("Content-Type", "text/event-stream")
+	ctx.Header("Cache-Control", "no-cache")
+	ctx.Header("Connection", "keep-alive")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("X-Accel-Buffering", "no") // 针对 Nginx 代理
+
+	// 使用固定缓冲区读取
+	buffer := make([]byte, 8192) // 8KB 缓冲区
+	reader := bufio.NewReader(resp.Body)
+
+	for {
+		select {
+		case <-ctx.Done():
+			// 客户端断开连接
+			return errors.New("writeSSE: ctx canceled")
+		default:
+			n, err := reader.Read(buffer)
+
+			if n > 0 {
+				if _, err := ctx.Writer.Write(buffer[:n]); err != nil {
+					// 客户端可能已断开
+					log.Errorf("writeSSE write err: %v", err)
+					return err
+				}
+				ctx.Writer.Flush()
+			}
+
+			if err != nil {
+				if err == io.EOF {
+					return nil // 正常结束
+				}
+				log.Errorf("writeSSE read err: %v", err)
+				return err
+			}
+		}
+	}
 }

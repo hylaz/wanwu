@@ -13,6 +13,12 @@ type KnowledgeSelectReq struct {
 	CommonCheck
 }
 
+type KnowledgeBatchSelectReq struct {
+	KnowledgeIdList []string `json:"knowledgeIdList" form:"knowledgeIdList" `
+	UserId          string   `json:"userId" form:"userId" `
+	CommonCheck
+}
+
 type CreateKnowledgeReq struct {
 	Name           string          `json:"name"  validate:"required"`
 	Description    string          `json:"description"`
@@ -95,14 +101,96 @@ type GetKnowledgeMetaSelectReq struct {
 }
 
 type KnowledgeMetaValueListReq struct {
-	DocIdList []string `json:"docIdList" form:"docIdList" validate:"required" `
+	KnowledgeId string   `json:"knowledgeId"  form:"knowledgeId" validate:"required"`
+	DocIdList   []string `json:"docIdList" form:"docIdList" validate:"required" `
 	CommonCheck
 }
 
 type UpdateMetaValueReq struct {
+	KnowledgeId     string         `json:"knowledgeId"  form:"knowledgeId" validate:"required"`
 	DocIdList       []string       `json:"docIdList"  validate:"required"`
 	MetaValueList   []*DocMetaData `json:"metaValueList"`
 	ApplyToSelected bool           `json:"applyToSelected"`
+}
+
+// RagSearchKnowledgeBaseReq rag知识库查询请求
+type RagSearchKnowledgeBaseReq struct {
+	UserId               string                         `json:"userId" validate:"required"`
+	Question             string                         `json:"question" validate:"required"`
+	KnowledgeIdList      []string                       `json:"knowledgeIdList,omitempty" validate:"required"`
+	KnowledgeUser        map[string][]*RagKnowledgeInfo `json:"knowledge_base_info"`
+	Threshold            float64                        `json:"threshold"`
+	TopK                 int32                          `json:"topK"`
+	RerankModelId        string                         `json:"rerank_model_id"`               // rerankId
+	RerankMod            string                         `json:"rerank_mod"`                    // rerank_model:重排序模式，weighted_score：权重搜索
+	RetrieveMethod       string                         `json:"retrieve_method"`               // hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+	Weight               *WeightParams                  `json:"weights"`                       // 权重搜索下的权重配置
+	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
+	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
+	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	CommonCheck
+}
+
+type RagKnowledgeChatReq struct {
+	UserId               string                         `json:"userId"`
+	KnowledgeUser        map[string][]*RagKnowledgeInfo `json:"knowledge_base_info"`
+	KnowledgeBase        []string                       `json:"knowledgeBase"`   // 知识库名称列表
+	KnowledgeIdList      []string                       `json:"knowledgeIdList"` // 知识库id列表
+	Question             string                         `json:"question"`
+	Threshold            float32                        `json:"threshold"` // Score阈值
+	TopK                 int32                          `json:"topK"`
+	Stream               bool                           `json:"stream"`
+	Chichat              bool                           `json:"chichat"` // 当知识库召回结果为空时是否使用默认话术（兜底），默认为true
+	RerankModelId        string                         `json:"rerank_model_id"`
+	CustomModelInfo      *CustomModelInfo               `json:"custom_model_info"`
+	History              []*HistoryItem                 `json:"history"`
+	MaxHistory           int32                          `json:"max_history"`
+	RewriteQuery         bool                           `json:"rewrite_query"`   // 是否query改写
+	RerankMod            string                         `json:"rerank_mod"`      // rerank_model:重排序模式，weighted_score：权重搜索
+	RetrieveMethod       string                         `json:"retrieve_method"` // hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+	Weight               *WeightParams                  `json:"weights"`         // 权重搜索下的权重配置
+	Temperature          float32                        `json:"temperature"`
+	TopP                 float32                        `json:"top_p"`                         // 多样性
+	RepetitionPenalty    float32                        `json:"repetition_penalty"`            // 重复惩罚/频率惩罚
+	ReturnMeta           bool                           `json:"return_meta"`                   // 是否返回元数据
+	AutoCitation         bool                           `json:"auto_citation"`                 // 是否自动角标
+	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
+	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
+	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	CommonCheck
+}
+
+type CustomModelInfo struct {
+	LlmModelID string `json:"llm_model_id"`
+}
+
+type HistoryItem struct {
+	Query       string `json:"query"`
+	Response    string `json:"response"`
+	NeedHistory bool   `json:"needHistory"`
+}
+
+type RagKnowledgeInfo struct {
+	KnowledgeId   string `json:"kb_id"`
+	KnowledgeName string `json:"kb_name"`
+}
+
+type WeightParams struct {
+	VectorWeight float32 `json:"vector_weight"` //语义权重
+	TextWeight   float32 `json:"text_weight"`   //关键字权重
+}
+
+type MetadataFilterItem struct {
+	FilterKnowledgeName string      `json:"filtering_kb_name"`
+	LogicalOperator     string      `json:"logical_operator"`
+	Conditions          []*MetaItem `json:"conditions"`
+}
+
+type MetaItem struct {
+	MetaName           string      `json:"meta_name"`           // 元数据名称
+	MetaType           string      `json:"meta_type"`           // 元数据类型
+	ComparisonOperator string      `json:"comparison_operator"` // 比较运算符
+	Value              interface{} `json:"value,omitempty"`     // 用于过滤的条件值
 }
 
 func (c *UpdateMetaValueReq) Check() error {

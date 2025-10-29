@@ -55,6 +55,7 @@ type KnowledgeHitParams struct {
 	UserId               string                `json:"userId"`
 	Question             string                `json:"question" validate:"required"`
 	KnowledgeBase        []string              `json:"knowledgeBase" validate:"required"`
+	KnowledgeIdList      []string              `json:"knowledgeIdList" validate:"required"`
 	Threshold            float64               `json:"threshold"`
 	TopK                 int32                 `json:"topK"`
 	RerankModelId        string                `json:"rerank_model_id"`               // rerankId
@@ -223,7 +224,7 @@ func RagKnowledgeDelete(ctx context.Context, ragDeleteParams *RagDeleteParams) e
 // RagKnowledgeHit rag命中测试
 func RagKnowledgeHit(ctx context.Context, knowledgeHitParams *KnowledgeHitParams) (*RagKnowledgeHitResp, error) {
 	ragServer := config.GetConfig().RagServer
-	url := ragServer.Endpoint + ragServer.KnowledgeHitUri
+	url := ragServer.ProxyPoint + ragServer.KnowledgeHitUri
 	paramsByte, err := json.Marshal(knowledgeHitParams)
 	if err != nil {
 		return nil, err

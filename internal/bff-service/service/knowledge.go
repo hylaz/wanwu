@@ -1,12 +1,26 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
+	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/gin-gonic/gin"
 )
+
+var knowHttp = http_client.CreateDefault()
 
 // SelectKnowledgeList 查询知识库列表，主要根据userId 查询用户所有知识库
 func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.KnowledgeSelectReq) (*response.KnowledgeListResp, error) {
@@ -19,7 +33,35 @@ func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.Kn
 	if err != nil {
 		return nil, err
 	}
-	return buildKnowledgeInfoList(resp), nil
+	return buildKnowledgeInfoList(ctx, resp), nil
+}
+
+// RagSearchKnowledgeBase 查询知识库列表（命中测试）
+func RagSearchKnowledgeBase(ctx *gin.Context, req *request.RagSearchKnowledgeBaseReq) ([]byte, int) {
+	list, err := selectKnowledgeListByIdList(ctx, &request.KnowledgeBatchSelectReq{UserId: req.UserId, KnowledgeIdList: req.KnowledgeIdList})
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	if len(list.KnowledgeList) == 0 {
+		return response.CommonRagKnowledgeError(errors.New("no knowledge permit"))
+	}
+	req.KnowledgeUser = buildUserKnowledgeList(list)
+	// 构建 rag 请求
+	return requestRagSearchKnowledgeBase(ctx, req)
+}
+
+// KnowledgeStreamSearch 知识库流式问答
+func KnowledgeStreamSearch(ctx *gin.Context, req *request.RagKnowledgeChatReq) error {
+	list, err := selectKnowledgeListByIdList(ctx, &request.KnowledgeBatchSelectReq{UserId: req.UserId, KnowledgeIdList: req.KnowledgeIdList})
+	if err != nil {
+		return err
+	}
+	if len(list.KnowledgeList) == 0 {
+		return errors.New("no knowledge permit")
+	}
+	req.KnowledgeUser = buildUserKnowledgeList(list)
+	// 构建 rag 请求
+	return requestRagKnowledgeStreamChat(ctx, req)
 }
 
 // SelectKnowledgeInfoByName 根据知识库名称查询知识库信息
@@ -153,6 +195,34 @@ func UpdateKnowledgeMetaValue(ctx *gin.Context, userId, orgId string, r *request
 	return nil
 }
 
+func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagKnowledgeInfo {
+	retMap := make(map[string][]*request.RagKnowledgeInfo)
+	for _, knowledge := range knowledgeList.KnowledgeList {
+		knowledgeInfos, exist := retMap[knowledge.CreateUserId]
+		if !exist {
+			knowledgeInfos = make([]*request.RagKnowledgeInfo, 0)
+		}
+		knowledgeInfos = append(knowledgeInfos, &request.RagKnowledgeInfo{
+			KnowledgeId:   knowledge.KnowledgeId,
+			KnowledgeName: knowledge.Name,
+		})
+		retMap[knowledge.CreateUserId] = knowledgeInfos
+	}
+	return retMap
+}
+
+// selectKnowledgeListByIdList 查询知识库列表，主要根据userId 查询用户所有知识库
+func selectKnowledgeListByIdList(ctx *gin.Context, req *request.KnowledgeBatchSelectReq) (*response.KnowledgeListResp, error) {
+	resp, err := knowledgeBase.SelectKnowledgeListByIdList(ctx.Request.Context(), &knowledgebase_service.BatchKnowledgeSelectReq{
+		UserId:          req.UserId,
+		KnowledgeIdList: req.KnowledgeIdList,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return buildKnowledgeInfoList(ctx, resp), nil
+}
+
 // buildKnowledgeMetaList 构造知识库元数据列表
 func buildKnowledgeMetaList(metaList []*knowledgebase_service.KnowledgeMetaData) *response.GetKnowledgeMetaSelectResp {
 	var retMetaList []*response.KnowledgeMetaItem
@@ -183,16 +253,19 @@ func buildKnowledgeListReq(r *request.KnowledgeHitReq) []*knowledgebase_service.
 }
 
 // buildKnowledgeInfoList 构造知识库列表结果
-func buildKnowledgeInfoList(knowledgeListResp *knowledgebase_service.KnowledgeSelectListResp) *response.KnowledgeListResp {
+func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_service.KnowledgeSelectListResp) *response.KnowledgeListResp {
 	if knowledgeListResp == nil || len(knowledgeListResp.KnowledgeList) == 0 {
 		return &response.KnowledgeListResp{}
 	}
+	orgMap := buildOtherOrgInfoMap(ctx, knowledgeListResp)
 
 	var list []*response.KnowledgeInfo
 	for _, knowledge := range knowledgeListResp.KnowledgeList {
+		share := knowledge.ShareCount > 1
 		list = append(list, &response.KnowledgeInfo{
 			KnowledgeId: knowledge.KnowledgeId,
 			Name:        knowledge.Name,
+			OrgName:     buildShareOrgName(share, orgMap[knowledge.CreateOrgId]),
 			Description: knowledge.Description,
 			DocCount:    int(knowledge.DocCount),
 			EmbeddingModelInfo: &response.EmbeddingModelInfo{
@@ -200,9 +273,49 @@ func buildKnowledgeInfoList(knowledgeListResp *knowledgebase_service.KnowledgeSe
 			},
 			KnowledgeTagList: buildTagList(knowledge.KnowledgeTagInfoList),
 			CreateAt:         knowledge.CreatedAt,
+			PermissionType:   knowledge.PermissionType,
+			CreateUserId:     knowledge.CreateUserId,
+			Share:            share, //数量大于1才是分享，因为权限记录中有一条是记录创建者权限
 		})
 	}
 	return &response.KnowledgeListResp{KnowledgeList: list}
+}
+
+//nolint:staticcheck
+func buildShareOrgName(share bool, orgName string) string {
+	if share {
+		if strings.Contains(orgName, "---") {
+			// "--- 系统 ---" => "系统"
+			return strings.TrimSpace(strings.Trim(orgName, "---"))
+		}
+		return orgName
+	}
+	return ""
+}
+
+// buildOtherOrgInfoMap 构造刨除当前组织的组织信息
+func buildOtherOrgInfoMap(ctx *gin.Context, knowledgeListResp *knowledgebase_service.KnowledgeSelectListResp) map[string]string {
+	var shareOrgIdList []string
+	for _, knowledge := range knowledgeListResp.KnowledgeList {
+		if knowledge.ShareCount > 1 {
+			shareOrgIdList = append(shareOrgIdList, knowledge.CreateOrgId)
+		}
+	}
+	var dataMap = make(map[string]string)
+	if len(shareOrgIdList) > 0 {
+		orgInfoList, err := iam.GetOrgByOrgIDs(ctx, &iam_service.GetOrgByOrgIDsReq{
+			OrgIds: shareOrgIdList,
+		})
+		if err != nil {
+			log.Errorf("get share org info error: %v", err)
+		}
+		if orgInfoList != nil && len(orgInfoList.Orgs) > 0 {
+			for _, org := range orgInfoList.Orgs {
+				dataMap[org.Id] = org.Name
+			}
+		}
+	}
+	return dataMap
 }
 
 // buildTagList 构造知识库标签列表
@@ -294,4 +407,81 @@ func buildKnowledgeMetaValueReqList(req []*request.DocMetaData) []*knowledgebase
 		})
 	}
 	return metaList
+}
+
+// requestRagSearchKnowledgeBase 请求rag
+func requestRagSearchKnowledgeBase(ctx context.Context, req *request.RagSearchKnowledgeBaseReq) ([]byte, int) {
+	url := config.Cfg().RagKnowledgeConfig.Endpoint + config.Cfg().RagKnowledgeConfig.SearchKnowledgeBaseUri
+	paramsByte, err := json.Marshal(req)
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	result, err := knowHttp.PostJsonOriResp(ctx, &http_client.HttpRequestParams{
+		Url:        url,
+		Body:       paramsByte,
+		MonitorKey: "rag_search_knowledge_base",
+		LogLevel:   http_client.LogAll,
+	})
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	body, err := http_client.ReadHttpResp(result)
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	return body, result.StatusCode
+}
+
+func requestRagKnowledgeStreamChat(ctx *gin.Context, req *request.RagKnowledgeChatReq) error {
+	params, err := buildRagKnowledgeChatHttpParams(req)
+	if err != nil {
+		log.Errorf("build http params fail %s", err.Error())
+		return err
+	}
+	// 捕获 panic 并记录日志（不重新抛出，避免崩溃）
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorf("RagStreamChat panic: %v", r)
+		}
+	}()
+
+	resp, err := knowHttp.PostJsonOriResp(ctx, params)
+	if err != nil {
+		errMsg := fmt.Sprintf("error: 调用下游服务异常: %v", err)
+		log.Errorf(errMsg)
+		return err
+	}
+	// 检查响应状态
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error: 调用下游服务异常: %s", resp.Status)
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Errorf("error: 响应体关闭异常: %v", err)
+		}
+	}(resp.Body) // 确保响应体关闭
+
+	if resp.StatusCode != http.StatusOK {
+		errMsg := fmt.Sprintf("error: 调用下游服务异常: %s", resp.Status)
+		log.Errorf(errMsg)
+		return errors.New(errMsg)
+	}
+	return writeSSE(ctx, resp)
+}
+
+func buildRagKnowledgeChatHttpParams(req *request.RagKnowledgeChatReq) (*http_client.HttpRequestParams, error) {
+	url := fmt.Sprintf("%s%s", config.Cfg().RagKnowledgeConfig.ChatEndpoint, config.Cfg().RagKnowledgeConfig.KnowledgeChatUri)
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	return &http_client.HttpRequestParams{
+		Url:        url,
+		Body:       body,
+		Headers:    map[string]string{"X-uid": req.UserId},
+		Timeout:    time.Minute * 10,
+		MonitorKey: "rag_search_service",
+		LogLevel:   http_client.LogAll,
+	}, nil
 }

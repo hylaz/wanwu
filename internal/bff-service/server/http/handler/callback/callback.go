@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
@@ -285,4 +287,48 @@ func GetWorkflowCustomTool(ctx *gin.Context) {
 func GetWorkflowSquareTool(ctx *gin.Context) {
 	resp, err := service.GetToolSquareDetail(ctx, "", "", ctx.Query("toolSquareId"))
 	gin_util.Response(ctx, resp, err)
+}
+
+// SearchKnowledgeBase
+//
+//	@Tags			callback
+//	@Summary		查询知识库列表（命中测试）
+//	@Description	查询知识库列表（命中测试）
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.RagSearchKnowledgeBaseReq	true	"查询知识库列表请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/rag/search-knowledge-base [post]
+func SearchKnowledgeBase(ctx *gin.Context) {
+	var req request.RagSearchKnowledgeBaseReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, httpStatus := service.RagSearchKnowledgeBase(ctx, &req)
+	gin_util.ResponseRawByte(ctx, httpStatus, resp)
+}
+
+// KnowledgeStreamSearch
+//
+//	@Tags			callback
+//	@Summary		知识库流式问答
+//	@Description	知识库流式问答
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.RagKnowledgeChatReq	true	"知识库流式问答请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/rag/knowledge/stream/search [post]
+func KnowledgeStreamSearch(ctx *gin.Context) {
+	userId := ctx.GetHeader("X-uid")
+	var req request.RagKnowledgeChatReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	req.UserId = userId
+	err := service.KnowledgeStreamSearch(ctx, &req)
+	if err != nil {
+		resp, httpStatus := response.CommonRagKnowledgeError(err)
+		gin_util.ResponseRawByte(ctx, httpStatus, resp)
+		return
+	}
 }

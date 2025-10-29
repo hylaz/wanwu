@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
+	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg"
@@ -13,8 +15,8 @@ import (
 )
 
 const (
-	knowledgeDBName = "knowledge_base_service"
-	timestampOld    = "1757692799000" //2025-09-12 23:59:59
+	knowledgeDBName     = "knowledge_base_service"
+	docMetaTimestampOld = "1757692799000" //2025-09-12 23:59:59
 )
 
 var dbClient = DataBaseClient{}
@@ -56,7 +58,7 @@ func (c DataBaseClient) Load() error {
 		return err
 	}
 	//初始化数据
-	err = Init(dbHandle)
+	err = initData(dbHandle)
 	if err != nil {
 		return err
 	}
@@ -103,6 +105,8 @@ func registerTables(dbClient *gorm.DB) error {
 		model.KnowledgeSplitter{},
 		model.KnowledgeDocMeta{},
 		model.DocSegmentImportTask{},
+		model.KnowledgePermission{},
+		model.KnowledgePermissionRecord{},
 	)
 	if err != nil {
 		fmt.Printf("register knowledge tables failed: %v", err)
@@ -112,10 +116,25 @@ func registerTables(dbClient *gorm.DB) error {
 	return nil
 }
 
-func Init(dbClient *gorm.DB) error {
+// initData初始化数据
+func initData(dbClient *gorm.DB) error {
+	err := initDocMeta(dbClient)
+	if err != nil {
+		log.Errorf("init doc meta failed: %v", err)
+		return err
+	}
+	err = initKnowledgePermission(dbClient)
+	if err != nil {
+		log.Errorf("init knowledge permission failed: %v", err)
+		return err
+	}
+	return nil
+}
+
+func initDocMeta(dbClient *gorm.DB) error {
 	var knowledgeDocMetaList []model.KnowledgeDocMeta
 	//数据量不会太大直接getAll
-	err := dbClient.Model(&model.KnowledgeDocMeta{}).Where("create_at <= ?", timestampOld).Find(&knowledgeDocMetaList).Error
+	err := dbClient.Model(&model.KnowledgeDocMeta{}).Where("create_at <= ?", docMetaTimestampOld).Find(&knowledgeDocMetaList).Error
 	if err != nil {
 		return err
 	}
@@ -137,6 +156,47 @@ func Init(dbClient *gorm.DB) error {
 			}
 
 		}
+	}
+	return nil
+}
+
+func initKnowledgePermission(dbClient *gorm.DB) error {
+	var knowledgeBaseList []model.KnowledgeBase
+	//数据量不会太大直接getAll
+	err := dbClient.Model(&model.KnowledgeBase{}).Find(&knowledgeBaseList).Error
+	if err != nil {
+		return err
+	}
+	var knowledgePermissionList []model.KnowledgePermission
+	err = dbClient.Model(&model.KnowledgePermission{}).Find(&knowledgePermissionList).Error
+	if err != nil {
+		return err
+	}
+	var knowledgePermissionMap = make(map[string]bool)
+	for _, knowledgePermission := range knowledgePermissionList {
+		knowledgePermissionMap[knowledgePermission.KnowledgeId] = true
+	}
+	var permissionList []*model.KnowledgePermission
+	timeNow := time.Now().UnixMilli()
+	for _, knowledgeBase := range knowledgeBaseList {
+		if knowledgePermissionMap[knowledgeBase.KnowledgeId] {
+			continue
+		}
+		permissionList = append(permissionList, &model.KnowledgePermission{
+			PermissionId:   generator.GetGenerator().NewID(),
+			KnowledgeId:    knowledgeBase.KnowledgeId,
+			UserId:         knowledgeBase.UserId,
+			OrgId:          knowledgeBase.OrgId,
+			GrantUserId:    knowledgeBase.UserId,
+			GrantOrgId:     knowledgeBase.OrgId,
+			PermissionType: model.PermissionTypeSystem,
+			CreatedAt:      timeNow,
+			UpdatedAt:      timeNow,
+		})
+	}
+	err = dbClient.Model(&model.KnowledgePermission{}).CreateInBatches(permissionList, 30).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }

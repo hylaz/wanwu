@@ -42,6 +42,18 @@ func WithKnowledgeID(id string) SQLOption {
 	})
 }
 
+func WithOverKnowledgePermission(id int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("permission_type >= ?", id)
+	})
+}
+
+func WithPermissionId(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("permission_id = ?", id)
+	})
+}
+
 func WithoutKnowledgeID(knowledgeId string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if len(knowledgeId) == 0 {

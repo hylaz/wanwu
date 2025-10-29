@@ -91,12 +91,13 @@ kafka:
 
 rag-server:
   endpoint: 'http://rag-wanwu:8681'
+  proxy-point: 'http://bff-service:6668'
   url-analysis-endpoint: 'http://rag-wanwu:8613'
   url-import-endpoint: 'http://rag-wanwu:8613'
   init-knowledge-uri: '/rag/init-knowledge-base'
   update-knowledge-uri: '/rag/update-kb-name'
   delete-knowledge-uri: '/rag/del-knowledge-base'
-  knowledge-hit-uri: '/rag/search-knowledge-base'
+  knowledge-hit-uri: '/callback/v1/rag/search-knowledge-base'
   get-doc-segment-uri: '/rag/get-content-list'
   get-child-content-uri: '/rag/get-child-content-list'
   doc-segment-update-status-uri: '/rag/update-content-status'

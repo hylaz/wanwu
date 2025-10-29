@@ -70,7 +70,8 @@ type QueryKnowledgeReq struct {
 }
 
 type DeleteDocReq struct {
-	DocIdList []string `json:"docIdList"  validate:"required"`
+	DocIdList   []string `json:"docIdList"  validate:"required"`
+	KnowledgeId string   `json:"knowledgeId" form:"knowledgeId" validate:"required"`
 	CommonCheck
 }
 

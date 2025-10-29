@@ -15,7 +15,7 @@ import (
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.DocListReq	true	"文档列表查询请求参数"
+//	@Param			data	query		request.DocListReq	true	"文档列表查询请求参数"
 //	@Success		200		{object}	response.PageResult{list=[]response.ListDocResp}
 //	@Router			/knowledge/doc/list [get]
 func GetDocList(ctx *gin.Context) {
@@ -120,7 +120,7 @@ func BatchUpdateDocMetaData(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.QueryKnowledgeReq	true	"获取知识库异步上传任务提示请求参数"
+//	@Param			data	query		request.QueryKnowledgeReq	true	"获取知识库异步上传任务提示请求参数"
 //	@Success		200		{object}	response.Response(data=response.DocImportTipResp)
 //	@Router			/knowledge/doc/import/tip [get]
 func GetDocImportTip(ctx *gin.Context) {
@@ -141,7 +141,7 @@ func GetDocImportTip(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.DocSegmentListReq	true	"获取文档切分结果请求参数"
+//	@Param			data	query		request.DocSegmentListReq	true	"获取文档切分结果请求参数"
 //	@Success		200		{object}	response.Response{data=response.DocSegmentResp}
 //	@Router			/knowledge/doc/segment/list [get]
 func GetDocSegmentList(ctx *gin.Context) {
@@ -309,7 +309,7 @@ func UpdateDocSegment(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.DocChildListReq	true	"获取子分段列表查询请求参数"
+//	@Param			data	query		request.DocChildListReq	true	"获取子分段列表查询请求参数"
 //	@Success		200		{object}	response.Response{data=response.DocChildSegmentResp}
 //	@Router			/knowledge/doc/segment/child/list [get]
 func GetDocChildSegmentList(ctx *gin.Context) {

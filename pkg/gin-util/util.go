@@ -187,6 +187,13 @@ func ResponseDetail(ctx *gin.Context, httpStatus int, code codes.Code, data inte
 	ctx.JSON(httpStatus, resp)
 }
 
+// ResponseRawByte 直接返回[]byte数据
+func ResponseRawByte(ctx *gin.Context, httpStatus int, data []byte) {
+	ctx.Set(STATUS, httpStatus)
+	ctx.Set(RESULT, string(data))
+	ctx.Data(httpStatus, "application/json; charset=utf-8", data)
+}
+
 // response 与model/response中Response一致，后者只用于swagger生成
 type response struct {
 	Code int64       `json:"code"`

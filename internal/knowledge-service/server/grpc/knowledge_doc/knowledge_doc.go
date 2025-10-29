@@ -39,7 +39,8 @@ const (
 )
 
 func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service.GetDocListReq) (*knowledgebase_doc_service.GetDocListResp, error) {
-	list, total, err := orm.GetDocList(ctx, req.UserId, req.OrgId, req.KnowledgeId,
+	//入口层已经校验过用户权限，此处无需校验
+	list, total, err := orm.GetDocList(ctx, "", "", req.KnowledgeId,
 		req.DocName, req.DocTag, util.BuildDocReqStatusList(int(req.Status)), req.PageSize, req.PageNum)
 	if err != nil {
 		log.Errorf("获取知识库列表失败(%v)  参数(%v)", err, req)
@@ -55,6 +56,15 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 	}
 
 	return buildDocListResp(list, importTaskList, total, req.PageSize, req.PageNum), nil
+}
+
+func (s *Service) GetDocDetail(ctx context.Context, req *knowledgebase_doc_service.GetDocDetailReq) (*knowledgebase_doc_service.DocInfo, error) {
+	doc, err := orm.GetDocDetail(ctx, req.UserId, req.OrgId, req.DocId)
+	if err != nil {
+		log.Errorf("获取知识库列表失败(%v)  参数(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
+	}
+	return buildDocInfo(doc, make(map[string]*model.SegmentConfig)), nil
 }
 
 func (s *Service) ImportDoc(ctx context.Context, req *knowledgebase_doc_service.ImportDocReq) (*emptypb.Empty, error) {
@@ -137,7 +147,7 @@ func updateKnowledgeMetaData(ctx context.Context, req *knowledgebase_doc_service
 	// 5.执行批量删除
 	if len(deleteList) > 0 {
 		err = orm.BatchDeleteMeta(ctx, deleteList, req.KnowledgeId, &service.RagBatchDeleteMetaParams{
-			UserId:        req.UserId,
+			UserId:        knowledge.UserId,
 			KnowledgeBase: knowledge.Name,
 			KnowledgeId:   req.KnowledgeId,
 			Keys:          deleteList,
@@ -332,7 +342,7 @@ func (s *Service) InitDocStatus(ctx context.Context, req *knowledgebase_doc_serv
 
 func (s *Service) DeleteDoc(ctx context.Context, req *knowledgebase_doc_service.DeleteDocReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, req.Ids, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, req.Ids, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
@@ -356,8 +366,8 @@ func (s *Service) DeleteDoc(ctx context.Context, req *knowledgebase_doc_service.
 }
 
 func (s *Service) GetDocCategoryUploadTip(ctx context.Context, req *knowledgebase_doc_service.DocImportTipReq) (*knowledgebase_doc_service.DocImportTipResp, error) {
-	//1.查询知识库详情
-	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, req.UserId, req.OrgId)
+	//1.查询知识库详情,前置参数校验
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -400,14 +410,14 @@ func (s *Service) GetDocCategoryUploadTip(ctx context.Context, req *knowledgebas
 
 func (s *Service) GetDocSegmentList(ctx context.Context, req *knowledgebase_doc_service.DocSegmentListReq) (*knowledgebase_doc_service.DocSegmentListResp, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
 	}
 	docInfo := docList[0]
 	//2.查询知识库详情
-	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("查询知识库详情失败 参数(%v)", req)
 		return nil, err
@@ -426,7 +436,7 @@ func (s *Service) GetDocSegmentList(ctx context.Context, req *knowledgebase_doc_
 	}
 	//4.查询分片信息
 	segmentListResp, err := service.RagGetDocSegmentList(ctx, &service.RagGetDocSegmentParams{
-		UserId:            req.UserId,
+		UserId:            knowledge.UserId,
 		KnowledgeBaseName: knowledge.Name,
 		FileName:          service.RebuildFileName(docInfo.DocId, docInfo.FileType, docInfo.Name),
 		PageSize:          req.PageSize,
@@ -442,21 +452,21 @@ func (s *Service) GetDocSegmentList(ctx context.Context, req *knowledgebase_doc_
 
 func (s *Service) GetDocChildSegmentList(ctx context.Context, req *knowledgebase_doc_service.GetDocChildSegmentListReq) (*knowledgebase_doc_service.GetDocChildSegmentListResp, error) {
 	//1.查询文档详情
-	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, req.UserId, req.OrgId)
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
 		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
 		return nil, err
 	}
 	docInfo := docList[0]
 	//2.查询知识库详情
-	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, req.UserId, req.OrgId)
+	knowledge, err := orm.SelectKnowledgeById(ctx, docInfo.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf("查询知识库详情失败 参数(%v)", req)
 		return nil, err
 	}
 	//3.查询分片信息
 	segmentListResp, err := service.RagGetDocChildSegmentList(ctx, &service.RagGetDocChildSegmentParams{
-		UserId:            req.UserId,
+		UserId:            knowledge.UserId,
 		KnowledgeBaseName: knowledge.Name,
 		KnowledgeId:       knowledge.KnowledgeId,
 		FileName:          service.RebuildFileName(docInfo.DocId, docInfo.FileType, docInfo.Name),
@@ -599,17 +609,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 	var retList = make([]*knowledgebase_doc_service.DocInfo, 0)
 	if len(list) > 0 {
 		for _, item := range list {
-			retList = append(retList, &knowledgebase_doc_service.DocInfo{
-				DocId:         item.DocId,
-				DocName:       item.Name,
-				DocSize:       item.FileSize,
-				DocType:       item.FileType,
-				KnowledgeId:   item.KnowledgeId,
-				UploadTime:    util2.Time2Str(item.CreatedAt),
-				Status:        int32(util.BuildDocRespStatus(item.Status)),
-				ErrorMsg:      item.ErrorMsg,
-				SegmentMethod: buildSegmentMethod(item, segmentConfigMap),
-			})
+			retList = append(retList, buildDocInfo(item, segmentConfigMap))
 		}
 	}
 	return &knowledgebase_doc_service.GetDocListResp{
@@ -617,6 +617,20 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 		Docs:     retList,
 		PageSize: pageSize,
 		PageNum:  pageNum,
+	}
+}
+
+func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.SegmentConfig) *knowledgebase_doc_service.DocInfo {
+	return &knowledgebase_doc_service.DocInfo{
+		DocId:         item.DocId,
+		DocName:       item.Name,
+		DocSize:       item.FileSize,
+		DocType:       item.FileType,
+		KnowledgeId:   item.KnowledgeId,
+		UploadTime:    util2.Time2Str(item.CreatedAt),
+		Status:        int32(util.BuildDocRespStatus(item.Status)),
+		ErrorMsg:      item.ErrorMsg,
+		SegmentMethod: buildSegmentMethod(item, segmentConfigMap),
 	}
 }
 

@@ -407,6 +407,74 @@
                 }
             }
         },
+        "/rag/knowledge/stream/search": {
+            "post": {
+                "description": "知识库流式问答",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "知识库流式问答",
+                "parameters": [
+                    {
+                        "description": "知识库流式问答请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RagKnowledgeChatReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/rag/search-knowledge-base": {
+            "post": {
+                "description": "查询知识库列表（命中测试）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "查询知识库列表（命中测试）",
+                "parameters": [
+                    {
+                        "description": "查询知识库列表请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RagSearchKnowledgeBaseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/workflow/list": {
             "get": {
                 "description": "根据userId和spaceId获取Workflow",
@@ -2147,6 +2215,14 @@
                 }
             }
         },
+        "request.CustomModelInfo": {
+            "type": "object",
+            "properties": {
+                "llm_model_id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CustomToolApiAuthWebRequest": {
             "type": "object",
             "required": [
@@ -2178,6 +2254,257 @@
                 }
             }
         },
+        "request.HistoryItem": {
+            "type": "object",
+            "properties": {
+                "needHistory": {
+                    "type": "boolean"
+                },
+                "query": {
+                    "type": "string"
+                },
+                "response": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.MetaItem": {
+            "type": "object",
+            "properties": {
+                "comparison_operator": {
+                    "description": "比较运算符",
+                    "type": "string"
+                },
+                "meta_name": {
+                    "description": "元数据名称",
+                    "type": "string"
+                },
+                "meta_type": {
+                    "description": "元数据类型",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "用于过滤的条件值"
+                }
+            }
+        },
+        "request.MetadataFilterItem": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetaItem"
+                    }
+                },
+                "filtering_kb_name": {
+                    "type": "string"
+                },
+                "logical_operator": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RagKnowledgeChatReq": {
+            "type": "object",
+            "properties": {
+                "auto_citation": {
+                    "description": "是否自动角标",
+                    "type": "boolean"
+                },
+                "chichat": {
+                    "description": "当知识库召回结果为空时是否使用默认话术（兜底），默认为true",
+                    "type": "boolean"
+                },
+                "custom_model_info": {
+                    "$ref": "#/definitions/request.CustomModelInfo"
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.HistoryItem"
+                    }
+                },
+                "knowledgeBase": {
+                    "description": "知识库名称列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "knowledgeIdList": {
+                    "description": "知识库id列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "knowledge_base_info": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/request.RagKnowledgeInfo"
+                        }
+                    }
+                },
+                "max_history": {
+                    "type": "integer"
+                },
+                "metadata_filtering": {
+                    "description": "元数据过滤开关",
+                    "type": "boolean"
+                },
+                "metadata_filtering_conditions": {
+                    "description": "元数据过滤条件",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetadataFilterItem"
+                    }
+                },
+                "question": {
+                    "type": "string"
+                },
+                "repetition_penalty": {
+                    "description": "重复惩罚/频率惩罚",
+                    "type": "number"
+                },
+                "rerank_mod": {
+                    "description": "rerank_model:重排序模式，weighted_score：权重搜索",
+                    "type": "string"
+                },
+                "rerank_model_id": {
+                    "type": "string"
+                },
+                "retrieve_method": {
+                    "description": "hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索",
+                    "type": "string"
+                },
+                "return_meta": {
+                    "description": "是否返回元数据",
+                    "type": "boolean"
+                },
+                "rewrite_query": {
+                    "description": "是否query改写",
+                    "type": "boolean"
+                },
+                "stream": {
+                    "type": "boolean"
+                },
+                "temperature": {
+                    "type": "number"
+                },
+                "term_weight_coefficient": {
+                    "description": "关键词系数",
+                    "type": "number"
+                },
+                "threshold": {
+                    "description": "Score阈值",
+                    "type": "number"
+                },
+                "topK": {
+                    "type": "integer"
+                },
+                "top_p": {
+                    "description": "多样性",
+                    "type": "number"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "weights": {
+                    "description": "权重搜索下的权重配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.WeightParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "request.RagKnowledgeInfo": {
+            "type": "object",
+            "properties": {
+                "kb_id": {
+                    "type": "string"
+                },
+                "kb_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RagSearchKnowledgeBaseReq": {
+            "type": "object",
+            "required": [
+                "knowledgeIdList",
+                "question",
+                "userId"
+            ],
+            "properties": {
+                "knowledgeIdList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "knowledge_base_info": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/request.RagKnowledgeInfo"
+                        }
+                    }
+                },
+                "metadata_filtering": {
+                    "description": "元数据过滤开关",
+                    "type": "boolean"
+                },
+                "metadata_filtering_conditions": {
+                    "description": "元数据过滤条件",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetadataFilterItem"
+                    }
+                },
+                "question": {
+                    "type": "string"
+                },
+                "rerank_mod": {
+                    "description": "rerank_model:重排序模式，weighted_score：权重搜索",
+                    "type": "string"
+                },
+                "rerank_model_id": {
+                    "description": "rerankId",
+                    "type": "string"
+                },
+                "retrieve_method": {
+                    "description": "hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索",
+                    "type": "string"
+                },
+                "term_weight_coefficient": {
+                    "description": "关键词系数",
+                    "type": "number"
+                },
+                "threshold": {
+                    "type": "number"
+                },
+                "topK": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "weights": {
+                    "description": "权重搜索下的权重配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.WeightParams"
+                        }
+                    ]
+                }
+            }
+        },
         "request.SearchKnowledgeInfoReq": {
             "type": "object",
             "required": [
@@ -2193,6 +2520,19 @@
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "request.WeightParams": {
+            "type": "object",
+            "properties": {
+                "text_weight": {
+                    "description": "关键字权重",
+                    "type": "number"
+                },
+                "vector_weight": {
+                    "description": "语义权重",
+                    "type": "number"
                 }
             }
         },

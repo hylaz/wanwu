@@ -31,7 +31,7 @@ const (
 )
 
 func (s *Service) SelectKnowledgeList(ctx context.Context, req *knowledgebase_service.KnowledgeSelectReq) (*knowledgebase_service.KnowledgeSelectListResp, error) {
-	list, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, req.TagIdList)
+	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, req.TagIdList)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, req))
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
@@ -45,7 +45,16 @@ func (s *Service) SelectKnowledgeList(ctx context.Context, req *knowledgebase_se
 		relation := orm.SelectKnowledgeTagListWithRelation(ctx, req.UserId, req.OrgId, "", knowledgeIdList)
 		tagMap = buildKnowledgeTagMap(relation)
 	}
-	return buildKnowledgeListResp(list, tagMap), nil
+	return buildKnowledgeListResp(list, tagMap, permissionMap), nil
+}
+
+func (s *Service) SelectKnowledgeListByIdList(ctx context.Context, req *knowledgebase_service.BatchKnowledgeSelectReq) (*knowledgebase_service.KnowledgeSelectListResp, error) {
+	list, permissionMap, err := orm.SelectKnowledgeByIdList(ctx, req.KnowledgeIdList, req.UserId, req.OrgId)
+	if err != nil {
+		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, req))
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
+	}
+	return buildKnowledgeListResp(list, nil, permissionMap), nil
 }
 
 func (s *Service) SelectKnowledgeDetailById(ctx context.Context, req *knowledgebase_service.KnowledgeDetailSelectReq) (*knowledgebase_service.KnowledgeInfo, error) {
@@ -67,7 +76,7 @@ func (s *Service) SelectKnowledgeDetailByName(ctx context.Context, req *knowledg
 }
 
 func (s *Service) SelectKnowledgeDetailByIdList(ctx context.Context, req *knowledgebase_service.KnowledgeDetailSelectListReq) (*knowledgebase_service.KnowledgeDetailSelectListResp, error) {
-	knowledgeInfoList, err := orm.SelectKnowledgeByIdList(ctx, req.KnowledgeIds, req.UserId, req.OrgId)
+	knowledgeInfoList, _, err := orm.SelectKnowledgeByIdList(ctx, req.KnowledgeIds, req.UserId, req.OrgId)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("根据id列表获取知识库详情列表失败(%v)  参数(%v)", err, req))
 		return nil, err
@@ -99,8 +108,8 @@ func (s *Service) CreateKnowledge(ctx context.Context, req *knowledgebase_servic
 }
 
 func (s *Service) UpdateKnowledge(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeReq) (*emptypb.Empty, error) {
-	//1.查询知识库详情
-	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, req.UserId, req.OrgId)
+	//1.查询知识库详情,这里前置做了前置权限校验，所以这里不需要再次校验
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
 	if err != nil {
 		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
 		return nil, err
@@ -151,7 +160,7 @@ func (s *Service) KnowledgeHit(ctx context.Context, req *knowledgebase_service.K
 	for _, k := range req.KnowledgeList {
 		knowledgeIdList = append(knowledgeIdList, k.KnowledgeId)
 	}
-	list, err := orm.SelectKnowledgeByIdList(ctx, knowledgeIdList, req.UserId, req.OrgId)
+	list, _, err := orm.SelectKnowledgeByIdList(ctx, knowledgeIdList, req.UserId, req.OrgId)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +184,7 @@ func (s *Service) KnowledgeHit(ctx context.Context, req *knowledgebase_service.K
 }
 
 func (s *Service) GetKnowledgeMetaSelect(ctx context.Context, req *knowledgebase_service.SelectKnowledgeMetaReq) (*knowledgebase_service.SelectKnowledgeMetaResp, error) {
-	metaList, err := orm.SelectMetaByKnowledgeId(ctx, req.UserId, req.OrgId, req.KnowledgeId)
+	metaList, err := orm.SelectMetaByKnowledgeId(ctx, "", "", req.KnowledgeId)
 	if err != nil {
 		log.Errorf("获取知识库元数据列表失败(%v)  参数(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeMetaFetchFailed)
@@ -347,10 +356,12 @@ func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model
 	if err != nil {
 		return nil, err
 	}
+	idList, nameList := buildKnowledgeList(list)
 	ret := &rag_service.KnowledgeHitParams{
 		UserId:               req.UserId,
 		Question:             req.Question,
-		KnowledgeBase:        buildKnowledgeNameList(list),
+		KnowledgeIdList:      idList,
+		KnowledgeBase:        nameList,
 		TopK:                 matchParams.TopK,
 		Threshold:            float64(matchParams.Score),
 		RerankModelId:        buildRerankId(priorityMatch, matchParams.RerankModelId),
@@ -489,7 +500,7 @@ func buildKnowledgeMetaSelectResp(metaList []*model.KnowledgeDocMeta) *knowledge
 }
 
 // buildKnowledgeListResp 构造知识库列表返回结果
-func buildKnowledgeListResp(knowledgeList []*model.KnowledgeBase, knowledgeTagMap map[string][]*orm.TagRelationDetail) *knowledgebase_service.KnowledgeSelectListResp {
+func buildKnowledgeListResp(knowledgeList []*model.KnowledgeBase, knowledgeTagMap map[string][]*orm.TagRelationDetail, permissionMap map[string]int) *knowledgebase_service.KnowledgeSelectListResp {
 	if len(knowledgeList) == 0 {
 		return &knowledgebase_service.KnowledgeSelectListResp{}
 	}
@@ -497,6 +508,7 @@ func buildKnowledgeListResp(knowledgeList []*model.KnowledgeBase, knowledgeTagMa
 	for _, knowledge := range knowledgeList {
 		knowledgeInfo := buildKnowledgeInfo(knowledge)
 		knowledgeInfo.KnowledgeTagInfoList = buildKnowledgeTagList(knowledge.KnowledgeId, knowledgeTagMap)
+		knowledgeInfo.PermissionType = buildKnowledgePermission(knowledge.KnowledgeId, permissionMap)
 		retList = append(retList, knowledgeInfo)
 	}
 	return &knowledgebase_service.KnowledgeSelectListResp{
@@ -545,6 +557,10 @@ func buildKnowledgeTagList(knowledgeId string, knowledgeTagMap map[string][]*orm
 	return retList
 }
 
+func buildKnowledgePermission(knowledgeId string, permissionMap map[string]int) int32 {
+	return int32(permissionMap[knowledgeId])
+}
+
 func checkRepeatedMetaKey(metaList []*model.KnowledgeDocMeta) []*model.KnowledgeDocMeta {
 	if len(metaList) == 0 {
 		return []*model.KnowledgeDocMeta{}
@@ -563,8 +579,11 @@ func buildKnowledgeInfo(knowledge *model.KnowledgeBase) *knowledgebase_service.K
 		Name:               knowledge.Name,
 		Description:        knowledge.Description,
 		DocCount:           int32(knowledge.DocCount),
+		ShareCount:         int32(knowledge.ShareCount),
 		EmbeddingModelInfo: embeddingModelInfo,
 		CreatedAt:          pkg_util.Time2Str(knowledge.CreatedAt),
+		CreateOrgId:        knowledge.OrgId,
+		CreateUserId:       knowledge.UserId,
 	}
 }
 
@@ -599,16 +618,16 @@ func buildKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeReq) (*mo
 	}, nil
 }
 
-// buildKnowledgeNameList 构造知识库名称
-func buildKnowledgeNameList(knowledgeList []*model.KnowledgeBase) []string {
+// buildKnowledgeList 构造知识库名称
+func buildKnowledgeList(knowledgeList []*model.KnowledgeBase) (knowledgeIdList []string, knowledgeNameList []string) {
 	if len(knowledgeList) == 0 {
-		return make([]string, 0)
+		return make([]string, 0), make([]string, 0)
 	}
-	var knowledgeNameList []string
 	for _, knowledge := range knowledgeList {
 		knowledgeNameList = append(knowledgeNameList, knowledge.Name)
+		knowledgeIdList = append(knowledgeIdList, knowledge.KnowledgeId)
 	}
-	return knowledgeNameList
+	return
 }
 
 // buildKnowledgeBaseHitResp 构造知识库命中返回

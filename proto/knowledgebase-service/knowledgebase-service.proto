@@ -9,6 +9,8 @@ option go_package = "gitlab.ai-yuanjing.cn/ai-platform-private/backend-used-bff/
 service KnowledgeBaseService {
   // 获取知识库列表
   rpc SelectKnowledgeList(KnowledgeSelectReq) returns (KnowledgeSelectListResp) {}
+  // 获取知识库列表
+  rpc SelectKnowledgeListByIdList(BatchKnowledgeSelectReq) returns (KnowledgeSelectListResp) {}
   // 获取知识库详情
   rpc SelectKnowledgeDetailById(KnowledgeDetailSelectReq) returns (KnowledgeInfo) {}
   // 获取知识库详情列表
@@ -107,6 +109,12 @@ message KnowledgeSelectReq {
   repeated string tagIdList = 4; //知识库id 列表
 }
 
+message BatchKnowledgeSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  repeated string knowledgeIdList = 3; //知识库id列表
+}
+
 message KnowledgeSelectListResp {
   repeated KnowledgeInfo knowledgeList = 1; //知识库列表
 }
@@ -138,6 +146,10 @@ message KnowledgeInfo {
   EmbeddingModelInfo embeddingModelInfo = 5;
   repeated KnowledgeTagInfo knowledgeTagInfoList = 6;
   string createdAt = 7;
+  int32 permissionType = 8; // 权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限
+  string createUserId = 9;//创建者id
+  string createOrgId = 10;//创建者组织id
+  int32 shareCount = 11;//共享数量
 }
 
 message KnowledgeTagInfo {

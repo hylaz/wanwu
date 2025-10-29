@@ -299,6 +299,33 @@ func SendRequestOriResp(ctx context.Context, client *http.Client, httpRequestPar
 	return resp, err
 }
 
+func ReadHttpResp(result *http.Response) (body []byte, err error) {
+	defer func(Body io.ReadCloser) {
+		err1 := Body.Close()
+		if err1 != nil {
+			//todo 通用日志文件
+			err = err1
+		}
+	}(result.Body) // 确保关闭响应体
+
+	if result.Header.Get("Content-Encoding") == "gzip" {
+		reader, err := gzip.NewReader(result.Body)
+		if err != nil {
+			return nil, err
+		}
+		defer func() {
+			err1 := reader.Close()
+			if err1 != nil {
+				err = err1
+			}
+		}()
+		body, err = io.ReadAll(reader)
+	} else {
+		body, err = io.ReadAll(result.Body)
+	}
+	return body, err
+}
+
 // setHeader 设置请求头
 func setHeader(request *http.Request, headerMap map[string]string, contentType string) {
 	hasContentType := false

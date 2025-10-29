@@ -1,5 +1,10 @@
 package response
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
 type KnowledgeListResp struct {
 	KnowledgeList []*KnowledgeInfo `json:"knowledgeList"`
 }
@@ -14,6 +19,20 @@ type KnowledgeHitResp struct {
 	Score      []float64          `json:"score"`      //打分信息
 }
 
+type RagKnowledgeResp struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func CommonRagKnowledgeError(err error) ([]byte, int) {
+	resp := RagKnowledgeResp{Code: 1, Message: err.Error()}
+	marshal, err := json.Marshal(resp)
+	if err != nil {
+		return []byte(err.Error()), http.StatusBadRequest
+	}
+	return marshal, http.StatusBadRequest
+}
+
 type EmbeddingModelInfo struct {
 	ModelId string `json:"modelId"`
 }
@@ -21,11 +40,15 @@ type EmbeddingModelInfo struct {
 type KnowledgeInfo struct {
 	KnowledgeId        string              `json:"knowledgeId"`        //知识库id
 	Name               string              `json:"name"`               //知识库名称
+	OrgName            string              `json:"orgName"`            //知识库所属名称
 	Description        string              `json:"description"`        //知识库描述
 	DocCount           int                 `json:"docCount"`           //文档数量
 	EmbeddingModelInfo *EmbeddingModelInfo `json:"embeddingModelInfo"` //embedding模型信息
 	KnowledgeTagList   []*KnowledgeTag     `json:"knowledgeTagList"`   //知识库标签列表
-	CreateAt           string              `json:"createAt"`           //创建时间
+	CreateUserId       string              `json:"createUserId"`
+	CreateAt           string              `json:"createAt"`       //创建时间
+	PermissionType     int32               `json:"permissionType"` //权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限
+	Share              bool                `json:"share"`          //是分享，还是私有
 }
 
 type KnowledgeMetaData struct {

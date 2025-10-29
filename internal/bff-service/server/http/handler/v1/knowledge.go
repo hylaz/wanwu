@@ -120,7 +120,7 @@ func KnowledgeHit(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.GetKnowledgeMetaSelectReq	true	"获取知识库元数据请求参数"
+//	@Param			data	query		request.GetKnowledgeMetaSelectReq	true	"获取知识库元数据请求参数"
 //	@Success		200		{object}	response.Response{data=response.GetKnowledgeMetaSelectResp}
 //	@Router			/knowledge/meta/select [get]
 func GetKnowledgeMetaKeySelect(ctx *gin.Context) {

@@ -1092,6 +1092,11 @@ definitions:
     - id
     - status
     type: object
+  request.CustomModelInfo:
+    properties:
+      llm_model_id:
+        type: string
+    type: object
   request.CustomToolApiAuthWebRequest:
     properties:
       apiKey:
@@ -1114,6 +1119,177 @@ definitions:
     required:
     - type
     type: object
+  request.HistoryItem:
+    properties:
+      needHistory:
+        type: boolean
+      query:
+        type: string
+      response:
+        type: string
+    type: object
+  request.MetaItem:
+    properties:
+      comparison_operator:
+        description: 比较运算符
+        type: string
+      meta_name:
+        description: 元数据名称
+        type: string
+      meta_type:
+        description: 元数据类型
+        type: string
+      value:
+        description: 用于过滤的条件值
+    type: object
+  request.MetadataFilterItem:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/request.MetaItem'
+        type: array
+      filtering_kb_name:
+        type: string
+      logical_operator:
+        type: string
+    type: object
+  request.RagKnowledgeChatReq:
+    properties:
+      auto_citation:
+        description: 是否自动角标
+        type: boolean
+      chichat:
+        description: 当知识库召回结果为空时是否使用默认话术（兜底），默认为true
+        type: boolean
+      custom_model_info:
+        $ref: '#/definitions/request.CustomModelInfo'
+      history:
+        items:
+          $ref: '#/definitions/request.HistoryItem'
+        type: array
+      knowledge_base_info:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/request.RagKnowledgeInfo'
+          type: array
+        type: object
+      knowledgeBase:
+        description: 知识库名称列表
+        items:
+          type: string
+        type: array
+      knowledgeIdList:
+        description: 知识库id列表
+        items:
+          type: string
+        type: array
+      max_history:
+        type: integer
+      metadata_filtering:
+        description: 元数据过滤开关
+        type: boolean
+      metadata_filtering_conditions:
+        description: 元数据过滤条件
+        items:
+          $ref: '#/definitions/request.MetadataFilterItem'
+        type: array
+      question:
+        type: string
+      repetition_penalty:
+        description: 重复惩罚/频率惩罚
+        type: number
+      rerank_mod:
+        description: rerank_model:重排序模式，weighted_score：权重搜索
+        type: string
+      rerank_model_id:
+        type: string
+      retrieve_method:
+        description: hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+        type: string
+      return_meta:
+        description: 是否返回元数据
+        type: boolean
+      rewrite_query:
+        description: 是否query改写
+        type: boolean
+      stream:
+        type: boolean
+      temperature:
+        type: number
+      term_weight_coefficient:
+        description: 关键词系数
+        type: number
+      threshold:
+        description: Score阈值
+        type: number
+      top_p:
+        description: 多样性
+        type: number
+      topK:
+        type: integer
+      userId:
+        type: string
+      weights:
+        allOf:
+        - $ref: '#/definitions/request.WeightParams'
+        description: 权重搜索下的权重配置
+    type: object
+  request.RagKnowledgeInfo:
+    properties:
+      kb_id:
+        type: string
+      kb_name:
+        type: string
+    type: object
+  request.RagSearchKnowledgeBaseReq:
+    properties:
+      knowledge_base_info:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/request.RagKnowledgeInfo'
+          type: array
+        type: object
+      knowledgeIdList:
+        items:
+          type: string
+        type: array
+      metadata_filtering:
+        description: 元数据过滤开关
+        type: boolean
+      metadata_filtering_conditions:
+        description: 元数据过滤条件
+        items:
+          $ref: '#/definitions/request.MetadataFilterItem'
+        type: array
+      question:
+        type: string
+      rerank_mod:
+        description: rerank_model:重排序模式，weighted_score：权重搜索
+        type: string
+      rerank_model_id:
+        description: rerankId
+        type: string
+      retrieve_method:
+        description: hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+        type: string
+      term_weight_coefficient:
+        description: 关键词系数
+        type: number
+      threshold:
+        type: number
+      topK:
+        type: integer
+      userId:
+        type: string
+      weights:
+        allOf:
+        - $ref: '#/definitions/request.WeightParams'
+        description: 权重搜索下的权重配置
+    required:
+    - knowledgeIdList
+    - question
+    - userId
+    type: object
   request.SearchKnowledgeInfoReq:
     properties:
       categoryName:
@@ -1125,6 +1301,15 @@ definitions:
     required:
     - categoryName
     - userId
+    type: object
+  request.WeightParams:
+    properties:
+      text_weight:
+        description: 关键字权重
+        type: number
+      vector_weight:
+        description: 语义权重
+        type: number
     type: object
   response.CustomToolActionInfo:
     properties:
@@ -1532,6 +1717,50 @@ paths:
           schema:
             $ref: '#/definitions/mp_common.RerankResp'
       summary: Model Rerank
+      tags:
+      - callback
+  /rag/knowledge/stream/search:
+    post:
+      consumes:
+      - application/json
+      description: 知识库流式问答
+      parameters:
+      - description: 知识库流式问答请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RagKnowledgeChatReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 知识库流式问答
+      tags:
+      - callback
+  /rag/search-knowledge-base:
+    post:
+      consumes:
+      - application/json
+      description: 查询知识库列表（命中测试）
+      parameters:
+      - description: 查询知识库列表请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RagSearchKnowledgeBaseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 查询知识库列表（命中测试）
       tags:
       - callback
   /workflow/list:
