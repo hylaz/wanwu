@@ -262,8 +262,14 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		return nil, err
 	}
 
-	// 调用client方法获取智能体详情
-	assistant, status := s.cli.GetAssistant(ctx, assistantId, "", "")
+	// 判空处理，根据Identity是否为空使用不同参数
+	var assistant *model.Assistant
+	var status *errs.Status
+	if req.Identity == nil {
+		assistant, status = s.cli.GetAssistant(ctx, assistantId, "", "")
+	} else {
+		assistant, status = s.cli.GetAssistant(ctx, assistantId, req.Identity.UserId, req.Identity.OrgId)
+	}
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
