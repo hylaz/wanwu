@@ -11,6 +11,14 @@ service OperateService {
     rpc CreateSystemCustomLogin(CreateSystemCustomLoginReq) returns (google.protobuf.Empty) {}
     rpc CreateSystemCustomHome(CreateSystemCustomHomeReq) returns (google.protobuf.Empty) {}
     rpc GetSystemCustom(GetSystemCustomReq) returns (SystemCustom) {}
+
+    rpc AddClientRecord(AddClientRecordReq) returns (google.protobuf.Empty) {}
+    // 客户端统计总览
+    rpc GetClientOverview(GetClientOverviewReq) returns (ClientOverViewInfo) {}
+    // 客户端统计趋势
+    rpc GetClientTrend(GetClientTrendReq) returns (ClientTrendInfo) {}
+    // 累计客户端统计总览
+    rpc GetCumulativeClientOverview(GetCumulativeClientOverviewReq) returns (ClientOverViewInfo) {}
 }
 
 message CreateSystemCustomTabReq {
@@ -60,4 +68,54 @@ message Home {
     string homeLogoPath = 1; // 平台logo路径
     string homeName = 2; // 平台名称
     string homeBgColor = 3; // 平台背景颜色
+}
+
+message AddClientRecordReq {
+    string clientId =1 ;
+}
+
+message GetClientOverviewReq{
+    string startDate = 1;
+    string endDate = 2;
+}
+
+message GetClientTrendReq{
+    string startDate = 1;
+    string endDate = 2;
+}
+
+message GetCumulativeClientOverviewReq{
+    string endAt = 1;
+}
+
+
+message ClientOverviewItem {
+    float value = 1;
+    float periodOverperiod = 2;
+}
+
+message ClientOverViewInfo{
+    ClientOverviewItem activeClient = 1;
+    ClientOverviewItem totalClient = 2;
+    ClientOverviewItem additionClient = 3;
+}
+
+message ClientTrendInfo{
+    StatisticChart client = 1;
+    
+}
+
+message StatisticChart {
+    string tableName = 1;
+    repeated StatisticChartLine chartLines = 2;
+}
+
+message StatisticChartLine {
+    string lineName = 1;
+    repeated StatisticChartLineItem items = 2;
+}
+
+message StatisticChartLineItem {
+    string key = 1;
+    float value = 2;
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/operate-service/server/grpc"
 	"github.com/UnicomAI/wanwu/pkg/db"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
 var (
@@ -42,6 +43,10 @@ func main() {
 	flag.Parse()
 	if err := config.LoadConfig(configFile); err != nil {
 		log.Fatalf("init cfg err: %v", err)
+	}
+	// init time local
+	if err := util.InitTimeLocal(); err != nil {
+		log.Fatalf("init time local UTC8 err: %v", err)
 	}
 
 	if err := log.InitLog(config.Cfg().Log.Std, config.Cfg().Log.Level, config.Cfg().Log.Logs...); err != nil {

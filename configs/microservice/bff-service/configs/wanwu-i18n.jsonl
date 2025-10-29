@@ -234,6 +234,13 @@
 {"code":145019,"key":"","langs":{"zh":"非法参数"}}
 {"code":145020,"key":"","langs":{"zh":"文档分段内容为空"}}
 {"code":145021,"key":"","langs":{"zh":"部分元数据更新成功"}}
+{"code":146001,"key":"","langs":{"zh":"获取知识库权限列表失败，请稍后重试"}}
+{"code":146002,"key":"","langs":{"zh":"知识库操作权限不足，请联系管理员添加后重试"}}
+{"code":146003,"key":"","langs":{"zh":"知识库添加权限失败，请稍后重试"}}
+{"code":146004,"key":"","langs":{"zh":"知识库修改权限失败，请稍后重试"}}
+{"code":146005,"key":"","langs":{"zh":"知识库删除权限失败，请稍后重试"}}
+{"code":146006,"key":"","langs":{"zh":"知识库的授权权限只有用户本人才能删除"}}
+{"code":146007,"key":"","langs":{"zh":"知识库转让失败"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}
@@ -254,6 +261,7 @@
 {"code":310013,"key":"mcp_create_duplicate_mcp_server_err","langs":{"zh":"创建MCP服务异常:已存在同名"}}
 {"code":310014,"key":"mcp_delete_mcp_server_err","langs":{"zh":"删除MCP服务异常:%v"}}
 {"code":310015,"key":"mcp_update_mcp_server_err","langs":{"zh":"更新MCP服务异常:%v"}}
+{"code":310015,"key":"mcp_update_duplicate_mcp_server_err","langs":{"zh":"更新MCP服务异常:已存在同名"}}
 {"code":310016,"key":"mcp_get_mcp_server_info_err","langs":{"zh":"获取MCP服务详情异常:%v"}}
 {"code":310017,"key":"mcp_get_mcp_server_list_err","langs":{"zh":"获取MCP服务列表异常:%v"}}
 {"code":310018,"key":"mcp_create_mcp_server_tool_err","langs":{"zh":"创建MCP服务工具异常:%v"}}
@@ -311,12 +319,12 @@
 {"code":160005,"key":"assistant_mcp_get","langs":{"zh":"获取mcp错误: %v"}}
 {"code":160005,"key":"assistant_mcp_update","langs":{"zh":"更新mcp错误: %v"}}
 {"code":160005,"key":"assistant_mcp_exist","langs":{"zh":"获取mcp错误: %v"}}
-{"code":160006,"key":"assistant_custom_create","langs":{"zh":"创建custom错误: %v"}}
+{"code":160006,"key":"assistant_tool_create","langs":{"zh":"创建tool错误: %v"}}
+{"code":160006,"key":"assistant_tool_delete","langs":{"zh":"删除tool错误: %v"}}
+{"code":160006,"key":"assistant_tool_get","langs":{"zh":"获取tool错误: %v"}}
+{"code":160006,"key":"assistant_tool_update","langs":{"zh":"更新tool错误: %v"}}
 {"code":160006,"key":"assistant_custom_count","langs":{"zh":"获取custom错误: %v"}}
 {"code":160006,"key":"assistant_custom_exist","langs":{"zh":"获取custom错误: %v"}}
-{"code":160006,"key":"assistant_custom_delete","langs":{"zh":"删除custom错误: %v"}}
-{"code":160006,"key":"assistant_custom_update","langs":{"zh":"更新custom错误: %v"}}
-{"code":160006,"key":"assistant_custom_get","langs":{"zh":"获取custom错误: %v"}}
 {"code":300000,"key":"app_config_delete","langs":{"zh":"删除应用配置错误:%v"}}
 {"code":300001,"key":"app_api_keys_get","langs":{"zh":"获取ApiKey列表错误:%v"}}
 {"code":300001,"key":"app_api_key_delete","langs":{"zh":"删除ApiKey错误:%v"}}

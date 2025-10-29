@@ -1,0 +1,511 @@
+workflows:
+  - templateId: "story_picture_gen"
+    category: "create"
+    avatar: ""
+    name: "绘本故事配图生成工具"
+    schemaPath: "story_picture_gen/story_picture_gen.json"
+    desc: "智能生成绘本故事配图的创作工具"
+    author: "中国联通"
+    summary: "工作流先接收作者的故事文本，补充绘本风格与目标读者信息，通过大模型提取关键场景和角色并生成图像描述词，调用 MCP 服务生成场景图像 URL，经文本处理在故事中标记配图位置并关联 URL，最后组合文本与图像生成绘本 PDF，输出绘本内容。"
+    feature: |
+      - 智能分析故事文本，提取关键场景和角色
+      - 支持多种绘本风格定制（水彩、卡通、油画等）
+      - 根据目标读者年龄调整配图风格
+      - 自动生成高质量图像描述词
+      - 智能标记配图位置并关联图像URL
+      - 输出完整的绘本PDF文档
+    scenario: "教育创作、儿童读物制作、故事绘本生成"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "intelligent_customer_service"
+    category: "industry"
+    avatar: ""
+    name: "智能客服系统"
+    schemaPath: "Intelligent_customer_service/Intelligent_customer_service.json"
+    desc: "多场景智能客服问答解决方案"
+    author: "中国联通"
+    summary: "识别用户意图，提供产品咨询、订单查询、投诉建议等服务"
+    feature: |
+      - 精准识别用户意图（咨询产品、查询订单、投诉建议）
+      - 多知识库并行检索，提供准确信息
+      - 智能处理复杂情绪，生成人性化回复
+      - 变量聚合确保回复一致性
+      - 支持文本和变量多种输出模式
+    scenario: "电商客服、企业服务、客户支持"
+    note: "导入模版后需要设置：大模型节点的模型、意图识别节点的模型、知识库节点的知识库"
+
+  - templateId: "tourism_attraction_recommend"
+    category: "tourism"
+    avatar: ""
+    name: "文旅景点推荐引擎"
+    schemaPath: "tourism_attraction_recommend/tourism_attraction_recommend.json"
+    desc: "个性化文旅景点智能推荐系统"
+    author: "中国联通"
+    summary: "根据用户需求推荐景点，提供天气信息和推荐理由"
+    feature: |
+      - 智能提取用户需求参数
+      - 结合景点信息和实时天气数据
+      - 生成个性化推荐理由
+      - 支持多种推荐场景（家庭、情侣、团队等）
+      - 返回完整的推荐结果
+    scenario: "旅游规划、景点推荐、出行服务"
+    note: "导入模版后需要设置：大模型节点的模型、知识库节点的知识库、MCP节点的MCP服务"
+
+  - templateId: "data_report_gen"
+    category: "data"
+    avatar: ""
+    name: "数据报告生成"
+    schemaPath: "data_report_gen/data_report_gen.json"
+    desc: "自动化数据报告生成与分析工具"
+    author: "中国联通"
+    summary: "解析数据源，自动生成分析报告和PDF文档"
+    feature: |
+      - 支持多种数据源格式
+      - 自动化数据清洗和统计计算
+      - 智能分析数据趋势和见解
+      - 生成结构化报告文本
+      - 输出专业PDF文档
+    scenario: "数据分析、商业报告、统计汇总"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "policy_assistant"
+    category: "gov"
+    avatar: ""
+    name: "政策查询与解读助手"
+    schemaPath: "policy_assistant/policy_assistant.json"
+    desc: "政策文件智能查询与通俗化解读工具"
+    author: "中国联通"
+    summary: "查询政策文件，用通俗语言解读政策内容"
+    feature: |
+      - 智能提取政策查询关键参数
+      - 自动判断信息完整性，提示补充
+      - 精准检索政策原文片段
+      - 用通俗语言解读专业政策
+      - 支持地区化政策查询
+    scenario: "政务服务、政策咨询、法规解读"
+    note: "导入模版后需要设置：大模型节点的模型、知识库节点的知识库"
+
+  - templateId: "edu_tutoring_assistant"
+    category: "edu"
+    avatar: ""
+    name: "教育智能辅导助手"
+    schemaPath: "edu_tutoring_assistant/edu_tutoring_assistant.json"
+    desc: "多学科智能学习辅导系统"
+    author: "中国联通"
+    summary: "解答概念问题、提供解题步骤、总结文档内容"
+    feature: |
+      - 支持文本和文档多种输入方式
+      - 智能识别学习意图（概念解释、习题解答、文档总结）
+      - 结合教育知识库提供准确答案
+      - 生成详细解题步骤和思路
+      - 自动提取文档要点生成总结
+    scenario: "在线教育、课后辅导、学习支持"
+    note: "导入模版后需要设置：大模型节点的模型、意图识别节点的模型、知识库节点的知识库"
+
+  - templateId: "content_creation"
+    category: "create"
+    avatar: ""
+    name: "多语言内容创作助手"
+    schemaPath: "content_creation/content_creation.json"
+    desc: "智能化多语言内容创作平台"
+    author: "中国联通"
+    summary: "根据主题生成内容大纲，细化段落，输出完整文章"
+    feature: |
+      - 支持主题或草稿多种输入
+      - 自动生成结构化内容大纲
+      - 智能拆分段落并循环处理
+      - 逐段细化内容质量
+      - 输出完整的多语言文章
+    scenario: "内容创作、文案写作、多语言编辑"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "smart_contract_review"
+    category: "industry"
+    avatar: ""
+    name: "智能合同审核系统"
+    schemaPath: "smart_contract_review/smart_contract_review.json"
+    desc: "专业化合同合规与风险智能审核工具"
+    author: "中国联通"
+    summary: "审核合同文档，检查合规性，识别风险条款"
+    feature: |
+      - 支持PDF/Word多种合同格式
+      - 自动解析合同条款和关键信息
+      - 智能识别审核需求类型
+      - 合规性检查和风险条款识别
+      - 生成专业审核意见和建议
+    scenario: "企业法务、合同审核、合规检查"
+    note: "导入模版后需要设置：大模型节点的模型、意图识别节点的模型、知识库节点的知识库"
+
+  - templateId: "essay_correct"
+    category: "edu"
+    avatar: ""
+    name: "K12作文批改"
+    schemaPath: "essay_correct/essay_correct.json"
+    desc: "智能化作文批改与写作指导工具"
+    author: "中国联通"
+    summary: "自动批改作文，提供点评、评分和改进建议"
+    feature: |
+      - 自动生成详细作文点评
+      - 科学评分体系
+      - 提供具体改进建议
+      - 智能拼接批改报告
+      - 支持多种文体批改
+    scenario: "语文教学、写作训练、作文评估"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "xiaohongshu_title"
+    category: "create"
+    avatar: ""
+    name: "小红书爆款标题"
+    schemaPath: "xiaohongshu_title/xiaohongshu_title.json"
+    desc: "小红书平台专属标题创意生成器"
+    author: "中国联通"
+    summary: "根据产品关键词生成带emoji的小红书风格标题"
+    feature: |
+      - 生成10条带emoji的创意标题
+      - 符合小红书平台风格特点
+      - 智能拼接有序列表
+      - 提升内容吸引力和点击率
+      - 支持多种产品类型
+    scenario: "社交媒体营销、内容创作、电商推广"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "exa_research"
+    category: "search"
+    avatar: ""
+    name: "exa搜索助手"
+    schemaPath: "exa_research/exa_research.json"
+    desc: "学术研究智能搜索与论文生成工具"
+    author: "中国联通"
+    summary: "搜索权威资料，生成带引用的小论文"
+    feature: |
+      - 调用exa-Search获取权威资料
+      - 自动生成规范引用格式
+      - 整合资料生成学术小论文
+      - 支持多种研究主题
+      - 提升研究效率和质量
+    scenario: "学术研究、论文写作、资料收集"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "github_repo_overview"
+    category: "search"
+    avatar: ""
+    name: "GitHub仓库速览"
+    schemaPath: "github_repo_overview/github_repo_overview.json"
+    desc: "GitHub仓库信息快速查询与分析工具"
+    author: "中国联通"
+    summary: "获取GitHub仓库信息，生成速览报告"
+    feature: |
+      - 快速获取仓库基本信息
+      - 提取readme内容和star数量
+      - 生成简洁明了的速览报告
+      - 支持多种仓库类型
+      - 提升开发调研效率
+    scenario: "开发调研、项目评估、技术选型"
+    note: "导入模版后需要设置：MCP节点的MCP服务"
+
+  - templateId: "poster_text2img"
+    category: "create"
+    avatar: ""
+    name: "文生图海报"
+    schemaPath: "poster_text2img/poster_text2img.json"
+    desc: "智能化文生图海报创意设计工具"
+    author: "中国联通"
+    summary: "根据活动主题生成英文提示词，制作文生图海报"
+    feature: |
+      - 生成专业英文StableDiffusion提示词
+      - 调用文生图服务生成高质量海报
+      - 支持多种活动主题和风格
+      - 返回可直接使用的海报URL
+      - 提升设计效率和质量
+    scenario: "活动宣传、平面设计、创意制作"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "mindmap_kw"
+    category: "create"
+    avatar: ""
+    name: "关键词思维导图"
+    schemaPath: "mindmap_kw/mindmap_kw.json"
+    desc: "智能化思维导图生成与可视化工具"
+    author: "中国联通"
+    summary: "根据关键词生成层级化JSON大纲，制作思维导图"
+    feature: |
+      - 生成层级化JSON结构大纲
+      - 调用antvis-MCP生成专业思维导图
+      - 支持多种主题类型
+      - 返回思维导图URL
+      - 提升思维整理效率
+    scenario: "思维整理、知识管理、项目规划"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "city_weather_compare"
+    category: "tourism"
+    avatar: ""
+    name: "城市天气对比"
+    schemaPath: "city_weather_compare/city_weather_compare.json"
+    desc: "多城市天气数据对比分析工具"
+    author: "中国联通"
+    summary: "对比两个城市的天气数据，生成出行建议"
+    feature: |
+      - 获取双城市实时天气数据
+      - 对比温度、湿度等关键指标
+      - 生成科学出行建议
+      - 支持多种对比场景
+      - 提升出行规划体验
+    scenario: "出行规划、差旅安排、活动策划"
+    note: "导入模版后需要设置：大模型节点的模型、心知天气api key"
+
+  - templateId: "pdf_paper_summary"
+    category: "edu"
+    avatar: ""
+    name: "PDF论文摘要"
+    schemaPath: "pdf_paper_summary/pdf_paper_summary.json"
+    desc: "学术论文智能摘要生成工具"
+    author: "中国联通"
+    summary: "提取论文正文，生成三段式中文摘要"
+    feature: |
+      - 自动提取PDF论文正文内容
+      - 生成结构清晰的三段式摘要
+      - 支持中英文论文处理
+      - 提升文献阅读效率
+      - 保持学术专业性
+    scenario: "学术研究、文献阅读、知识管理"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "earnings_chart"
+    category: "industry"
+    avatar: ""
+    name: "企业财报图表"
+    schemaPath: "earnings_chart/earnings_chart.json"
+    desc: "企业财报数据可视化分析工具"
+    author: "中国联通"
+    summary: "提取财报数据，生成营收利润柱状图"
+    feature: |
+      - Python自动提取财务数据
+      - 生成专业营收利润柱状图
+      - 支持多种财报格式
+      - 返回图表URL
+      - 提升财务分析效率
+    scenario: "财务分析、投资研究、企业评估"
+    note: "导入模版后需要设置：MCP节点的MCP服务"
+
+  - templateId: "ip_location"
+    category: "data"
+    avatar: ""
+    name: "IP地理位置查询"
+    schemaPath: "ip_location/ip_location.json"
+    desc: "IP地址精准定位查询服务"
+    author: "中国联通"
+    summary: "查询IP地址的地理位置信息"
+    feature: |
+      - 调用高德IP定位API
+      - JSON数据智能处理
+      - 生成标准化位置信息
+      - 返回省-市-运营商格式
+      - 支持批量查询
+    scenario: "网络服务、位置服务、数据分析"
+    note: "导入模版后需要设置：高德api key"
+
+  - templateId: "gaokao_recommend"
+    category: "edu"
+    avatar: ""
+    name: "高考志愿推荐"
+    schemaPath: "gaokao_recommend/gaokao_recommend.json"
+    desc: "高考志愿填报智能推荐系统"
+    author: "中国联通"
+    summary: "根据分数、省份和兴趣推荐高校志愿"
+    feature: |
+      - 检索高校往年分数线数据
+      - 结合分数、省份、兴趣多维度分析
+      - 生成冲稳保推荐清单
+      - 提供科学填报建议
+      - 提升志愿填报成功率
+    scenario: "高考咨询、升学规划、教育服务"
+    note: "导入模版后需要设置：大模型节点的模型、知识库节点的知识库"
+
+  - templateId: "sql_to_nl"
+    category: "data"
+    avatar: ""
+    name: "SQL转自然语言"
+    schemaPath: "sql_to_nl/sql_to_nl.json"
+    desc: "SQL语句智能解释与转译工具"
+    author: "中国联通"
+    summary: "将SQL语句转换为自然语言解释"
+    feature: |
+      - 智能解析SQL语句结构
+      - 生成通俗易懂的中文解释
+      - 提供SQL-解释对照文本
+      - 支持复杂查询语句
+      - 提升SQL理解效率
+    scenario: "数据分析、数据库管理、技术培训"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "scenic_route_plan"
+    category: "tourism"
+    avatar: ""
+    name: "景区线路规划"
+    schemaPath: "scenic_route_plan/scenic_route_plan.json"
+    desc: "智能景区旅游路线规划工具"
+    author: "中国联通"
+    summary: "规划景区路线，生成带景点提示的路线文案"
+    feature: |
+      - 调用高德路径规划服务
+      - 生成带景点提示的路线文案
+      - 支持多种交通方式
+      - 提供实用出行建议
+      - 提升旅游体验
+    scenario: "旅游规划、景区导航、出行服务"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "json_to_csv"
+    category: "data"
+    avatar: ""
+    name: "JSON转CSV"
+    schemaPath: "json_to_csv/json_to_csv.json"
+    desc: "数据格式快速转换工具"
+    author: "中国联通"
+    summary: "将JSON数组转换为CSV格式"
+    feature: |
+      - Python自动格式转换
+      - 添加规范表头说明
+      - 支持复杂JSON结构
+      - 返回标准CSV文本
+      - 无需额外配置
+    scenario: "数据处理、格式转换、数据导出"
+    note: "无需额外设置"
+
+  - templateId: "museum_guide"
+    category: "tourism"
+    avatar: ""
+    name: "博物馆讲解词"
+    schemaPath: "museum_guide/museum_guide.json"
+    desc: "文物知识智能讲解词生成工具"
+    author: "中国联通"
+    summary: "根据文物名称生成2分钟讲解稿"
+    feature: |
+      - 检索博物馆专业资料库
+      - 生成2分钟标准讲解稿
+      - 支持多种文物类型
+      - 提供专业准确的文物信息
+      - 提升文化传播效果
+    scenario: "博物馆导览、文化传播、教育服务"
+    note: "导入模版后需要设置：大模型节点的模型、知识库节点的知识库"
+
+  - templateId: "log_anomaly"
+    category: "data"
+    avatar: ""
+    name: "日志异常检测"
+    schemaPath: "log_anomaly/log_anomaly.json"
+    desc: "系统日志智能分析与异常检测工具"
+    author: "中国联通"
+    summary: "分析日志文本，检测异常并生成分析报告"
+    feature: |
+      - Python统计ERROR频率
+      - 智能分析异常原因
+      - 生成详细异常摘要
+      - 提供处理建议
+      - 提升系统运维效率
+    scenario: "系统运维、故障排查、性能监控"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "meeting_minutes"
+    category: "industry"
+    avatar: ""
+    name: "智能会议纪要"
+    schemaPath: "meeting_minutes/meeting_minutes.json"
+    desc: "会议内容智能整理与纪要生成工具"
+    author: "中国联通"
+    summary: "提取会议文本，生成决议-待办结构纪要"
+    feature: |
+      - 自动提取会议文本内容
+      - 生成结构化会议纪要
+      - 清晰标注决议和待办事项
+      - 提升会议效率
+      - 支持多种会议类型
+    scenario: "办公自动化、会议管理、项目管理"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "policy_summary"
+    category: "gov"
+    avatar: ""
+    name: "政策文件智能摘要"
+    schemaPath: "policy_summary/policy_summary.json"
+    desc: "政策文件智能摘要生成工具"
+    author: "中国联通"
+    summary: "提取政策文本，生成500字以内通俗摘要"
+    feature: |
+      - 自动提取政策正文内容
+      - 生成500字以内通俗摘要
+      - 保持政策核心信息
+      - 提升政策理解效率
+      - 支持多种政策类型
+    scenario: "政策解读、政务公开、信息服务"
+    note: "导入模版后需要设置：大模型节点的模型"
+
+  - templateId: "citizen_intent_classify"
+    category: "gov"
+    avatar: ""
+    name: "市民诉求智能分类"
+    schemaPath: "citizen_intent_classify/citizen_intent_classify.json"
+    desc: "市民诉求智能识别与分类工具"
+    author: "中国联通"
+    summary: "识别市民诉求意图，添加分类标签"
+    feature: |
+      - 识别四类诉求意图（咨询/投诉/求助/建议）
+      - 自动添加分类标签
+      - 提升诉求处理效率
+      - 支持多种表达方式
+      - 返回标准化分类结果
+    scenario: "政务服务、市民热线、诉求处理"
+    note: "导入模版后需要设置：意图识别节点的模型"
+
+  - templateId: "policy_compliance_check"
+    category: "gov"
+    avatar: ""
+    name: "政策文件合规审查"
+    schemaPath: "policy_compliance_check/policy_compliance_check.json"
+    desc: "政策文件合规性智能审查系统"
+    author: "中国联通"
+    summary: "审查政策文件合规性，生成审查报告"
+    feature: |
+      - 检索上位法规和合规要点
+      - 识别潜在政策冲突
+      - 提供专业修改建议
+      - 生成详细审查报告
+      - 提升政策制定质量
+    scenario: "政策制定、合规审查、法规管理"
+    note: "导入模版后需要设置：大模型节点的模型、知识库节点的知识库"
+
+  - templateId: "hotnews_analyzer"
+    category: "search"
+    avatar: ""
+    name: "实时热搜分析器"
+    schemaPath: "hotnews_analyzer/hotnews_analyzer.json"
+    desc: "多平台热搜数据智能分析工具"
+    author: "中国联通"
+    summary: "获取多平台热搜，生成行业趋势报告"
+    feature: |
+      - 获取36kr、抖音、今日头条等多平台热搜
+      - 分析行业趋势和情感倾向
+      - 生成专业趋势报告
+      - 支持文本和JSON多种输出格式
+      - 实时监控热点变化
+    scenario: "舆情监测、市场分析、趋势预测"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"
+
+  - templateId: "map_poi_search"
+    category: "search"
+    avatar: ""
+    name: "地图POI搜索助手"
+    schemaPath: "map_poi_search/map_poi_search.json"
+    desc: "智能地图POI搜索与推荐系统"
+    author: "中国联通"
+    summary: "搜索地点信息，生成结构化推荐列表"
+    feature: |
+      - 调用地图文本搜索服务
+      - 获取详细POI信息列表
+      - 生成智能推荐语和排序
+      - 提供距离和营业时间提醒
+      - 支持卡片化渲染输出
+    scenario: "位置服务、出行导航、商业推荐"
+    note: "导入模版后需要设置：大模型节点的模型、MCP节点的MCP服务"

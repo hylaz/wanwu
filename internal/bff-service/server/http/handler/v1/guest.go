@@ -1,6 +1,9 @@
 package v1
 
 import (
+	"net/http"
+	"net/url"
+
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
@@ -179,7 +182,8 @@ func ResetPasswordByEmail(ctx *gin.Context) {
 //	@Success		200			{object}	response.Response{data=response.GetWorkflowTemplateListResp}
 //	@Router			/workflow/template/list [get]
 func GetWorkflowTemplateList(ctx *gin.Context) {
-
+	resp, err := service.GetWorkflowTemplateList(ctx, getClientID(ctx), ctx.Query("category"), ctx.Query("name"))
+	gin_util.Response(ctx, resp, err)
 }
 
 // GetWorkflowTemplateDetail
@@ -194,7 +198,8 @@ func GetWorkflowTemplateList(ctx *gin.Context) {
 //	@Success		200			{object}	response.Response{data=response.WorkflowTemplateDetail}
 //	@Router			/workflow/template/detail [get]
 func GetWorkflowTemplateDetail(ctx *gin.Context) {
-
+	resp, err := service.GetWorkflowTemplateDetail(ctx, getClientID(ctx), ctx.Query("templateId"))
+	gin_util.Response(ctx, resp, err)
 }
 
 // GetWorkflowTemplateRecommend
@@ -209,7 +214,8 @@ func GetWorkflowTemplateDetail(ctx *gin.Context) {
 //	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.WorkflowTemplateInfo}}
 //	@Router			/workflow/template/recommend [get]
 func GetWorkflowTemplateRecommend(ctx *gin.Context) {
-
+	resp, err := service.GetWorkflowTemplateRecommend(ctx, getClientID(ctx), ctx.Query("templateId"))
+	gin_util.Response(ctx, resp, err)
 }
 
 // DownloadWorkflowTemplate
@@ -224,5 +230,16 @@ func GetWorkflowTemplateRecommend(ctx *gin.Context) {
 //	@Success		200			{object}	response.Response
 //	@Router			/workflow/template/download [get]
 func DownloadWorkflowTemplate(ctx *gin.Context) {
-
+	fileName := "workflow_template.json"
+	resp, err := service.DownloadWorkflowTemplate(ctx, getClientID(ctx), ctx.Query("templateId"))
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+	// 设置响应头
+	ctx.Header("Content-Disposition", "attachment; filename*=utf-8''"+url.QueryEscape(fileName))
+	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Access-Control-Expose-Headers", "Content-Disposition")
+	// 直接写入字节数据
+	ctx.Data(http.StatusOK, "application/octet-stream", resp)
 }

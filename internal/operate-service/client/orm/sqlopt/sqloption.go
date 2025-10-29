@@ -56,3 +56,21 @@ func WithKey(key string) SQLOption {
 		return db
 	})
 }
+
+func StartDate(date string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if date != "" {
+			return db.Where("date >= ?", date)
+		}
+		return db
+	})
+}
+
+func EndDate(date string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if date != "" {
+			return db.Where("date <= ?", date)
+		}
+		return db
+	})
+}

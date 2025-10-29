@@ -188,5 +188,6 @@ enum Code {
   // [320000, 329999]
   OperateGeneral = 320000; // 通用错误
   OperateCustom = 320001; // 自定义配置相关错误
+  OperateRecord = 320002; // 客户端统计错误
 }
 

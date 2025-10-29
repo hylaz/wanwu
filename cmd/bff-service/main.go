@@ -21,6 +21,7 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/minio"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
+	"github.com/UnicomAI/wanwu/pkg/redis"
 	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
@@ -92,7 +93,10 @@ func main() {
 	if err := http_client.InitProxyMinio(); err != nil {
 		log.Fatalf("init http client err: %v", err)
 	}
-
+	// init redis
+	if err := redis.InitOP(ctx, config.Cfg().Redis); err != nil {
+		log.Fatalf("init redis err: %v", err)
+	}
 	// init model provider
 	mp.Init(config.Cfg().Server.CallbackUrl)
 
@@ -117,6 +121,7 @@ func main() {
 	// stop http handler
 	handler.Stop(ctx)
 	ahocorasick.Stop()
+	redis.OP().Stop()
 }
 
 func versionPrint() {

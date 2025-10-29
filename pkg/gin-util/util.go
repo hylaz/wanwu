@@ -22,8 +22,9 @@ const (
 	RESULT = "RESULT"
 
 	// http header
-	X_LANGUAGE = "X-Language" // 当前语言
-	X_ORG_ID   = "X-Org-Id"   // 当前组织
+	X_LANGUAGE  = "X-Language" // 当前语言
+	X_ORG_ID    = "X-Org-Id"   // 当前组织
+	X_CLIENT_ID = "X-Client-Id"
 
 	// gin.Context
 	USER_ID   = "USER_ID"   // 当前用户

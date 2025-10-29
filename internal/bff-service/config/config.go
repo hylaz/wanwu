@@ -1,11 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/UnicomAI/wanwu/pkg/i18n"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/minio"
+	"github.com/UnicomAI/wanwu/pkg/redis"
 	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
@@ -25,20 +27,22 @@ type Config struct {
 	DefaultIcon       DefaultIconConfig       `json:"default-icon" mapstructure:"default-icon"`
 	// middleware
 	Minio minio.Config `json:"minio" mapstructure:"minio"`
+	Redis redis.Config `json:"redis" mapstructure:"redis"`
 	// microservice
-	Iam       ServiceConfig      `json:"iam" mapstructure:"iam"`
-	Model     ModelConfig        `json:"model" mapstructure:"model"`
-	MCP       ServiceConfig      `json:"mcp" mapstructure:"mcp"`
-	App       ServiceConfig      `json:"app" mapstructure:"app"`
-	Knowledge ServiceConfig      `json:"knowledge" mapstructure:"knowledge"`
-	Rag       ServiceConfig      `json:"rag" mapstructure:"rag"`
-	Assistant ServiceConfig      `json:"assistant" mapstructure:"assistant"`
-	Operate   ServiceConfig      `json:"operate" mapstructure:"operate"`
-	Agent     AgentServiceConfig `json:"agent" mapstructure:"agent"`
-
-	Workflow           WorkflowServiceConfig           `json:"workflow" mapstructure:"workflow"`
-	AgentScopeWorkFlow AgentScopeWorkFlowServiceConfig `json:"agentscope-workflow" mapstructure:"agentscope-workflow"`
-	RagKnowledgeConfig RagKnowledgeConfig              `json:"rag-knowledge" mapstructure:"rag-knowledge"`
+	Iam                    ServiceConfig                   `json:"iam" mapstructure:"iam"`
+	Model                  ModelConfig                     `json:"model" mapstructure:"model"`
+	MCP                    ServiceConfig                   `json:"mcp" mapstructure:"mcp"`
+	App                    ServiceConfig                   `json:"app" mapstructure:"app"`
+	Knowledge              ServiceConfig                   `json:"knowledge" mapstructure:"knowledge"`
+	Rag                    ServiceConfig                   `json:"rag" mapstructure:"rag"`
+	Assistant              ServiceConfig                   `json:"assistant" mapstructure:"assistant"`
+	Operate                ServiceConfig                   `json:"operate" mapstructure:"operate"`
+	Agent                  AgentServiceConfig              `json:"agent" mapstructure:"agent"`
+	WorkflowTemplatePath   WorkflowTemplatePathConfig      `json:"workflow-template" mapstructure:"workflow-template"`
+	Workflow               WorkflowServiceConfig           `json:"workflow" mapstructure:"workflow"`
+	WorkflowTemplateConfig []*WorkflowTempConfig           `json:"workflows" mapstructure:"workflows"`
+	AgentScopeWorkFlow     AgentScopeWorkFlowServiceConfig `json:"agentscope-workflow" mapstructure:"agentscope-workflow"`
+	RagKnowledgeConfig     RagKnowledgeConfig              `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 }
 
 type ServerConfig struct {
@@ -75,6 +79,22 @@ type ServiceConfig struct {
 	Host string `json:"host" mapstructure:"host"`
 }
 
+type RagKnowledgeConfig struct {
+	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
+	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
+	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
+	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
+}
+
+type WorkflowTemplatePathConfig struct {
+	ConfigPath   string `json:"configPath" mapstructure:"configPath"`
+	ListUrl      string `json:"server_url" mapstructure:"server_url"`
+	DownloadUrl  string `json:"download_url" mapstructure:"download_url"`
+	DetailUrl    string `json:"detail_url" mapstructure:"detail_url"`
+	RecommendUrl string `json:"recommend_url" mapstructure:"recommend_url"`
+	ServerMode   string `json:"server_mode" mapstructure:"server_mode"`
+}
+
 type WorkflowServiceConfig struct {
 	Endpoint           string               `json:"endpoint" mapstructure:"endpoint"`
 	MinioProxyEndpoint string               `json:"minio_proxy_endpoint" mapstructure:"minio_proxy_endpoint"`
@@ -90,13 +110,6 @@ type WorkflowServiceConfig struct {
 	UploadCommonUri    string               `json:"upload_common_uri" mapstructure:"upload_common_uri"`
 	SignImgUri         string               `json:"sign_img_uri" mapstructure:"sign_img_uri"`
 	ModelParams        []WorkflowModelParam `json:"model_params" mapstructure:"model_params"`
-}
-
-type RagKnowledgeConfig struct {
-	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
-	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
-	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
-	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
 }
 
 type WorkflowModelParam struct {
@@ -217,6 +230,16 @@ func LoadConfig(in string) error {
 		url, _ := url.JoinPath(_c.Server.WebBaseUrl, _c.DocCenter.FrontendPrefix, url.PathEscape(link.Val))
 		_c.DocCenter.docs[link.Key] = url
 	}
+	// 加载工作流模板配置
+	workflowIn := _c.WorkflowTemplatePath.ConfigPath
+	if err := util.LoadConfig(workflowIn, _c); err != nil {
+		return fmt.Errorf("load workflow template config err: %v", err)
+	}
+	for _, wtf := range _c.WorkflowTemplateConfig {
+		if err := wtf.load(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -238,4 +261,13 @@ func (d *DocCenterConfig) GetDocs() map[string]string {
 		result[k] = v
 	}
 	return result
+}
+
+func (c *Config) WorkflowTemp(templateId string) (WorkflowTempConfig, bool) {
+	for _, wtf := range c.WorkflowTemplateConfig {
+		if wtf.TemplateId == templateId {
+			return *wtf, true
+		}
+	}
+	return WorkflowTempConfig{}, false
 }

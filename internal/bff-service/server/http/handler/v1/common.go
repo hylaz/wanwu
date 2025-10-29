@@ -212,6 +212,11 @@ func getOrgID(ctx *gin.Context) string {
 	return ctx.GetHeader(gin_util.X_ORG_ID)
 }
 
+// 获取客户端ID
+func getClientID(ctx *gin.Context) string {
+	return ctx.GetHeader(gin_util.X_CLIENT_ID)
+}
+
 // 获取当前系统语言
 func getLanguage(ctx *gin.Context) string {
 	return ctx.GetHeader(gin_util.X_LANGUAGE)

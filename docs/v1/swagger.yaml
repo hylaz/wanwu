@@ -3220,6 +3220,48 @@ definitions:
         description: 0:清除失败，1：已完成
         type: integer
     type: object
+  response.ClientOverView:
+    properties:
+      activeClient:
+        allOf:
+        - $ref: '#/definitions/response.ClientOverviewItem'
+        description: 活跃客户端
+      additionClient:
+        allOf:
+        - $ref: '#/definitions/response.ClientOverviewItem'
+        description: 新增客户端
+      totalClient:
+        allOf:
+        - $ref: '#/definitions/response.ClientOverviewItem'
+        description: 累计客户端
+    type: object
+  response.ClientOverviewItem:
+    properties:
+      periodOverPeriod:
+        description: 环比上周期百分比
+        type: number
+      value:
+        description: 数量
+        type: number
+    type: object
+  response.ClientStatistic:
+    properties:
+      overview:
+        allOf:
+        - $ref: '#/definitions/response.ClientOverView'
+        description: 客户端统计面板
+      trend:
+        allOf:
+        - $ref: '#/definitions/response.ClientTrends'
+        description: 客户端统计趋势
+    type: object
+  response.ClientTrends:
+    properties:
+      client:
+        allOf:
+        - $ref: '#/definitions/response.StatisticChart'
+        description: 客户端活跃数据
+    type: object
   response.ConversationCreateResp:
     properties:
       conversationId:
@@ -3537,11 +3579,6 @@ definitions:
         description: 随机unique id(每次动态生成)
         type: string
     type: object
-  response.DefaultTemplateURL:
-    properties:
-      templateUrl:
-        type: string
-    type: object
   response.DeleteFileResp:
     properties:
       status:
@@ -3723,7 +3760,7 @@ definitions:
   response.GetWorkflowTemplateListResp:
     properties:
       downloadLink:
-        $ref: '#/definitions/response.DefaultTemplateURL'
+        $ref: '#/definitions/response.WorkflowTemplateURL'
       list:
         items:
           $ref: '#/definitions/response.WorkflowTemplateInfo'
@@ -4634,6 +4671,35 @@ definitions:
         description: 敏感词id
         type: string
     type: object
+  response.StatisticChart:
+    properties:
+      lines:
+        description: 统计表中线段集合
+        items:
+          $ref: '#/definitions/response.StatisticChartLine'
+        type: array
+      tableName:
+        description: 统计表名字
+        type: string
+    type: object
+  response.StatisticChartLine:
+    properties:
+      items:
+        description: 线段横纵坐标值
+        items:
+          $ref: '#/definitions/response.StatisticChartLineItem'
+        type: array
+      lineName:
+        description: 线段名字
+        type: string
+    type: object
+  response.StatisticChartLineItem:
+    properties:
+      key:
+        type: string
+      value:
+        type: number
+    type: object
   response.ToolAction4Workflow:
     properties:
       actionId:
@@ -4890,6 +4956,17 @@ definitions:
       workFlowId:
         type: string
     type: object
+  response.WorkflowStatistic:
+    properties:
+      overview:
+        allOf:
+        - $ref: '#/definitions/response.WorkflowTemplateOverView'
+        description: 工作流模板统计面板
+      trend:
+        allOf:
+        - $ref: '#/definitions/response.WorkflowTemplateTrends'
+        description: 工作流模板统计趋势
+    type: object
   response.WorkflowTemplateDetail:
     properties:
       author:
@@ -4902,7 +4979,7 @@ definitions:
       category:
         description: 模板分类
         type: string
-      description:
+      desc:
         description: 模板描述
         type: string
       downloadCount:
@@ -4913,6 +4990,9 @@ definitions:
         type: string
       name:
         description: 模板名称
+        type: string
+      note:
+        description: 注意事项
         type: string
       scenario:
         description: 模板应用场景
@@ -4936,7 +5016,7 @@ definitions:
       category:
         description: 模板分类
         type: string
-      description:
+      desc:
         description: 模板描述
         type: string
       downloadCount:
@@ -4947,6 +5027,34 @@ definitions:
         type: string
       templateId:
         description: 模板ID
+        type: string
+    type: object
+  response.WorkflowTemplateOverView:
+    properties:
+      browse:
+        allOf:
+        - $ref: '#/definitions/response.WorkflowTemplateOverviewItem'
+        description: 工作流模板浏览数据总览
+    type: object
+  response.WorkflowTemplateOverviewItem:
+    properties:
+      periodOverPeriod:
+        description: 环比上周期百分比
+        type: number
+      value:
+        description: 数量
+        type: number
+    type: object
+  response.WorkflowTemplateTrends:
+    properties:
+      browse:
+        allOf:
+        - $ref: '#/definitions/response.StatisticChart'
+        description: 工作流模板浏览数据趋势
+    type: object
+  response.WorkflowTemplateURL:
+    properties:
+      url:
         type: string
     type: object
 info:
@@ -6483,6 +6591,67 @@ paths:
       summary: 邮箱注册验证码发送
       tags:
       - guest
+  /client/statistic:
+    get:
+      consumes:
+      - application/json
+      description: 获取使用工作流模板用户统计
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ClientStatistic'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取使用工作流模板用户统计
+      tags:
+      - common
+  /client/statistic/cumulative:
+    get:
+      consumes:
+      - application/json
+      description: 获取累计使用工作流模板用户统计
+      parameters:
+      - description: 时间戳
+        in: query
+        name: endAt
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ClientStatistic'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取累计使用工作流模板用户统计
+      tags:
+      - common
   /custom/home:
     post:
       consumes:
@@ -10582,6 +10751,39 @@ paths:
       summary: 获取工作流模板推荐
       tags:
       - guest
+  /workflow/template/statistic:
+    get:
+      consumes:
+      - application/json
+      description: 获取工作流模板统计
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.WorkflowStatistic'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取工作流模板统计
+      tags:
+      - common
   /workflow/tool/action:
     get:
       consumes:

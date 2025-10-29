@@ -163,5 +163,10 @@ func GetWorkflowToolDetail(ctx *gin.Context) {
 //	@Success	200		{object}	response.Response{data=response.CozeWorkflowIDData}
 //	@Router		/workflow/template [post]
 func CreateWorkflowByTemplate(ctx *gin.Context) {
-
+	var req request.CreateWorkflowByTemplateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.CreateWorkflowByTemplate(ctx, getOrgID(ctx), getClientID(ctx), req)
+	gin_util.Response(ctx, resp, err)
 }

@@ -149,14 +149,26 @@ doc-center:
       val: 6.工作流/意图识别.md
     - key: workflow-1059
       val: 6.工作流/JSON反序列化.md
-      
+workflow-template:
+  configPath: configs/microservice/bff-service/configs/workflow_template_config.yaml
+  list_url: http://bff-service:6668
+  download_url: http://bff-service:6668
+  detail_url: http://bff-service:6668
+  recommend_url: http://bff-service:6668
+  server_mode: local  
 # --- middleware ---
 
 minio:
   endpoint: localhost:9000
   user: root
   password: Wanwu123456
-
+redis:
+  host: localhost
+  port: 6379
+  username:
+  password: Wanwu123456
+  standalone: true
+  master_name: mymaster
 # --- microservice ---
 
 iam:

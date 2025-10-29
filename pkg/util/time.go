@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -53,4 +54,56 @@ func Str2Date(timeStr string) (int64, error) {
 		return 0, err
 	}
 	return t.UnixMilli(), nil
+}
+
+func Time2Date(ts int64) string {
+	return time.UnixMilli(ts).In(UTC8).Format(dateFormat) // 输出示例: 2025-05-09
+}
+
+func Date2Time(date string) (int64, error) {
+	t, err := time.ParseInLocation(dateFormat, date, UTC8)
+	if err != nil {
+		return 0, err
+	}
+	return t.UnixMilli(), nil
+}
+
+// DateRange 返回[startTs, endTs]闭区间日期列表
+func DateRange(startTs, endTs int64) []string {
+	if startTs > endTs {
+		return nil
+	}
+	endDate := Time2Date(endTs)
+	var ret []string
+	for {
+		date := Time2Date(startTs)
+		ret = append(ret, date)
+		if date == endDate {
+			break
+		}
+		startTs = startTs + time.Hour.Milliseconds()*24
+	}
+	return ret
+}
+
+// 返回上一个周期和当前周期闭区间日期列表
+func PreviousDateRange(startDate, endDate string) ([]string, []string, error) {
+	// 1. 解析输入日期
+	startAt, err := Date2Time(startDate)
+	if err != nil {
+		return nil, nil, err
+	}
+	endAt, err := Date2Time(endDate)
+	if err != nil {
+		return nil, nil, err
+	}
+	if startAt > endAt {
+		return nil, nil, fmt.Errorf("startDate %v greater than endDate %v", startDate, endDate)
+	}
+	// 2. 计算上一周期时间戳区间（前后区间日期无重叠）
+	deltaDura := endAt - startAt + 24*time.Hour.Milliseconds()
+	pervStartTs := startAt - deltaDura
+	pervEndTs := endAt - deltaDura
+	// 3. 计算上一个周期，当前周期
+	return DateRange(pervStartTs, pervEndTs), DateRange(startAt, endAt), nil
 }

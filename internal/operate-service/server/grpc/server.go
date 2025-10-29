@@ -11,6 +11,7 @@ import (
 
 	operate_service "github.com/UnicomAI/wanwu/api/proto/operate-service"
 	"github.com/UnicomAI/wanwu/internal/operate-service/client"
+	"github.com/UnicomAI/wanwu/internal/operate-service/client/orm"
 	"github.com/UnicomAI/wanwu/internal/operate-service/config"
 	"github.com/UnicomAI/wanwu/internal/operate-service/server/grpc/operate"
 	"github.com/UnicomAI/wanwu/pkg/log"
@@ -89,6 +90,7 @@ func (s *Server) Stop(ctx context.Context) {
 	stopped := make(chan struct{})
 	go func() {
 		s.serv.GracefulStop()
+		orm.CronStop()
 		log.Infof("close grpc server gracefully")
 		close(stopped)
 	}()
