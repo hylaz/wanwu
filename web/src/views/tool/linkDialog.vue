@@ -26,30 +26,30 @@
             :key="i">
             <div class="toolContent_item" @click="handleClick(item)">
               <div>
-                <div v-if="item.appType === 'tool'">{{ item.name }}</div>
+                <div v-if="item.type === 'custom'">{{ item.name }}</div>
                 <div v-else>{{ item.name }}</div>
                 <div class="tool-description">{{ item.description }}</div>
               </div>
               <el-button
-                v-show="item.appType !== 'tool'"
+                v-show="item.type !== 'custom'"
                 v-if="!item.checked"
                 type="text"
                 @click="addTool(item)">
                 添加
               </el-button>
               <el-button
-                v-show="item.appType !== 'tool'"
+                v-show="item.type !== 'custom'"
                 v-else
                 type="text"
                 style="color:#ccc;">
                 已添加
               </el-button>
               <i
-                v-show="item.appType === 'tool'"
+                v-show="item.type === 'custom'"
                 v-if="item.showTools"
                 class="el-icon-caret-bottom"/>
               <i
-                v-show="item.appType === 'tool'"
+                v-show="item.type === 'custom'"
                 v-else
                 class="el-icon-caret-left"/>
             </div>
@@ -57,7 +57,7 @@
             <!-- 展开的方法列表 -->
             <div
               class="toolContent_item"
-              v-if="item.appType === 'tool'"
+              v-if="item.type === 'custom'"
               v-show="item.showTools"
               v-for="(method, index) in item.methods"
               :key="index">
@@ -94,12 +94,12 @@ export default {
       mcpServerId: '',
       toolName: '',
       dialogVisible: false,
-      activeValue: 'tool',
+      activeValue: 'custom',
       customInfos: [],
       customList: [],
       toolList: [
         {
-          value: 'tool',
+          value: 'custom',
           name: '自定义工具'
         },
         // {
@@ -124,7 +124,7 @@ export default {
   computed: {
     contentMap() {
       return {
-        tool: this.customInfos,
+        custom: this.customInfos,
       }
     }
   },
@@ -134,7 +134,7 @@ export default {
   methods: {
     showDialog(detail) {
       this.mcpServerId = detail.mcpServerId
-      this.customList = detail.tools.filter(tool => tool.appType === 'tool');
+      this.customList = detail.tools.filter(tool => tool.type === 'custom');
       this.customInfos.forEach(item => {
         if (item.methods) {
           item.methods.forEach(method => {
@@ -152,19 +152,19 @@ export default {
         if (res.code === 0) {
           this.customInfos = (res.data.list || []).map(item => ({
             ...item,
-            appType: 'tool',
+            type: 'custom',
             showTools: false
           }))
         }
       })
     },
     goCreate() {
-      if (this.activeValue === 'tool') {
+      if (this.activeValue === 'custom') {
         this.$router.push({path: '/tool?type=tool&mcp=custom'})
       }
     },
     createText() {
-      if (this.activeValue === 'tool') {
+      if (this.activeValue === 'custom') {
         return '创建自定义工具'
       }
     },
@@ -173,8 +173,8 @@ export default {
         item = {...item, ...method}
       }
       const params = {
-        appId: item.customToolId,
-        appType: item.appType,
+        id: item.customToolId,
+        type: item.type,
         methodName: item.methodName,
         mcpServerId: this.mcpServerId
       }
@@ -190,17 +190,17 @@ export default {
       })
     },
     searchTool() {
-      if (this.activeValue === 'tool') {
+      if (this.activeValue === 'custom') {
         this.getCustomList(this.toolName)
       }
     },
     handleClick(item) {
-      if (item.appType === 'tool') {
+      if (item.type === 'custom') {
         item.showTools = !item.showTools;
       }
     },
     handleClose() {
-      this.activeValue = 'tool'
+      this.activeValue = 'custom'
       this.dialogVisible = false;
     },
     clickTool(item) {
