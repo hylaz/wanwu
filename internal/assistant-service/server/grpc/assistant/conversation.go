@@ -215,7 +215,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		return err
 	}
 
-	assistant, status := s.cli.GetAssistant(ctx, uint32(assistantID))
+	assistant, status := s.cli.GetAssistant(ctx, uint32(assistantID), "", "")
 	if status != nil {
 		log.Errorf("Assistant服务获取智能体信息失败，assistantId: %s, error: %v", req.AssistantId, status)
 		SSEError(stream, "智能体信息获取失败")

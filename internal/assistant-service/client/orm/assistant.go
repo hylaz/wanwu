@@ -67,11 +67,15 @@ func (c *Client) DeleteAssistant(ctx context.Context, assistantID uint32) *err_c
 	})
 }
 
-func (c *Client) GetAssistant(ctx context.Context, assistantID uint32) (*model.Assistant, *err_code.Status) {
+func (c *Client) GetAssistant(ctx context.Context, assistantID uint32, userID, orgID string) (*model.Assistant, *err_code.Status) {
 	var assistant *model.Assistant
 	return assistant, c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
 		assistant = &model.Assistant{}
-		if err := sqlopt.WithID(assistantID).Apply(tx).First(assistant).Error; err != nil {
+		query := sqlopt.SQLOptions(
+			sqlopt.WithID(assistantID),
+			sqlopt.DataPerm(userID, orgID),
+		).Apply(tx)
+		if err := query.First(assistant).Error; err != nil {
 			return toErrStatus("assistant_get", err.Error())
 		}
 		return nil
@@ -92,7 +96,7 @@ func (c *Client) GetAssistantList(ctx context.Context, userID, orgID string, nam
 	var assistants []*model.Assistant
 	var count int64
 	return assistants, count, c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
-		query := sqlopt.DataPerm(tx.Model(&model.Assistant{}), userID, orgID)
+		query := sqlopt.DataPerm(userID, orgID).Apply(tx.Model(&model.Assistant{}))
 
 		if name != "" {
 			query = query.Where("name LIKE ?", "%"+name+"%")

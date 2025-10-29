@@ -59,7 +59,7 @@ func (c *Client) GetConversationList(ctx context.Context, assistantID, userID, o
 	var conversations []*model.Conversation
 	var count int64
 	return conversations, count, c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
-		query := sqlopt.DataPerm(tx.Model(&model.Conversation{}), userID, orgID)
+		query := sqlopt.DataPerm(userID, orgID).Apply(tx.Model(&model.Conversation{}))
 
 		if assistantID != "" {
 			query = query.Where("assistant_id = ?", assistantID)

@@ -88,7 +88,17 @@ func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.A
 func GetAssistantInfo(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest) (*response.Assistant, error) {
 	resp, err := assistant.GetAssistantInfo(ctx.Request.Context(), &assistant_service.GetAssistantInfoReq{
 		AssistantId: req.AssistantId,
-		Identity: &assistant_service.Identity{
+	})
+	if err != nil {
+		return nil, err
+	}
+	return transAssistantResp2Model(ctx, resp)
+}
+
+func GetAssistantDraftInfo(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest) (*response.Assistant, error) {
+	resp, err := assistant.GetAssistantInfo(ctx.Request.Context(), &assistant_service.GetAssistantInfoReq{
+		AssistantId: req.AssistantId,
+		Identity: &assistant_service.Identity{ //草稿只能看自己的
 			UserId: userId,
 			OrgId:  orgId,
 		},

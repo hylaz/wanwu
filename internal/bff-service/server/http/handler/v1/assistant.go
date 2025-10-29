@@ -73,8 +73,8 @@ func AssistantConfigUpdate(ctx *gin.Context) {
 // GetAssistantInfo
 //
 //	@Tags			agent
-//	@Summary		查看智能体详情
-//	@Description	查看智能体详情
+//	@Summary		查看发布后智能体详情
+//	@Description	查看发布后智能体详情
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
@@ -88,6 +88,27 @@ func GetAssistantInfo(ctx *gin.Context) {
 		return
 	}
 	resp, err := service.GetAssistantInfo(ctx, userId, orgId, req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// GetAssistantDraftInfo
+//
+//	@Tags			agent
+//	@Summary		查看草稿智能体详情
+//	@Description	查看草稿智能体详情
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			assistantId	query		string	true	"智能体id"
+//	@Success		200			{object}	response.Response{data=response.Assistant}
+//	@Router			/assistant/draft [get]
+func GetAssistantDraftInfo(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.AssistantIdRequest
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetAssistantDraftInfo(ctx, userId, orgId, req)
 	gin_util.Response(ctx, resp, err)
 }
 
