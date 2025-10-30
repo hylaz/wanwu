@@ -122,7 +122,7 @@ export default {
     getRecommendList() {
       const params = { templateId: this.templateSquareId }
       getWorkflowRecommendsList(params).then((res) => {
-        this.recommendList = res.data.list
+        this.recommendList = res.data.list || []
       })
     },
     getPath() {
@@ -278,11 +278,16 @@ export default {
           font-weight: bold;
         }
         .intro{
-          height: 36px;
+          max-height: 36px;
           color: #5D5D5D;
           margin-top: 8px;
           font-size: 13px;
           overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          text-overflow: ellipsis;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
       }
     }

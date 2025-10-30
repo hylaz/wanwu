@@ -275,7 +275,6 @@ export default {
 @import "@/style/markdown.scss";
 .markdown-body{
   font-family: 'Microsoft YaHei', Arial, sans-serif;
-  color: #333;
 }
 .mcp-detail{
   padding: 20px;

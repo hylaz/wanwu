@@ -172,10 +172,9 @@ export default {
         this.clearForm();
       }
       if(row) {
-        console.log(row, '-----------------------row')
-        const {templateId, name, desc, avatar} = row
+        const {templateId, desc, avatar} = row
         this.templateId = templateId
-        this.form = {name, desc, avatar}
+        this.form = {name: templateId, desc, avatar}
       }
       this.dialogVisible = true;
       this.$nextTick(()=>{

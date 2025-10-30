@@ -298,7 +298,6 @@ export default {
         const {list} = res.data || {}
         const models = list ? list.map((item) => ({...item, modelName: item.displayName || item.model})) : []
         this.models = models
-        console.log(this.models, models, '----------------------model')
       });
     },
     /*parseNodeData(nodeData) {

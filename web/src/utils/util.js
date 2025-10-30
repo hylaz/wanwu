@@ -30,7 +30,6 @@ export const fetchPermFirPath = (list = menuList) => {
             }
         }
     }
-    console.log(path, list,  '----------------------------fetchPermFirPath')
 
     // 若有权限，跳转左侧菜单第一个有权限的页面；否则跳转 /404
     return {path: path || '/404'}

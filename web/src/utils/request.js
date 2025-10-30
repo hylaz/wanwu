@@ -4,7 +4,6 @@ import { Message } from 'element-ui'
 import { basePath } from "@/utils/config"
 import { ZH } from '@/lang/constants'
 import { guid } from "@/utils/util"
-console.log(window.APP_BASE_PATH, '---', process.env.VUE_APP_BASE_PATH, '------basePath:', basePath, '------------------BASE_PATH====request')
 
 // create an axios instance
 const service = axios.create({

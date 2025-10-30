@@ -122,7 +122,6 @@ export default {
       const item = this.serverOptions.find(item => item.name === value) || {}
       const itemIndex = this.serverOptions.findIndex(item => item.name === value)
       this.serverOptions = this.serverOptions.map((item) => ({...item, tools: []}))
-      console.log(value, item, itemIndex, '-------------------changeItem')
 
       try {
         this.loading = true

@@ -233,7 +233,6 @@ export default {
     commonInfo:{
       handler(val) {
         const { home = {}, tab = {}, login = {} } = val ? val.data || {} : {}
-        console.log(val, '----------------info')
 
         this.tabForm.tabTitle = tab.title
         this.tabForm.tabLogo = tab.logo || {}

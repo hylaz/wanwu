@@ -76,7 +76,6 @@ export default {
       getAppList({ pageNo: 1, pageSize: 100 }).then((res) => {
           this.options = [];
           const data = res.data.list || [];
-          console.log(data,123344)
           for (let i = 0; i < data.length; i++) {
               if (data[i].status === true) {
                   this.options.push({

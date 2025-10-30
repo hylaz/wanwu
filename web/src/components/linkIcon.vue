@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     handleClick() {
-      console.log(this.type, this.linkList, this.linkList[this.type], '-----------------------------type')
       const docUrl = this.linkList[this.type]
       if (docUrl) window.open(docUrl)
     }

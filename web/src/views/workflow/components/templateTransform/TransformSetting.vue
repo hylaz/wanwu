@@ -174,8 +174,6 @@ export default {
       this.settings.code && isBase64(this.settings.code)
         ? Base64.decode(this.settings.code)
         : this.settings.code;
-
-    console.log(this.codeValue, '-----------------setting===========')
   },
   mounted() {
     this.setAutoCompleteValue(this.codeValue)

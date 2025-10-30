@@ -16,7 +16,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.workflowUrl, '------------------------------workflowUrl')
     /*window.addEventListener("message", (e) => {
       console.log('message =========>', e.data);
     });*/

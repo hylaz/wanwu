@@ -84,7 +84,6 @@ export default {
       const {data} = this.$store.state.user.commonInfo || {}
       const {linkList} = data || {}
       const apiDocLink = linkList[`api-${this.appType}`]
-      console.log(linkList, apiDocLink, '--------------------------apiDocLink')
       if (apiDocLink) window.open(apiDocLink)
     },
     handleClose(){

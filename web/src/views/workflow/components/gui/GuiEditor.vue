@@ -479,7 +479,6 @@ export default {
         }
       });
 
-      console.log(this.nodeData.data.inputs, 12344555);
       let nodeSchema = {
         nodeSchema: {
           nodes: [

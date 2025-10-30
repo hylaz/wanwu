@@ -92,7 +92,8 @@ export default {
         {name: '政务', key: 'gov'},
         {name: '工业', key: 'industry'},
         {name: '文教', key: 'edu'},
-        {name: '医疗', key: 'medical'},
+        {name: '文旅', key: 'tourism'},
+        // {name: '医疗', key: 'medical'},
         {name: '数据', key: 'data'},
         {name: '创作', key: 'create'},
         {name: '搜索', key: 'search'},
@@ -138,9 +139,10 @@ export default {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a")
         link.href = url
-        link.download = row.name + '.json'
+        link.download = item.name + '.json'
         link.click()
         window.URL.revokeObjectURL(link.href)
+        this.doGetWorkflowTempList()
       })
     },
     handleClick(val) {

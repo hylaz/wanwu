@@ -59,7 +59,6 @@ export default {
       this.$i18n.locale = item.code
     },
     async handleChangeLang(item) {
-      console.log(item, '----------------------item')
       if (!this.isLogin) {
         await changeLang({language: item.code})
         window.location.reload()

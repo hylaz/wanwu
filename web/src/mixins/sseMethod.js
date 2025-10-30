@@ -194,7 +194,6 @@ export default {
             this.sendEventStream(this.inputVal,'', _history.length)
         },
         sendEventStream(prompt, msgStr, lastIndex){
-            console.log("####sendEventStream", '--------------------------')
             if (this.sessionStatus === 0) {
                 this.$message.warning('上个问题没有回答完！')
                 return
