@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -211,7 +212,7 @@ func GetWorkflowTemplateDetail(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			templateId	query		string	false	"模板ID"
-//	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.WorkflowTemplateInfo}}
+//	@Success		200			{object}	response.Response{data=response.GetWorkflowTemplateListResp}
 //	@Router			/workflow/template/recommend [get]
 func GetWorkflowTemplateRecommend(ctx *gin.Context) {
 	resp, err := service.GetWorkflowTemplateRecommend(ctx, getClientID(ctx), ctx.Query("templateId"))
@@ -230,7 +231,7 @@ func GetWorkflowTemplateRecommend(ctx *gin.Context) {
 //	@Success		200			{object}	response.Response
 //	@Router			/workflow/template/download [get]
 func DownloadWorkflowTemplate(ctx *gin.Context) {
-	fileName := "workflow_template.json"
+	fileName := fmt.Sprintf("%s.json", ctx.Query("templateId"))
 	resp, err := service.DownloadWorkflowTemplate(ctx, getClientID(ctx), ctx.Query("templateId"))
 	if err != nil {
 		gin_util.Response(ctx, nil, err)

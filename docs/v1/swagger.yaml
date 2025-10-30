@@ -3101,7 +3101,7 @@ definitions:
       mcpInfos:
         description: MCP信息
         items:
-          $ref: '#/definitions/response.MCPInfos'
+          $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
       modelConfig:
         allOf:
@@ -3136,7 +3136,7 @@ definitions:
       toolInfos:
         description: 自定义工具、内置工具
         items:
-          $ref: '#/definitions/response.ToolInfos'
+          $ref: '#/definitions/response.AssistantToolInfo'
         type: array
       updatedAt:
         description: 更新时间
@@ -3148,7 +3148,7 @@ definitions:
       workFlowInfos:
         description: 工作流信息
         items:
-          $ref: '#/definitions/response.WorkFlowInfos'
+          $ref: '#/definitions/response.AssistantWorkFlowInfo'
         type: array
     required:
     - assistantId
@@ -3158,6 +3158,28 @@ definitions:
     properties:
       assistantId:
         type: string
+    type: object
+  response.AssistantMCPInfo:
+    properties:
+      actionName:
+        type: string
+      enable:
+        type: boolean
+      mcpId:
+        type: string
+      mcpName:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - mcpType
     type: object
   response.AssistantTemplateInfo:
     properties:
@@ -3205,6 +3227,43 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  response.AssistantToolInfo:
+    properties:
+      actionName:
+        type: string
+      enable:
+        type: boolean
+      toolId:
+        type: string
+      toolName:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - toolType
+    type: object
+  response.AssistantWorkFlowInfo:
+    properties:
+      apiName:
+        type: string
+      enable:
+        type: boolean
+      name:
+        type: string
+      uniqueId:
+        type: string
+      workFlowDesc:
+        type: string
+      workFlowId:
+        type: string
     type: object
   response.Captcha:
     properties:
@@ -4227,28 +4286,6 @@ definitions:
         description: SSE URL
         type: string
     type: object
-  response.MCPInfos:
-    properties:
-      actionName:
-        type: string
-      enable:
-        type: boolean
-      mcpId:
-        type: string
-      mcpName:
-        type: string
-      mcpType:
-        enum:
-        - mcp
-        - mcpserver
-        type: string
-      uniqueId:
-        type: string
-      valid:
-        type: boolean
-    required:
-    - mcpType
-    type: object
   response.MCPSelect:
     properties:
       description:
@@ -4828,28 +4865,6 @@ definitions:
         items: {}
         type: array
     type: object
-  response.ToolInfos:
-    properties:
-      actionName:
-        type: string
-      enable:
-        type: boolean
-      toolId:
-        type: string
-      toolName:
-        type: string
-      toolType:
-        enum:
-        - builtin
-        - custom
-        type: string
-      uniqueId:
-        type: string
-      valid:
-        type: boolean
-    required:
-    - toolType
-    type: object
   response.ToolSelect:
     properties:
       apiKey:
@@ -5074,21 +5089,6 @@ definitions:
         description: 视觉配置图片数量
         type: integer
     type: object
-  response.WorkFlowInfos:
-    properties:
-      apiName:
-        type: string
-      enable:
-        type: boolean
-      name:
-        type: string
-      uniqueId:
-        type: string
-      workFlowDesc:
-        type: string
-      workFlowId:
-        type: string
-    type: object
   response.WorkflowStatistic:
     properties:
       overview:
@@ -5192,24 +5192,51 @@ definitions:
     type: object
 info:
   contact: {}
-  description: "## HTTP Header\r\n| Header        | 说明      |\r\n| ------------- |
-    --------- |\r\n| Authorization | JWT token |\r\n| X-Language    | 语言Code  |\r\n|
-    X-Org-Id      | 组织ID    |\r\n| X-Client-Id   | 客户端标识|\r\n\r\n## HTTP Status\r\n|
-    HTTP Status             | 说明                   |\r\n| -----------------------
-    | ---------------------- |\r\n| 200, StatusOK           | 请求返回成功           |\r\n|
-    400, StatusBadRequest   | 请求返回失败，用于业务 |\r\n| 401, StatusUnauthorized | JWT认证失败
-    \           |\r\n| 403, StatusForbidden    | 没有权限               |\r\n\r\n## 权限-菜单对应表\r\n|
-    一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\r\n|-------------|-------|------|------|------|------|\r\n|
-    guest       |       |      | 【访客】 |      |      |\r\n| common      |       |      |
-    【通用】 |      |      |\r\n| permission  |       |      | 权限管理 |      |      |\r\n|
-    permission  | user  |      | 权限管理 | 用户管理 |      |\r\n| permission  | org   |      |
-    权限管理 | 组织管理 |      |\r\n| permission  | role  |      | 权限管理 | 角色管理 |      |\r\n\r\n##
-    `/v1/user/permission`返回用例\r\n```json\r\n{\r\n  \"code\": 0,\r\n  \"data\": {\r\n
-    \   \"orgPermission\": {\r\n      \"org\": {\"id\": \"test-org-id\", \"name\":
-    \"test-org-name\"},\r\n      \"permissions\": [\r\n        {\"perm\": \"permission\"},\r\n
-    \       {\"perm\": \"permission.user\"},\r\n        {\"perm\": \"permission.org\"},\r\n
-    \       {\"perm\": \"permission.role\"}\r\n      ]\r\n    }\r\n  },\r\n  \"msg\":
-    \"操作成功\"\r\n}\r\n```"
+  description: |-
+    ## HTTP Header
+    | Header        | 说明      |
+    | ------------- | --------- |
+    | Authorization | JWT token |
+    | X-Language    | 语言Code  |
+    | X-Org-Id      | 组织ID    |
+    | X-Client-Id   | 客户端标识|
+
+    ## HTTP Status
+    | HTTP Status             | 说明                   |
+    | ----------------------- | ---------------------- |
+    | 200, StatusOK           | 请求返回成功           |
+    | 400, StatusBadRequest   | 请求返回失败，用于业务 |
+    | 401, StatusUnauthorized | JWT认证失败            |
+    | 403, StatusForbidden    | 没有权限               |
+
+    ## 权限-菜单对应表
+    | 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |
+    |-------------|-------|------|------|------|------|
+    | guest       |       |      | 【访客】 |      |      |
+    | common      |       |      | 【通用】 |      |      |
+    | permission  |       |      | 权限管理 |      |      |
+    | permission  | user  |      | 权限管理 | 用户管理 |      |
+    | permission  | org   |      | 权限管理 | 组织管理 |      |
+    | permission  | role  |      | 权限管理 | 角色管理 |      |
+
+    ## `/v1/user/permission`返回用例
+    ```json
+    {
+      "code": 0,
+      "data": {
+        "orgPermission": {
+          "org": {"id": "test-org-id", "name": "test-org-name"},
+          "permissions": [
+            {"perm": "permission"},
+            {"perm": "permission.user"},
+            {"perm": "permission.org"},
+            {"perm": "permission.role"}
+          ]
+        }
+      },
+      "msg": "操作成功"
+    }
+    ```
   title: AI Agent Productivity Platform API
   version: v0.0.1
 paths:
@@ -5859,7 +5886,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 查看智能体详情
+      description: 查看发布后智能体详情
       parameters:
       - description: 智能体id
         in: query
@@ -5880,7 +5907,7 @@ paths:
               type: object
       security:
       - JWT: []
-      summary: 查看智能体详情
+      summary: 查看发布后智能体详情
       tags:
       - agent
     post:
@@ -6127,6 +6154,34 @@ paths:
       security:
       - JWT: []
       summary: 复制智能体
+      tags:
+      - agent
+  /assistant/draft:
+    get:
+      consumes:
+      - application/json
+      description: 查看草稿智能体详情
+      parameters:
+      - description: 智能体id
+        in: query
+        name: assistantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.Assistant'
+              type: object
+      security:
+      - JWT: []
+      summary: 查看草稿智能体详情
       tags:
       - agent
   /assistant/stream:
@@ -10907,14 +10962,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  allOf:
-                  - $ref: '#/definitions/response.ListResult'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/response.WorkflowTemplateInfo'
-                        type: array
-                    type: object
+                  $ref: '#/definitions/response.GetWorkflowTemplateListResp'
               type: object
       security:
       - JWT: []

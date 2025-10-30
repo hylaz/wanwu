@@ -9,10 +9,13 @@ import (
 	"strings"
 	"time"
 
+	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	operate_service "github.com/UnicomAI/wanwu/api/proto/operate-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/redis"
 	"github.com/UnicomAI/wanwu/pkg/util"
@@ -60,27 +63,27 @@ func GetWorkflowTemplateDetail(ctx *gin.Context, clientId, templateId string) (*
 	}
 }
 
-func GetWorkflowTemplateRecommend(ctx *gin.Context, clientId, templateId string) ([]*response.WorkflowTemplateInfo, error) {
+func GetWorkflowTemplateRecommend(ctx *gin.Context, clientId, templateId string) (*response.GetWorkflowTemplateListResp, error) {
 	switch config.Cfg().WorkflowTemplatePath.ServerMode {
 	case "remote":
 		res, err := getRemoteWorkflowTemplateList(ctx, "", "")
 		if err != nil {
 			return nil, err
 		}
-		return res.List, nil
+		return res, nil
 	case "local":
 		res, err := getLocalWorkflowTemplateList(ctx.Request.Context(), "", "")
 		if err != nil {
 			return nil, err
 		}
-		return res.List, nil
+		return res, nil
 	default:
 		// 默认使用本地模式
 		res, err := getLocalWorkflowTemplateList(ctx.Request.Context(), "", "")
 		if err != nil {
 			return nil, err
 		}
-		return res.List, nil
+		return res, nil
 	}
 }
 
@@ -116,7 +119,7 @@ func GetWorkflowTemplateStatistic(ctx *gin.Context, startDate, endDate string) (
 	// 获取当前周期和上一个周期的日期列表
 	prevDates, currentDates, err := util.PreviousDateRange(startDate, endDate)
 	if err != nil {
-		return nil, fmt.Errorf("get date range error: %v", err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_stats", fmt.Sprintf("get date range error: %v", err))
 	}
 
 	// 获取浏览数据
@@ -133,7 +136,7 @@ func GetWorkflowTemplateStatistic(ctx *gin.Context, startDate, endDate string) (
 	overview := calculateGlobalBrowseOverview(currentBrowseData, prevBrowseData)
 
 	// 计算趋势数据
-	trend := calculateGlobalBrowseTrend(currentBrowseData, currentDates)
+	trend := calculateGlobalBrowseTrend(ctx, currentBrowseData, currentDates)
 
 	return &response.WorkflowStatistic{
 		Overview: overview,
@@ -145,7 +148,7 @@ func GetWorkflowTemplateStatistic(ctx *gin.Context, startDate, endDate string) (
 func getBrowseDataFromRedis(ctx context.Context, dates []string) (map[string]int64, error) {
 	items, err := redis.OP().HGetAll(ctx, redisGlobalBrowseKey)
 	if err != nil {
-		return nil, fmt.Errorf("redis HGetAll key %v fields %v err: %v", redisGlobalBrowseKey, dates, err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_stats", fmt.Sprintf("redis HGetAll key %v fields %v err: %v", redisGlobalBrowseKey, dates, err))
 	}
 
 	data := make(map[string]int64)
@@ -200,7 +203,7 @@ func calculateGlobalBrowseOverview(currentData, prevData map[string]int64) respo
 }
 
 // 计算趋势数据
-func calculateGlobalBrowseTrend(browseData map[string]int64, dates []string) response.WorkflowTemplateTrends {
+func calculateGlobalBrowseTrend(ctx *gin.Context, browseData map[string]int64, dates []string) response.WorkflowTemplateTrends {
 	var items []response.StatisticChartLineItem
 	for _, date := range dates {
 		count := browseData[date]
@@ -211,10 +214,10 @@ func calculateGlobalBrowseTrend(browseData map[string]int64, dates []string) res
 	}
 	return response.WorkflowTemplateTrends{
 		Browse: response.StatisticChart{
-			TableName: "工作流模板浏览趋势",
+			TableName: gin_util.I18nKey(ctx, "ope_workflow_template_browse_table"),
 			Lines: []response.StatisticChartLine{
 				{
-					LineName: "浏览量",
+					LineName: gin_util.I18nKey(ctx, "ope_workflow_template_browse_line"),
 					Items:    items,
 				},
 			},
@@ -277,11 +280,18 @@ func getRemoteWorkflowTemplateList(ctx *gin.Context, category, name string) (*re
 		SetResult(&res).
 		Get(config.Cfg().WorkflowTemplatePath.ListUrl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call remote workflow template API: %v", err)
+		// 远程调用失败，返回默认下载链接
+		return &response.GetWorkflowTemplateListResp{
+			Total: 0,
+			List:  make([]*response.WorkflowTemplateInfo, 0),
+			DownloadLink: response.WorkflowTemplateURL{
+				Url: config.Cfg().WorkflowTemplatePath.GlobalWebListUrl,
+			},
+		}, nil
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		fmt.Print(resp.StatusCode())
+		// status not ok,  返回默认下载链接
 		return &response.GetWorkflowTemplateListResp{
 			Total: 0,
 			List:  make([]*response.WorkflowTemplateInfo, 0),
@@ -292,10 +302,10 @@ func getRemoteWorkflowTemplateList(ctx *gin.Context, category, name string) (*re
 	}
 	marshal, err := json.Marshal(res.Data)
 	if err != nil {
-		return nil, fmt.Errorf("request  marshal response body: %v", err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_list", fmt.Sprintf("request  marshal response body: %v", err))
 	}
 	if err = json.Unmarshal(marshal, &ret); err != nil {
-		return nil, fmt.Errorf("request unmarshal response body: %v", err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_list", fmt.Sprintf("request  unmarshal response body: %v", err))
 	}
 	// 远程调用成功，返回远程结果
 	return &ret, nil
@@ -335,19 +345,18 @@ func getRemoteWorkflowTemplateDetail(ctx *gin.Context, templateId string) (*resp
 		SetResult(&res).
 		Get(config.Cfg().WorkflowTemplatePath.DetailUrl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call remote workflow template API: %v", err)
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_detail", fmt.Sprintf("failed to call remote workflow template API: %v", err))
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		fmt.Print(resp.StatusCode())
-		return nil, fmt.Errorf("todo")
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_detail", fmt.Sprintf("request remote workflow template http code: %v", resp.StatusCode()))
 	}
 	marshal, err := json.Marshal(res.Data)
 	if err != nil {
-		return nil, fmt.Errorf("request  marshal response body: %v", err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_detail", fmt.Sprintf("request marshal response body: %v", err))
 	}
 	if err = json.Unmarshal(marshal, &ret); err != nil {
-		return nil, fmt.Errorf("request unmarshal response body: %v", err)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_detail", fmt.Sprintf("request unmarshal response body: %v", err))
 	}
 	// 远程调用成功，返回远程结果
 	return &ret, nil
@@ -356,7 +365,7 @@ func getRemoteWorkflowTemplateDetail(ctx *gin.Context, templateId string) (*resp
 func getLocalWorkflowTemplateDetail(ctx context.Context, templateId string) (*response.WorkflowTemplateDetail, error) {
 	wtfCfg, exist := config.Cfg().WorkflowTemp(templateId)
 	if !exist {
-		return nil, fmt.Errorf("todo")
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_detail", "get local workflow template detail empty")
 	}
 	return buildWorkflowTempDetail(ctx, wtfCfg), nil
 }
@@ -376,11 +385,11 @@ func getRemoteDownloadWorkflowTemplate(ctx *gin.Context, templateId string) ([]b
 		SetResult(&res).
 		Get(config.Cfg().WorkflowTemplatePath.DetailUrl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call remote workflow template API: %v", err)
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", fmt.Sprintf("failed to call remote workflow template API: %v", err))
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("todo")
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", fmt.Sprintf("request remote workflow template http code: %v", resp.StatusCode()))
 	}
 	// 远程调用成功，返回远程结果
 	return convertToBytes(res.Data)
@@ -389,7 +398,7 @@ func getRemoteDownloadWorkflowTemplate(ctx *gin.Context, templateId string) ([]b
 func getLocalDownloadWorkflowTemplate(templateId string) ([]byte, error) {
 	wtfCfg, exist := config.Cfg().WorkflowTemp(templateId)
 	if !exist {
-		return nil, fmt.Errorf("template not found: %s", templateId)
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", "get local workflow template download empty")
 	}
 	return []byte(wtfCfg.Schema), nil
 }
@@ -404,7 +413,7 @@ func convertToBytes(data any) ([]byte, error) {
 	case string:
 		return []byte(v), nil
 	default:
-		return nil, fmt.Errorf("无法转换类型 %T 为 []byte", data)
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", "unsupported data type for conversion to bytes")
 	}
 }
 

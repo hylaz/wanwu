@@ -29,7 +29,7 @@ func (c *Client) AddClientRecord(ctx context.Context, clientId string) *err_code
 			}
 		} else {
 			// 其他数据库错误
-			return toErrStatus("ope_client_record_query", err.Error())
+			return toErrStatus("ope_client_record_create", err.Error())
 		}
 	} else {
 		// 记录已存在，更新updated_at字段

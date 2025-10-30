@@ -519,7 +519,7 @@ definitions:
       mcpInfos:
         description: MCP信息
         items:
-          $ref: '#/definitions/response.MCPInfos'
+          $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
       modelConfig:
         allOf:
@@ -554,7 +554,7 @@ definitions:
       toolInfos:
         description: 自定义工具、内置工具
         items:
-          $ref: '#/definitions/response.ToolInfos'
+          $ref: '#/definitions/response.AssistantToolInfo'
         type: array
       updatedAt:
         description: 更新时间
@@ -566,11 +566,70 @@ definitions:
       workFlowInfos:
         description: 工作流信息
         items:
-          $ref: '#/definitions/response.WorkFlowInfos'
+          $ref: '#/definitions/response.AssistantWorkFlowInfo'
         type: array
     required:
     - assistantId
     - name
+    type: object
+  response.AssistantMCPInfo:
+    properties:
+      actionName:
+        type: string
+      enable:
+        type: boolean
+      mcpId:
+        type: string
+      mcpName:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - mcpType
+    type: object
+  response.AssistantToolInfo:
+    properties:
+      actionName:
+        type: string
+      enable:
+        type: boolean
+      toolId:
+        type: string
+      toolName:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - toolType
+    type: object
+  response.AssistantWorkFlowInfo:
+    properties:
+      apiName:
+        type: string
+      enable:
+        type: boolean
+      name:
+        type: string
+      uniqueId:
+        type: string
+      workFlowDesc:
+        type: string
+      workFlowId:
+        type: string
     type: object
   response.ConversationCreateResp:
     properties:
@@ -626,28 +685,6 @@ definitions:
       total:
         type: integer
     type: object
-  response.MCPInfos:
-    properties:
-      actionName:
-        type: string
-      enable:
-        type: boolean
-      mcpId:
-        type: string
-      mcpName:
-        type: string
-      mcpType:
-        enum:
-        - mcp
-        - mcpserver
-        type: string
-      uniqueId:
-        type: string
-      valid:
-        type: boolean
-    required:
-    - mcpType
-    type: object
   response.RequestFile:
     properties:
       fileUrl:
@@ -665,28 +702,6 @@ definitions:
       msg:
         type: string
     type: object
-  response.ToolInfos:
-    properties:
-      actionName:
-        type: string
-      enable:
-        type: boolean
-      toolId:
-        type: string
-      toolName:
-        type: string
-      toolType:
-        enum:
-        - builtin
-        - custom
-        type: string
-      uniqueId:
-        type: string
-      valid:
-        type: boolean
-    required:
-    - toolType
-    type: object
   response.VisionConfig:
     properties:
       maxPicNum:
@@ -695,21 +710,6 @@ definitions:
       picNum:
         description: 视觉配置图片数量
         type: integer
-    type: object
-  response.WorkFlowInfos:
-    properties:
-      apiName:
-        type: string
-      enable:
-        type: boolean
-      name:
-        type: string
-      uniqueId:
-        type: string
-      workFlowDesc:
-        type: string
-      workFlowId:
-        type: string
     type: object
 info:
   contact: {}

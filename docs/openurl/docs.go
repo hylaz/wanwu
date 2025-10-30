@@ -1161,7 +1161,7 @@ const docTemplate = `{
                     "description": "MCP信息",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.MCPInfos"
+                        "$ref": "#/definitions/response.AssistantMCPInfo"
                     }
                 },
                 "modelConfig": {
@@ -1219,7 +1219,7 @@ const docTemplate = `{
                     "description": "自定义工具、内置工具",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.ToolInfos"
+                        "$ref": "#/definitions/response.AssistantToolInfo"
                     }
                 },
                 "updatedAt": {
@@ -1238,8 +1238,97 @@ const docTemplate = `{
                     "description": "工作流信息",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.WorkFlowInfos"
+                        "$ref": "#/definitions/response.AssistantWorkFlowInfo"
                     }
+                }
+            }
+        },
+        "response.AssistantMCPInfo": {
+            "type": "object",
+            "required": [
+                "mcpType"
+            ],
+            "properties": {
+                "actionName": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "mcpId": {
+                    "type": "string"
+                },
+                "mcpName": {
+                    "type": "string"
+                },
+                "mcpType": {
+                    "type": "string",
+                    "enum": [
+                        "mcp",
+                        "mcpserver"
+                    ]
+                },
+                "uniqueId": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.AssistantToolInfo": {
+            "type": "object",
+            "required": [
+                "toolType"
+            ],
+            "properties": {
+                "actionName": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "toolId": {
+                    "type": "string"
+                },
+                "toolName": {
+                    "type": "string"
+                },
+                "toolType": {
+                    "type": "string",
+                    "enum": [
+                        "builtin",
+                        "custom"
+                    ]
+                },
+                "uniqueId": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.AssistantWorkFlowInfo": {
+            "type": "object",
+            "properties": {
+                "apiName": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "uniqueId": {
+                    "type": "string"
+                },
+                "workFlowDesc": {
+                    "type": "string"
+                },
+                "workFlowId": {
+                    "type": "string"
                 }
             }
         },
@@ -1325,39 +1414,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.MCPInfos": {
-            "type": "object",
-            "required": [
-                "mcpType"
-            ],
-            "properties": {
-                "actionName": {
-                    "type": "string"
-                },
-                "enable": {
-                    "type": "boolean"
-                },
-                "mcpId": {
-                    "type": "string"
-                },
-                "mcpName": {
-                    "type": "string"
-                },
-                "mcpType": {
-                    "type": "string",
-                    "enum": [
-                        "mcp",
-                        "mcpserver"
-                    ]
-                },
-                "uniqueId": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
         "response.RequestFile": {
             "type": "object",
             "properties": {
@@ -1384,39 +1440,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ToolInfos": {
-            "type": "object",
-            "required": [
-                "toolType"
-            ],
-            "properties": {
-                "actionName": {
-                    "type": "string"
-                },
-                "enable": {
-                    "type": "boolean"
-                },
-                "toolId": {
-                    "type": "string"
-                },
-                "toolName": {
-                    "type": "string"
-                },
-                "toolType": {
-                    "type": "string",
-                    "enum": [
-                        "builtin",
-                        "custom"
-                    ]
-                },
-                "uniqueId": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
         "response.VisionConfig": {
             "type": "object",
             "properties": {
@@ -1427,29 +1450,6 @@ const docTemplate = `{
                 "picNum": {
                     "description": "视觉配置图片数量",
                     "type": "integer"
-                }
-            }
-        },
-        "response.WorkFlowInfos": {
-            "type": "object",
-            "properties": {
-                "apiName": {
-                    "type": "string"
-                },
-                "enable": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "uniqueId": {
-                    "type": "string"
-                },
-                "workFlowDesc": {
-                    "type": "string"
-                },
-                "workFlowId": {
-                    "type": "string"
                 }
             }
         }

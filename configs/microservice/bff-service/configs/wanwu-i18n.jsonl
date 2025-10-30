@@ -82,6 +82,11 @@
 {"code":110000,"key":"bff_mcp_server_unregister_tool_err","langs":{"zh":"MCP服务注销工具错误:%v"}}
 {"code":110000,"key":"bff_mcp_server_shutdown_err","langs":{"zh":"关闭MCP服务错误:%v"}}
 {"code":110000,"key":"bff_mcp_server_not_exist","langs":{"zh":"MCP服务不存在"}}
+{"code":0,"key":"------ guest ------","langs":{}}
+{"code":110000,"key":"bff_workflow_template_list","langs":{"zh":"获取工作流模板列表错误: %v"}}
+{"code":110000,"key":"bff_workflow_template_detail","langs":{"zh":"获取工作流模板详情错误: %v"}}
+{"code":110000,"key":"bff_workflow_template_download","langs":{"zh":"下载工作流模板错误: %v"}}
+{"code":110000,"key":"bff_workflow_template_stats","langs":{"zh":"获取工作流模板统计错误: %V"}}
 {"code":0,"key":"------ custom ------","langs":{}}
 {"code":0,"key":"bff_custom_home_title","langs":{"en":"Yuanjing Wanwu Intelligent Body Development Platform","zh":"元景万悟智能体开发平台"}}
 {"code":0,"key":"bff_custom_tab_title","langs":{"en":"Yuanjing Wanwu","zh":"元景万悟"}}
