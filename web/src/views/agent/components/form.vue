@@ -275,7 +275,7 @@
                 />
                 <span>博查</span>
               </span>
-              <span>
+              <span style="display:flex;align-items: center;">
                 <span
                   class="el-icon-s-operation link-operation"
                   @click="showLinkDiglog"
@@ -314,7 +314,7 @@
                     <span>{{ displayName(n) }}</span>
                   </div>
                   <div class="bt">
-                    <span class="el-icon-s-operation" v-if="n.type === 'action' && n.toolType && n.toolType === 'builtin'" @click="handleBuiltin(n)"></span>
+                    <span class="el-icon-s-operation bt-operation"  @click="handleBuiltin(n)" v-if="n.type === 'action' && n.toolType && n.toolType === 'builtin'"></span>
                     <el-switch
                       v-model="n.enable"
                       class="bt-switch"
@@ -481,7 +481,7 @@ import { selectModelList, getRerankList } from "@/api/modelAccess";
 import {
   deleteMcp,
   enableMcp,
-  getAgentInfo,
+  getAgentDetail,
   delWorkFlowInfo,
   delActionInfo,
   putAgentInfo,
@@ -651,11 +651,11 @@ export default {
         },
         mcp: {
           displayName: "MCP工具",
-          propName: "name",
+          propName: "mcpName",
         },
         action: {
           displayName: "自定义工具",
-          propName: "name",
+          propName: "toolName",
         },
         // 可以继续添加其他类型
         default: {
@@ -736,11 +736,6 @@ export default {
       this.editForm.knowledgebases.splice(index, 1);
     },
     getKnowledgeData(data) {
-      //const originalIds = new Set(
-       // this.editForm.knowledgebases.map((item) => item.id)
-     //);
-     // const newItems = data.filter((item) => !originalIds.has(item.id));
-     // this.editForm.knowledgebases.push(...newItems);
       this.$set(this.editForm, 'knowledgebases', [...data]);
     },
     handleMetaClose() {
@@ -803,7 +798,7 @@ export default {
       if (type === "workflow") {
         this.workflowSwitch(n.workFlowId, enable);
       } else if (type === "mcp") {
-        this.mcpSwitch(n.mcpId, enable);
+        this.mcpSwitch(n, enable);
       } else {
         this.customSwitch(n, enable);
       }
@@ -823,8 +818,8 @@ export default {
         })
         .catch(() => {});
     },
-    mcpSwitch(mcpId, enable) {
-      enableMcp({ assistantId: this.editForm.assistantId, mcpId, enable })
+    mcpSwitch(n, enable) {
+      enableMcp({ assistantId: this.editForm.assistantId,actionName:n.actionName, enable,mcpId:n.mcpId,mcpType:n.mcpType })
         .then((res) => {
           if (res.code === 0) {
             this.getAppDetail();
@@ -924,13 +919,13 @@ export default {
       if (type === "workflow") {
         this.doDeleteWorkflow(n.workFlowId);
       } else if (type === "mcp") {
-        this.mcpRemove(n.mcpId);
+        this.mcpRemove(n);
       } else {
         this.customRemove(n);
       }
     },
     customRemove(n) {
-      delCustomBuiltIn({ assistantId: this.editForm.assistantId, toolId: n.toolId, toolType: n.toolType,actionName:n.actionName})
+      delCustomBuiltIn({ assistantId: this.editForm.assistantId, toolId: n.toolId, toolType: n.toolType,actionName: n.actionName})
         .then((res) => {
           if (res.code === 0) {
             this.$message.success("删除成功");
@@ -939,8 +934,8 @@ export default {
         })
         .catch((err) => {});
     },
-    mcpRemove(mcpId) {
-      deleteMcp({ assistantId: this.editForm.assistantId, mcpId })
+    mcpRemove(n) {
+      deleteMcp({ assistantId: this.editForm.assistantId,actionName:n.actionName,mcpId:n.mcpId,mcpType:n.mcpType})
         .then((res) => {
           if (res.code === 0) {
             this.$message.success("删除成功");
@@ -1035,7 +1030,7 @@ export default {
     async getAppDetail() {
       this.startLoading(0);
       this.isSettingFromDetail = true;
-      let res = await getAgentInfo({ assistantId: this.editForm.assistantId });
+      let res = await getAgentDetail({ assistantId: this.editForm.assistantId });
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
@@ -1434,6 +1429,7 @@ export default {
           cursor: pointer;
           margin-right: 5px;
           font-size: 16px;
+          line-height:20px;
         }
       }
       .tool-conent {
@@ -1681,15 +1677,21 @@ export default {
       width: 40%;
       display: flex;
       justify-content: flex-end;
+      align-items:center;
       padding-right: 10px;
       box-sizing: border-box;
       cursor: pointer;
       .del {
         color: $btn_bg;
         font-size: 16px;
+        line-height:20px;
       }
       .bt-switch {
-        margin: 0 10px 0 10px;
+        margin: 0 6px 0 6px;
+      }
+      .bt-operation{
+        font-size:16px;
+        line-height:20px;
       }
     }
   }

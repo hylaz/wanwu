@@ -54,7 +54,7 @@
                 <i class="el-icon-more icon edit-icon" @click.stop></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="edit" v-if="[10,20,30].includes(n.permissionType)">{{$t('common.button.edit')}}</el-dropdown-item>
+                <el-dropdown-item command="edit" v-if="[30].includes(n.permissionType)">{{$t('common.button.edit')}}</el-dropdown-item>
                 <el-dropdown-item command="delete" v-if="[30].includes(n.permissionType)">{{$t('common.button.delete')}}</el-dropdown-item>
                 <el-dropdown-item command="power" >权限</el-dropdown-item>
               </el-dropdown-menu>

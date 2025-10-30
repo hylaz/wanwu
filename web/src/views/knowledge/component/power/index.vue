@@ -2,7 +2,7 @@
   <div class="power-management">
     <el-dialog
       :visible.sync="dialogVisible"
-      width="50%"
+      width="60%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       class="power-management-dialog"

@@ -1,15 +1,18 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    title="文生图名字"
     width="600px"
     :before-close="handleClose"
   >
     <!-- 标题和描述 -->
-    <div class="header-section">
-      <h2 class="dialog-title">文生图名字</h2>
-      <p class="dialog-subtitle">MaaS-简要描述</p>
-    </div>
+    <template slot="title">
+      <div class="custom-title">
+        <div class="header-section">
+          <h2 class="dialog-title">{{actionDetail.name}}</h2>
+          <p class="dialog-subtitle">{{actionDetail.description}}</p>
+        </div>
+      </div>
+    </template>
 
     <!-- API Key 部分 -->
     <div class="api-key-section">
@@ -31,7 +34,6 @@
       </div>
     </div>
 
-    <!-- 参数表格 -->
     <div class="parameters-section">
       <el-table :data="parametersData" border class="parameters-table">
         <el-table-column prop="parameter" label="参数" width="120" />
@@ -41,7 +43,6 @@
       </el-table>
     </div>
 
-    <!-- 底部确认按钮 -->
     <div slot="footer" class="dialog-footer">
       <el-button type="danger" class="final-confirm-btn">
         确认
@@ -56,6 +57,7 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      actionDetail:{},
       apiKey: '',
       parametersData: [
         {
@@ -73,13 +75,14 @@ export default {
     },
     showDiaglog(n){
       this.dialogVisible = true;
+      this.getDeatil(n)
     },
-    getDeatil(){
-      toolActionDetail().then(res =>{
+    getDeatil(n){
+      toolActionDetail({actionName:n.actionName,toolId:n.toolId,toolType:n.toolType}).then(res =>{
         if(res.code === 0){
-          console.log(res.data)
+          this.actionDetail = res.data || {}
         }
-      })
+      }).catch(() =>{})
     }
   }
 }

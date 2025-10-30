@@ -55,17 +55,7 @@
                 </el-button>
               </template>
               <!-- 非管理员权限：显示编辑和删除按钮 -->
-              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) && permissionType === 30 ">
-                <el-button
-                  v-if="!scope.row.editing"
-                  type="text"
-                  size="small"
-                  icon="el-icon-edit"
-                  @click="handleEdit(scope.row)"
-                  class="action-btn edit-btn"
-                >
-                  编辑
-                </el-button>
+              <template v-if="scope.row.editing">
                 <el-button
                   v-if="scope.row.editing"
                   type="text"
@@ -85,6 +75,18 @@
                   class="action-btn cancel-btn"
                 >
                   取消
+                </el-button>
+              </template>
+              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) && permissionType === 30">
+                <el-button
+                  v-if="!scope.row.editing"
+                  type="text"
+                  size="small"
+                  icon="el-icon-edit"
+                  @click="handleEdit(scope.row)"
+                  class="action-btn edit-btn"
+                >
+                  编辑
                 </el-button>
                 <el-button
                   v-if="!scope.row.editing"
