@@ -54,6 +54,15 @@ module.exports = {
           symbolId: 'icon-[name]'
       })
       .end()
+
+    // 生产环境去掉 console 打印
+    config.when(process.env.NODE_ENV === 'production', config => {
+      config.optimization.minimize(true)
+      config.optimization.minimizer('terser').tap(args => {
+        args[0].terserOptions.compress.drop_console = true
+        return args
+      })
+    })
   },
   devServer: {
     port: 8080,
@@ -163,7 +172,7 @@ module.exports = {
     }
   },
   configureWebpack: {
-    //    @路径走src文件夹
+    // @路径走src文件夹
     module: {
       rules: [
         {
