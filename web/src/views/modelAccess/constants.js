@@ -11,7 +11,7 @@ export const MODEL_TYPE_OBJ = {
     [EMBEDDING]: 'Embedding',
     [OCR]: 'OCR',
     [GUI]: 'GUI',
-    [PDF_PARSER]: 'pdf文档解析模型'
+    [PDF_PARSER]: '文档解析服务'
 }
 
 export const MODEL_TYPE = Object.keys(MODEL_TYPE_OBJ).map(key => ({key, name: MODEL_TYPE_OBJ[key]}))
