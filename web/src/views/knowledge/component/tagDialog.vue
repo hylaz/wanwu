@@ -34,9 +34,10 @@
             v-model="item.tagName"
             v-if="item.showIpt"
             maxlength="50"
+            placeholder="按回车(enter)键确认"
             @keydown.backspace.native="handleDelete(item,index)" 
             @keyup.enter.native="inputBlur(item)"
-            @blur="inputBlur(item)"
+           
           ></el-input>
           <span
             class="el-icon-close del-icon"

@@ -58,7 +58,6 @@
               <!-- 非管理员权限：显示编辑和删除按钮 -->
               <template v-if="scope.row.editing">
                 <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-check"
@@ -68,7 +67,6 @@
                   保存
                 </el-button>
                 <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-close"
@@ -98,8 +96,8 @@
                   删除
                 </el-button>
               </template>
+              <span v-else-if="showInfo(scope.row)" class="noPower">--</span>
             </div>
-             <span v-if="showInfo(scope.row)" class="noPower">--</span>
           </template>
         </el-table-column>
       </el-table>
@@ -132,10 +130,12 @@ export default {
   },
   methods: {
     showEdit(row){
+      if (row.editing) return false;
       return (
         !this.permissionType === 0 ||
-        (this.permissionType === 10 && row.permissionType === 10) ||
-        (this.permissionType === 20 && row.permissionType === 10) ||
+        !this.permissionType === 10 ||
+        (this.permissionType === 30 && row.permissionType === 0) ||
+        (this.permissionType === 30 && row.permissionType === 10) ||
         (this.permissionType === 30 && row.permissionType === 20)
       );
     },
@@ -143,6 +143,7 @@ export default {
       if (row.editing) return false;
       return (
         row.permissionType === 0 ||
+        row.permissionType === 10 ||
         (this.permissionType === 0 && !row.transfer) ||
         (this.permissionType === 20 && !row.transfer) ||
         (this.permissionType === 20 && row.permissionType === 20)||
@@ -205,7 +206,7 @@ export default {
       })
     },
     handleDelete(row) {
-      this.$confirm('确定要删除这条记录吗？', '提示', {
+      this.$confirm('确定要删除这条数据吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

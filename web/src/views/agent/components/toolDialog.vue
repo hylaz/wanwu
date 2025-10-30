@@ -151,7 +151,7 @@ export default {
                     this.$set(this.customInfos[index], 'children', res.data.actions)
                     this.$set(this.customInfos[index], 'loading',false)
                     this.customInfos[index]['children'].forEach(m => {
-                        m.checked = this.customList.some(item => item.actionName === m.name)
+                        m.checked = this.customList.some(item => item.actionName === m.name && item.toolId === toolId)
                     })
                     
                 }
@@ -260,7 +260,7 @@ export default {
                     this.$set(this.mcpInfos[index], 'children', res.data.actions)
                     this.$set(this.mcpInfos[index], 'loading', false)
                     this.mcpInfos[index]['children'].forEach(m => {
-                        m.checked = this.mcpList.some(item => item.actionName === m.name)
+                        m.checked = this.mcpList.some(item => item.actionName === m.name && item.mcpId === toolId)
                     })
                     
                 }
