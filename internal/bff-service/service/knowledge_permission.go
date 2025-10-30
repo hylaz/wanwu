@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	SystemPermission int32 = 30
+	SystemPermission  int32  = 30
+	adminOrganization string = "1"
 )
 
 // SelectKnowledgeOrg 查询知识库组织
@@ -141,6 +142,9 @@ func TransferKnowledgeAdminUser(ctx *gin.Context, userId, orgId string, req *req
 func buildKnowOrgInfo(orgInfo *iam_service.GetOrgAndSubOrgSelectByUserResp) *response.KnowOrgInfoResp {
 	var retList []*response.KnowOrgInfo
 	for _, org := range orgInfo.Orgs {
+		if org.Id == adminOrganization {
+			continue
+		}
 		retList = append(retList, &response.KnowOrgInfo{
 			OrgId:   org.Id,
 			OrgName: org.Name,

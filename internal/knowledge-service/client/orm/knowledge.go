@@ -165,22 +165,27 @@ func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embedd
 
 // UpdateKnowledge 更新知识库
 func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBase *model.KnowledgeBase) error {
-	//已经区分为知识库展示名称和rag知识库名称，不需要再通知rag修改名称
-	return updateKnowledge(db.GetHandle(ctx), knowledgeBase.Id, name, description)
-	//return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
-	//	//1.更新数据
-	//	err := updateKnowledge(tx, knowledgeBase.Id, name, description)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	//2.通知rag更新知识库
-	//	return service.RagKnowledgeUpdate(ctx, &service.RagUpdateParams{
-	//		UserId:          knowledgeBase.UserId,
-	//		KnowledgeBaseId: knowledgeBase.KnowledgeId,
-	//		OldKbName:       knowledgeBase.Name,
-	//		NewKbName:       name,
-	//	})
-	//})
+	//return updateKnowledge(db.GetHandle(ctx), knowledgeBase.Id, name, description)
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		//已经区分为知识库展示名称和rag知识库名称，不需要再通知rag修改名称
+		if knowledgeBase.Name != knowledgeBase.RagName {
+			return updateKnowledge(tx, knowledgeBase.Id, name, description)
+		}
+		//2.更新数据
+		ragName := generator.GetGenerator().NewID()
+		err := updateKnowledgeWithRagName(tx, knowledgeBase.Id, name, ragName, description)
+		if err != nil {
+			return err
+		}
+
+		//2.通知rag更新知识库,只有老的需要更新
+		return service.RagKnowledgeUpdate(ctx, &service.RagUpdateParams{
+			UserId:          knowledgeBase.UserId,
+			KnowledgeBaseId: knowledgeBase.KnowledgeId,
+			OldKbName:       knowledgeBase.RagName,
+			NewKbName:       ragName,
+		})
+	})
 }
 
 // UpdateKnowledgeShareCount 更新知识库分享数量
@@ -240,6 +245,15 @@ func createKnowledge(tx *gorm.DB, knowledge *model.KnowledgeBase) error {
 func updateKnowledge(tx *gorm.DB, id uint32, name, description string) error {
 	var updateParams = map[string]interface{}{
 		"name":        name,
+		"description": description,
+	}
+	return tx.Model(&model.KnowledgeBase{}).Where("id=?", id).Updates(updateParams).Error
+}
+
+func updateKnowledgeWithRagName(tx *gorm.DB, id uint32, name, ragName, description string) error {
+	var updateParams = map[string]interface{}{
+		"name":        name,
+		"rag_name":    ragName,
 		"description": description,
 	}
 	return tx.Model(&model.KnowledgeBase{}).Where("id=?", id).Updates(updateParams).Error
