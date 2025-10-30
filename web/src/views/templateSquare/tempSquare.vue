@@ -123,7 +123,7 @@ export default {
         .then((res) => {
           const {downloadLink = {}, list} = res.data || {}
           this.templateUrl = downloadLink.url
-          if (downloadLink.templateUrl) this.showHintDialog()
+          if (downloadLink.url) this.showHintDialog()
 
           this.list = list || []
           this.loading = false
