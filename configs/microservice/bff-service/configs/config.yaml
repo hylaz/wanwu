@@ -180,6 +180,7 @@ redis:
   password: Wanwu123456
   standalone: true
   master_name: mymaster
+
 # --- microservice ---
 
 iam:
@@ -313,6 +314,3 @@ agentscope-workflow:
   delete_workflow_uri: "/workflow/delete"
   publish_workflow_uri: "/plugin/api/publish"
   unpublish_workflow_uri: "/plugin/api/unpublish"
-
-
-

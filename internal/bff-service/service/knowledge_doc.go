@@ -357,7 +357,7 @@ func BatchCreateDocSegment(ctx *gin.Context, userId, orgId string, r *request.Ba
 		return grpc_util.ErrorStatus(errs.Code_KnowledgeDocImportUrlFailed)
 	}
 	ext := filepath.Ext(docUrl)
-	if ".csv" != ext {
+	if ext != ".csv" {
 		return grpc_util.ErrorStatus(errs.Code_KnowledgeDocSegmentFileCSVTypeFail)
 	}
 	_, err = knowledgeBaseDoc.BatchCreateDocSegment(ctx.Request.Context(), &knowledgebase_doc_service.BatchCreateDocSegmentReq{
@@ -427,6 +427,7 @@ func DeleteDocChildSegment(ctx *gin.Context, userId, orgId string, r *request.De
 	})
 	return err
 }
+
 func GetDocChildSegmentList(ctx *gin.Context, userId, orgId string, req *request.DocChildListReq) (*response.DocChildSegmentResp, error) {
 	docSegmentListResp, err := knowledgeBaseDoc.GetDocChildSegmentList(ctx.Request.Context(), &knowledgebase_doc_service.GetDocChildSegmentListReq{
 		UserId:    userId,
@@ -435,7 +436,6 @@ func GetDocChildSegmentList(ctx *gin.Context, userId, orgId string, req *request
 		ContentId: req.ContentId,
 	})
 	if err != nil {
-		log.Errorf("GetDocChildSegmentList error %v", err)
 		return nil, err
 	}
 	return buildDocChildSegmentResp(docSegmentListResp), err

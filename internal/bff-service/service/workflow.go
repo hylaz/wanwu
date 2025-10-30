@@ -6,7 +6,6 @@ import (
 	"io"
 	net_url "net/url"
 
-	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
@@ -296,10 +295,10 @@ func toModelInfo4Workflow(modelInfo *response.ModelInfo) (*response.CozeWorkflow
 		cfg := make(map[string]interface{})
 		b, err := json.Marshal(modelInfo.Config)
 		if err != nil {
-			return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v marshal config err: %v", modelInfo.ModelId, err))
+			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("model %v marshal config err: %v", modelInfo.ModelId, err))
 		}
 		if err = json.Unmarshal(b, &cfg); err != nil {
-			return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v unmarshal config err: %v", modelInfo.ModelId, err))
+			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("model %v unmarshal config err: %v", modelInfo.ModelId, err))
 		}
 		for k, v := range cfg {
 			switch k {

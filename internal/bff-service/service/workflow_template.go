@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"net/url"
 	net_url "net/url"
 	"strings"
 	"time"
@@ -279,6 +278,7 @@ func getRemoteWorkflowTemplateList(ctx *gin.Context, category, name string) (*re
 		Get(config.Cfg().WorkflowTemplatePath.ListUrl)
 	if err != nil {
 		// 远程调用失败，返回默认下载链接
+		log.Errorf("request remote workflow template err: %v", err)
 		return &response.GetWorkflowTemplateListResp{
 			Total: 0,
 			List:  make([]*response.WorkflowTemplateInfo, 0),
@@ -290,6 +290,7 @@ func getRemoteWorkflowTemplateList(ctx *gin.Context, category, name string) (*re
 
 	if resp.StatusCode() != http.StatusOK {
 		// status not ok,  返回默认下载链接
+		log.Errorf("request remote workflow template http code: %v, resp: %v", resp.StatusCode(), resp.String())
 		return &response.GetWorkflowTemplateListResp{
 			Total: 0,
 			List:  make([]*response.WorkflowTemplateInfo, 0),
@@ -305,7 +306,6 @@ func getRemoteWorkflowTemplateList(ctx *gin.Context, category, name string) (*re
 	if err = json.Unmarshal(marshal, &ret); err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_template_list", fmt.Sprintf("request  unmarshal response body: %v", err))
 	}
-	// 远程调用成功，返回远程结果
 	return &ret, nil
 }
 
@@ -459,7 +459,7 @@ func createWorkflowByTemplate(ctx *gin.Context, orgId string, req request.Create
 // --- internal ---
 
 func buildWorkflowTempInfo(ctx context.Context, wtfCfg config.WorkflowTempConfig) *response.WorkflowTemplateInfo {
-	iconUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, config.Cfg().DefaultIcon.WorkflowIcon)
+	iconUrl, _ := net_url.JoinPath(config.Cfg().Server.ApiBaseUrl, config.Cfg().DefaultIcon.WorkflowIcon)
 	return &response.WorkflowTemplateInfo{
 		TemplateId: wtfCfg.TemplateId,
 		Avatar: request.Avatar{
@@ -474,7 +474,7 @@ func buildWorkflowTempInfo(ctx context.Context, wtfCfg config.WorkflowTempConfig
 }
 
 func buildWorkflowTempDetail(ctx context.Context, wtfCfg config.WorkflowTempConfig) *response.WorkflowTemplateDetail {
-	iconUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, config.Cfg().DefaultIcon.WorkflowIcon)
+	iconUrl, _ := net_url.JoinPath(config.Cfg().Server.ApiBaseUrl, config.Cfg().DefaultIcon.WorkflowIcon)
 	return &response.WorkflowTemplateDetail{
 		WorkflowTemplateInfo: response.WorkflowTemplateInfo{
 			TemplateId: wtfCfg.TemplateId,
