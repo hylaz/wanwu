@@ -54,7 +54,7 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/tag", http.MethodPut, v1.UpdateKnowledgeTag, "修改知识库标签")
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/tag", http.MethodDelete, v1.DeleteKnowledgeTag, "删除知识库标签")
 	// 绑定知识库标签
-	mid.Sub("knowledge").Reg(apiV1, "/knowledge/tag/bind/count", http.MethodGet, v1.SelectTagBindCount, "查询标签绑定的知识库数量")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/tag/bind/count", http.MethodGet, v1.SelectKnowledgeTagBindCount, "查询标签绑定的知识库数量")
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/tag/bind", http.MethodPost, v1.BindKnowledgeTag, "绑定知识库标签", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 
 	// 知识库关键词管理--底层进行了权限knowledgeId 过滤，此处无需处理

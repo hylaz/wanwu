@@ -3,12 +3,12 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
 	"github.com/UnicomAI/wanwu/pkg/db"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"gorm.io/gorm"

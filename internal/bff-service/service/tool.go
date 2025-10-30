@@ -2,7 +2,6 @@
 package service
 
 import (
-	"github.com/ThinkInAIXYZ/go-mcp/protocol"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
@@ -52,22 +51,10 @@ func GetToolActionList(ctx *gin.Context, userID, orgID string, req request.ToolA
 		return nil, err
 	}
 
-	// 加载schema
-	var actions []*protocol.Tool
-	doc, err := openapi3_util.LoadFromData(ctx.Request.Context(), []byte(schema))
+	// Schema2ProtocolTools
+	actions, err := openapi3_util.Schema2ProtocolTools(ctx.Request.Context(), []byte(schema))
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, err.Error())
-	}
-	if err := openapi3_util.ValidateDoc(ctx.Request.Context(), doc); err != nil {
-		return nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, err.Error())
-	}
-
-	// Operation2ProtocolTool
-	for _, pathItem := range doc.Paths.Map() {
-		for _, operation := range pathItem.Operations() {
-			action := openapi3_util.Operation2ProtocolTool(operation)
-			actions = append(actions, action)
-		}
 	}
 
 	return &response.ToolActionList{
@@ -96,8 +83,10 @@ func GetToolActionDetail(ctx *gin.Context, userID, orgID string, req request.Too
 }
 
 // --- internal ---
+
 func getToolSchema(ctx *gin.Context, userID, orgID, toolID string, toolType string) (string, bool, string, error) {
-	if toolType == constant.ToolTypeBuiltIn {
+	switch toolType {
+	case constant.ToolTypeBuiltIn:
 		// 获取内置工具详情
 		resp, err := mcp.GetSquareTool(ctx.Request.Context(), &mcp_service.GetSquareToolReq{
 			ToolSquareId: toolID,
@@ -111,7 +100,7 @@ func getToolSchema(ctx *gin.Context, userID, orgID, toolID string, toolType stri
 		}
 
 		return resp.Schema, resp.BuiltInTools.NeedApiKeyInput, resp.BuiltInTools.ApiKey, nil
-	} else if toolType == constant.ToolTypeCustom {
+	case constant.ToolTypeCustom:
 		// 获取自定义工具详情
 		resp, err := mcp.GetCustomToolInfo(ctx.Request.Context(), &mcp_service.GetCustomToolInfoReq{
 			CustomToolId: toolID,
@@ -124,6 +113,7 @@ func getToolSchema(ctx *gin.Context, userID, orgID, toolID string, toolType stri
 			return "", false, "", err
 		}
 		return resp.Schema, false, "", nil
+	default:
+		return "", false, "", grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, "toolType invalid")
 	}
-	return "", false, "", nil
 }

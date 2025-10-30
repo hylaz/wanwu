@@ -16,7 +16,7 @@ service RagService {
   rpc UpdateRag(UpdateRagReq) returns (google.protobuf.Empty) {}
   // 更新 rag 配置信息
   rpc UpdateRagConfig(UpdateRagConfigReq) returns (google.protobuf.Empty) {}
-  //  删除 rag
+  // 删除 rag
   rpc DeleteRag(RagDeleteReq) returns (google.protobuf.Empty) {}
   // 获取 rag
   rpc GetRagDetail(RagDetailReq) returns (RagInfo) {}

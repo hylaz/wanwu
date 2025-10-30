@@ -8,12 +8,36 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+func Schema2ProtocolTools(ctx context.Context, schema []byte) ([]*protocol.Tool, error) {
+	doc, err := LoadFromData(ctx, schema)
+	if err != nil {
+		return nil, err
+	}
+	var rets []*protocol.Tool
+	for _, pathItem := range doc.Paths.Map() {
+		for _, operation := range pathItem.Operations() {
+			rets = append(rets, Operation2ProtocolTool(operation))
+		}
+	}
+	return rets, nil
+}
+
 func Schema2ProtocolTool(ctx context.Context, schema []byte, operationID string) (*protocol.Tool, error) {
 	doc, err := LoadFromData(ctx, schema)
 	if err != nil {
 		return nil, err
 	}
 	return Doc2ProtocolTool(doc, operationID)
+}
+
+func Doc2ProtocolTools(doc *openapi3.T) ([]*protocol.Tool, error) {
+	var rets []*protocol.Tool
+	for _, pathItem := range doc.Paths.Map() {
+		for _, operation := range pathItem.Operations() {
+			rets = append(rets, Operation2ProtocolTool(operation))
+		}
+	}
+	return rets, nil
 }
 
 func Doc2ProtocolTool(doc *openapi3.T, operationID string) (*protocol.Tool, error) {

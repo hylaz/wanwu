@@ -2,6 +2,8 @@ package orm
 
 import (
 	"context"
+	"time"
+
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
@@ -9,7 +11,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
-	"time"
 )
 
 // SelectKnowledgePermissionById 查询用户知识库权限

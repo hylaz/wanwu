@@ -214,6 +214,12 @@ agent:
     port: 15001
     uri: /upload
 
+rag-knowledge:
+  endpoint: 'http://rag-wanwu:8681'
+  chat-endpoint: 'http://rag-wanwu:10891'
+  search-knowledge-base-uri: '/rag/search-knowledge-base'
+  knowledge-chat-uri: '/rag/knowledge/stream/search'
+
 workflow:
   endpoint: http://workflow-wanwu:8999
   minio_proxy_endpoint: http://workflow-wanwu:8998
@@ -308,9 +314,5 @@ agentscope-workflow:
   publish_workflow_uri: "/plugin/api/publish"
   unpublish_workflow_uri: "/plugin/api/unpublish"
 
-rag-knowledge:
-  endpoint: 'http://rag-wanwu:8681'
-  chat-endpoint: 'http://rag-wanwu:10891'
-  search-knowledge-base-uri: '/rag/search-knowledge-base'
-  knowledge-chat-uri: '/rag/knowledge/stream/search'
+
 

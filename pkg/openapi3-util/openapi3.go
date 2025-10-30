@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -60,7 +60,7 @@ func FilterDocOperations(doc *openapi3.T, operationIDs []string) *openapi3.T {
 	doc.Paths = nil
 	for path, pathItem := range paths.Map() {
 		for method, operation := range pathItem.Operations() {
-			if util.Exist(operationIDs, operation.OperationID) {
+			if slices.Contains(operationIDs, operation.OperationID) {
 				doc.AddOperation(path, method, operation)
 			}
 		}

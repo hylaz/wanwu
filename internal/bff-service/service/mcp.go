@@ -205,9 +205,11 @@ func GetMCPToolList(ctx *gin.Context, mcpID, sseUrl string) (*response.MCPToolLi
 	}
 	return &response.MCPToolList{Tools: tools}, nil
 }
+
 func GetMCPActionList(ctx *gin.Context, userID, orgID string, req request.MCPActionListReq) (*response.MCPActionList, error) {
 	var actions []*protocol.Tool
-	if req.ToolType == constant.MCPTypeMCPServer {
+	switch req.ToolType {
+	case constant.MCPTypeMCPServer:
 		mcpServerList, err := mcp.GetMCPServerToolList(ctx.Request.Context(), &mcp_service.GetMCPServerToolListReq{
 			McpServerId: req.ToolId,
 		})
@@ -215,28 +217,21 @@ func GetMCPActionList(ctx *gin.Context, userID, orgID string, req request.MCPAct
 			return nil, err
 		}
 		for _, tool := range mcpServerList.List {
-			var action *protocol.Tool
-
-			doc, err := openapi3_util.LoadFromData(ctx.Request.Context(), []byte(tool.Schema))
+			toolActions, err := openapi3_util.Schema2ProtocolTools(ctx.Request.Context(), []byte(tool.Schema))
 			if err != nil {
-				return nil, err
+				return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 			}
-			for _, pathItem := range doc.Paths.Map() {
-				for _, operation := range pathItem.Operations() {
-					action = openapi3_util.Operation2ProtocolTool(operation)
-				}
-			}
-
-			actions = append(actions, action)
+			actions = append(actions, toolActions...)
 		}
-	} else if req.ToolType == constant.MCPTypeMCP {
+	case constant.MCPTypeMCP:
 		tools, err := GetMCPToolList(ctx, req.ToolId, "")
 		if err != nil {
 			return nil, err
 		}
 		actions = tools.Tools
+	default:
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "invalid toolType")
 	}
-
 	return &response.MCPActionList{
 		Actions: actions,
 	}, nil

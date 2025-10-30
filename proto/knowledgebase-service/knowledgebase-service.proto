@@ -137,7 +137,7 @@ message KnowledgeDetailSelectListResp{
   int32 total = 2;
 }
 
-//知识库信息
+// 知识库信息
 message KnowledgeInfo {
   string knowledgeId = 1; //知识库id
   string name = 2; //知识库名称

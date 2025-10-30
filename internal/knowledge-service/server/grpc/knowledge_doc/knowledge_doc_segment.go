@@ -3,6 +3,10 @@ package knowledge_doc
 import (
 	"context"
 	"encoding/json"
+	"strings"
+	"time"
+	"unicode/utf8"
+
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
@@ -12,9 +16,6 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
-	"time"
-	"unicode/utf8"
 )
 
 func (s *Service) CreateDocSegment(ctx context.Context, req *knowledgebase_doc_service.CreateDocSegmentReq) (*emptypb.Empty, error) {

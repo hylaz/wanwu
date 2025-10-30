@@ -20,8 +20,8 @@ func Register(apiV1 *gin.RouterGroup) {
 	// knowledge
 	registerKnowledge(apiV1)
 
-	// mcp
-	registerMCP(apiV1)
+	// mcp square
+	registerMCPSquare(apiV1)
 
 	// tool
 	registerTool(apiV1)

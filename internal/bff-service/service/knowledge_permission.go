@@ -1,18 +1,19 @@
 package service
 
 import (
+	"sync"
+
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_permission_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-permission-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
-	"sync"
 )
 
 const (
-	SystemPermission  int32  = 30
-	adminOrganization string = "1"
+	SystemPermission int32 = 30
 )
 
 // SelectKnowledgeOrg 查询知识库组织
@@ -142,7 +143,7 @@ func TransferKnowledgeAdminUser(ctx *gin.Context, userId, orgId string, req *req
 func buildKnowOrgInfo(orgInfo *iam_service.GetOrgAndSubOrgSelectByUserResp) *response.KnowOrgInfoResp {
 	var retList []*response.KnowOrgInfo
 	for _, org := range orgInfo.Orgs {
-		if org.Id == adminOrganization {
+		if org.Id == config.TopOrgID {
 			continue
 		}
 		retList = append(retList, &response.KnowOrgInfo{

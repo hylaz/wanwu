@@ -3,6 +3,8 @@ package knowledge_permission
 import (
 	"context"
 	"fmt"
+	"time"
+
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_permission_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-permission-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
@@ -13,7 +15,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"time"
 )
 
 func (s *Service) SelectKnowledgeUserPermission(ctx context.Context, req *knowledgebase_permission_service.KnowledgeUserPermissionReq) (*knowledgebase_permission_service.KnowledgeUserPermissionResp, error) {

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerMCP(apiV1 *gin.RouterGroup) {
+func registerMCPSquare(apiV1 *gin.RouterGroup) {
 	// MCP广场
 	mid.Sub("mcp").Reg(apiV1, "/mcp/square", http.MethodGet, v1.GetMCPSquareDetail, "获取广场MCP详情")
 	mid.Sub("mcp").Reg(apiV1, "/mcp/square/list", http.MethodGet, v1.GetMCPSquareList, "获取广场MCP列表")

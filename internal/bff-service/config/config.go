@@ -40,9 +40,9 @@ type Config struct {
 	Assistant          ServiceConfig                   `json:"assistant" mapstructure:"assistant"`
 	Operate            ServiceConfig                   `json:"operate" mapstructure:"operate"`
 	Agent              AgentServiceConfig              `json:"agent" mapstructure:"agent"`
+	RagKnowledgeConfig RagKnowledgeConfig              `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 	Workflow           WorkflowServiceConfig           `json:"workflow" mapstructure:"workflow"`
 	AgentScopeWorkFlow AgentScopeWorkFlowServiceConfig `json:"agentscope-workflow" mapstructure:"agentscope-workflow"`
-	RagKnowledgeConfig RagKnowledgeConfig              `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 }
 
 type ServerConfig struct {

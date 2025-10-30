@@ -43,7 +43,7 @@ type RagServiceClient interface {
 	UpdateRag(ctx context.Context, in *UpdateRagReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新 rag 配置信息
 	UpdateRagConfig(ctx context.Context, in *UpdateRagConfigReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//  删除 rag
+	// 删除 rag
 	DeleteRag(ctx context.Context, in *RagDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 获取 rag
 	GetRagDetail(ctx context.Context, in *RagDetailReq, opts ...grpc.CallOption) (*RagInfo, error)
@@ -174,7 +174,7 @@ type RagServiceServer interface {
 	UpdateRag(context.Context, *UpdateRagReq) (*emptypb.Empty, error)
 	// 更新 rag 配置信息
 	UpdateRagConfig(context.Context, *UpdateRagConfigReq) (*emptypb.Empty, error)
-	//  删除 rag
+	// 删除 rag
 	DeleteRag(context.Context, *RagDeleteReq) (*emptypb.Empty, error)
 	// 获取 rag
 	GetRagDetail(context.Context, *RagDetailReq) (*RagInfo, error)

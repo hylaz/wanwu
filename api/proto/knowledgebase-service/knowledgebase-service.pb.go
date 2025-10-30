@@ -1085,7 +1085,7 @@ func (x *KnowledgeDetailSelectListResp) GetTotal() int32 {
 	return 0
 }
 
-//知识库信息
+// 知识库信息
 type KnowledgeInfo struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"fmt"
+
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
 	"github.com/samber/lo"
 

@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	net_url "net/url"
 	"strings"
 	"time"
 
@@ -110,6 +111,30 @@ func DownloadWorkflowTemplate(ctx *gin.Context, clientId, templateId string) ([]
 	default:
 		// 默认使用本地模式
 		res, err := getLocalDownloadWorkflowTemplate(templateId)
+		if err != nil {
+			return nil, err
+		}
+		return res, nil
+	}
+}
+
+func CreateWorkflowByTemplate(ctx *gin.Context, orgId, clientId string, req request.CreateWorkflowByTemplateReq) (*response.CozeWorkflowIDData, error) {
+	switch config.Cfg().WorkflowTemplatePath.ServerMode {
+	case "remote":
+		res, err := getRemoteCreateWorkflowByTemplate(ctx, orgId, req)
+		if err != nil {
+			return nil, err
+		}
+		return res, nil
+	case "local":
+		res, err := getLocalCreateWorkflowByTemplate(ctx, orgId, req)
+		if err != nil {
+			return nil, err
+		}
+		return res, nil
+	default:
+		// 默认使用本地模式
+		res, err := getLocalCreateWorkflowByTemplate(ctx, orgId, req)
 		if err != nil {
 			return nil, err
 		}
@@ -305,10 +330,9 @@ func getLocalWorkflowTemplateList(ctx context.Context, category, name string) (*
 // --- 获取工作流模板详情 ---
 
 func getRemoteWorkflowTemplateDetail(ctx *gin.Context, templateId string) (*response.WorkflowTemplateDetail, error) {
-	client := resty.New()
 	var res response.Response
 	var ret response.WorkflowTemplateDetail
-	resp, err := client.R().
+	resp, err := resty.New().R().
 		SetContext(ctx).
 		SetQueryParams(map[string]string{
 			"templateId": templateId,
@@ -345,8 +369,7 @@ func getLocalWorkflowTemplateDetail(ctx context.Context, templateId string) (*re
 // --- 下载工作流模板 ---
 
 func getRemoteDownloadWorkflowTemplate(ctx *gin.Context, templateId string) ([]byte, error) {
-	client := resty.New()
-	resp, err := client.R().
+	resp, err := resty.New().R().
 		SetContext(ctx).
 		SetQueryParams(map[string]string{
 			"templateId": templateId,
@@ -362,6 +385,75 @@ func getRemoteDownloadWorkflowTemplate(ctx *gin.Context, templateId string) ([]b
 	}
 	// 远程调用成功，返回远程结果
 	return convertToBytes(resp.Body())
+}
+
+// --- 复制工作流模板 ---
+
+func getRemoteCreateWorkflowByTemplate(ctx *gin.Context, orgId string, req request.CreateWorkflowByTemplateReq) (*response.CozeWorkflowIDData, error) {
+	resp, err := getRemoteWorkflowTemplateList(ctx, "", "")
+	if err != nil {
+		return nil, err
+	}
+	var schema []byte
+	for _, i := range resp.List {
+		if i.TemplateId == req.TemplateId {
+			schemaJson, err := getRemoteDownloadWorkflowTemplate(ctx, i.TemplateId)
+			if err != nil {
+				return nil, err
+			}
+			schema = schemaJson
+			break
+		}
+	}
+	return createWorkflowByTemplate(ctx, orgId, req, schema)
+}
+
+func getLocalCreateWorkflowByTemplate(ctx *gin.Context, orgId string, req request.CreateWorkflowByTemplateReq) (*response.CozeWorkflowIDData, error) {
+	wtfCfg, exist := config.Cfg().WorkflowTemp(req.TemplateId)
+	if !exist {
+		return nil, fmt.Errorf("template not found: %s", req.TemplateId)
+	}
+	return createWorkflowByTemplate(ctx, orgId, req, wtfCfg.Schema)
+}
+
+// 工作流文件解析结构体
+type workflowTemplateSchema struct {
+	Name   string `json:"name"`
+	Desc   string `json:"desc"`
+	Schema string `json:"schema"`
+}
+
+// 提取工作流创建的公共函数
+func createWorkflowByTemplate(ctx *gin.Context, orgId string, req request.CreateWorkflowByTemplateReq, schema []byte) (*response.CozeWorkflowIDData, error) {
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ImportUri)
+	ret := &response.CozeWorkflowIDResp{}
+	// 解析外层结构
+	var templateSchema workflowTemplateSchema
+	if err := json.Unmarshal(schema, &templateSchema); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", err.Error())
+	}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetQueryParams(map[string]string{
+			"space_id": orgId,
+			"name":     req.Name,
+			"desc":     req.Desc,
+			"schema":   templateSchema.Schema,
+			"icon_url": req.Avatar.Key,
+		}).
+		SetResult(ret).
+		Post(url); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", fmt.Sprintf("[%v] %v", resp.StatusCode(), resp.String()))
+	} else if ret.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", fmt.Sprintf("code %v msg %v", ret.Code, ret.Msg))
+	}
+	return ret.Data, nil
 }
 
 // --- internal ---
