@@ -629,8 +629,12 @@ def rescore_bm25_score(index_name, query, search_by="snippet", search_list = [])
             "bool": {
                 "filter": [
                     {
-                        "terms": {
-                            "content_id.keyword": content_ids
+                        "bool": {
+                            "should": [
+                                {"terms": {"content_id": content_ids}},
+                                {"terms": {"content_id.keyword": content_ids}}
+                            ],
+                            "minimum_should_match": 1
                         }
                     }
                 ],
