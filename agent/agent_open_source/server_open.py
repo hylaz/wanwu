@@ -28,7 +28,7 @@ from urllib.parse import urlparse
 
 import logging
 
-
+URL_RAG_STREAM = os.getenv("URL_RAG_STREAM")
 URL_MODEL = os.getenv("URL_MODEL")
 URL_RAG = os.getenv("URL_RAG")
 
@@ -86,7 +86,7 @@ def agent_start():
 
 
             mcp_tools = data.get("mcp_tools", {})
-            
+            tools_name = data.get("tools_name",[]) 
 
 
             #大模型参数
@@ -118,7 +118,7 @@ def agent_start():
             #代码解释器参数
             use_code = data.get("use_code",False)
             file_name = data.get("file_name")
-            upload_file_url = data.get("upload_file_url",'')
+            upload_file_url = data.get("upload_file_url",[])
 
 
             #rag参数
@@ -238,6 +238,7 @@ def agent_start():
                 rewrite_query = kn_params.get('rewrite_query')
                 term_weight_coefficient = kn_params.get('term_weight_coefficient',1.0)
                 metadata_filtering = kn_params.get('metadata_filtering',True)
+                knowledgeIdList = kn_params.get('knowledgeIdList',[])
                 metadata_filtering_conditions = kn_params.get('metadata_filtering_conditions',[])
 
 
@@ -248,31 +249,34 @@ def agent_start():
                          base_url = model_url,
                 )
                 if upload_file_url:
-                    logger.info(f"minio_file_is {upload_file_url}")
-                    #把图片文件下载到本地
-                    path = urlparse(upload_file_url).path  # "/bucket/yourfile.jpg"
-                    filename = os.path.basename(path)  # "yourfile.jpg"
-                    local_path = "/agent/agent_open_source/file/"+filename
-                    logger.info(f"minio_file_path {local_path}")
-                    with requests.get(upload_file_url, stream=True) as r:
-                        r.raise_for_status()
-                        with open(local_path, "wb") as f:
-                            for chunk in r.iter_content(chunk_size=8192):
-                                if chunk:
-                                    f.write(chunk)
+                    urls = upload_file_url if isinstance(upload_file_url, list) else [upload_file_url]
+                    image_contents = []
+                    for url in urls:
+                        logger.info(f"minio_file_is {upload_file_url}")
+                        #把图片文件下载到本地
+                        path = urlparse(url).path  # "/bucket/yourfile.jpg"
+                        filename = os.path.basename(path)  # "yourfile.jpg"
+                        local_path = "/agent/agent_open_source/file/"+filename
+                        logger.info(f"minio_file_path {local_path}")
 
-                    print(f"jpg_file save: {local_path}")
+                        with requests.get(url, stream=True) as r:
+                            r.raise_for_status()
+                            with open(local_path, "wb") as f:
+                                for chunk in r.iter_content(chunk_size=8192):
+                                    if chunk:
+                                        f.write(chunk)
+
+                        print(f"jpg_file save: {local_path}")
+                        image_contents.append({
+                            "type": "image_url",
+                            "image_url": {"url": img2base64(local_path)}
+                        })
 
                     messages = [{
                         "role": "user",
                         "content": [
                             {"type": "text", "text": question},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": img2base64(local_path)
-                                }
-                            }
+                            *image_contents
                         ]
                     }]
                 else:
@@ -318,7 +322,7 @@ def agent_start():
                 return
 
             if mcp_tools:
-                mcp_server_response = mcp_server_client(question, mcp_tools, temperature=temperature,model_name=model,model_url=model_url,
+                mcp_server_response = mcp_server_client(question, mcp_tools,tools_name, temperature=temperature,model_name=model,model_url=model_url,
                                                         stream=True,
                                                         history=history)
                 if mcp_server_response:
@@ -442,7 +446,7 @@ def agent_start():
                 print('进入rag问题是:',question)
                 
                 #url = "http://172.17.0.1:10891/rag/knowledge/stream/search"
-                url = URL_RAG+":10891/rag/knowledge/stream/search"
+                url = URL_RAG_STREAM
                 logger.info(f"rag_url是:{url}")
 
                 payload = {
@@ -450,6 +454,9 @@ def agent_start():
                     "question": question,
                     "threshold": threshold,
                     "topK": topk,
+                    "temperature":temperature,
+                    "do_sample":do_sample,
+                    "repetition_penalty":repetition_penalty,
                     "stream": True,
                     "chitchat": False,
                     "history": history,
@@ -463,7 +470,8 @@ def agent_start():
                     "rewrite_query":rewrite_query,
                     "term_weight_coefficient":term_weight_coefficient,
                     "metadata_filtering":metadata_filtering,
-                    "metadata_filtering_conditions":metadata_filtering_conditions
+                    "metadata_filtering_conditions":metadata_filtering_conditions,
+                    "knowledgeIdList":knowledgeIdList
 
                 }
 
@@ -640,7 +648,7 @@ def agent_start():
                         "Content-Type": "application/json"
                     }
                     if upload_file_url:
-                        question = '问题是:'+question+'\n'+'以下是chatdoc工具可能用到的参数：'+'upload_file_url:'+upload_file_url
+                        question = '问题是:'+question+'\n'+'以下是调用工具可能用到的参数：'+'upload_file_url:'+upload_file_url[0]+'\n'+'session_id：'+session_id
                     else:
                         question = '问题是:' + question
                     logger.info("送入action问题是:{question}")

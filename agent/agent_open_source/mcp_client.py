@@ -61,7 +61,7 @@ def generator_empty_check(gen):
     except StopIteration:
         return None
 
-async def mcp_client(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
+async def mcp_client(query,mcp_tools,tools_name,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
     '''
     query：用户请求问题
     mcp_list: key为server_name，value为对应的mcp server详细信息，可以是多个key与value组合的json数组
@@ -90,7 +90,12 @@ async def mcp_client(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNC
 
         async with MultiServerMCPClient(mcp_tools) as client:
             # 转换成可序列化的列表以便查看传入的tool列表
+            logger.info(f"mcp_server_is:{mcp_tools}")
             tools = client.get_tools()
+            logger.info(f"tools_name is:{tools_name}")
+           # wanted_tool_names = ["maps_direction_bicycling","mcp_howtocook_getAllRecipes"]
+            tools = [tool for tool in tools if tool.name in tools_name]
+            logger.info(f"tools_is:{tools}")
             serializable_tools = [tool_to_dict(t) for t in tools]
             # logger.info(f"Tools:{json.dumps(serializable_tools, indent=2, ensure_ascii=False)}")
             logger.info(f"MCP Tools:共计{len(serializable_tools)}个")
@@ -159,14 +164,14 @@ async def mcp_client(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNC
         logger.info(f"mcp_client 发生错误：{str(e)}")
         pass
 
-def sync_generator(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
+def sync_generator(query,mcp_tools,tools_name,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     async def consume_async_gen(mcp_client_response):
         async for item in mcp_client_response:
             yield item
     try:
-        mcp_client_response = mcp_client(query,mcp_tools,temperature,model_name ,model_url,stream ,history)
+        mcp_client_response = mcp_client(query,mcp_tools,tools_name,temperature,model_name ,model_url,stream ,history)
         gen = consume_async_gen(mcp_client_response)
         
         while True:
@@ -188,9 +193,9 @@ def sync_generator(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNCTI
         
 ###model：yuanjing-70b-functioncall、qwq-32b、deepseek-v3-functioncall
         
-def mcp_server_client(query,mcp_tools,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
+def mcp_server_client(query,mcp_tools,tools_name,temperature= 0.01,model_name = DEFAULT_FUNCTION_MODEL,model_url= "",stream = True,history = []):
     try:
-        result = sync_generator(query,mcp_tools,temperature,model_name ,model_url,stream,history)
+        result = sync_generator(query,mcp_tools,tools_name,temperature,model_name ,model_url,stream,history)
         result = generator_empty_check(result)
         logger.info(f"mcp_server_client result:{result}")
         if result:

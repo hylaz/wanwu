@@ -62,6 +62,10 @@ def add_link_tags(text):
     # image_extensions_sign = r'\.(?:jpeg\?|jpg\?|png\?|webp\?)'
     # non_image_extensions_sign = r'\.(?:wav\?|mp3\?|mp4\?|m4a\?|txt\?|pdf\?|docx\?|xlsx\?|html\?)'
     text = text.replace("https//", "https://").replace("http//", "http://") ##规范化大模型的输出
+    text = text.replace("http://192.168.0.218081","http://192.168.0.21:8081")
+    text = text.replace("https://192.168.0.218081", "https://192.168.0.21:8081")
+    text = text.replace("http://obs-nmhhht6.cucloud.cn80", "http://obs-nmhhht6.cucloud.cn")
+    text = text.replace("http://10.19.64.13030003","http://10.19.64.130:30003")
     # 查找所有匹配的链接
     links = re.findall(link_pattern, text)
     logger.info(f"-------add_link_tags links:{links}-------")
