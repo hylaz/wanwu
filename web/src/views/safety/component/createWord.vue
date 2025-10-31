@@ -274,7 +274,7 @@ export default {
         margin-top: 10px;
     }
     .clickUpload,.template{
-       color: #384bf7;
+       color: $color;
        font-weight: bold;
     }
     .template{

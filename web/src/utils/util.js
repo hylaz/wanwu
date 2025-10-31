@@ -30,7 +30,6 @@ export const fetchPermFirPath = (list = menuList) => {
             }
         }
     }
-    console.log(path, list,  '----------------------------fetchPermFirPath')
 
     // 若有权限，跳转左侧菜单第一个有权限的页面；否则跳转 /404
     return {path: path || '/404'}
@@ -95,6 +94,7 @@ export function convertLatexSyntax(inputText) {
     inputText = inputText.replace(/\\\(\s*([\s\S]+?)\s*\\\)/g, (_, formula) => `$${formula}$`);
     return inputText;
 }
+
 
 export function isSub(data){
     return /\【([0-9]{0,2})\^\】/.test(data)

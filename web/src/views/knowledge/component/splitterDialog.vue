@@ -181,7 +181,7 @@ export default {
   }
   .tag_item {
     cursor: pointer;
-    background: #f4f5ff;
+    background: $color_opacity;
     padding: 5px;
     margin: 10px 0;
     border-radius: 4px;
@@ -189,7 +189,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     .del-icon {
-      color: #384bf7;
+      color: $color;
       cursor: pointer;
       font-size: 16px;
     }

@@ -373,9 +373,9 @@
                 margin: 11px;
                 padding: 3px;
                 border-radius: 4px;
-                border: 1px solid #384BF7;
+                border: 1px solid $color;
                 color: #fff;
-                background: #384BF7;
+                background: $color;
                 font-size: 13px;
             }
         }

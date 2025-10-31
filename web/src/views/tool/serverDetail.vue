@@ -2,7 +2,7 @@
   <div class="mcp-detail" id="timeScroll">
     <span class="back" @click="back">{{ $t('menu.back') + $t('menu.tool') }}</span>
     <div class="mcp-title">
-      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="avatarSrc(detail.avatar.path)" alt=""/>
+      <img class="logo" :src="detail.avatar.path ? avatarSrc(detail.avatar.path) : defaultAvatar" alt=""/>
       <div :class="['info',{fold:foldStatus}]">
         <p class="name">{{ detail.name }}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
@@ -17,13 +17,16 @@
     <div class="mcp-main">
       <div class="info">
         <!-- tabs -->
-        <div class="mcp-tab">
-          SSE URL及工具
+        <div class="mcp-tabs">
+          <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabActive = 0">SSE URL及工具</div>
+          <div style="display: inline-block">
+            <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabActive = 1">Streamable HTTP</div>
+          </div>
         </div>
 
-        <div>
+        <div v-if="tabActive === 0" >
           <div class="tool bg-border">
-            <div class="tool-item ">
+            <div class="tool-item">
               <p class="title">SSE URL:</p>
               <el-input
                 class="sse-url"
@@ -37,7 +40,29 @@
               <p class="title">请求示例:</p>
               <el-input
                 class="schema-textarea"
-                v-model="detail.example"
+                v-model="detail.sseExample"
+                :readonly="true"
+                type="textarea"/>
+            </div>
+          </div>
+        </div>
+        <div v-if="tabActive === 1" >
+          <div class="tool bg-border">
+            <div class="tool-item">
+              <p class="title">Streamable HTTP:</p>
+              <el-input
+                class="sse-url"
+                v-model="detail.streamableUrl"
+                :readonly="true"
+                style="margin-right: 20px"/>
+            </div>
+          </div>
+          <div class="tool bg-border">
+            <div class="tool-item">
+              <p class="title">请求示例:</p>
+              <el-input
+                class="schema-textarea"
+                v-model="detail.streamableExample"
                 :readonly="true"
                 type="textarea"/>
             </div>
@@ -87,7 +112,7 @@
               </el-table-column>
               <el-table-column
                 label="应用名称"
-                prop="appName"
+                prop="name"
                 width="100"
               />
               <el-table-column
@@ -96,7 +121,7 @@
               >
                 <template #default="scope">
                   <div>
-                    {{ appTypeMap[scope.row.appType] || scope.row.appType }}
+                    {{ appTypeMap[scope.row.type] || scope.row.type }}
                   </div>
                 </template>
               </el-table-column>
@@ -200,7 +225,9 @@ export default {
   components: {CopyIcon, addToolDialog, linkDialog},
   data() {
     return {
+      tabActive: 0,
       basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       mcpServerId: '',
       detail: {},
       apiKeyList: [],
@@ -222,7 +249,7 @@ export default {
         'agent': '智能体',
         'rag': '文本问答',
         'workflow': '工作流',
-        'tool': '自定义工具',
+        'custom': '自定义工具',
         'openapi': 'OpenAPI',
         'builtIn': '内置工具'
       }
@@ -238,7 +265,7 @@ export default {
       this.tabActive = 0
       getServer({mcpServerId: this.mcpServerId}).then((res) => {
         this.detail = res.data || {}
-        this.detail.tools = this.detail.tools.map(tool => ({...tool, isEditing: false}))
+        this.detail.tools = (this.detail.tools || []).map(tool => ({...tool, isEditing: false}))
       })
 
       getApiKeyList({
@@ -249,7 +276,7 @@ export default {
       })
 
       //滚动到顶部
-      const main = document.querySelector(".el-main")
+      const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
     fold() {
@@ -305,7 +332,7 @@ export default {
       })
     },
     back() {
-      this.$router.push({path: '/tool?tabActive=0&tabActive2=1'})
+      this.$router.push({path: '/tool?type=mcp&mcp=server'})
     },
   },
 };
@@ -375,17 +402,23 @@ export default {
       width: 100%;
       margin-right: 20px;
 
-      .mcp-tab {
-        display: inline-block;
-        vertical-align: middle;
-        width: 160px;
-        height: 40px;
-        border-bottom: 1px solid #333;
-        line-height: 40px;
-        text-align: center;
-        background: #333;
-        color: #fff;
-        font-weight: bold;
+      .mcp-tabs{
+        margin: 20px 0 0 0;
+        .mcp-tab{
+          display: inline-block;
+          vertical-align: middle;
+          width: 160px;
+          height: 40px;
+          border-bottom: 1px solid #333;
+          line-height: 40px;
+          text-align: center;
+          cursor: pointer;
+        }
+        .active{
+          background: #333;
+          color: #fff;
+          font-weight: bold;
+        }
       }
 
       .tool {
@@ -440,8 +473,8 @@ export default {
 
       .recommend-item {
         position: relative;
-        border: 1px solid $border_color; // rgba(208, 167, 167, 1);
-        background: #F4F5FF; // rgba(255, 247, 247, 1);
+        border: 1px solid $border_color;
+        background: $color_opacity;
         margin-bottom: 15px;
         border-radius: 10px;
         padding: 20px 20px 20px 80px;
@@ -482,7 +515,7 @@ export default {
     /*border:1px solid rgba(208, 167, 167, 1);*/
     border-radius: 10px;
     padding: 10px 20px;
-    box-shadow: 2px 2px 15px #F4F5FF; // #d0a7a757;
+    box-shadow: 2px 2px 15px $color_opacity;
   }
 }
 

@@ -42,13 +42,13 @@
           <div class="nav-bt">
             <span v-if="commonInfo.register.email.status">
                 {{ $t('login.askAccount') }}
-              <span :style="{ color: '#384BF7', cursor: 'pointer' }" @click="$router.push({path: `/register`})">
+              <span :style="{ color: 'var(--color)', cursor: 'pointer' }" @click="$router.push({path: `/register`})">
                 {{ $t('login.register') }}
               </span>
             </span>
             <span
               v-if="commonInfo.resetPassword.email.status"
-              :style="{ color: '#384BF7', cursor: 'pointer', float: 'right' }"
+              :style="{ color: 'var(--color)', cursor: 'pointer', float: 'right' }"
               @click="$router.push({path: `/reset`})">
               {{ $t('login.forgetPassword') }}
             </span>
@@ -87,7 +87,6 @@ export default {
         code: '',
       },
       isShowPwd: false,
-      authButtonColor: '#384BF7',
       codeData: {
         key: '',
         b64: ''

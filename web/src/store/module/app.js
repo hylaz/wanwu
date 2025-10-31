@@ -16,14 +16,28 @@ export const app = {
             starterPrompts:[{value:''}],
             models:[]
         },
+        maxPicNum:6,
         //starterPrompts:[{value:''}],
         cacheData:{},
         historyAppList:[],
         embeddingList:[],
-        fromList:''
+        fromList:'',
+        permissionType:-1
     },
 
     mutations: {
+        SET_PERMISSION_TYPE(state,data){
+            state.permissionType = data
+        },
+        CLEAR_PERMISSION_TYPE(state){
+            state.permissionType = -1
+        },
+        SET_MAX_PICNUM(state,data){
+            state.maxPicNum = data
+        },
+        CLEAR_MAX_PICNUM(state){
+            state.maxPicNum = 6
+        },
         SET_FROM_LIST(state,data){
             state.fromList = data
         },
@@ -70,6 +84,18 @@ export const app = {
         }
     },
     actions: {
+        setPermissionType({ commit },data){
+            commit('SET_PERMISSION_TYPE',data)
+        },
+        clearPermissionType({ commit }){
+            commit('CLEAR_PERMISSION_TYPE')
+        },
+        setMaxPicNum({ commit },data){
+            commit('SET_MAX_PICNUM',data)
+        },
+        clearMaxPicNum({ commit }){
+            commit('CLEAR_MAX_PICNUM')
+        },
         setFromList({ commit },data){
             commit('SET_FROM_LIST',data)
         },
@@ -124,6 +150,8 @@ export const app = {
         sessionStatus:(state)=> state.sessionStatus,
         historyAppList:(state) => state.historyAppList,
         embeddingList:(state) => state.embeddingList,
-        fromList:(state) => state.fromList
+        fromList:(state) => state.fromList,
+        maxPicNum:(state) => state.maxPicNum,
+        permissionType:(state) => state.permissionType
     }
 }

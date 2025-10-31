@@ -182,11 +182,6 @@ export default {
         async mergeChunks(){//合并切片
           try{
             let file_size =  this.fileList[this.fileIndex]['size'];
-            // let formData = new FormData();
-            // formData.append('chunkName',`${this.uuid}.${this.file.name.split(".").pop()}`);
-            // formData.append('chunkTotal',this.totalChunks);
-            // formData.append('fileName',this.file.name);
-            // formData.append('fileSize',this.file.size);
             const formData = {
               chunkName:`${this.uuid}.${this.file.name.split(".").pop()}`,
               chunkTotal:this.totalChunks,
@@ -194,9 +189,7 @@ export default {
               fileSize:this.file.size,
               isExpired:false
             }
-            // if(this.isExpire){
-            //   formData.append('isExpired',1);
-            // }
+
             await mergeChunks(formData).then(res =>{
               if(res.code === 0){
                 this.$message.success(`${this.file.name}`+i18n.t('fileChunk.uploadFinish'));

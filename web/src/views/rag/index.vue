@@ -92,8 +92,8 @@ export default {
 /deep/{
   .apikeyBtn{
     padding: 11px 10px;
-    border:1px solid #384BF7;
-    color: #384BF7;
+    border:1px solid $btn_bg;
+    color: $btn_bg;
     display:flex;
     align-items: center;
     img{
@@ -119,7 +119,7 @@ export default {
         .app_name{
             font-size:18px;
             font-weight: bold;
-            color: #434C6C;
+            color: $color_title;
             display:flex;
             align-items:center;
             .goBack{
@@ -139,7 +139,7 @@ export default {
                 border-radius:6px;
                 .root-url{
                     background-color:#ECEEFE;
-                    color:#384BF7;
+                    color:$color;
                     border:none;
                 }
             }

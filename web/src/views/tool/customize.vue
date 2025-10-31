@@ -49,6 +49,9 @@
                 </label>
               </span>
             </div>
+            <i class="el-icon-edit-outline action-icon"
+               style="margin-right: 20px"
+              @click.stop="handleEdit(item)"/>
             <i
               class="el-icon-delete-solid action-icon"
               @click.stop="handleDelete(item)"
@@ -66,7 +69,7 @@
       </div>-->
       <el-empty class="noData" v-if="!(list && list.length)" :description="$t('common.noData')"></el-empty>
     </div>
-    <addDialog :dialogVisible="addOpen" @handleFetch="fetchList()" @handleClose="addOpen=false"></addDialog>
+    <addDialog :dialogVisible="addOpen" :initialData="dialogParams" @handleFetch="fetchList()" @handleClose="handleClose"></addDialog>
   </div>
 </template>
 <script>
@@ -80,6 +83,12 @@ export default {
     return {
       basePath: this.$basePath,
       addOpen: false, // 自定义添加mcp开关
+      dialogParams: {
+        name: "",
+        from: "",
+        sseUrl: "",
+        desc: "",
+      }, // 添加自定义mcp参数
       list: [],
     };
   },
@@ -103,6 +112,21 @@ export default {
     },
     handleAddMCP() {
       this.addOpen = true;
+    },
+    handleEdit(item) {
+      this.addOpen = true;
+      this.dialogParams = {
+        ...item
+      };
+    },
+    handleClose() {
+      this.addOpen = false
+      this.dialogParams = {
+        name: "",
+        from: "",
+        sseUrl: "",
+        desc: "",
+      };
     },
     handleDelete(item) {
       this.$confirm(

@@ -66,7 +66,7 @@ export default {
       mcpServerId: "",
       title: '',
       basePath: this.$basePath,
-      defaultAvatar: require("@/assets/imgs/mcp_active.png"),
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       ruleForm: {
         MCPServerId: "",
         avatar: {
@@ -112,6 +112,7 @@ export default {
       this.$emit("handleClose", false)
       this.$refs.ruleForm.resetFields()
       this.$refs.ruleForm.clearValidate()
+      this.mcpServerId = ''
       this.ruleForm = {
         MCPServerId: "",
         avatar: {
@@ -141,6 +142,7 @@ export default {
               this.$message.success("发布成功")
               this.$emit("handleFetch", false)
               this.handleClose()
+              this.$router.push({path: `/tool/detail/server?mcpServerId=${res.data.mcpServerId}`})
             }
           }).finally(() => this.publishLoading = false)
         }

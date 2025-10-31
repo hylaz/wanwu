@@ -2,11 +2,12 @@
   <div class="power-list-container">
     <div class="table-content">
       <el-table
-        :data="tableData"
+        :data="tableData.filter(data => !name || data.userName.toLowerCase().includes(name.toLowerCase()))"
         style="width: 100%"
         class="power-table"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
         border
+        v-loading="loading"
       >
         <el-table-column prop="userName" label="成员" width="200">
           <template slot-scope="scope">
@@ -15,10 +16,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="organization" label="组织" width="200">
+        <el-table-column prop="orgName" label="组织" width="200">
           <template slot-scope="scope">
             <div class="org-cell">
-              <span class="org-text">{{ scope.row.organization || '-' }}</span>
+              <span class="org-text">{{ scope.row.orgName || '-' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -30,7 +31,6 @@
                 v-else 
                 v-model="scope.row.permissionType" 
                 size="small" 
-                @change="handlePermissionChange(scope.row)"
                 class="permission-select"
               >
                 <el-option label="可读" :value="0"></el-option>
@@ -43,8 +43,8 @@
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
             <div class="action-buttons">
-              <!-- 管理员权限：只显示转让按钮 -->
-              <template v-if="scope.row.type === '管理员'">
+              <!-- 系统管理员权限：只显示转让按钮 -->
+              <template v-if="scope.row.transfer && !scope.row.editing">
                 <el-button
                   type="text"
                   size="small"
@@ -55,21 +55,9 @@
                   转让
                 </el-button>
               </template>
-              
               <!-- 非管理员权限：显示编辑和删除按钮 -->
-              <template v-else>
+              <template v-if="scope.row.editing">
                 <el-button
-                  v-if="!scope.row.editing"
-                  type="text"
-                  size="small"
-                  icon="el-icon-edit"
-                  @click="handleEdit(scope.row)"
-                  class="action-btn edit-btn"
-                >
-                  编辑
-                </el-button>
-                <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-check"
@@ -79,7 +67,6 @@
                   保存
                 </el-button>
                 <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-close"
@@ -88,8 +75,18 @@
                 >
                   取消
                 </el-button>
+              </template>
+              <template v-if="showEdit(scope.row)">
                 <el-button
-                  v-if="!scope.row.editing"
+                  type="text"
+                  size="small"
+                  icon="el-icon-edit"
+                  @click="handleEdit(scope.row)"
+                  class="action-btn edit-btn"
+                >
+                  编辑
+                </el-button>
+                <el-button
                   type="text"
                   size="small"
                   icon="el-icon-delete"
@@ -99,6 +96,7 @@
                   删除
                 </el-button>
               </template>
+              <span v-else-if="showInfo(scope.row)" class="noPower">--</span>
             </div>
           </template>
         </el-table-column>
@@ -108,7 +106,7 @@
 </template>
 
 <script>
-import { getUserPower } from "@/api/knowledge";
+import { getUserPower,editUserPower,delUserPower } from "@/api/knowledge";
 import { POWER_TYPE } from "@/views/knowledge/config";
 export default {
   name: 'PowerList',
@@ -116,83 +114,111 @@ export default {
     knowledgeId: {
       type: String,
       default: ''
+    },
+    permissionType:{
+      type:Number,
+      default:0
     }
   },
   data() {
     return {
       powerType: POWER_TYPE,
-      tableData: [
-        {
-          userName: '管理员权限',
-          organization: '技术部',
-          permissionType: 20,
-          editing: false
-        },
-        {
-          userName: '用户管理',
-          organization: '产品部',
-          permissionType: 10,
-          editing: false
-        },
-        {
-          userName: '数据查看',
-          organization: '运营部',
-          permissionType: 0,
-          editing: false
-        }
-      ]
+      tableData: [],
+      name:'',
+      loading:false
     }
   },
   methods: {
+    showEdit(row){
+      if (row.editing) return false;
+      return (
+        !this.permissionType === 0 ||
+        !this.permissionType === 10 ||
+        (this.permissionType === 20 && row.permissionType === 0) ||
+        (this.permissionType === 20 && row.permissionType === 10) ||
+        (this.permissionType === 30 && row.permissionType === 0) ||
+        (this.permissionType === 30 && row.permissionType === 10) ||
+        (this.permissionType === 30 && row.permissionType === 20)
+      );
+    },
+    showInfo(row){
+      if (row.editing) return false;
+      return (
+        row.permissionType === 0 ||
+        row.permissionType === 10 ||
+        (this.permissionType === 0 && !row.transfer) ||
+        (this.permissionType === 20 && !row.transfer) ||
+        (this.permissionType === 20 && row.permissionType === 20)||
+        (this.permissionType === 10 && row.permissionType === 30) ||
+        (this.permissionType === 10 && row.permissionType === 20)
+      );
+    },
+    getFilterResult(name) {
+      this.name = name;
+    },
     getUserPower() {
+      this.loading = true;
       getUserPower({knowledgeId:this.knowledgeId}).then(res => {
         if(res.code === 0){
-          this.tableData = res.data.knowledgeUserInfoList||[]
+          this.loading = false;
+          var list = res.data.knowledgeUserInfoList || [];
+          this.tableData = list.map(function(item) {
+            item.editing = false;
+            return item;
+          });
         }
-      }).catch(() => {})
+      }).catch(() => {
+        this.loading = false;
+      })
     },
     handleEdit(row) {
-      // 进入编辑模式
       row.editing = true
-      row.originalType = row.type // 保存原始值
+      row.originalType = row.permissionType // 保存原始值
     },
     handleSave(row) {
       // 保存编辑
       row.editing = false
-      row.originalType = row.type
-      this.$message.success('权限修改成功')
+      row.originalType = row.permissionType
+      const knowledgeUser = {
+          orgId:row.orgId,
+          userId:row.userId,
+          permissionType:row.permissionType,
+          permissionId:row.permissionId
+        }
+      editUserPower({knowledgeId:this.knowledgeId,knowledgeUser:knowledgeUser}).then(res => {
+        if(res.code === 0){
+          this.$message.success('权限修改成功')
+          this.getUserPower()
+        }
+      }).catch(() => {})
     },
     handleCancel(row) {
-      // 取消编辑，恢复原始值
-      row.type = row.originalType
+      row.permissionType = row.originalType
       row.editing = false
     },
-    handlePermissionChange(row) {
-      // 权限改变时的处理
-      console.log('权限已修改为:', row.type)
-    },
     handleTransfer(row) {
-      // 显示确认提示
       this.$confirm('确定要转让管理员权限吗？转让后您将失去管理员权限。', '转让确认', {
         confirmButtonText: '确定转让',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 确认后触发转让事件，让父组件处理
         this.$emit('transfer', row)
       }).catch(() => {
         this.$message.info('已取消转让')
       })
     },
     handleDelete(row) {
-      this.$confirm('确定要删除这条记录吗？', '提示', {
+      this.$confirm('确定要删除这条数据吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        console.log('删除', row)
-        // 删除逻辑
-        this.$message.success('删除成功')
+        delUserPower({knowledgeId:this.knowledgeId,permissionId:row.permissionId}).then(res => {
+          if(res.code === 0){
+            this.$message.success('删除成功')
+            this.getUserPower()
+          }
+        }).catch(() => {})
       }).catch(() => {
         this.$message.info('已取消删除')
       })
@@ -211,7 +237,10 @@ export default {
     .power-table {
       border: 1px solid #e4e7ed;
       border-radius: 4px;
-      
+      .noPower{
+        color:#ccc;
+        font-size:12px;
+      }
       /deep/ .el-table__header {
         th {
           background-color: #f5f7fa;
@@ -267,7 +296,7 @@ export default {
         transition: all 0.3s;
         
         &.edit-btn {
-          color: #384BF7;
+          color: $btn_bg;
           
           &:hover {
             color: #5a6cff;

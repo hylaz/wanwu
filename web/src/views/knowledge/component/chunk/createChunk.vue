@@ -290,7 +290,7 @@ export default {
   margin-right: 5px;
   color: #3848f7;
   border-color: #3848f7;
-  background: #f4f5ff;
+  background: $color_opacity;
 }
 /deep/ {
   .el-tag .el-tag__close {

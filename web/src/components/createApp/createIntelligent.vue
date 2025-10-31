@@ -262,8 +262,8 @@ export default {
           position: absolute;
           width: 100%;
           bottom: 0;
-          background: #E8EAFD;
-          color: #384BF7  !important;
+          background: $color_opacity;
+          color: $color  !important;
           font-size: 12px;
           line-height: 26px;
           z-index: 10;

@@ -35,8 +35,8 @@
             :props="treeProps"
             :show-checkbox="!transferMode"
             node-key="id"
+            highlight-current
             :default-expand-all="true"
-            :check-strictly="false"
             @check="handleTreeCheck"
             @node-click="handleNodeClick"
             :filter-node-method="filterNode"
@@ -76,8 +76,8 @@
               </div>
               <div class="org-users">
                 <div
-                  v-for="user in orgGroup.users"
-                  :key="user.id"
+                  v-for="(user, index) in orgGroup.users"
+                  :key="orgGroup.organization + '-' + user.id + '-' + index"
                   class="selected-user-item"
                 >
                   <span class="user-info">{{ user.name }}</span>
@@ -100,9 +100,7 @@ export default {
     knowledgeId: {
       type: String,
       default: ''
-    }
-  },
-  props: {
+    },
     transferMode: {
       type: Boolean,
       default: false
@@ -137,15 +135,16 @@ export default {
     return {
       searchKeyword: '',
       selectedOrganization: '',
-      selectedPermission: '可读',
+      selectedPermission:0,
       organizationList: [],
       originalTreeData: null,
       treeProps: {
         children: 'children',
-        label: 'orgName'
+        label: 'userName'
       },
       treeData: [],
-      selectedUsers: []
+      selectedUsers: [],
+      isSettingChecked: false
     }
   },
   watch: {
@@ -169,18 +168,25 @@ export default {
   },
   methods: {
     getOrgList(){
-      getOrgList({}).then(res => {
+      getOrgList({knowledgeId:this.knowledgeId,transfer:this.transferMode}).then(res => {
          if(res.code === 0){
-          this.organizationList = res.data
+          this.organizationList = res.data.knowOrgInfoList || []
          }
       })
+    },
+    getResults(){
+      return {node: this.groupedSelectedUsers, selectedPermission: this.selectedPermission}
     },
     isNodeSelected(nodeId) {
       return this.selectedUsers.some(user => user.id === nodeId)
     },
     filterNode(value,data){
       if (!value) return true;
-      return data.name.indexOf(value) !== -1;
+      // 搜索用户名，需要判断属性是否存在
+      if (data.userName) {
+        return data.userName.indexOf(value) !== -1;
+      }
+      return false;
     },
     handleOrgChange(orgId) {
       // 当组织选择改变时，过滤树形数据
@@ -193,11 +199,65 @@ export default {
     },
     getOrgUser(orgId){
       if (!orgId) return
+      var self = this;
       getOrgUser({knowledgeId:this.knowledgeId,orgId}).then(res => {
         if(res.code === 0){
-           this.treeData = res.data || []
+           var userList = res.data.userInfoList || [];
+           var orgIdValue = res.data.orgId;
+           // 给每一项添加 orgId 和 id 字段
+           self.treeData = userList.map(function(item) {
+             item.orgId = orgIdValue;
+             item.id = item.userId;  // 确保有 id 字段，与 userId 保持一致，用于树节点的 key
+             return item;
+           });
+           // 加载完数据后，设置当前组织已选中的用户
+           self.$nextTick(function() {
+             self.setCheckedUsersForCurrentOrg();
+           });
         }
       })
+    },
+    setCheckedUsersForCurrentOrg() {
+      var self = this;
+      //获取当前组织id
+      var currentOrgId = this.selectedOrganization;
+      
+      // 确保有组织选择
+      if (!currentOrgId) {
+        if (this.$refs.tree) {
+          this.$refs.tree.setCheckedKeys([]);
+        }
+        return;
+      }
+      
+      // 找出当前组织ID下已选中的用户ID列表
+      // 必须同时匹配用户的 orgId 和当前选择的组织 ID
+      var checkedUserIds = this.selectedUsers
+        .filter(function(user) {
+          return user.orgId === currentOrgId;
+        })
+        .map(function(user) {
+          // 兼容 id 和 userId 两种字段
+          return user.id || user.userId;
+        })
+        .filter(function(id) {
+          return id != null && id !== undefined && id !== '';
+        });
+      
+      // 设置树形控件的选中状态
+      if (this.$refs.tree) {
+        // 设置标志位，防止触发 handleTreeCheck
+        this.isSettingChecked = true;
+        if (checkedUserIds.length > 0) {
+          this.$refs.tree.setCheckedKeys(checkedUserIds);
+        } else {
+          this.$refs.tree.setCheckedKeys([]);
+        }
+        // 延迟重置标志位
+        this.$nextTick(function() {
+          self.isSettingChecked = false;
+        });
+      }
     },
     handleInputFocus() {
       // 当用户名输入框获得焦点时，如果没有选择组织，给出提示
@@ -210,36 +270,75 @@ export default {
         this.$refs.tree.filter('');
         return;
       }
-
       
       // 应用过滤
       this.treeData = filterData(this.originalTreeData);
     },
     handleTreeCheck(data, checkedInfo) {
-      const checkedNodes = checkedInfo.checkedNodes || []
-      const halfCheckedNodes = checkedInfo.halfCheckedNodes || []
+      // 如果是程序设置的选中状态，不处理
+      if (this.isSettingChecked) {
+        return;
+      }
       
-      const selectedUserNodes = checkedNodes.filter(node => node.type === 'user')
+      const checkedNodes = checkedInfo.checkedNodes || [];
       
-      this.selectedUsers = selectedUserNodes.map(node => ({
-        id: node.id,
-        name: node.name,
-        organization: node.organization
-      }))
+      const currentOrg = this.organizationList.find(function(org) {
+        return org.orgId === this.selectedOrganization;
+      }.bind(this));
+      const currentOrgId = this.selectedOrganization;
+      const currentOrgName = currentOrg ? currentOrg.orgName : '';
       
-      this.updateTreeSelectionState(checkedNodes)
+      // 先移除当前组织的所有用户
+      var otherOrgUsers = this.selectedUsers.filter(function(user) {
+        return user.orgId !== currentOrgId;
+      });
+      
+      // 收集当前选中的用户（去重）
+      var currentOrgUsers = [];
+      var addedUserIds = {};
+      
+      checkedNodes.forEach(function(node) {
+        // 使用 id 字段（已经与 userId 保持一致）
+        const nodeId = node.id || node.userId;
+        if (nodeId && !addedUserIds[nodeId]) {
+          addedUserIds[nodeId] = true;
+          currentOrgUsers.push({
+            id: nodeId,
+            name: node.userName || node.name,
+            orgId: node.orgId,
+            organization: currentOrgName
+          });
+        }
+      });
+      // 合并其他组织的用户和当前组织的用户
+      var mergedUsers = otherOrgUsers.concat(currentOrgUsers);
+      
+      // 最终去重：使用 userId + orgId 作为唯一标识
+      var uniqueUsers = [];
+      var uniqueKeys = {};
+      
+      mergedUsers.forEach(function(user) {
+        var key = user.id + '_' + user.orgId;
+        if (!uniqueKeys[key]) {
+          uniqueKeys[key] = true;
+          uniqueUsers.push(user);
+        }
+      });
+      
+      this.selectedUsers = uniqueUsers;
     },
     handleNodeClick(data, node) {
-      if (this.transferMode && data.type === 'user') {
+      if (this.transferMode) {
         this.selectedUsers = [{
-          id: data.id,
-          name: data.name,
-          organization: data.organization
+          userId: data.userId,
+          orgId: data.orgId,
         }]
-        
-        this.updateTreeSelectionState([data])
-        
-        this.updateSelectedNodeBackground()
+      }
+    },
+    getTransferData(){
+      return {
+        knowledgeId: this.knowledgeId,
+        knowledgeUser: this.selectedUsers[0] || []
       }
     },
     removeUser(user) {
@@ -247,52 +346,41 @@ export default {
       this.selectedUsers = this.selectedUsers.filter(u => u.id !== user.id)
     },
     removeSelectedUser(user) {
-      this.selectedUsers = this.selectedUsers.filter(u => u.id !== user.id)
+      // 使用 userId 或 id 都能删除
+      const userId = user.userId || user.id;
+      this.selectedUsers = this.selectedUsers.filter(u => {
+        const uId = u.userId || u.id;
+        return uId !== userId;
+      });
       
-      this.updateTreeSelection(user.id, false)
+      this.updateTreeSelection(userId, false);
       
       this.$nextTick(() => {
         if (this.$refs.tree) {
           if (this.transferMode) {
-            this.$refs.tree.setCheckedKeys([])
+            this.$refs.tree.setCheckedKeys([]);
           } else {
-            const checkedKeys = this.$refs.tree.getCheckedKeys()
-            const newCheckedKeys = checkedKeys.filter(key => key !== user.id)
-            this.$refs.tree.setCheckedKeys(newCheckedKeys)
+            const checkedKeys = this.$refs.tree.getCheckedKeys();
+            const newCheckedKeys = checkedKeys.filter(key => key !== userId);
+            this.$refs.tree.setCheckedKeys(newCheckedKeys);
           }
         }
-      })
+      });
     },
     updateTreeSelection(userId, selected) {
       const updateNode = (nodes) => {
         nodes.forEach(node => {
-          if (node.id === userId) {
-            node.selected = selected
+          // 兼容 id 和 userId 两种字段
+          const nodeId = node.id || node.userId;
+          if (nodeId === userId) {
+            node.selected = selected;
           }
           if (node.children) {
-            updateNode(node.children)
+            updateNode(node.children);
           }
-        })
-      }
-      updateNode(this.treeData)
-    },
-    updateTreeSelectionState(checkedNodes) {
-
-      const updateNode = (nodes) => {
-        nodes.forEach(node => {
-          if (node.type === 'user') {
-            const isChecked = checkedNodes.some(checkedNode => checkedNode.id === node.id)
-            node.selected = isChecked
-          }
-          if (node.children) {
-            updateNode(node.children)
-          }
-        })
-      }
-      updateNode(this.treeData)
-    },
-    createNewGroup() {
-      this.$message.info('创建新群组功能')
+        });
+      };
+      updateNode(this.treeData);
     },
     updateSelectedNodeBackground() {
       this.$nextTick(() => {
@@ -386,14 +474,14 @@ export default {
             }
             
             .selected-icon {
-              color: #384BF7;
+              color: $color;
               font-size: 16px;
               margin-right: 8px;
             }
             
             &.selected-node {
               .node-label {
-                color: #384BF7;
+                color: $color;
               }
             }
           }
@@ -451,7 +539,7 @@ export default {
               .org-name {
                 font-size: 14px;
                 font-weight: 600;
-                color: #384BF7;
+                color: $color;
               }
               
               .user-count {
@@ -480,7 +568,7 @@ export default {
                 
                 &:hover {
                   background-color: #f0f2ff;
-                  border-color: #384BF7;
+                  border-color: $color;
                 }
                 
                 .user-info {
@@ -489,7 +577,7 @@ export default {
                 }
                 
                 .remove-icon {
-                  color: #384BF7;
+                  color: $color;
                   cursor: pointer;
                   font-size: 12px;
                   padding: 2px;

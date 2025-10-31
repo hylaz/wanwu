@@ -2,10 +2,10 @@
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
       <!-- tabs -->
-<!--      <div class="mcp-tabs">-->
-<!--        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">导入MCP</div>-->
-<!--        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">创建MCP</div>-->
-<!--      </div>-->
+      <div class="mcp-tabs">
+        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">导入MCP</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">创建MCP</div>
+      </div>
 
       <customize ref="customize" v-if="tabActive === 0"/>
       <server ref="server" v-if="tabActive === 1"/>

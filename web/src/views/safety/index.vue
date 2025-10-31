@@ -1,7 +1,7 @@
 <template>
   <div class="page-wrapper">
     <div class="page-title">
-      <img class="page-title-img" src="@/assets/imgs/safety.png" alt="" />
+      <img class="page-title-img" src="@/assets/imgs/safety.svg" alt="" />
       <span class="page-title-name">安全护栏</span>
       <p class="page-tips">支持用户自定义敏感词表，配置行业敏感词，实时拦截高风险内容的输入和输出，保障内容安全合规。可在创建应用时关联配置。</p>
     </div>

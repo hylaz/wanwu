@@ -94,4 +94,20 @@ export const agnetTemplateDetail = (params)=>{
         params
     })
 };
+//复制文本问答应用
+export const copyTextQues = (data)=>{
+    return request({
+        url: `${BASE_URL}/appspace/rag/copy`,
+        method: 'post',
+        data
+    })
+};
+//复制智能体应用
+export const copyAgentApp = (data)=>{
+    return request({
+        url: `${BASE_URL}/assistant/copy`,
+        method: 'post',
+        data
+    })
+};
 

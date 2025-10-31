@@ -127,7 +127,7 @@ export default {
       
       .parent-badge {
         background-color: #d2d7ff;
-        color: #384BF7;
+        color: $color;
         padding: 6px 12px;
         border-radius: 6px;
         font-size: 12px;
@@ -140,14 +140,14 @@ export default {
         
         .score-label {
           font-size: 12px;
-          color: #384BF7;
+          color: $color;
           font-weight: bold;
           margin-right: 5px;
         }
         
         .score-value {
           font-size: 14px;
-          color: #384BF7;
+          color: $color;
           font-weight: bold;
           font-family: 'Courier New', monospace;
         }
@@ -159,7 +159,7 @@ export default {
       background-color: #f7f8fa;
       padding: 15px;
       border-radius: 6px;
-      border: 1px solid #384BF7;
+      border: 1px solid $color;
       line-height: 1.6;
       
       .parent-item {
@@ -186,7 +186,7 @@ export default {
       
       .sub-badge {
         background-color: #d2d7ff;
-        color: #384BF7;
+        color: $color;
         padding: 6px 12px;
         border-radius: 6px;
         font-size: 12px;
@@ -196,7 +196,7 @@ export default {
   }
   
   .collapse-wrapper {
-    border: 1px solid #384BF7;
+    border: 1px solid $color;
     background: #f7f8fa;
     border-radius: 6px;
     margin: 0 20px 20px 20px;
@@ -248,7 +248,7 @@ export default {
     
     .segment-collapse-item {
       .segment-badge {
-        color: #384BF7;
+        color: $color;
         font-size: 14px;
         font-weight: 600;
         margin-right: 15px;
@@ -260,13 +260,13 @@ export default {
         
         .score-label {
           font-size: 12px;
-          color: #384BF7;
+          color: $color;
           margin-right: 5px;
         }
         
         .score-value {
           font-size: 12px;
-          color: #384BF7;
+          color: $color;
           font-weight: 600;
           font-family: 'Courier New', monospace;
         }

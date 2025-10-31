@@ -52,13 +52,19 @@
             <el-radio
               :label="'private'"
               v-model="scope"
-            >私密发布：仅自己可见</el-radio>
+            >私密发布为应用：仅自己可见</el-radio>
+          </div>
+          <div>
+            <el-radio
+              :label="'organization'"
+              v-model="scope"
+            >公开发布为应用：组织内可见</el-radio>
           </div>
           <div>
             <el-radio
               :label="'public'"
               v-model="scope"
-            >公开发布：全局可见</el-radio>
+            >公开发布为应用：全局可见</el-radio>
           </div>
           <div class="saveBtn">
             <el-button
@@ -260,7 +266,6 @@
           <div class="rl">
             <div
               class="block-link"
-              style="width:50%;"
             >
               <span class="link-text">
                 <img
@@ -269,7 +274,7 @@
                 />
                 <span>博查</span>
               </span>
-              <span>
+              <span style="display:flex;align-items: center;">
                 <span
                   class="el-icon-s-operation link-operation"
                   @click="showLinkDiglog"
@@ -303,11 +308,16 @@
                 >
                   <div
                     class="name"
-                    style="color: #333"
                   >
-                    <span>{{ displayName(n) }}</span>
+                  <el-tooltip class="item" effect="dark" :content="displayName(n)" placement="top-start">
+                    <span>{{ displayName(n).length > 20 ? displayName(n).substring(0, 20) + '...' : displayName(n) }}</span>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" :content="n.mcpName || n.toolName" placement="top-start">
+                    <span class="el-icon-info desc-info" v-if="n.mcpName || n.toolName"></span>
+                  </el-tooltip>
                   </div>
                   <div class="bt">
+                    <span class="el-icon-s-operation bt-operation"  @click="handleBuiltin(n)" v-if="n.type === 'action' && n.toolType && n.toolType === 'builtin'"></span>
                     <el-switch
                       v-model="n.enable"
                       class="bt-switch"
@@ -336,17 +346,38 @@
                 <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add">
+            <span class="common-add"  @click="showSafety">
               <span class="el-icon-s-operation"></span>
               <span
                 class="handleBtn"
                 style="margin-right:10px;"
-                @click="showSafety"
               >配置</span>
               <el-switch
                 v-model="editForm.safetyConfig.enable"
                 :disabled="!(editForm.safetyConfig.tables || []).length"
               ></el-switch>
+            </span>
+          </p>
+        </div>
+        <div class="block prompt-box link-box" v-if="editForm.visionsupport === 'support'">
+          <p class="block-title tool-title">
+            <span>
+              视觉
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="允许用户上传图片，并进行图文问答。"
+                placement="top"
+              >
+                <span class="el-icon-question question-tips"></span>
+              </el-tooltip>
+            </span>
+            <span class="common-add" @click="showVisualSet">
+              <span class="el-icon-s-operation"></span>
+              <span
+                class="handleBtn"
+                style="margin-right:10px;"
+              >配置</span>
             </span>
           </p>
         </div>
@@ -401,6 +432,13 @@
       ref="knowledgeSelect"
       @getKnowledgeData="getKnowledgeData"
     />
+    <!-- 视图设置 -->
+    <visualSet
+      ref="visualSet"
+      @sendVisual="sendVisual"
+    />
+    <!-- 内置工具详情 -->
+    <ToolDeatail ref="toolDeatail" />
     <!-- 元数据设置 -->
     <el-dialog
       :visible.sync="metaSetVisible"
@@ -436,25 +474,27 @@
 <script>
 import { appPublish } from "@/api/appspace";
 import { store } from "@/store/index";
-import { mapGetters } from "vuex";
+import { mapGetters,mapActions } from "vuex";
 import CreateIntelligent from "@/components/createApp/createIntelligent";
 import setSafety from "@/components/setSafety";
+import visualSet from "./visualSet";
 import metaSet from "@/components/metaSet";
 import ModelSet from "./modelSetDialog";
 import { selectModelList, getRerankList } from "@/api/modelAccess";
 import {
   deleteMcp,
   enableMcp,
-  getAgentInfo,
+  getAgentDetail,
   delWorkFlowInfo,
   delActionInfo,
   putAgentInfo,
   enableWorkFlow,
   enableAction,
-  deleteCustom,
-  enableCustom,
+  delCustomBuiltIn,
+  switchCustomBuiltIn
 } from "@/api/agent";
 import ToolDiaglog from "./toolDialog";
+import ToolDeatail from "./toolDetail";
 import LinkDialog from "./linkDialog";
 import knowledgeSetDialog from "./knowledgeSetDialog";
 import { readWorkFlow } from "@/api/workflow";
@@ -470,9 +510,11 @@ export default {
     ToolDiaglog,
     LinkDialog,
     setSafety,
+    visualSet,
     knowledgeSetDialog,
     knowledgeSelect,
     metaSet,
+    ToolDeatail
   },
   watch: {
     editForm: {
@@ -493,6 +535,7 @@ export default {
             "onlineSearchConfig",
             "safetyConfig",
             "recommendQuestion",
+            "visionConfig"
           ];
 
           const changed = props.some((prop) => {
@@ -541,6 +584,10 @@ export default {
         prologue: "", //开场白
         instructions: "", //系统提示词
         knowledgebases: [],
+        visionConfig:{//视觉配置
+          picNum: 3,
+          maxPicNum:6
+        },
         knowledgeConfig: {
           keywordPriority: 0.8, //关键词权重
           matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
@@ -607,11 +654,11 @@ export default {
         },
         mcp: {
           displayName: "MCP工具",
-          propName: "name",
+          propName: "actionName",
         },
         action: {
           displayName: "自定义工具",
-          propName: "name",
+          propName: "actionName",
         },
         // 可以继续添加其他类型
         default: {
@@ -646,8 +693,19 @@ export default {
   },
   beforeDestroy() {
     store.dispatch("app/initState");
+    this.clearMaxPicNum();
   },
   methods: {
+    ...mapActions("app", ["setMaxPicNum","clearMaxPicNum"]),
+    handleBuiltin(n){
+      this.$refs.toolDeatail.showDiaglog(n)
+    },
+    showVisualSet(){
+      this.$refs.visualSet.showDialog(this.editForm.visionConfig);
+    },
+    sendVisual(data){
+      this.editForm.visionConfig.picNum = data.picNum;
+    },
     handleModelChange(val) {
       this.setModelInfo(val);
     },
@@ -681,10 +739,8 @@ export default {
       this.editForm.knowledgebases.splice(index, 1);
     },
     getKnowledgeData(data) {
-      const originalIds = new Set(
-        this.editForm.knowledgebases.map((item) => item.id)
-      );
-      const newItems = data.filter((item) => !originalIds.has(item.id));
+      const originalIds = new Set(this.editForm.knowledgebases.map(item => item.id));
+      const newItems = data.filter(item => !originalIds.has(item.id));
       this.editForm.knowledgebases.push(...newItems);
     },
     handleMetaClose() {
@@ -717,7 +773,7 @@ export default {
     },
     displayName(item) {
       const config = this.nameMap[item.type] || this.nameMap["default"];
-      return item[config.propName] + " " + `(${config.displayName})`;
+      return item[config.propName];
     },
     updateDetail() {
       this.getAppDetail();
@@ -747,15 +803,17 @@ export default {
       if (type === "workflow") {
         this.workflowSwitch(n.workFlowId, enable);
       } else if (type === "mcp") {
-        this.mcpSwitch(n.mcpId, enable);
+        this.mcpSwitch(n, enable);
       } else {
-        this.customSwitch(n.customId, enable);
+        this.customSwitch(n, enable);
       }
     },
-    customSwitch(customToolId, enable) {
-      enableCustom({
+    customSwitch(n, enable) {
+      switchCustomBuiltIn({
         assistantId: this.editForm.assistantId,
-        customToolId,
+        actionName:n.actionName,
+        toolId:n.toolId,
+        toolType:n.toolType,
         enable,
       })
         .then((res) => {
@@ -765,8 +823,8 @@ export default {
         })
         .catch(() => {});
     },
-    mcpSwitch(mcpId, enable) {
-      enableMcp({ assistantId: this.editForm.assistantId, mcpId, enable })
+    mcpSwitch(n, enable) {
+      enableMcp({ assistantId: this.editForm.assistantId,actionName:n.actionName, enable,mcpId:n.mcpId,mcpType:n.mcpType })
         .then((res) => {
           if (res.code === 0) {
             this.getAppDetail();
@@ -866,13 +924,13 @@ export default {
       if (type === "workflow") {
         this.doDeleteWorkflow(n.workFlowId);
       } else if (type === "mcp") {
-        this.mcpRemove(n.mcpId);
+        this.mcpRemove(n);
       } else {
-        this.customRemove(n.customId);
+        this.customRemove(n);
       }
     },
-    customRemove(customToolId) {
-      deleteCustom({ assistantId: this.editForm.assistantId, customToolId })
+    customRemove(n) {
+      delCustomBuiltIn({ assistantId: this.editForm.assistantId, toolId: n.toolId, toolType: n.toolType,actionName: n.actionName})
         .then((res) => {
           if (res.code === 0) {
             this.$message.success("删除成功");
@@ -881,8 +939,8 @@ export default {
         })
         .catch((err) => {});
     },
-    mcpRemove(mcpId) {
-      deleteMcp({ assistantId: this.editForm.assistantId, mcpId })
+    mcpRemove(n) {
+      deleteMcp({ assistantId: this.editForm.assistantId,actionName:n.actionName,mcpId:n.mcpId,mcpType:n.mcpType})
         .then((res) => {
           if (res.code === 0) {
             this.$message.success("删除成功");
@@ -947,6 +1005,7 @@ export default {
         },
         onlineSearchConfig: this.editForm.onlineSearchConfig,
         safetyConfig: this.editForm.safetyConfig,
+        visionConfig: {picNum:this.editForm.visionConfig.picNum},
         rerankConfig: rerankInfo
           ? {
               displayName: rerankInfo.displayName,
@@ -976,7 +1035,7 @@ export default {
     async getAppDetail() {
       this.startLoading(0);
       this.isSettingFromDetail = true;
-      let res = await getAgentInfo({ assistantId: this.editForm.assistantId });
+      let res = await getAgentDetail({ assistantId: this.editForm.assistantId });
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
@@ -998,6 +1057,7 @@ export default {
           desc: data.desc || "",
           instructions: data.instructions || "", //系统提示词
           rerankParams: data.rerankConfig.modelId || "",
+          visionConfig: data.visionConfig,//图片配置
           modelConfig:
             data.modelConfig.config !== null
               ? data.modelConfig.config
@@ -1024,13 +1084,15 @@ export default {
         //回显自定义插件
         this.workFlowInfos = data.workFlowInfos || [];
         this.mcpInfos = data.mcpInfos || [];
-        this.actionInfos = data.customInfos || [];
+        this.actionInfos = data.toolInfos || [];
         this.allTools = [
           ...this.workFlowInfos.map((item) => ({ ...item, type: "workflow" })),
           ...this.mcpInfos.map((item) => ({ ...item, type: "mcp" })),
           ...this.actionInfos.map((item) => ({ ...item, type: "action" })),
         ];
 
+        this.setMaxPicNum(this.editForm.visionConfig.picNum);
+        
         this.$nextTick(() => {
           this.isSettingFromDetail = false;
         });
@@ -1095,9 +1157,9 @@ export default {
 }
 /deep/ {
   .apikeyBtn {
-    border: 1px solid #384bf7;
+    border: 1px solid $btn_bg;
     padding: 12px 10px;
-    color: #384bf7;
+    color: $btn_bg;
     display: flex;
     align-items: center;
     img {
@@ -1216,7 +1278,7 @@ export default {
   border-bottom: 1px solid #dbdbdb;
   .popover-operation {
     position: absolute;
-    bottom: -100px;
+    bottom: -122px;
     right: 20px;
     background: #fff;
     box-shadow: 0px 1px 7px rgba(0, 0, 0, 0.3);
@@ -1239,7 +1301,7 @@ export default {
     }
     .header-left-title {
       font-size: 18px;
-      color: #434c6c;
+      color: $color_title;
       font-weight: bold;
     }
   }
@@ -1356,7 +1418,6 @@ export default {
         }
       }
       .block-link {
-        width: 300px;
         border: 1px solid #ddd;
         padding: 6px 10px;
         border-radius: 6px;
@@ -1364,7 +1425,7 @@ export default {
         justify-content: space-between;
         align-items: center;
         .link-text {
-          color: #384bf7;
+          color: $color;
           display: flex;
           align-items: center;
         }
@@ -1372,6 +1433,7 @@ export default {
           cursor: pointer;
           margin-right: 5px;
           font-size: 16px;
+          line-height:20px;
         }
       }
       .tool-conent {
@@ -1384,9 +1446,9 @@ export default {
           overflow-y: auto;
           .action-list {
             width: 100%;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
+            // display: grid;
+            // grid-template-columns: repeat(2, minmax(0, 1fr));
+            // gap: 10px;
           }
         }
       }
@@ -1404,7 +1466,7 @@ export default {
         padding-right: 10px;
       }
       .operation:hover {
-        color: #384bf7;
+        color: $color;
       }
       .tips {
         display: flex;
@@ -1605,29 +1667,39 @@ export default {
     margin-bottom: 5px;
     width: 100%;
     .name {
-      width: 60%;
+      width: 80%;
       box-sizing: border-box;
-      padding: 10px 20px;
+      padding: 10px;
       cursor: pointer;
-      color: #2c7eea;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display:flex;
+      align-items:center;
+      color: #333;
+      .desc-info{
+        color:#ccc;
+        margin-left:4px;
+      }
+
     }
     .bt {
       text-align: center;
-      width: 40%;
+      width: 30%;
       display: flex;
       justify-content: flex-end;
+      align-items:center;
       padding-right: 10px;
       box-sizing: border-box;
       cursor: pointer;
       .del {
-        color: #384bf7;
+        color: $btn_bg;
         font-size: 16px;
+        line-height:20px;
       }
       .bt-switch {
-        margin-right: 10px;
+        margin: 0 6px 0 6px;
+      }
+      .bt-operation{
+        font-size:16px;
+        line-height:20px;
       }
     }
   }
@@ -1714,7 +1786,7 @@ export default {
     margin-top: 4px;
     .model-select-tag {
       background-color: #f0f2ff;
-      color: #384bf7;
+      color: $color;
       border-radius: 4px;
       padding: 2px 8px;
       font-size: 10px;

@@ -119,18 +119,18 @@
           <el-input
             type="password"
             v-model="createForm.apiKey"
-            :placeholder="$t('common.hint.apiKey') + typeObj.apiKey[provider.key]"
+            :placeholder="$t('common.hint.apiKey') + (typeObj.apiKey[provider.key] || '--')"
           >
           </el-input>
         </el-form-item>
         <el-form-item :label="$t('modelAccess.table.inferUrl')" prop="endpointUrl">
           <el-input
             v-model="createForm.endpointUrl"
-            :placeholder="$t('common.hint.inferUrl') + (typeObj.inferUrl[createForm.modelType] || typeObj.inferUrl[provider.key])"
+            :placeholder="$t('common.hint.inferUrl') + (typeObj.inferUrl[createForm.modelType] || typeObj.inferUrl[provider.key] || '--')"
           >
           </el-input>
         </el-form-item>
-        <el-form-item :label="$t('modelAccess.table.publishTime')" prop="publishDate">
+        <!--<el-form-item :label="$t('modelAccess.table.publishTime')" prop="publishDate">
           <el-date-picker
             v-model="createForm.publishDate"
             type="date"
@@ -138,7 +138,7 @@
             :placeholder="$t('common.select.placeholder')"
           >
           </el-date-picker>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">{{$t('common.button.cancel')}}</el-button>
@@ -198,13 +198,13 @@ export default {
         apiKey: '',
         modelType: LLM,
         modelDesc: '',
-        contextSize: 0,
+        contextSize: 8000,
         maxTokens: 4096,
         avatar: {
           key: '',
           path: ''
         },
-        publishDate: '',
+        // publishDate: '',
         functionCalling: DEFAULT_CALLING,
         visionSupport: DEFAULT_SUPPORT
       },
@@ -278,7 +278,7 @@ export default {
         modelType: LLM,
         functionCalling: DEFAULT_CALLING,
         visionSupport: DEFAULT_SUPPORT,
-        contextSize: 0,
+        contextSize: 8000,
         maxTokens: 4096,
         avatar: { key: '', path: ''}
       })

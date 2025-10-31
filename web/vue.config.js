@@ -20,14 +20,14 @@ module.exports = {
   productionSourceMap: false,//源码映射
   chainWebpack(config){
     config.module
-        .rule('md')
-        .test(/\.md$/)
-        .use('html-loader')
-        .loader('html-loader')
-        .end()
-        .use('markdown-loader')
-        .loader('markdown-loader')
-        .end()
+      .rule('md')
+      .test(/\.md$/)
+      .use('html-loader')
+      .loader('html-loader')
+      .end()
+      .use('markdown-loader')
+      .loader('markdown-loader')
+      .end()
 
     config.plugins.delete('prefetch')
     if (isProdOrTest) {
@@ -54,6 +54,15 @@ module.exports = {
           symbolId: 'icon-[name]'
       })
       .end()
+
+    // 生产环境去掉 console 打印
+    config.when(process.env.NODE_ENV === 'production', config => {
+      config.optimization.minimize(true)
+      config.optimization.minimizer('terser').tap(args => {
+        args[0].terserOptions.compress.drop_console = true
+        return args
+      })
+    })
   },
   devServer: {
     port: 8080,
@@ -64,7 +73,7 @@ module.exports = {
       errors: true,
     },
     headers: {
-        'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': '*',
     },
     proxy: {
       "/openAi":{
@@ -163,7 +172,7 @@ module.exports = {
     }
   },
   configureWebpack: {
-    //    @路径走src文件夹
+    // @路径走src文件夹
     module: {
       rules: [
         {
@@ -180,23 +189,23 @@ module.exports = {
       alias: {
         'vue$': 'vue/dist/vue.esm.js',
         "@": resolve("src"),
-          "@common": resolve("common"),
+        "@common": resolve("common"),
       },
     },
-      output: {
-          // 把子应用打包成 umd 库格式(必须)
-          library: `${name}-[name]`,
-          libraryTarget: 'umd',
-          jsonpFunction: `webpackJsonp_${name}`,
-      },
-      plugins:[
-        new webpack.optimize.LimitChunkCountPlugin({
-            maxChunks: 10, // 来限制 chunk 的最大数量
-          }),
-          new webpack.optimize.MinChunkSizePlugin({
-            minChunkSize: 50000 // Minimum number of characters
-          }),
-          new VersionInfoPlugin()
-      ]
+    output: {
+      // 把子应用打包成 umd 库格式(必须)
+      library: `${name}-[name]`,
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_${name}`,
+    },
+    plugins: [
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 10, // 来限制 chunk 的最大数量
+      }),
+      new webpack.optimize.MinChunkSizePlugin({
+        minChunkSize: 50000 // Minimum number of characters
+      }),
+      new VersionInfoPlugin()
+    ]
   },
 };

@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import CreateWorkflow from "@/views/workflowList/components/createForm.vue"
+import CreateWorkflow from "./createApp/createWorkflow.vue"
 import CreateIntelligent from "./createApp/createIntelligent"
 import CreateTxtQues from "./createApp/createRag.vue"
 export default {

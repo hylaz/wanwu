@@ -14,9 +14,15 @@
                     :key="item['knowledgeId']"
                     class="toolContent_item"
                 >
-                    <span>{{ item.name }}</span>
+                    <div class="knowledge-info">
+                        <span class="knowledge-name">{{ item.name }}</span>
+                        <div class="knowledge-meta">
+                            <span class="meta-text">{{item.share ? '公开' : '私密'}}</span>
+                            <span v-if="item.share" class="meta-text">{{item.orgName}}</span>
+                        </div>
+                    </div>
                     <el-button type="text" @click="openTool($event,item)" v-if="!item.checked">添加</el-button>
-                    <el-button type="text" v-else  @click="openTool($event,item)">已添加</el-button>
+                    <el-button type="text" v-else >已添加</el-button>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
@@ -98,7 +104,7 @@ export default {
     }
 }
 .createTool:hover{
-    color: #384BF7;
+    color: $color;
 }
 .tool-typ{
     display:flex;
@@ -134,14 +140,31 @@ export default {
         display: flex;
         align-items:center;
         justify-content:space-between;
+        .knowledge-info{
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            .knowledge-name{
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .knowledge-meta{
+                display: flex;
+                gap: 8px;
+                .meta-text{
+                    color: #384BF7;
+                    font-size: 12px;
+                }
+            }
+        }
     }
     .toolContent_item:hover{
-        background:#f4f5ff;
+        background:$color_opacity;
     }
 }
 .active{
-    border:1px solid #384BF7 !important;
+    border:1px solid $color !important;
     color: #fff;
-    background:#384BF7;
+    background:$color;
 }
 </style>

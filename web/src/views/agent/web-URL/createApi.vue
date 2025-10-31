@@ -16,6 +16,9 @@
         <img :src="require('@/assets/imgs/apikey.png')" />
         API密钥
       </el-button>
+      <div class="show-doc" @click="jumpApiDoc">
+        查看API文档
+      </div>
     </div>
     <el-table
       :data="tableData"
@@ -77,6 +80,12 @@ export default {
     this.apiKeyRootUrl();
   },
   methods: {
+    jumpApiDoc() {
+      const {data} = this.$store.state.user.commonInfo || {}
+      const {linkList} = data || {}
+      const apiDocLink = linkList[`api-${this.appType}`]
+      if (apiDocLink) window.open(apiDocLink)
+    },
     handleClose(){
       this.dialogVisible = false;
     },
@@ -153,6 +162,13 @@ export default {
     justify-content:flex-start;
     align-items:flex-start;
     height:60px;
+    .show-doc {
+      margin-left: 20px;
+      line-height: 60px;
+      color: $color;
+      text-decoration: underline;
+      cursor: pointer;
+    }
     .header-api {
       padding: 6px 10px;
       box-shadow: 1px 2px 2px #ddd;
@@ -160,15 +176,15 @@ export default {
       border-radius: 6px;
       .root-url {
         background-color: #eceefe;
-        color: #384bf7;
+        color: $color;
         border: none;
       }
     }
     .apikeyBtn{
       margin-left:10px;
-      border:1px solid #384bf7;
+      border:1px solid $btn_bg;
       padding:12px;
-      color: #384bf7;
+      color: $btn_bg;
       display:flex;
       align-items:center;
     }

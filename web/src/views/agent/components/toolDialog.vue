@@ -3,7 +3,7 @@
         <el-dialog
             title="新增工具"
             :visible.sync="dialogVisible"
-            width="40%"
+            width="50%"
             :before-close="handleClose">
             <div class="tool-typ">
                 <div class="toolbtn">
@@ -22,9 +22,39 @@
                     :key="item[type + 'Id'] || item.id"
                     class="toolContent_item"
                     >
-                    <span>{{ item.apiName || item.name }}</span>
-                    <el-button type="text" @click="openTool($event,item,type)" v-if="!item.checked">添加</el-button>
-                    <el-button type="text" v-else style="color:#ccc;">已添加</el-button>
+                        <template v-if="type === 'workflow'">
+                                <div>
+                                    <span>{{item.name}}</span>
+                                </div>
+                                <div>
+                                    <el-button type="text" @click="openTool($event,item,type)" v-if="!item.checked">添加</el-button>
+                                    <el-button type="text" v-else style="color:#ccc;">已添加</el-button>
+                                </div>
+                        </template>
+                        <el-collapse  @change="handleToolChange" v-else class="tool_collapse">
+                            <el-collapse-item  :name="item.toolId">
+                                <template slot="title">
+                                   <h3>{{item.toolName}}</h3>
+                                   <span v-if="item.loading" class="el-icon-loading loading-text"></span>
+                                </template>
+                                <template v-if="item.children && item.children.length">
+                                    <div v-for="(tool,index) in item.children" class="tool-action-item" :key="'tool'+index">
+                                        <div style="padding-right:5px;">
+                                            <p>
+                                             <span>{{tool.name}}</span>
+                                             <el-tooltip class="item" effect="dark" :content="tool.description" placement="top-start" v-if="tool.description && tool.description.length > 0">
+                                                <span class="el-icon-info desc-info"></span>
+                                             </el-tooltip>
+                                            </p>
+                                        </div>
+                                        <div>
+                                        <el-button type="text" @click="openTool($event,item,type,tool)" v-if="!tool.checked">添加</el-button>
+                                        <el-button type="text" v-else style="color:#ccc;">已添加</el-button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </el-collapse-item>
+                        </el-collapse>
                     </div>
                 </template>
             </div>
@@ -33,7 +63,7 @@
 </template>
 <script>
 import { getList } from '@/api/workflow.js';
-import { addWorkFlowInfo, addMcp,customList,addCustom } from "@/api/agent";
+import { addWorkFlowInfo, addMcp,addCustomBuiltIn,toolList,toolActionList,mcptoolList,mcpActionList } from "@/api/agent";
 import { getExplorationFlowList} from "@/api/workflow";
 export default {
     props:['assistantId'],
@@ -42,17 +72,18 @@ export default {
             toolName:'',
             dialogVisible:false,
             toolIndex:0,
-            activeValue:'auto',
+            activeValue:'tool',
             workFlowInfos:[],
             mcpInfos:[],
             customInfos:[],
             mcpList:[],
             workFlowList:[],
             customList:[],
+            builtInInfos:[],
             toolList:[
                 {
-                    value:'auto',
-                    name:'自定义'
+                    value:'tool',
+                    name:'工具'
                 },
                 {
                     value:'mcp',
@@ -68,7 +99,8 @@ export default {
     computed:{
          contentMap() {
             return {
-            auto: this.customInfos,
+            tool: this.customInfos,
+            builtIn: this.builtInInfos,
             mcp: this.mcpInfos,
             workflow: this.workFlowInfos
             }
@@ -80,20 +112,55 @@ export default {
         this.getCustomList('')
     },
     methods:{
-        getCustomList(name){
-            customList({name}).then(res =>{
+        handleToolChange(id){
+            let toolId = id[0];
+            if(this.activeValue === 'tool'){
+                const targetItem = this.customInfos.find(item => item.toolId === toolId)
+                if(targetItem) {
+                    const { toolId, toolType } = targetItem
+                    const index = this.customInfos.findIndex(item => item.toolId === toolId)
+                    this.getToolAction(toolId, toolType, index)
+                }
+            }else if(this.activeValue === 'mcp'){
+                const targetItem = this.mcpInfos.find(item => item.toolId === toolId)
+                if(targetItem) {
+                    const { toolId, toolType } = targetItem
+                    const index = this.mcpInfos.findIndex(item => item.toolId === toolId)
+                    this.getMcpAction(toolId, toolType, index)
+                }
+            }
+           
+        },
+        getCustomList(name){//获取自定义和内置工具
+            toolList({name}).then(res =>{
                 if(res.code === 0){
-                    this.customInfos = (res.data.list || []).map(m => ({
+                    this.customInfos  = (res.data.list || []).map(m => ({
                         ...m,
-                        checked: this.customList.some(item => item.customId === m.customToolId)
-                    }));
+                        loading:false,
+                        children:[]
+                    }))
                 }
             }).catch(() =>{
 
             })
         },
+        getToolAction(toolId,toolType,index){
+            this.$set(this.customInfos[index], 'loading',true)
+            toolActionList({toolId,toolType}).then(res =>{
+                if(res.code === 0){
+                    this.$set(this.customInfos[index], 'children', res.data.actions)
+                    this.$set(this.customInfos[index], 'loading',false)
+                    this.customInfos[index]['children'].forEach(m => {
+                        m.checked = this.customList.some(item => item.actionName === m.name && item.toolId === toolId)
+                    })
+                    
+                }
+            }).catch(() =>{
+                this.$set(this.customInfos[index], 'loading',false)
+            })
+        },
         goCreate(){
-            if(this.activeValue === 'auto'){
+            if(this.activeValue === 'tool'){
                 this.$router.push({path:'/tool?type=tool&mcp=custom'})
             }else if(this.activeValue === 'mcp'){
                 this.$router.push({path:'/tool?type=mcp&mcp=mcp'})
@@ -102,7 +169,7 @@ export default {
             }
         },
         createText(){
-            if(this.activeValue === 'auto'){
+            if(this.activeValue === 'tool'){
                 return '创建自定义工具'
             }else if(this.activeValue === 'mcp'){
                 return '导入MCP'
@@ -110,21 +177,25 @@ export default {
                 return '创建工作流'
             }
         },
-        openTool(e,item,type){
+        openTool(e,item,type,action){
             if(!e) return;
-            item.checked = !item.checked
             if(type === 'workflow'){
                 this.addWorkFlow(item)
             }else if(type === 'mcp'){
-                this.addMcpItem(item)
+                this.addMcpItem(item,action)
             }else{
-                this.addCustomItem(item)
+                if(item.needApiKeyInput && !item.apiKey.length){
+                    this.$message.warning('该内置工具暂未绑定API Key，会导致调用失败!')
+                }
+                this.addCustomBuiltIn(item,action)
             }
         },
-        addCustomItem(n){
-            addCustom({assistantId:this.assistantId,customToolId:n.customToolId}).then(res =>{
+        addCustomBuiltIn(n,action){
+            //添加自定义工具和内置工具
+            addCustomBuiltIn({assistantId:this.assistantId,actionName:action.name,toolId:n.toolId,toolType:n.toolType}).then(res =>{
                 if(res.code === 0){
-                    n.checked = true;
+                    this.$set(action, 'checked', true);
+                    this.$forceUpdate();
                     this.$message.success('工具添加成功');
                     this.$emit('updateDetail');
                 }
@@ -132,10 +203,12 @@ export default {
 
             })
         },
-        addMcpItem(n){
-            addMcp({assistantId:this.assistantId,mcpId:n.mcpId}).then(res =>{
+        addMcpItem(n,action){
+            console.log(action)
+            addMcp({assistantId:this.assistantId,actionName:action.name,mcpId:n.toolId,mcpType:n.toolType}).then(res =>{
                 if(res.code === 0){
-                    n.checked = true;
+                    this.$set(action, 'checked', true);
+                    this.$forceUpdate();
                     this.$message.success('工具添加成功');
                     this.$emit('updateDetail');
                 }
@@ -159,7 +232,7 @@ export default {
             }
         },
         searchTool(){
-            if(this.activeValue === 'auto'){
+            if(this.activeValue === 'tool'){
                 this.getCustomList(this.toolName)
             }else if(this.activeValue === 'mcp'){
                 this.getMcpSelect(this.toolName)
@@ -167,19 +240,34 @@ export default {
                 this.getWorkflowList(this.toolName)
             }
         },
-        getMcpSelect(name){
-            getList({name}).then(res => {
+        getMcpSelect(name){//获取mcp工具
+            mcptoolList({name}).then(res => {
                 if(res.code === 0){
                     this.mcpInfos = (res.data.list || []).map(m => ({
                         ...m,
-                        checked: this.mcpList.some(item => item.mcpId === m.mcpId)
+                        children: [],
+                        loading:false
                     }));
                 }
                
             }).catch(err => {
-
             })
             },
+        getMcpAction(toolId,toolType,index){
+            this.$set(this.mcpInfos[index], 'loading', true)
+            mcpActionList({toolId,toolType}).then(res => {
+                if(res.code === 0){
+                    this.$set(this.mcpInfos[index], 'children', res.data.actions)
+                    this.$set(this.mcpInfos[index], 'loading', false)
+                    this.mcpInfos[index]['children'].forEach(m => {
+                        m.checked = this.mcpList.some(item => item.actionName === m.name && item.mcpId === toolId)
+                    })
+                    
+                }
+            }).catch(() =>{
+                this.$set(this.mcpInfos[index], 'loading', false)
+            })
+        },
         getWorkflowList(name) {
                 getExplorationFlowList({name,appType:'workflow',searchType:'all'}).then(res =>{
                     if (res.code === 0) {
@@ -192,39 +280,38 @@ export default {
         },
         showDialog(row){
             this.dialogVisible = true;
-            this.setMcp(row.mcpInfos);
+            //this.setMcp(row.mcpInfos);
             this.setWorkflow(row.workFlowInfos);
-            this.setCustom(row.customInfos)
+            //this.setCustom(row.customInfos)
             this.mcpList = row.mcpInfos || [];
             this.workFlowList = row.workFlowInfos || [];
             this.customList  = row.customInfos || [];
+            console.log(this.customList)
+            console.log(this.mcpList)
         },
-        setMcp(data){
-           this.mcpInfos = this.mcpInfos.map(m => ({
-            ...m,
-            checked: data.some(item => item.mcpId === m.mcpId)
-            }));
-        },
+
         setWorkflow(data){
             this.workFlowInfos = this.workFlowInfos.map(m => ({
             ...m,
             checked: data.some(item => item.workFlowId === m.appId)
             }));
         },
-        setCustom(data){
-            this.customInfos = this.customInfos.map(m => ({
-                ...m,
-                checked: data.some(item => item.customId === m.customToolId)
-            }));
-        },
+
         handleClose(){
             this.toolIndex = -1;
-            this.activeValue = 'auto'
+            this.activeValue = 'tool';
             this.dialogVisible = false;
         },
         clickTool(item,i){
             this.toolIndex = i;
             this.activeValue = item.value;
+            if(this.activeValue === 'tool'){
+                this.getCustomList('')
+            }else if(this.activeValue === 'mcp'){
+                this.getMcpSelect('')
+            }else{
+                this.getWorkflowList('')
+            }
         }
     }
 }
@@ -234,6 +321,22 @@ export default {
     .el-dialog__body{
         padding:10px 20px;
     }
+    .tool_collapse{
+        width:100% !important;
+        border:none !important;
+    }
+    .el-collapse-item__header{
+        background:none!important;
+        border-bottom:none!important;
+    }
+    .el-collapse-item__wrap{
+         border-bottom:none!important;
+         background:none!important;
+    }
+    .el-collapse-item__content{
+        padding-bottom:0!important;
+    }
+   
 }
 .createTool{
     padding:10px;
@@ -243,7 +346,7 @@ export default {
     }
 }
 .createTool:hover{
-    color: #384BF7;
+    color: $color;
 }
 .tool-typ{
     display:flex;
@@ -268,7 +371,7 @@ export default {
 }
 .toolContent{
     padding:10px 0;
-    max-height:300px;
+    max-height:400px;
     overflow-y:auto;
     .toolContent_item{
         padding:5px 20px;
@@ -279,14 +382,30 @@ export default {
         display: flex;
         align-items:center;
         justify-content:space-between;
+        .loading-text{
+            margin-left:4px;
+            color:var($color)
+        }
+        .tool-action-item{
+            display: flex;
+            align-items:center;
+            justify-content:space-between;
+            border-top:1px solid #eee;
+            padding:5px 0;
+            .desc-info{
+                color:#ccc;
+                margin-left:4px;
+                cursor:pointer;
+            }
+        }
     }
     .toolContent_item:hover{
-        background:#f4f5ff;
+        background:$color_opacity;
     }
 }
 .active{
-    border:1px solid #384BF7 !important;
+    border:1px solid $color !important;
     color: #fff;
-    background:#384BF7;
+    background:$color;
 }
 </style>

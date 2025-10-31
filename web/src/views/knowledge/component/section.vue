@@ -48,7 +48,7 @@
             </el-tooltip>
           </template>
           <span v-else>无数据</span>
-          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])" v-if="metaDataList"></span>
+          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])" v-if="metaDataList && [10,20,30].includes(permissionType)"></span>
         </el-descriptions-item>
         <el-descriptions-item label="元数据规则">
           <template v-if="metaRuleList && metaRuleList.length > 0">
@@ -72,6 +72,7 @@
           @click="createChunk(false)"
           size="mini"
           :loading="loading.start"
+          v-if="[10,20,30].includes(permissionType)"
           >新增分段</el-button
         >
         <el-button
@@ -79,6 +80,7 @@
           @click="handleStatus('start')"
           size="mini"
           :loading="loading.start"
+          v-if="[10,20,30].includes(permissionType)"
           >{{$t('knowledgeManage.allRun')}}</el-button
         >
         <el-button
@@ -86,6 +88,7 @@
           @click="handleStatus('stop')"
           size="mini"
           :loading="loading.stop"
+          v-if="[10,20,30].includes(permissionType)"
           >{{$t('knowledgeManage.allStop')}}</el-button
         >
       </div>
@@ -110,11 +113,12 @@
                   <el-switch
                     style="padding: 3px 0;"
                     v-model="item.available"
-                    active-color="#384bf7"
+                    active-color="var(--color)"
+                    v-if="[10,20,30].includes(permissionType)"
                     @change="handleStatusChange(item, index)"
                   >
                   </el-switch>
-                  <el-dropdown @command="handleCommand" placement="bottom">
+                  <el-dropdown @command="handleCommand" placement="bottom" v-if="[10,20,30].includes(permissionType)">
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
@@ -130,7 +134,7 @@
               <div class="text item" @click="handleClick(item, index)">
                 {{ item.content }}
               </div>
-              <div class="tagList">
+              <div class="tagList" v-if="[10,20,30].includes(permissionType)">
                 <span :class="['smartDate','tagList']" @click.stop="addTag(item.labels,item.contentId)" v-if="item.labels.length === 0">
                   <span class="el-icon-price-tag icon-tag"></span>
                   创建关键词
@@ -173,7 +177,8 @@
           @change="handleDetailStatusChange"
           style="float: right; padding: 3px 0"
           v-model="cardObj[0].available"
-          active-color="#384bf7"
+          active-color="var(--color)"
+          v-if="[10,20,30].includes(permissionType)"
         >
         </el-switch>
       </div>
@@ -198,9 +203,10 @@
                 v-model="scope.row.content"
                 :autosize="{ minRows: 3, maxRows: 5}"
                 class="full-width-textarea"
+                :disabled="[0].includes(permissionType)"
                 >
               </el-input>
-              <div  v-if="cardObj[0]['isParent']" style="display: flex;justify-content: flex-end;padding: 10px 0;">
+              <div  v-if="cardObj[0]['isParent'] && [10,20,30].includes(permissionType)" style="display: flex;justify-content: flex-end;padding: 10px 0;">
                 <el-button type="primary" @click="handleSubmit"  :loading="submitLoading">保存并重新解析子分段</el-button>
               </div>
               <div class="segment-list" v-if="scope.row.childContent.length > 0">
@@ -217,10 +223,10 @@
                     <template slot="title">
                       <span class="segment-badge">C-{{ index + 1 }}</span>
                       <div class="segment-actions">
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
+                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [10,20,30].includes(permissionType)" class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
                           <i class="el-icon-edit-outline"></i>编辑
                         </span>
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
+                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [10,20,30].includes(permissionType)" class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
                           <i class="el-icon-delete"></i>删除
                         </span>
                         <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn save-btn" @click.stop="confirmEdit(scope.row, index)">
@@ -255,8 +261,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleSubmit" :loading="submitLoading" v-if="!cardObj[0]['isParent']">确定</el-button>
-        <!-- <el-button type="primary" @click="handleSubmit"  v-if="cardObj[0]['isParent']" :loading="submitLoading">保存并重新解析子分段</el-button> -->
-        <el-button type="primary" @click="createChunk(true)" v-if="cardObj[0]['isParent']" :disabled="submitLoading">新增子分段</el-button>
+        <el-button type="primary" @click="createChunk(true)" v-if="cardObj[0]['isParent'] && [10,20,30].includes(permissionType)"" :disabled="submitLoading">新增子分段</el-button>
         <el-button type="primary" @click="handleClose" :disabled="submitLoading">{{$t('knowledgeManage.close')}}</el-button>
       </span>
     </el-dialog>
@@ -270,6 +275,7 @@ import { getSectionList,setSectionStatus,sectionLabels,delSegment,editSegment,ge
 import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue'
+import {mapGetters} from 'vuex';
 export default {
   components:{dataBaseDialog,tagDialog,createChunk},
   data() {
@@ -316,9 +322,25 @@ export default {
       refreshCount:0,
     };
   },
+  computed: {
+    ...mapGetters('app', ['permissionType'])
+  },
   created() {
     this.obj = this.$route.query;
     this.getList();
+    if (this.permissionType === -1 || this.permissionType === null || this.permissionType === undefined) {
+        const savedData = localStorage.getItem('permission_data')
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData)
+                const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
+                if (savedPermissionType !== undefined && savedPermissionType !== -1) {
+                    this.$store.dispatch('app/setPermissionType', savedPermissionType)
+                }
+            } catch(e) {
+            }
+        }
+    }
   },
   beforeDestroy(){
     this.clearTimer()
@@ -338,7 +360,7 @@ export default {
       }
       return score.toFixed(5);
     },
-     editSegment(row, index) {
+    editSegment(row, index) {
       const key = `${row.contentId}-${index}`;
       this.$set(this.editingSegments, key, true);
       this.$set(this.editingContent, key, row.childContent[index].content);
@@ -663,7 +685,7 @@ export default {
   .section-collapse {
     background-color: #f7f8fa;
     border-radius: 6px;
-    border: 1px solid #384BF7;
+    border: 1px solid $color;
     overflow: hidden;
     
     /deep/ .el-collapse {
@@ -715,7 +737,7 @@ export default {
     }
      
     .segment-badge {
-      color: #384BF7;
+      color: $color;
       font-size: 12px;
       min-width: 40px;
       text-align: center;
@@ -744,7 +766,7 @@ export default {
           }
           
           &.edit-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -752,7 +774,7 @@ export default {
           }
           
           &.delete-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -760,7 +782,7 @@ export default {
           }
           
           &.save-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -787,14 +809,14 @@ export default {
       
       .score-label {
         font-size: 12px;
-        color: #384BF7;
+        color: $color;
         font-weight: bold;
         margin-right: 5px;
       }
       
       .score-value {
         font-size: 14px;
-        color: #384BF7;
+        color: $color;
         font-weight: bold;
         font-family: 'Courier New', monospace;
       }
@@ -812,7 +834,7 @@ export default {
       .content-edit {
         .edit-input {
           /deep/ .el-textarea__inner {
-            border: 1px solid #384BF7;
+            border: 1px solid $color;
             border-radius: 4px;
             resize: vertical;
           }
@@ -861,23 +883,23 @@ export default {
     }
   }
   .tagList > .tagList-item:hover{
-      color:#384BF7;
+      color:$color;
   }
 .showMore{
   margin-left:5px;
-  background:#f4f5ff;
+  background:$color_opacity;
   padding:2px;
   border-radius:4px;
 }
 .metaItem{
   margin-left:5px;
-  background:#f4f5ff;
+  background:$color_opacity;
   padding:2px;
   border-radius:4px;
 }
 .editIcon{
   cursor: pointer;
-  color:#384BF7;
+  color:$color;
   font-size:16px;
   display: inline-block;
   margin-left:5px;

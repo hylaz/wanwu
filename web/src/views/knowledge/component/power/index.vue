@@ -2,7 +2,7 @@
   <div class="power-management">
     <el-dialog
       :visible.sync="dialogVisible"
-      width="50%"
+      width="60%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       class="power-management-dialog"
@@ -12,22 +12,30 @@
         <div class="title-content">
           <i class="el-icon-s-custom title-icon"></i>
           <span class="title-text">{{ dialogTitle }}</span>
+          <span class="title-tip" v-if="currentView === 'transfer'">[ 转移后您的权限将变为'可编辑' ]</span>
         </div>
         <div class="title-subtitle" v-if="knowledgeName">
           <span class="knowledge-name">[ {{ knowledgeName }} ]</span>
         </div>
       </div>
         <div class="list-header" v-if="currentView === 'list'">
+         <el-input placeholder="输入成员名称搜索" v-model="userName" style="width:200px;margin-right:10px;"></el-input>
+           <el-button
+            type="primary"
+            size="small"
+            @click="confirmSearch"
+          >确定</el-button>
           <el-button
             type="primary"
             size="small"
             icon="el-icon-plus"
             @click="showCreate"
+            :disabled="[0, 10].includes(permissionType)"
           >新增</el-button>
         </div>
-        <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId"/>
+        <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId" :permissionType="permissionType" />
         <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId" />
-        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :transfer-data="transferData" />
+        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :knowledgeId="knowledgeId" />
       <div
         slot="footer"
         class="dialog-footer"
@@ -48,7 +56,7 @@
         >确定转让</el-button>
         <el-button
           v-if="currentView === 'list'"
-          @click="handleCancel"
+          @click="handleDialogClose"
         >关闭</el-button>
       </div>
     </el-dialog>
@@ -58,9 +66,10 @@
 <script>
 import PowerList from "./list.vue";
 import PowerCreate from "./create.vue";
-import { transferUserPower } from "@/api/knowledge";
+import { transferUserPower,addUserPower } from "@/api/knowledge";
 export default {
   name: "PowerManagement",
+  inject: ['reloadKnowledgeData'],
   components: {
     PowerList,
     PowerCreate,
@@ -71,7 +80,9 @@ export default {
       dialogVisible: false,
       knowledgeId:'',
       knowledgeName:'',
-      transferData: null,
+      permissionType:'',
+      currentTransferUser: null,
+      userName:''
     };
   },
   computed: {
@@ -86,79 +97,98 @@ export default {
       return "权限管理";
     },
   },
+  mounted() {
+    this.knowledgeId = this.$route.query.knowledgeId;
+  },
   methods: {
+    confirmSearch(){
+      this.$refs.powerList.getFilterResult(this.userName)
+    },
     showDialog() {
       this.currentView = "list";
       this.dialogVisible = true;
+      this.$nextTick(() => {
+        if (this.$refs.powerList) {
+            this.$refs.powerList.getUserPower()
+        }
+    })
     },
-
     showCreate() {
       this.currentView = "create";
     },
 
-    showTransfer(transferData) {
-      this.transferData = transferData;
+    showTransfer(row) {
       this.currentView = "transfer";
+      this.currentTransferUser = row;
     },
 
     showList() {
       this.currentView = "list";
-    },
-
-    handleCancel() {
-      this.dialogVisible = false;
-    },
-
-    handleConfirm() {
-      const createData = this.$refs.powerCreate;
-      if (createData) {
-        console.log("添加权限数据:", {
-          selectedPermission: createData.selectedPermission,
-          selectedUsers: createData.selectedUsers,
-        });
-
-        this.$message.success("权限添加成功");
-
-        this.showList();
-
+      this.$nextTick(() => {
         this.refreshList();
+      });
+
+    },
+    handleConfirm() {
+      const createData = this.$refs.powerCreate.getResults();
+      const userData = this.handleData(createData);
+      if (userData && userData.length > 0) {
+        addUserPower({knowledgeId:this.knowledgeId,knowledgeUserList:userData}).then(res => {
+          if(res.code === 0){
+            this.$message.success("添加成功");
+            this.showList();
+            this.refreshList();
+          }
+        }).catch(() => {})
+      }else{
+        this.$message.error("请选择用户");
       }
     },
-
-    handleDialogClose() {
-      this.currentView = "list";
-
-      if (this.$refs.powerCreate) {
-        console.log("对话框关闭，重置数据");
+    handleData(createData){
+      if (createData.node.length > 0) {
+        var userList = [];
+        createData.node.forEach(function(group) {
+          group.users.forEach(function(user) {
+            userList.push({
+              userId: user.id,
+              orgId: user.orgId,
+              permissionType:createData.selectedPermission
+            });
+          });
+        });
+        return userList;
       }
+      return [];
+    },
+    handleDialogClose() {
+      this.dialogVisible = false;
     },
 
     // 确认转让权限
     handleTransferConfirm() {
-      const transferData = this.$refs.powerTransfer.selectedUsers;
-      if (transferData) {
-        const data = {
-          knowledgeId: this.knowledgeId,
-          knowledgeUserList:{
-            userId: transferData.userId,
-            permissionType: transferData.permissionType
-          }
-        }
-        transferUserPower({data}).then(res => {
+      const data = this.$refs.powerTransfer.getTransferData();
+      const params = {
+        ...data,
+        permissionId: this.currentTransferUser.permissionId
+      }
+      if (data.knowledgeUser && !Array.isArray(data.knowledgeUser)) {
+        transferUserPower(params).then(res => {
           if(res.code === 0){
-            this.$message.success("权限转让成功");
-            this.showCreate();
-            this.refreshList();
+            this.$message.success("转让成功");
+            this.showList();
+            this.dialogVisible = false;
+             if (this.reloadKnowledgeData) {
+              this.reloadKnowledgeData();  // 刷新列表
+            }
           }
-        }).catch(() => {
-          this.$message.error("权限转让失败");
-        })
+        }).catch(() => {})
+      }else{
+        this.$message.error("请选择用户");
       }
     },
-
     refreshList() {
       if (this.$refs.powerList) {
-        console.log("刷新权限列表");
+        this.$refs.powerList.getUserPower()
       }
     },
   },
@@ -169,7 +199,7 @@ export default {
 .power-management {
   .list-header {
     display: flex;
-    justify-content: space-between;
+    justify-content:flex-start;
     align-items: center;
     .header-left {
       .page-title {
@@ -228,6 +258,11 @@ export default {
       font-size: 18px;
       font-weight: 600;
       color: #303133;
+    }
+    .title-tip {
+      margin-left:5px;
+      font-size: 12px;
+      color: $color;
     }
   }
   

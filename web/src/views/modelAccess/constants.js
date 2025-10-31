@@ -11,7 +11,7 @@ export const MODEL_TYPE_OBJ = {
     [EMBEDDING]: 'Embedding',
     [OCR]: 'OCR',
     [GUI]: 'GUI',
-    [PDF_PARSER]: 'pdf文档解析模型'
+    [PDF_PARSER]: '文档解析服务'
 }
 
 export const MODEL_TYPE = Object.keys(MODEL_TYPE_OBJ).map(key => ({key, name: MODEL_TYPE_OBJ[key]}))
@@ -72,7 +72,8 @@ export const TYPE_OBJ = {
         [OPENAI_API]: 'sk_7e4*************4s-BpI1l',
         [OLLAMA]: '',
         [QWEN]: 'sk-b************c70d',
-        [HUOSHAN]: 'd8008ac0-****-****-****-**************'
+        [HUOSHAN]: 'd8008ac0-****-****-****-**************',
+        [INFINI]: 'sk-nw****gzjb6'
     },
     inferUrl: {
         [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
@@ -82,6 +83,7 @@ export const TYPE_OBJ = {
         [OPENAI_API]: 'https://api.siliconflow.cn/v1',
         [OLLAMA]: 'https://192.168.21.100:11434',
         [QWEN]: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3'
+        [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3',
+        [INFINI]: 'https://cloud.infini-ai.com/maas/v1'
     },
 }

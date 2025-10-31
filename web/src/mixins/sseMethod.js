@@ -40,6 +40,8 @@ export default {
             isStoped : false,
             access_token:'',
             runResponse: "",
+            fileList: [],  // 文件列表
+            processedLength: 0,  // 追踪已处理的文本长度
         };
     },
     created() {
@@ -192,7 +194,6 @@ export default {
             this.sendEventStream(this.inputVal,'', _history.length)
         },
         sendEventStream(prompt, msgStr, lastIndex){
-            console.log("####sendEventStream", '--------------------------')
             if (this.sessionStatus === 0) {
                 this.$message.warning('上个问题没有回答完！')
                 return
@@ -206,10 +207,12 @@ export default {
                 pending: true, 
                 responseLoading: true, 
                 requestFileUrls:[],
+                fileList:this.fileList,
                 pendingResponse:''
             }
             this.$refs['session-com'].pushHistory(params)
             let endStr = ''
+            this.processedLength = 0  // 重置处理长度
             this._print = new Print({
                 onPrintEnd: () => {
                     // this.setStoreSessionStatus(-1)
@@ -232,7 +235,7 @@ export default {
                 body: JSON.stringify({...this.sseParams,'history':history}),
                 openWhenHidden: true, //页面退至后台保持连接
                 onopen: async(e) => {
-                    console.log("已建立SSE连接~",new Date().getTime());
+                    //console.log("已建立SSE连接~",new Date().getTime());
                     if (e.status !== 200) {
                         try {
                             const errorData = await e.json();
@@ -260,7 +263,7 @@ export default {
                         let data;
                         try {
                             data = JSON.parse(e.data);
-                            console.log('===>',new Date().getTime(), data);
+                            // console.log('===>',new Date().getTime(), data);
                         } catch (error) {
                             return; // 如果解析失败，直接返回，不处理这条消息
                         }
@@ -295,15 +298,15 @@ export default {
                                         this.setStoreSessionStatus(0)
                                         endStr += worldObj.world
                                         endStr = convertLatexSyntax(endStr)
-                                        endStr = parseSub(endStr,lastIndex)
+                                        endStr = parseSub(endStr, lastIndex)                        
                                         let fillData = {
                                             ...commonData,
-                                            "response": md.render(endStr),
+                                            "response":md.render(endStr),
                                             oriResponse:endStr,
                                             finish:worldObj.finish,
                                             searchList:(search_list && search_list.length) ? search_list.map(n => ({
-                                                  ...n, // 复制原有的对象属性
-                                                  snippet: md.render(n.snippet) // 对snippet进行Markdown渲染
+                                                  ...n,
+                                                  snippet: md.render(n.snippet)
                                                 }))
                                             : []
                                         }
@@ -341,6 +344,7 @@ export default {
                     this.setStoreSessionStatus(-1)//关闭后改变状态
                 }
             });
+                      
         },
         doSend(params) {
             this.stopBtShow = true
@@ -367,18 +371,14 @@ export default {
                 pending: true, 
                 responseLoading: true, 
                 requestFileUrls: this.queryFilePath?[this.queryFilePath]:[],
-                fileName:this.fileList.length > 0 ? this.fileList[0]['name'] : '',
-                fileSize:this.fileList.length > 0 ? this.fileList[0]['size'] : '',
-                fileUrl:this.fileList.length > 0 
-                ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
-                : '',
-                fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
+                fileList:this.fileList,
                 pendingResponse:''
             }
             //正式环境传模型参数
             this.$refs['session-com'].pushHistory(params)
 
             let endStr = ''
+            this.processedLength = 0  // 重置处理长度
             this._print = new Print({
                 onPrintEnd: () => {
                 }
@@ -454,12 +454,7 @@ export default {
                             ...data,
                             ...this.sseParams,
                             "query": prompt,
-                            "fileName":this.fileList.length > 0 ? this.fileList[0]['name'] : '',
-                            "fileSize":this.fileList.length > 0 ? this.fileList[0]['size'] : '',
-                            fileUrl: this.fileList.length > 0 
-                            ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
-                            : '',
-                            fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
+                            "fileList":this.fileList,
                             "response": '',
                             "filepath": data.file_url || '',
                             "requestFileUrls": this.queryFilePath?[this.queryFilePath] : data.requestFileUrls,
@@ -468,6 +463,7 @@ export default {
                             "thinkText":i18n.t('agent.thinking'),
                             'toolText':'使用工具中...',
                             "isOpen":true,
+                            "showScrollBtn":null,
                             "citations":[]
                         }
 
@@ -484,7 +480,7 @@ export default {
                                         this.setStoreSessionStatus(0)
                                         endStr += worldObj.world
                                         endStr = convertLatexSyntax(endStr)
-                                        endStr = parseSub(endStr,lastIndex)
+                                        endStr = parseSub(endStr, lastIndex)
                                         const finalResponse = String(endStr)
                                         let fillData = {
                                             ...commonData,
@@ -492,8 +488,8 @@ export default {
                                             finish:worldObj.finish,
                                             oriResponse:endStr,
                                             searchList:(search_list && search_list.length) ? search_list.map(n => ({
-                                                  ...n, // 复制原有的对象属性
-                                                  snippet: md.render(n.snippet) // 对snippet进行Markdown渲染
+                                                  ...n,
+                                                  snippet: md.render(n.snippet)
                                                 }))
                                             : []
                                         }
@@ -507,11 +503,13 @@ export default {
                                                 this.$refs['session-com'].replaceLastData(lastIndex, fillData)
                                             }
                                             this.setStoreSessionStatus(-1)
+                                            this.processedLength = 0
                                         }
                                         if(worldObj.isEnd && worldObj.finish === 1){
                                           this.setStoreSessionStatus(-1)
+                                          this.processedLength = 0
                                        }
-                                })
+                                    })
 
                             this.$nextTick(()=>{
                                 this.$refs['session-com'].scrollBottom()
@@ -573,13 +571,6 @@ export default {
                     // 如果返回有结果，则在结束时不展示“本次回答已终止”
                     this.runResponse = md.render(endStr)
                     this.runDisabled = false
-                    // this.$refs['session-com'].replaceLastData(lastIndex, {
-                    //     ...lastRQ,
-                    //     finish: 1,
-                    //     pending: false,
-                    //     responseLoading: false,
-                    //     response:  md.render(endStr) 
-                    // })
                     this.setStoreSessionStatus(-1)
                 }
             }
@@ -654,22 +645,9 @@ export default {
             let history_list = this.$refs['session-com'].getList();
             let _history = history_list[history_list.length - 1];
             let inputVal = _history.query;
-            let fileInfo = null;
-            let fileId = null;
-            if(_history.fileName && _history.fileSize){
-                fileId =  {
-                    fileName:_history.fileName,
-                    fileSize:_history.fileSize,
-                    fileUrl:_history.fileInfo ? _history.fileInfo['fileUrl'] : _history.requestFileUrls[0],
-                }
-                fileInfo = [
-                    { name:_history['fileName'],
-                      size:_history['fileSize'],
-                      fileUrl: _history['filepath'] || _history['fileUrl'] || (_history.requestFileUrls && _history.requestFileUrls[0]) || ''
-                    }
-                ]
-            }
-            this.preSend(inputVal,fileId,fileInfo);
+            let fileInfo = _history.fileInfo ? _history.fileInfo : [];
+            let fileList = _history.fileList ? _history.fileList : [];
+            this.preSend(inputVal,fileList,fileInfo);
         }
     }
 };

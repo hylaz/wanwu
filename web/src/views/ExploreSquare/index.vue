@@ -46,26 +46,26 @@ export default {
         {
           name:'全部',
           value:'all',
-          activeImg:require('@/assets/imgs/all_active.png'),
-          unactiveImg:require('@/assets/imgs/all_unactive.png')
+          activeImg:require('@/assets/imgs/all_active.svg'),
+          unactiveImg:require('@/assets/imgs/all_unactive.svg')
         },
         {
           name:'我收藏的',
           value:'favorite',
-          activeImg:require('@/assets/imgs/mine_active.png'),
-          unactiveImg:require('@/assets/imgs/mine_unactive.png')
+          activeImg:require('@/assets/imgs/mine_active.svg'),
+          unactiveImg:require('@/assets/imgs/mine_unactive.svg')
         },
         {
           name:'私密发布的',
           value:'private',
-          activeImg:require('@/assets/imgs/start_active.png'),
-          unactiveImg:require('@/assets/imgs/start_unactive.png')
+          activeImg:require('@/assets/imgs/start_active.svg'),
+          unactiveImg:require('@/assets/imgs/start_unactive.svg')
         },
         {
           name:'历史应用',
           value:'history',
-          activeImg:require('@/assets/imgs/history_active.png'),
-          unactiveImg:require('@/assets/imgs/history_unactive.png')
+          activeImg:require('@/assets/imgs/history_active.svg'),
+          unactiveImg:require('@/assets/imgs/history_unactive.svg')
         }
       ],
       historyList:[],
@@ -126,7 +126,7 @@ export default {
 }
 .white{
   background: #fff;
-  color: #384BF7;
+  color: $color;
 }
 // .explore-aside-app{
   .appList:hover{

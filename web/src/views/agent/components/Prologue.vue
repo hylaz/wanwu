@@ -133,8 +133,8 @@
                         }
                     }
                     .recommend-p:hover{
-                        color:#384BF7;
-                        border:1px solid #384BF7;
+                        color:$color;
+                        border:1px solid $color;
                     }
                 }
             }

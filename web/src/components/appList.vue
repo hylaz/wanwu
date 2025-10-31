@@ -21,7 +21,7 @@
         @mouseenter="mouseEnter(n)"
         @mouseleave="mouseLeave(n)"
       >
-        <el-image v-if="n.avatar && n.avatar.path" class="logo" lazy :src="basePath + '/user/api/' + n.avatar.path" ></el-image>
+        <el-image v-if="n.avatar && n.avatar.path" class="logo" lazy :src="basePath + '/user/api/' + n.avatar.path" :key="`${i}-${n.appId}-avatar`"></el-image>
         <span :class="['tag-app', `${n.appType}-tag`]">{{apptype[n.appType] || ''}}</span>
         <img
           v-if="apptype[n.appType]"
@@ -108,7 +108,6 @@
               </el-dropdown-item>
               <el-dropdown-item
                 command="copy"
-                v-if="n.appType === 'workflow'"
               >
                 {{$t('common.button.copy')}}
               </el-dropdown-item>
@@ -155,13 +154,10 @@
       class="createTotalDialog"
     >
       <div style="margin-top: -20px">
-        <div>
-          <el-radio :label="'private'" v-model="publishType">{{$t('workFlow.publishText')}}</el-radio>
+        <div v-for="item in publishList" :key="item.key" style="margin-bottom: 5px">
+          <el-radio :label="item.key" v-model="publishType">{{item.value}}</el-radio>
         </div>
-        <div style="margin-top: 5px">
-          <el-radio :label="'public'" v-model="publishType">{{$t('workFlow.publicPublishText')}}</el-radio>
-        </div>
-        <div style="text-align: right; margin-top: 20px; margin-bottom: -10px">
+        <div style="text-align: right; margin-top: 15px; margin-bottom: -10px">
           <el-button size="mini" type="primary" @click="doPublish">{{$t('common.button.confirm')}}</el-button>
         </div>
       </div>
@@ -171,7 +167,7 @@
 
 <script>
 import { AppType } from "@/utils/commonSet";
-import { deleteApp, appCancelPublish, copyAgnetTemplate, appPublish } from "@/api/appspace";
+import { deleteApp, appCancelPublish, copyAgnetTemplate, appPublish,copyTextQues,copyAgentApp } from "@/api/appspace";
 import { copyWorkFlow, publishWorkFlow, copyExample, exportWorkflow } from "@/api/workflow";
 import { setFavorite } from "@/api/explore";
 export default {
@@ -208,7 +204,12 @@ export default {
       listData: [],
       row: {},
       publishType: 'private',
-      dialogVisible: false
+      dialogVisible: false,
+      publishList: [
+        {key: 'private', value: this.$t('workFlow.publishText')},
+        {key: 'organization', value: this.$t('workFlow.publicOrgText')},
+        {key: 'public', value: this.$t('workFlow.publicTotalText')}
+      ]
     };
   },
   methods: {
@@ -394,6 +395,15 @@ export default {
       this.row = row;
       this.handleDelete();
     },
+    intelligentCopy(row){
+      copyAgentApp({assistantId:row.appId}).then(res=>{
+        if(res.code === 0){
+          const id = res.data.assistantId;
+          this.$message.success('复制成功');
+          this.$router.push({path:`/agent/test?id=${id}`})
+        }
+      }).catch(()=>{})
+    },
     intelligentOperation(method, row) {
       switch (method) {
         case "edit":
@@ -403,6 +413,10 @@ export default {
         case "delete":
           // 智能体删除
           this.intelligentDelete(row);
+          break;
+        case "copy":
+          // 智能体复制
+          this.intelligentCopy(row);
           break;
         case "cancelPublish":
           this.cancelPublish(row);
@@ -426,6 +440,15 @@ export default {
       this.row = row;
       this.handleDelete();
     },
+    txtQuesCopy(row){
+      copyTextQues({ragId:row.appId}).then(res=>{
+        if(res.code === 0){
+          const id = res.data.ragId;
+          this.$message.success('复制成功');
+          this.$router.push({path:`/rag/test?id=${id}`})
+        }
+      }).catch(()=>{})
+    },
     txtQuesOperation(method, row) {
       switch (method) {
         case "edit":
@@ -435,6 +458,10 @@ export default {
         case "delete":
           // 文本问答删除
           this.txtQuesDelete(row);
+          break;
+        case "copy":
+          // 文本问答复制
+          this.txtQuesCopy(row);
           break;
         case "cancelPublish":
           this.cancelPublish(row);

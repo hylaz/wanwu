@@ -12,3 +12,7 @@
 
 // 组件样式
 @import './module.scss';
+
+:root {
+  --color: #{$color};
+}

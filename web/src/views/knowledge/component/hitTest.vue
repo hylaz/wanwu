@@ -319,7 +319,7 @@ export default {
               justify-content: space-between;
               padding: 10px 0;
               .tag {
-                color: #384bf7;
+                color: $color;
                 display: inline-block;
                 background: #d2d7ff;
                 padding: 0 10px;
@@ -333,7 +333,7 @@ export default {
                 cursor: pointer;
               }
               .segment-length:hover{
-                color: #384bf7;
+                color: $color;
               }
               .segment-type,
               .segment-length {
@@ -341,7 +341,7 @@ export default {
                 font-size: 12px;
               }
               .score {
-                color: #384bf7;
+                color: $color;
                 font-weight: bold;
               }
             }
@@ -419,7 +419,7 @@ export default {
                           background-color: #eaecf9;
                           padding: 6px 12px;
                           border-radius: 4px;
-                          color: #384BF7;
+                          color: $color;
                           font-size: 12px;
                           min-width: 40px;
                           text-align: center;
@@ -433,7 +433,7 @@ export default {
                           margin-left: 12px;
                           
                           .score-value {
-                            color: #384BF7;
+                            color: $color;
                             font-weight: 500;
                             font-size: 12px;
                             white-space: nowrap;

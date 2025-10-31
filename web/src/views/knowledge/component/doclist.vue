@@ -33,15 +33,16 @@
               </div>
 
               <div class="content_title">
-                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload">{{$t('common.gpuDialog.reload')}}</el-button>
-                <el-button size="mini" type="primary" @click="showBatchMeta">批量编辑元数据值</el-button>
-                <el-button size="mini" type="primary" @click="showMeta">元数据管理</el-button>
+                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" >{{$t('common.gpuDialog.reload')}}</el-button>
+                <el-button size="mini" type="primary" @click="showBatchMeta" v-if="[10,20,30].includes(permissionType)">批量编辑元数据值</el-button>
+                <el-button size="mini" type="primary" @click="showMeta" v-if="[10,20,30].includes(permissionType)">元数据管理</el-button>
                 <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&name=${knowledgeName}`)">命中测试</el-button>
                 <el-button
                   size="mini"
                   type="primary"
                   :underline="false"
                   @click="handleUpload"
+                  v-if="[10,20,30].includes(permissionType)"
                 >{{$t('knowledgeManage.fileUpload')}}</el-button>
               </div>
             </el-header>
@@ -138,6 +139,7 @@
                       round
                       @click="handleDel(scope.row)"
                       :disabled="[2,3].includes(Number(scope.row.status))"
+                      v-if="[10,20,30].includes(permissionType)"
                       :type="[2,3].includes(Number(scope.row.status))?'info':''"
                     >{{$t('common.button.delete')}}</el-button>
                     <el-button
@@ -188,6 +190,7 @@ import SearchInput from "@/components/searchInput.vue";
 import mataData from './metadata.vue'
 import batchMetaData from './meta/batchMetaData.vue'
 import {getDocList,delDocItem,uploadFileTips,updateDocMeta} from "@/api/knowledge";
+import {mapGetters} from 'vuex';
 export default {
   components: { Pagination,SearchInput,mataData,batchMetaData},
   data() {
@@ -237,8 +240,24 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters('app', ['permissionType'])
+  },
   mounted(){
     this.getTableData(this.docQuery)
+    if (this.permissionType === -1 || this.permissionType === null || this.permissionType === undefined) {
+        const savedData = localStorage.getItem('permission_data')
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData)
+                const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
+                if (savedPermissionType !== undefined && savedPermissionType !== -1) {
+                    this.$store.dispatch('app/setPermissionType', savedPermissionType)
+                }
+            } catch(e) {
+            }
+        }
+    }
   },
   beforeDestroy(){
     this.clearTimer()
@@ -424,7 +443,7 @@ export default {
         }
       )
         .then(async () => {
-          let jsondata = {docIdList:[data.docId]}
+          let jsondata = {docIdList:[data.docId],knowledgeId:this.docQuery.knowledgeId,}
           this.loading = true;
           let res = await delDocItem(jsondata);
           if (res.code === 0) {
@@ -529,7 +548,7 @@ export default {
   overflow-y: auto;
 }
 .edit-icon{
-  color: #384BF7;
+  color: $color;
   cursor: pointer;
   font-size: 16px;
   margin-left: 5px;

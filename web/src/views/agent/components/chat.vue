@@ -46,7 +46,7 @@
                     />
                     <div v-if="appUrlInfo" class="appUrlInfo">
                         <span v-if='appUrlInfo.copyrightEnable'>版权所有: {{appUrlInfo.copyright}}</span>
-                        <span v-if='appUrlInfo.privacyPolicyEnable'>隐私协议: <a :href="appUrlInfo.privacyPolicy" target="_blank" style="color:#384BF7;">{{appUrlInfo.privacyPolicy}}</a></span>
+                        <span v-if='appUrlInfo.privacyPolicyEnable'>隐私协议: <a :href="appUrlInfo.privacyPolicy" target="_blank" style="color:var(--color);">{{appUrlInfo.privacyPolicy}}</a></span>
                         <span v-if="appUrlInfo.disclaimerEnable">免责声明: {{appUrlInfo.disclaimer}}</span>
                     </div>
                 </div>
@@ -176,11 +176,12 @@
                             response:[0,1,2,3,4,5,6,20,21,10].includes(n.qa_type)?md.render(n.response):n.response.replaceAll('\n-','\n•'),
                             oriResponse:n.response,
                             searchList: n.searchList ? n.searchList : [],
-                            filepath: n.requestFileUrls[0],
+                            fileList: n.requestFiles,
                             "gen_file_url_list":n.responseFileUrls || [],
                             "isOpen":true,
                             toolText:'已使用工具',
-                            thinkText:'已深度思考'
+                            thinkText:'已深度思考',
+                            showScrollBtn:null
                         }
                     }) : []
                     this.$refs['session-com'].replaceHistory(history)
@@ -212,12 +213,11 @@
                 }
             },
             /*------会话------*/
-            async preSend(val,fileId,fileInfo) {
+            async preSend(val,fileList,fileInfo) {
                 this.inputVal = val || this.$refs['editable'].getPrompt()
-                this.fileId = fileId || null;
+                this.fileId = fileInfo || [];
                 this.isTestChat = this.chatType === 'test' ? true :false;
-                const file_List = this.$refs['editable'].getFileList();
-                this.fileList = file_List.length > 0 ? file_List : fileInfo || []
+                this.fileList = fileList || this.$refs['editable'].getFileList();
                 if (!this.inputVal) {
                     this.$message.warning('请输入内容');
                     return
@@ -268,9 +268,6 @@
                 }
                 let fileId = this.$refs['editable'].getFileIdList() || this.fileId;
                 this.useSearch = this.$refs['editable'].sendUseSearch();
-                if(fileId && fileId.imgUrl){
-                    delete fileId.imgUrl;
-                }
                 this.setSseParams({conversationId: this.conversationId, fileInfo:fileId,assistantId:this.editForm.assistantId})
                 this.doSend()
                 this.echo = false

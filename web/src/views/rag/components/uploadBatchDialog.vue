@@ -223,7 +223,7 @@
                         margin: 46px 0 10px 0 !important;
                         font-size: 32px !important;
                         line-height: 36px!important;
-                        color: #384BF7;
+                        color: $color;
                     }
                     .el-upload__text{
                         margin-top: -10px;

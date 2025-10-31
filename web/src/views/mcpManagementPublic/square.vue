@@ -2,7 +2,7 @@
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/mcp_menu.png" alt=""/>
+        <img class="page-title-img" src="@/assets/imgs/mcp_menu.svg" alt=""/>
         <span class="page-title-name">{{ $t('menu.mcp') }}</span>
       </div>
       <div class="mcp-content-box mcp-third">
@@ -70,7 +70,6 @@ export default {
       basePath: this.$basePath,
       mcpSquareId: "",
       category: '全部',
-      menuList: [],
       list: [],
       loading:false,
       typeRadio: 'all',

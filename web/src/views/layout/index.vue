@@ -2,104 +2,107 @@
   <div class="layout full-menu" :style="`background: ${bgColor}`">
     <el-container class="outer-container">
       <div class="left-nav" v-if="isShowNav">
-        <!--不展示平台的图标-->
-        <div style="padding: 0 15px">
-          <div style="padding: 10px 0 14px; border-bottom: 1px solid #D9D9D9;" v-if="homeLogoPath">
-            <img
-              style="width: 50px; margin-left: -5px"
-              :src="basePath + '/user/api' + homeLogoPath"
-            />
+        <div class="left-nav-container">
+          <!--不展示平台的图标-->
+          <div style="padding: 0 15px">
+            <div style="padding: 10px 0 14px; border-bottom: 1px solid #D9D9D9;" v-if="homeLogoPath">
+              <img
+                style="width: 50px; margin-left: -5px"
+                :src="basePath + '/user/api' + homeLogoPath"
+              />
+            </div>
           </div>
-        </div>
-        <div class="left-nav-content-wrap">
-          <div class="left-nav-content">
-            <div
-              :class="['nav-item', {'is-active': currentNavMenu.key === item.key}]"
-              v-for="(item, index) in navList"
-              :key="item.key + index"
-              @click="clickNavMenu(item)"
-              v-if="checkPerm(item.perm)"
-            >
-              <div v-if="item.key !== 'line'">
-                <div class="left-nav-img-wrap">
-                  <img class="left-menu-width left-nav-img" :src="currentNavMenu.key === item.key ? item.imgActive : item.img" alt="" />
+          <div class="left-nav-content-wrap">
+            <div class="left-nav-content">
+              <div
+                :class="['nav-item', {'is-active': currentNavMenu.key === item.key}]"
+                v-for="(item, index) in navList"
+                :key="item.key + index"
+                @click="clickNavMenu(item)"
+                v-if="checkPerm(item.perm)"
+              >
+                <div v-if="item.key !== 'line'">
+                  <div class="left-nav-img-wrap">
+                    <img class="left-menu-width left-nav-img" :src="currentNavMenu.key === item.key ? item.imgActive : item.img" alt="" />
+                  </div>
+                  <div class="nav-menu-name">{{item.name}}</div>
                 </div>
-                <div class="nav-menu-name">{{item.name}}</div>
-              </div>
-              <div v-if="item.key === 'line'">
-                <div style="padding: 0 18px; height: 0.5px; background: #D9D9D9;"></div>
+                <div v-if="item.key === 'line'">
+                  <div style="padding: 0 18px; height: 0.5px; background: #D9D9D9;"></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <!--取消整体的新建展示-->
-        <!--<div style="padding: 0 15px">
-          <div style="padding: 14px 0 10px; border-top: 1px solid #D9D9D9">
-            <img class="total-create" src="@/assets/imgs/totalCreate.png" alt="" @click="showCreateTotalDialog">
-            <CreateTotalDialog ref="createTotalDialog" />
-          </div>
-        </div>-->
-        <div class="nav-bottom">
-          <!--隐藏文档下载菜单-->
-          <!--<div>
-            <img class="left-menu-width" src="@/assets/imgs/doc.png" alt="" @click="showDocDownloadDialog" />
-            <DocDownloadDialog ref="docDownloadDialog" />
+          <!--取消整体的新建展示-->
+          <!--<div style="padding: 0 15px">
+            <div style="padding: 14px 0 10px; border-top: 1px solid #D9D9D9">
+              <img class="total-create" src="@/assets/imgs/totalCreate.png" alt="" @click="showCreateTotalDialog">
+              <CreateTotalDialog ref="createTotalDialog" />
+            </div>
           </div>-->
-          <AboutDialog ref="aboutDialog" />
-          <div style="margin-top: 15px;">
-            <el-popover
-              placement="right"
-              width="220"
-              trigger="click"
-            >
-              <div style="margin-bottom: 6px" class="menu--popover-item" :title="getCurrentOrgName()">
-                <el-select
-                  v-model="org.orgId"
-                  :placeholder="$t('header.org.placeholder')"
-                  filterable
-                  class="menu__org_select"
-                  v-if="orgList && orgList.length"
-                  @change="changeOrg"
-                >
-                  <el-option
-                    v-for="(item, index) in orgList"
-                    :command="index"
-                    :key="item.id + index"
-                    :label="item.name"
-                    :value="item.id"
-                  />
-                </el-select>
-              </div>
-              <div
-                :class="['menu--popover-wrap', {'wrap-last': popoverList.length === index + 1}]"
-                v-for="(it, index) in popoverList"
-                :key="'popoverList' + index"
+          <div class="nav-bottom">
+            <!--隐藏文档下载菜单-->
+            <!--<div>
+              <img class="left-menu-width" src="@/assets/imgs/doc.png" alt="" @click="showDocDownloadDialog" />
+              <DocDownloadDialog ref="docDownloadDialog" />
+            </div>-->
+            <AboutDialog ref="aboutDialog" />
+            <div style="margin-top: 15px;">
+              <el-popover
+                placement="right"
+                width="220"
+                trigger="click"
               >
+                <div style="margin-bottom: 6px" class="menu--popover-item" :title="getCurrentOrgName()">
+                  <el-select
+                    v-model="org.orgId"
+                    :placeholder="$t('header.org.placeholder')"
+                    filterable
+                    class="menu__org_select"
+                    v-if="orgList && orgList.length"
+                    @change="changeOrg"
+                  >
+                    <el-option
+                      v-for="(item, index) in orgList"
+                      :command="index"
+                      :key="item.id + index"
+                      :label="item.name"
+                      :value="item.id"
+                    />
+                  </el-select>
+                </div>
                 <div
-                  v-if="checkPerm(item.perm)"
-                  v-for="item in it"
-                  :key="item.name"
-                  class="menu--popover-item"
-                  @click="menuClick(item)"
+                  :class="['menu--popover-wrap', {'wrap-last': popoverList.length === index + 1}]"
+                  v-for="(it, index) in popoverList"
+                  :key="'popoverList' + index"
                 >
-                  <img class="menu--popover-item-img" :src="item.img" alt="" />
-                  <el-tooltip v-if="item.isTip" effect="dark" :content="item.tipContent" placement="top-start">
-                    <span style="display:inline-block; width: 150px" class="menu--popover-item-name">{{item.name}}</span>
-                  </el-tooltip>
-                  <span v-if="!item.isTip" class="menu--popover-item-name">{{item.name}}</span>
-                  <img v-if="item.icon" class="menu--popover-item-icon" :src="item.icon" alt="" />
-                  <span v-if="item.version" class="menu--popover-item-version">
+                  <div
+                    v-if="checkPerm(item.perm)"
+                    v-for="item in it"
+                    :key="item.name"
+                    class="menu--popover-item"
+                    @click="menuClick(item)"
+                  >
+                    <img class="menu--popover-item-img" :src="item.img" alt="" />
+                    <el-tooltip v-if="item.isTip" effect="dark" :content="item.tipContent" placement="top-start">
+                      <span style="display:inline-block; width: 150px" class="menu--popover-item-name">{{item.name}}</span>
+                    </el-tooltip>
+                    <span v-if="!item.isTip" class="menu--popover-item-name">{{item.name}}</span>
+                    <img v-if="item.icon" class="menu--popover-item-icon" :src="item.icon" alt="" />
+                    <span v-if="item.version" class="menu--popover-item-version">
                     {{version || ''}}
                   </span>
+                  </div>
                 </div>
-              </div>
-              <div slot="reference">
-                <img class="left-menu-width" src="@/assets/imgs/account.png" alt="" />
-              </div>
-            </el-popover>
+                <div slot="reference">
+                  <img class="left-menu-width" src="@/assets/imgs/account.png" alt="" />
+                </div>
+              </el-popover>
+            </div>
           </div>
         </div>
       </div>
+      <div class="left-page-container" v-if="isShowNav"></div>
       <!-- 容器 -->
       <el-container :class="['inner-container']">
         <!--取消整体的菜单展示 isShowMenu 一直为 false-->
@@ -205,8 +208,10 @@
         </el-aside>
         <!-- 右侧内容 -->
         <el-main>
-          <router-view></router-view>
-          <div id="container" class="qk-container"></div>
+          <div class="page-container">
+            <router-view></router-view>
+            <div id="container" class="qk-container"></div>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -489,16 +494,28 @@ export default {
   min-height: 660px;
   .outer-container{
     height: 100%;
+    .left-page-container {
+      //position: relative;
+      width: 80px;
+      height: 100%;
+    }
     .left-nav {
       width: 70px;
       text-align: center;
-      padding: 1% 0 8px 0;
-      position: relative;
-      min-height: 650px;
+      padding: 0.5% 0 8px 0;
+      position: fixed;
+      height: calc(100% - 16px);
+      overflow: scroll;
       background: #F7F7FC;
       border-radius: 8px;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       margin: 8px 6px;
+      z-index: 20;
+      .left-nav-container {
+        position: relative;
+        min-height: 650px;
+        height: 100%;
+      }
       .left-nav-content-wrap {
         /*display: flex;
         flex-direction: column;
@@ -523,8 +540,8 @@ export default {
       }
       .nav-item {
         /*margin: calc((100vh - 560px) / 28) 0;*/
-        margin: 0.8vh 0;
-        color: #77869E;
+        margin: 0.6vh 0;
+        color: $inactivate_color;
         font-weight: bold;
         cursor: pointer;
         border-radius: 8px;
@@ -555,7 +572,7 @@ export default {
         bottom: 0;
         width: 70px;
         text-align: center;
-        padding-bottom: 30px;
+        padding-bottom: 10px;
         img {
           cursor: pointer;
         }
@@ -565,7 +582,6 @@ export default {
     .inner-container {
       width: calc(100% - 70px);
       height: 100%;
-      margin: 0 6px 0 0;
       border-radius: 10px;
       // border: 1px solid #e6e6e6;
       /*box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.15);*/
@@ -606,6 +622,12 @@ export default {
         /*background: linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%);
         border-radius: 8px 8px 8px 8px;
         border-left: 0.5px solid #e6e6e6;*/
+        .page-container {
+          height: 100%;
+          min-width: 1250px;
+          overflow-x: auto;
+          padding-right: 2px;
+        }
       }
       /deep/ .el-menu-item {
         color: $color_title;

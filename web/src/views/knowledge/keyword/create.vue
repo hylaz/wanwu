@@ -3,9 +3,9 @@
        <el-dialog
         :title="title"
         :visible.sync="dialogVisible"
-        width="40%"
+        width="45%"
         :before-close="handleClose">
-        <el-form ref="form" :model="form" label-width="120px" :rules="rules">
+        <el-form ref="form" :model="form" label-width="130px" :rules="rules">
             <el-form-item label="问题中的关键词" prop="name">
                 <el-input v-model="form.name"></el-input>
             </el-form-item>

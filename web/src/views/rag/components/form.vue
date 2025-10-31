@@ -28,10 +28,13 @@
         <el-button size="small" type="primary" @click="handlePublish" style="padding:13px 12px;">发布<span class="el-icon-arrow-down" style="margin-left:5px;"></span></el-button>
         <div class="popover-operation" v-if="showOperation">
           <div>
-            <el-radio :label="'private'" v-model="scope">私密发布：仅自己可见</el-radio>
+            <el-radio :label="'private'" v-model="scope">私密发布为应用：仅自己可见</el-radio>
           </div>
           <div>
-            <el-radio :label="'public'" v-model="scope">公开发布：组织内可见</el-radio>
+            <el-radio :label="'organization'" v-model="scope">公开发布为应用：组织内可见</el-radio>
+          </div>
+          <div>
+            <el-radio :label="'public'" v-model="scope">公开发布为应用：全局可见</el-radio>
           </div>
           <div class="saveBtn">
             <el-button size="mini" type="primary" @click="savePublish">保 存</el-button>
@@ -135,9 +138,9 @@
                   <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add">
+            <span class="common-add" @click="showSafety">
               <span class="el-icon-s-operation"></span>
-              <span class="handleBtn" style="margin-right:10px;" @click="showSafety">配置</span>
+              <span class="handleBtn" style="margin-right:10px;">配置</span>
               <el-switch v-model="editForm.safetyConfig.enable" :disabled="!(editForm.safetyConfig.tables || []).length"></el-switch>
             </span>
           </p>
@@ -547,7 +550,7 @@ export default {
     margin-top: 4px;
     .model-select-tag {
       background-color: #f0f2ff;
-      color: #384bf7;
+      color: $color;
       border-radius: 4px;
       padding: 2px 8px;
       font-size: 10px;
@@ -562,8 +565,8 @@ export default {
 /deep/{
   .apikeyBtn{
     padding: 12px 10px;
-    border:1px solid #384BF7;
-    color: #384BF7;
+    border:1px solid $btn_bg;
+    color: $btn_bg;
     display:flex;
     align-items: center;
     img{
@@ -620,7 +623,7 @@ export default {
   border-bottom:1px solid #dbdbdb;
   .popover-operation{
     position:absolute;
-    bottom:-100px;
+    bottom:-122px;
     right:20px;
     background:#fff;
     box-shadow: 0px 1px 7px rgba(0, 0, 0, 0.3);
@@ -643,7 +646,7 @@ export default {
     }
     .header-left-title{
       font-size:18px;
-      color: #434C6C;
+      color: $color_title;
       font-weight: bold;
     }
     .basicInfo{
@@ -694,7 +697,7 @@ export default {
     border-radius:6px;
     .root-url{
       background-color:#ECEEFE;
-      color:#384BF7;
+      color:$color;
       border:none;
     }
   }
@@ -837,7 +840,7 @@ export default {
       cursor: pointer;
     }
     .operation:hover{
-      color:#384BF7;
+      color:$color;
     }
     .tips {
       display: flex;
@@ -1040,7 +1043,7 @@ export default {
       box-sizing: border-box;
       cursor: pointer;
       .del {
-        color: #384bf7;
+        color: $btn_bg;
         font-size: 16px;
       }
     }

@@ -258,16 +258,16 @@ export default {
 .table-opera-icon{
   font-size: 18px;
   cursor: pointer;
-  color:#384BF7;
+  color:$color;
 }
 .metaValueType,.link{
-  color:#384BF7;
+  color:$color;
 }
 .dialog-title{
   font-weight:bold;
   line-height:24px;
   font-size: 18px;
-  color: #434C6C;
+  color: $color_title;
   margin-right:10px;
 }
 .question{

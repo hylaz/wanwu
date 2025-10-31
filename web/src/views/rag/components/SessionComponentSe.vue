@@ -9,7 +9,7 @@
         <i
           class="el-icon-more"
           trigger="click"
-          style="color:#384BF7;"
+          style="color:var(--color);"
         ></i>
         <el-dropdown-menu
           :append-to-body="false"
@@ -210,6 +210,7 @@ marked.setOptions({
     return highlight.highlightAuto(code).value;
   },
 });
+
 
 export default {
   props: ["sessionStatus", "defaultUrl"],
@@ -703,20 +704,20 @@ export default {
 <style scoped lang="scss">
 .serach-list-item {
   .link:hover {
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .search-doc {
     margin-left: 10px;
     cursor: pointer;
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .subTag {
     display: inline-flex;
-    color: #384bf7;
+    color: $color;
     border-radius: 50%;
     width: 18px;
     height: 18px;
-    border: 1px solid #384bf7;
+    border: 1px solid $color;
     line-height: 18px;
     vertical-align: middle;
     margin-left: 2px;
@@ -768,11 +769,11 @@ img.failed::after {
     }
     .citation {
       display: inline-flex;
-      color: #384bf7;
+      color: $color;
       border-radius: 50%;
       width: 18px;
       height: 18px;
-      border: 1px solid #384bf7;
+      border: 1px solid $color;
       cursor: pointer;
       line-height: 18px;
       vertical-align: middle;
@@ -786,7 +787,7 @@ img.failed::after {
       transform: scale(0.8);
     }
     .citation-active {
-      background: #384bf7;
+      background: $color;
       color: #fff;
     }
   }

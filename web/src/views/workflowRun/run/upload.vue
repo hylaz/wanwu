@@ -148,7 +148,6 @@ export default {
       formData.append("file_name", fname)
 
       externalUpload(formData, config).then((res)=>{
-        console.log(res, '-----------------externalUpload')
         const { download_link: link } = res.data || {}
         this.loading = false;
         const params = {

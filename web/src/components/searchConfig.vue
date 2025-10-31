@@ -121,7 +121,7 @@
               </el-slider>
             </el-col>
           </el-row>
-          <el-row v-if="showHistory(item)">
+          <el-row v-if=showHistory(item)>
             <el-col>
               <span class="content-name">最长上下文</span>
               <el-tooltip
@@ -325,10 +325,10 @@ export default {
     },
     showHistory(n){
       return (
-        (this.setType === 'rag'||this.setType === 'agent') &&
+       (this.setType === 'rag'||this.setType === 'agent') &&
         (n.value === "vector" ||
          n.value === "text" ||
-         (n.value === "mix" && n.mixTypeValue === "rerank")
+         (n.value === "mix") //&& n.mixTypeValue === "rerank"
         )
       )
     },
@@ -400,11 +400,11 @@ export default {
   }
 }
 .active {
-  border: 1px solid #384bf7 !important;
+  border: 1px solid $color !important;
 }
 .searchConfig {
   .searchType-list:hover {
-    border: 1px solid #384bf7;
+    border: 1px solid $color;
   }
   .searchType-list {
     border: 1px solid #c0c4cc;
@@ -419,7 +419,7 @@ export default {
         font-size: 30px;
         text-align: center;
         line-height: 50px;
-        color: #384bf7;
+        color: $color;
         background-color: #fff;
         width: 50px;
         height: 50px;

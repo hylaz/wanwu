@@ -29,6 +29,13 @@ export const getAgentInfo = (params)=>{
         params
     })
 }
+export const getAgentDetail = (params)=>{
+    return service({
+        url: `${BASE_URL}/assistant/draft`,
+        method: 'get',
+        params
+    })
+}
 export const putAgentInfo = (data)=>{
     return service({
         url: `${BASE_URL}/assistant/config`,
@@ -142,7 +149,7 @@ export const getAgentList = (params)=>{
     })
 }
 
-//删除mcp
+//删除mcp工具
 export const deleteMcp = (data)=>{
     return service({
         url: `${BASE_URL}/assistant/tool/mcp`,
@@ -150,7 +157,7 @@ export const deleteMcp = (data)=>{
         data
     })
 }
-//添加mcp
+//添加mcp工具
 export const addMcp = (data)=>{
     return service({
         url: `${BASE_URL}/assistant/tool/mcp`,
@@ -158,7 +165,7 @@ export const addMcp = (data)=>{
         data
     })
 }
-//启停mcp
+//启停mcp工具
 export const enableMcp = (data)=>{
     return service({
         url: `${BASE_URL}/assistant/tool/mcp/switch`,
@@ -166,38 +173,72 @@ export const enableMcp = (data)=>{
         data
     })
 }
-//删除自定义工具
-export const deleteCustom = (data)=>{
+
+// 删除自定义、内置工具
+export const delCustomBuiltIn = (data)=>{
     return service({
-        url: `${BASE_URL}/assistant/tool/custom`,
+        url: `${BASE_URL}/assistant/tool`,
         method: 'delete',
         data
     })
 }
-//添加自定义工具
-export const addCustom = (data)=>{
+// 添加自定义、内置工具
+export const addCustomBuiltIn = (data)=>{
     return service({
-        url: `${BASE_URL}/assistant/tool/custom`,
+        url: `${BASE_URL}/assistant/tool`,
         method: 'post',
         data
     })
 }
-// 自定义工具列表
-export const customList = (data)=>{
+// 启停自定义、内置工具
+export const switchCustomBuiltIn = (data)=>{
     return service({
-        url: `${BASE_URL}/tool/custom/select`,
-        method: 'get',
-        params:data
-    })
-}
-//启停自定义工具
-export const enableCustom = (data)=>{
-    return service({
-        url: `${BASE_URL}/assistant/tool/custom/switch`,
+        url: `${BASE_URL}/assistant/tool/switch`,
         method: 'put',
         data
     })
 }
+//工具列表
+export const toolList = (data)=>{
+    return service({
+        url: `${BASE_URL}/tool/select`,
+        method: 'get',
+        params:data
+    })
+}
+//工具下面的action列表
+export const toolActionList = (data)=>{
+    return service({
+        url: `${BASE_URL}/tool/action/list`,
+        method: 'get',
+        params:data
+    })
+}
+//内置工具下面的action详情
+export const toolActionDetail = (data)=>{
+    return service({
+        url: `${BASE_URL}/tool/action/detail`,
+        method: 'get',
+        params:data
+    })
+}
+//mcp工具列表
+export const mcptoolList = (data)=>{
+    return service({
+        url: `${BASE_URL}/mcp/select`,
+        method: 'get',
+        params:data
+    })
+}
+//mcp工具下面的action列表
+export const mcpActionList = (data)=>{
+    return service({
+        url: `${BASE_URL}/mcp/action/list`,
+        method: 'get',
+        params:data
+    })
+}
+    
 //编辑url
 export const editOpenurl = (data)=>{
     return service({

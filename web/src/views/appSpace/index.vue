@@ -53,9 +53,9 @@ export default {
       loading: false,
       listData:[],
       typeObj: {
-        workflow: {title: '工作流', img: require('@/assets/imgs/workflow_icon.png')},
-        rag: {title: '文本问答', img: require('@/assets/imgs/rag.png')},
-        agent: {title: '智能体', img: require('@/assets/imgs/agent.png')}
+        workflow: {title: '工作流', img: require('@/assets/imgs/workflow_icon.svg')},
+        rag: {title: '文本问答', img: require('@/assets/imgs/rag.svg')},
+        agent: {title: '智能体', img: require('@/assets/imgs/agent.svg')}
       },
       currentTypeObj: {},
       agnet_type:'auto',

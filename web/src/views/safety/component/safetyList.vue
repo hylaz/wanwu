@@ -162,7 +162,7 @@ export default {
       }
     }
     .tagList:hover{
-        color:#384BF7;
+        color:$color;
       }
   }
 }

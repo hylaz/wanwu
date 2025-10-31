@@ -483,6 +483,14 @@ export const editUserPower = (data)=>{
         data
     })
 };
+// 删除知识库用户权限
+export const delUserPower = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/user/delete`,
+        method: 'delete',
+        data
+    })
+};
 //更新文档元数据
 export const updateMetaData = (data)=>{
     return service({

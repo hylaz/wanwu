@@ -1,7 +1,7 @@
 <template>
   <div class="page-wrapper">
     <div class="page-title">
-      <img class="page-title-img" src="@/assets/imgs/knowledge.png" alt="" />
+      <img class="page-title-img" src="@/assets/imgs/knowledge.svg" alt="" />
       <span class="page-title-name">{{$t('knowledgeManage.knowledge')}}</span>
     </div>
     <div style="padding: 20px">
@@ -36,6 +36,11 @@ import knowledgeList from './component/knowledgeList.vue';
 import createKnowledge from './component/create.vue';
 export default {
     components: { SearchInput,knowledgeList,createKnowledge },
+    provide(){
+      return {
+        reloadKnowledgeData: this.getTableData
+      }
+    },
     data(){
        return{
         knowledgeData:[],

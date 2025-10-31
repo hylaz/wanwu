@@ -46,24 +46,28 @@
                 </el-popover>
                 <div
                   class="echo-doc-box"
-                  v-if="n.fileName && n.fileName !== ''"
+                  v-if="hasFiles(n)"
                 >
-                  <img
-                    :src="n.fileUrl || n.filepath"
-                    class="docIcon"
-                    style="width:auto!important;height:30px!important;"
-                    v-if="(n.fileType && typeof n.fileType === 'string' && n.fileType.includes('image')) || (n.fileName && typeof n.fileName === 'string' && ['jpg','png','jpeg'].includes(n.fileName.split('.').pop().toLowerCase()))"
-                  />
+                <el-button v-show="canScroll(i,n.showScrollBtn)" icon="el-icon-arrow-left " @click="prev($event,i)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
+                 <div class="imgList" :ref="`imgList-${i}`">
+                 <div v-for="(file,j) in n.fileList" :key="`${j}sdsl`" class="docInfo-img-container">
+                      <img v-if="hasImgs(n,file)"
+                        :src="file.fileUrl"
+                        class="docIcon imgIcon" />
+                  <div v-else class="docInfo-container">
                   <img
                     :src="require('@/assets/imgs/fileicon.png')"
                     class="docIcon"
                     style="width:30px!important;"
-                    v-else
                   />
                   <div class="docInfo">
-                    <p class="docInfo_name">文件名称：{{n.fileName||'...'}}</p>
-                    <p class="docInfo_size">文件大小:{{getFileSizeDisplay(n.fileSize)}}</p>
+                    <p class="docInfo_name">文件名称：{{file.name}}</p>
+                    <p class="docInfo_size">文件大小:{{getFileSizeDisplay(file.size)}}</p>
                   </div>
+                  </div>
+                 </div>
+                 </div>
+                 <el-button v-show="canScroll(i,n.showScrollBtn)" icon="el-icon-arrow-right" @click="next($event,i)" circle class="scroll-btn right" size="mini" type="primary"></el-button>
                 </div>
               </div>
 
@@ -366,7 +370,8 @@ export default {
       },
       imgConfig: ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"],
       audioConfig: ["mp3", "wav"],
-      debounceTimer: null
+      fileScrollStateMap: {},
+      resizeTimer: null,
     };
   },
   computed: {
@@ -377,11 +382,21 @@ export default {
       handler(val, oldVal) {},
       immediate: true,
     },
+    'session_data.history':{
+      handler(){
+        this.$nextTick(() => {
+          this.updateAllFileScrollStates();
+        });
+      },
+      deep:true
+    }
   },
   mounted() {
     this.setupScrollListener();
     smoothscroll.polyfill();
     document.addEventListener('click', this.handleCitationClick);
+    window.addEventListener('resize', this.handleWindowResize);
+    this.updateAllFileScrollStates();
   },
   beforeDestroy() {
     if(this.handleCitationClick) {
@@ -392,21 +407,95 @@ export default {
       container.removeEventListener("scroll", this.handleScroll);
     }
     clearTimeout(this.scrollTimeout);
+
+    window.removeEventListener('resize', this.handleWindowResize);
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer);
+    }
+    
     // 移除图片错误事件监听器
     if (this.imageErrorHandler) {
       document.body.removeEventListener("error", this.imageErrorHandler, true);
     }
   },
   methods: {
+    updateAllFileScrollStates() {
+      this.session_data.history.forEach((item, index) => {
+        if (item.fileList && item.fileList.length > 0) {
+          this.$nextTick(() => {
+            this.checkFileScrollState(index);
+          });
+        }
+      });
+    },
+    checkFileScrollState(index) {
+      const refKey = `imgList-${index}`;
+      const containerArray = this.$refs[refKey];
+      if (containerArray && containerArray.length > 0) {
+        const container = containerArray[0];
+        const canScroll = container.scrollWidth > container.clientWidth;
+        if (this.session_data.history[index]) {
+          this.$set(this.session_data.history[index], 'showScrollBtn', canScroll);
+        }
+        this.$set(this.fileScrollStateMap, index, canScroll);
+      }
+    },
+    handleWindowResize() {
+      if (this.resizeTimer) {
+        clearTimeout(this.resizeTimer);
+      }
+      this.resizeTimer = setTimeout(() => {
+        this.updateAllFileScrollStates();
+      }, 200);
+    },
+    canScroll(i,showScrollBtn) {
+      if (showScrollBtn !== null && showScrollBtn !== undefined) {
+        return showScrollBtn;
+      }
+      // 否则从 fileScrollStateMap 中获取
+      return this.fileScrollStateMap[i] || false;
+    },
+    prev(e,i){
+      e.stopPropagation()
+      const refKey = `imgList-${i}`;
+      const containerArray = this.$refs[refKey];
+      if (containerArray && containerArray.length > 0) {
+        const container = containerArray[0];
+        container.scrollBy({
+          left: -200,
+          behavior: "smooth",
+        });
+      }
+    },
+    next(e,i){
+      e.stopPropagation()
+      const refKey = `imgList-${i}`;
+      const containerArray = this.$refs[refKey];
+      if (containerArray && containerArray.length > 0) {
+        const container = containerArray[0];
+        container.scrollBy({
+          left: 200,
+          behavior: "smooth",
+        });
+      }
+    },
+    hasFiles(n){
+       return n.fileList && n.fileList.length > 0;
+    },
+    hasImgs(n,file){
+      if (!n.fileList || n.fileList.length === 0 || !file || !file.name) {
+        return false;
+      }
+      let type = file.name.split('.').pop().toLowerCase();
+      return this.imgConfig.map(t => t.toLowerCase()).includes(type);
+    },
     handleCitationClick(e) {
-      // 调用 common.js 中的通用方法
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
         sessionData: this.session_data,
         citationSelector: '.citation',
         scrollElementId: 'timeScroll',
         onToggleCollapse: (item, collapse) => {
-          // 使用 Vue.set 确保响应式更新
           this.$set(item, 'collapse', collapse);
         }
       });
@@ -833,20 +922,20 @@ export default {
 <style scoped lang="scss">
 .serach-list-item {
   .link:hover {
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .search-doc {
     margin-left: 10px;
     cursor: pointer;
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .subTag {
     display: inline-flex;
-    color: #384bf7;
+    color: $color;
     border-radius: 50%;
     width: 18px;
     height: 18px;
-    border: 1px solid #384bf7;
+    border: 1px solid $color;
     line-height: 18px;
     vertical-align: middle;
     margin-left: 2px;
@@ -884,6 +973,7 @@ export default {
     background: none !important;
   }
   .answer-content {
+    width: 100%;
     img {
       width: 80% !important;
     }
@@ -893,11 +983,11 @@ export default {
    
     .citation {
       display: inline-flex;
-      color: #384bf7;
+      color: $color;
       border-radius: 50%;
       width: 18px;
       height: 18px;
-      border: 1px solid #384bf7;
+      border: 1px solid $color;
       cursor: pointer;
       line-height: 18px;
       vertical-align: middle;
@@ -918,7 +1008,7 @@ export default {
   }
 }
 .more {
-  color: #384bf7;
+  color: $color;
 }
 .session {
   word-break: break-all;
@@ -947,6 +1037,7 @@ export default {
         flex-wrap: wrap;
         flex-direction: column;
         align-items: flex-end;
+        width: 100%;
         .answer-text {
           background: #7288fa;
           color: #fff;
@@ -961,18 +1052,59 @@ export default {
         }
         .echo-doc-box {
           margin-top: 10px;
-          background: #fff;
-          width: auto;
-          border: 1px solid #dcdfe6;
-          border-radius: 5px;
+          width: 100%;
+          max-width: 100%;
           display: flex;
+          gap:8px;
           justify-content: space-between;
           align-items: center;
-          padding: 2px 20px 5px 5px;
+          position: relative;
+          .scroll-btn{
+            position:absolute;
+            top:50%;
+            transform: translateY(-15px);
+            &.left{
+                left:5px;
+            }
+            &.right{
+                right:5px;
+            }
+          }
+          .imgList{
+            width:100%;
+            gap: 10px;
+            overflow-x:hidden;
+            scroll-behavior: smooth;
+            display:flex;
+            flex-wrap: nowrap;
+            flex-direction: row-reverse;
+          }
+          .docInfo-container{
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid rgb(235, 236, 238);
+            padding: 5px 10px 5px 5px;
+            border-radius: 5px;
+          }
+          .docInfo-img-container{
+            flex-shrink: 0;  /* 防止图片被压缩 */
+            width: auto;  /* 或固定宽度 */
+            p{
+              text-align: center;
+              color: $color;
+              font-size: 12px;
+            }
+          }
           .docIcon {
             width: 30px;
             height: 30px;
-            margin-right: 10px;
+          }
+          .imgIcon {
+            width:auto!important;
+            height:70px!important;
+            display:block;
+            border-radius:6px;
           }
           .docInfo {
             .docInfo_name {
@@ -1190,7 +1322,7 @@ export default {
     font-size: 13px;
     color: #8b8b8b;
     font-weight: bold;
-    margin-left: 6px;
+    margin:0 0 10px 6px;
     cursor: pointer;
   }
 }

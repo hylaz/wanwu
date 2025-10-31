@@ -131,7 +131,7 @@ export default {
       this.getDetailData()
 
       //滚动到顶部
-      const main = document.querySelector(".el-main")
+      const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
     getDetailData(){
@@ -161,7 +161,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../views/mcpManagementPublic/markdown.min.css";
+@import "@/style/markdown.scss";
 .markdown-body {
   font-family: "Microsoft YaHei", Arial, sans-serif;
   color: #333;
@@ -313,8 +313,8 @@ export default {
       padding: 20px;
       .recommend-item {
         position: relative;
-        border: 1px solid $border_color; // rgba(208, 167, 167, 1);
-        background: #f4f5ff; // rgba(255, 247, 247, 1);
+        border: 1px solid $border_color;
+        background: $color_opacity;
         margin-bottom: 15px;
         border-radius: 10px;
         padding: 20px 20px 20px 80px;
@@ -351,7 +351,7 @@ export default {
     /*border:1px solid rgba(208, 167, 167, 1);*/
     border-radius: 10px;
     padding: 10px 20px;
-    box-shadow: 2px 2px 15px #f4f5ff; // #d0a7a757;
+    box-shadow: 2px 2px 15px $color_opacity;
   }
   .overview-item .item-desc {
     line-height: 28px;
@@ -378,10 +378,10 @@ export default {
   }
 
   .desc {
-    background: #f4f5ff; // rgba(255, 246, 246, 1);
+    background: $color_opacity;
     padding: 10px 15px;
     border-radius: 6px;
-    border: 1px solid #98a6e9; // #f5cbcb;
+    border: 1px solid $border_color;
   }
 
   .params {

@@ -64,11 +64,26 @@
   </div>
 </template>
 <script>
-import { getTools, setCreate } from "@/api/mcp.js";
+import { getTools, setCreate, setUpdate } from "@/api/mcp.js";
 import { isValidURL } from "@/utils/util";
 
 export default {
-  props: ["dialogVisible"],
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      required: true
+    },
+    initialData: {
+      type: Object,
+      default: () => ({
+        name: "",
+        from: "",
+        sseUrl: "",
+        desc: "",
+        mcpId: "",
+      })
+    }
+  },
   data() {
     const validateUrl = (rule, value, callback) => {
       if (!isValidURL(value)) {
@@ -110,6 +125,15 @@ export default {
       publishLoading: false
     };
   },
+  watch: {
+    // 监听初始数据变化，更新本地副本
+    initialData: {
+      handler(newVal) {
+        this.ruleForm = { ...newVal }
+      },
+      immediate: true
+    },
+  },
   methods: {
     handleCancel() {
       this.$emit("handleClose", false);
@@ -120,7 +144,19 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.publishLoading = true
-          setCreate(this.ruleForm)
+          if (this.initialData.mcpId) {
+            setUpdate({
+              ...this.ruleForm,
+              mcpId: this.initialData.mcpId
+            }).then((res) => {
+              if (res.code === 0) {
+                this.$message.success("修改成功")
+                this.$emit("handleFetch", false)
+                this.handleCancel()
+              }
+            }).finally(() => this.publishLoading = false)
+          }
+          else setCreate(this.ruleForm)
             .then((res) => {
               if(res.code === 0){
                 this.$message.success("发布成功")

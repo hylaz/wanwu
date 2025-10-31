@@ -39,7 +39,7 @@
           <p class="message" v-if="codeSentMessage">{{ codeSentMessage }}</p>
           <div class="nav-bt">
             {{ $t('register.askAccount') }}
-            <span :style="{ color: '#384BF7', cursor: 'pointer' }" @click="$router.push({path: `/login`})">
+            <span :style="{ color: 'var(--color)', cursor: 'pointer' }" @click="$router.push({path: `/login`})">
               {{ $t('register.login') }}
             </span>
           </div>

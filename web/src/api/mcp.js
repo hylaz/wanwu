@@ -172,6 +172,14 @@ export const setCreate = (data)=>{
     })
 };
 
+export const setUpdate = (data)=>{
+    return request({
+        url: `${BASE_URL}/mcp`,
+        method: 'put',
+        data: data
+    })
+};
+
 /*---第三方MCP广场---*/
 export const getPublicMcpList = (data)=>{
     return request({

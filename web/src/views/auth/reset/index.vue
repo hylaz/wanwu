@@ -66,7 +66,7 @@
           </el-form>
           <div class="nav-bt">
             {{ $t('reset.askAccount') }}
-            <span :style="{ color: '#384BF7', cursor: 'pointer' }" @click="$router.push({path: `/login`})">
+            <span :style="{ color: 'var(--color)', cursor: 'pointer' }" @click="$router.push({path: `/login`})">
               {{ $t('reset.login') }}
             </span>
           </div>

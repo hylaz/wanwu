@@ -40,7 +40,7 @@
             v-model="n.value.content"
             placeholder="请填写输入参数值"
           ></el-input>
-          <codeEditor
+          <ArrayEditor
             v-else
             style="height: 200px; overflow: auto"
             :value="n.value.content"
@@ -122,14 +122,14 @@
 
 <script>
 import sseMethod from "@/mixins/sseMethod.js";
-import codeEditor from "@/views/ArrayEditor/index.vue";
+import ArrayEditor from "@/views/ArrayEditor";
 import Upload from "./upload.vue";
 import { getQueryString } from "@/utils/util.js";
 import { getWorkFlowParams } from "@/api/workflow";
 import { mapGetters } from "vuex"
 
 export default {
-  components: { codeEditor, Upload },
+  components: { ArrayEditor, Upload },
   mixins: [sseMethod],
   data() {
     return {

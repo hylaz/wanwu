@@ -3,7 +3,7 @@ import { store } from '@/store/index'
 import { Message } from 'element-ui'
 import { basePath } from "@/utils/config"
 import { ZH } from '@/lang/constants'
-console.log(window.APP_BASE_PATH, '---', process.env.VUE_APP_BASE_PATH, '------basePath:', basePath, '------------------BASE_PATH====request')
+import { guid } from "@/utils/util"
 
 // create an axios instance
 const service = axios.create({
@@ -14,18 +14,26 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-      const token = store.getters['user/token']
-      const user = store.getters['user/userInfo']
-      const lang = localStorage.getItem('locale') || ZH // store.getters['user/lang']
-      config.headers = {
-      ...config.headers,
-      ...(!config.isOpenUrl && {'Authorization': 'Bearer ' + token}),
-      ...(!config.isOpenUrl && {'x-user-id': user.uid}),
-      ...(!config.isOpenUrl && {"x-org-id": user.orgId}),
-      ...(config.hasLang && { 'x-language': lang })
-      }
+    const token = store.getters['user/token']
+    const user = store.getters['user/userInfo']
+    const lang = localStorage.getItem('locale') || ZH // store.getters['user/lang']
+    let xClientId = localStorage.getItem('xClientId')
+    if (!xClientId) {
+      xClientId = guid()
+      localStorage.setItem('xClientId', xClientId)
+    }
+    config.headers = {
+    ...config.headers,
+    ...(!config.isOpenUrl && {
+      'Authorization': 'Bearer ' + token,
+      'x-user-id': user.uid,
+      'x-org-id': user.orgId,
+      'x-client-id': xClientId,
+    }),
+    ...(config.hasLang && { 'x-language': lang })
+    }
       
-      return config
+    return config
   },
   error => {
     console.log(error)

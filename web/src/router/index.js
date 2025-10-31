@@ -48,6 +48,14 @@ const constantRoutes = [
         component:resolve =>require(['@/views/agent'],resolve),
     },
     {
+        path: '/public/templateSquare',
+        component:resolve =>require(['@/views/templateSquare'],resolve),
+    },
+    {
+        path: '/public/templateSquare/detail',
+        component: resolve => require(['@/views/templateSquare/tempDetail.vue'],resolve),
+    },
+    {
         path: '/portal',
         name: 'portal',
         component:resolve =>require(['@/views/layout'],resolve),
@@ -91,11 +99,11 @@ const constantRoutes = [
                 meta:{perm: [PERMS.TOOL]},
                 props: { type: 'custom' }
             },
-            // {
-            //     path: '/tool/detail/server',
-            //     component:resolve =>require(['@/views/tool/serverDetail'],resolve),
-            //     meta:{perm: [PERMS.TOOL]},
-            // },
+            {
+                path: '/tool/detail/server',
+                component:resolve =>require(['@/views/tool/serverDetail'],resolve),
+                meta:{perm: [PERMS.TOOL]},
+            },
             {
                 path: '/mcp',
                 component:resolve => require(['@/views/mcpManagementPublic/square'],resolve),
@@ -207,6 +215,14 @@ const constantRoutes = [
                 path:'/rag/publishSet',
                 component:resolve =>require(['@/views/agent/web-URL'],resolve),
                 meta:{perm: [PERMS.RAG]},
+            },
+            {
+                path: '/templateSquare',
+                component:resolve =>require(['@/views/templateSquare'],resolve),
+            },
+            {
+                path: '/templateSquare/detail',
+                component: resolve => require(['@/views/templateSquare/tempDetail.vue'],resolve),
             },
             {
                 path: '/userCenter/*',

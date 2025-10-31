@@ -35,22 +35,28 @@
             </el-tooltip>
           </div>
           <div class="tags">
-            <!-- <span :class="['smartDate','tagList']">{{n.docCount || 0}}个文档</span> -->
-            <span :class="['smartDate','tagList']" v-if="formattedTagNames(n.knowledgeTagList).length === 0" @click.stop="addTag(n.knowledgeId)">
+            <span :class="['smartDate','tagList']" v-if="formattedTagNames(n.knowledgeTagList).length === 0" @click.stop="addTag(n.knowledgeId,n)">
               <span class="el-icon-price-tag icon-tag"></span>
               添加标签
             </span>
-            <span v-else @click.stop="addTag(n.knowledgeId)">{{formattedTagNames(n.knowledgeTagList) }}</span>
+            <span v-else @click.stop="addTag(n.knowledgeId,n)">{{formattedTagNames(n.knowledgeTagList) }}</span>
           </div>
           <div class="editor">
+            <el-tooltip class="item" effect="dark" :content="n.orgName" placement="right-start">
+              <span style="margin-right:52px; color:#999;font-size:12px;">{{n.orgName.length > 10 ? n.orgName.substring(0, 10) + '...' : n.orgName}}</span>
+            </el-tooltip>
+            <div v-if="n.share" class="publishType" style="right:22px;">
+                <span v-if="n.share" class="publishType-tag"><span class="el-icon-unlock"></span> 公开</span>
+                <span v-else class="publishType-tag"><span class="el-icon-lock"></span> 私密</span>
+            </div>
             <el-dropdown @command="handleClick($event, n)" placement="top">
               <span class="el-dropdown-link">
                 <i class="el-icon-more icon edit-icon" @click.stop></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="edit">{{$t('common.button.edit')}}</el-dropdown-item>
-                <el-dropdown-item command="delete">{{$t('common.button.delete')}}</el-dropdown-item>
-                <!-- <el-dropdown-item command="power">权限</el-dropdown-item> -->
+                <el-dropdown-item command="edit" v-if="[30].includes(n.permissionType)">{{$t('common.button.edit')}}</el-dropdown-item>
+                <el-dropdown-item command="delete" v-if="[30].includes(n.permissionType)">{{$t('common.button.delete')}}</el-dropdown-item>
+                <el-dropdown-item command="power" >权限</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -59,7 +65,7 @@
     </div>
     <el-empty class="noData" v-if="!(listData && listData.length)" :description="$t('common.noData')"></el-empty>
     <tagDialog ref="tagDialog" @relodaData="relodaData" type="knowledge" :title="title"/>
-    <PowerManagement ref="powerManagement" />
+    <PowerManagement ref="powerManagement"/>
   </div>
 </template>
 
@@ -68,6 +74,7 @@ import { delKnowledgeItem } from "@/api/knowledge";
 import { AppType } from "@/utils/commonSet"
 import tagDialog from './tagDialog.vue';
 import PowerManagement from './power/index.vue';
+import {mapActions} from 'vuex';
 export default {
   components:{tagDialog, PowerManagement},
   props:{
@@ -94,7 +101,9 @@ export default {
       title:'创建标签'
     }
   },
+  
   methods:{
+  ...mapActions("app", ["setPermissionType","clearPermissionType"]),
   formattedTagNames(data){
     if(data.length === 0){
       return [];
@@ -105,8 +114,14 @@ export default {
     }
     return tags;
   },
-  addTag(id){
-    this.$refs.tagDialog.showDiaglog(id);
+  addTag(id,n){
+    if([0].includes(n.permissionType)){
+      this.$message.warning('无操作权限')
+      return;
+    }
+    this.$nextTick(() =>{
+      this.$refs.tagDialog.showDiaglog(id);
+    })
   },
   showCreate(){
     this.$parent.showCreate();
@@ -160,10 +175,12 @@ export default {
     },
     toDocList(n){
       this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name}});
+      this.setPermissionType(n.permissionType)
     },
     showPowerManagement(knowledgeItem) {
       this.$refs.powerManagement.knowledgeId = knowledgeItem.knowledgeId;
       this.$refs.powerManagement.knowledgeName = knowledgeItem.knowledgeName;
+      this.$refs.powerManagement.permissionType = knowledgeItem.permissionType;
       this.$refs.powerManagement.showDialog();
     },
   }
@@ -190,9 +207,9 @@ export default {
       border-radius:50%;
       background: #F1F4FF;
       box-shadow: none;
-      padding:0 5px!important;
+      padding: 5px !important;
       width: 65px !important;
-      height:65px !important;
+      height: 65px !important;
     }
     .tagList{
       cursor: pointer;
@@ -202,7 +219,10 @@ export default {
       }
     }
     .tagList:hover{
-        color:#384BF7;
+        color:$color;
+    }
+    .tag-knowledge{
+      background:#826fff!important;
     }
   }
 }

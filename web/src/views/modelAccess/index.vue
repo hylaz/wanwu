@@ -2,7 +2,7 @@
   <div class="page-wrapper modelAccess">
     <div class="table-wrap list-common wrap-fullheight">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/model.png" alt="" />
+        <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
         <span class="page-title-name">{{$t('modelAccess.title')}}</span>
       </div>
       <div class="table-box">
@@ -103,12 +103,14 @@
             </div>
             <div class="card-bottom">
               <div
-                :class="['card-bottom-provider', {'no-publishData': !item.publishDate}]"
+                :class="['card-bottom-provider', {'no-publishData': !item.updatedAt}]"
                 :title="providerObj[item.provider] || '--'"
               >
                 {{$t('modelAccess.table.publisher')}}: {{providerObj[item.provider] || '--'}}
               </div>
-              <div style="float: right">{{item.publishDate || '--'}} {{$t('modelAccess.table.publish')}}</div>
+              <div style="float: right">
+                {{item.updatedAt ? item.updatedAt.split(' ')[0] : '--'}} {{$t('modelAccess.table.update')}}
+              </div>
             </div>
           </div>
         </div>
@@ -285,8 +287,8 @@
   .card-img {
     width: 46px;
     height: 46px;
-    object-fit: contain;
-    padding: 10px 5px;
+    object-fit: cover;
+    /*padding: 10px 5px;*/
     background: #FFFFFF;
     box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
     border-radius: 8px;
@@ -315,8 +317,8 @@
     display: inline-block;
     padding: 2px 12px;
     border-radius: 2px;
-    color: #6977F9;
-    background: #ECEEFE;
+    color: $color;
+    background: $color_opacity;
     margin-top: 2px;
     margin-right: 8px;
   }
@@ -339,8 +341,7 @@
   .card-bottom {
     position: absolute;
     color: #88888B;
-    line-height: 22px;
-    bottom: 20px;
+    bottom: 14px;
     left: 15px;
     right: 12px;
     div {
@@ -363,7 +364,7 @@
   border: 1px solid $color;
 }
 .card-item-create {
-  background: #F4F5FF;
+  background: $color_opacity;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
   border: 1px solid rgba(56,75,247,0.47);
   .app-card-create {
@@ -408,7 +409,7 @@
       display: inline-block;
       vertical-align: middle;
       font-size: 16px;
-      color: #434C6C;
+      color: $color_title;
       font-weight: bold;
     }
   }

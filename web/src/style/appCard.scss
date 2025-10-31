@@ -4,6 +4,7 @@
     -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
     padding-top: 20px;
+    width: 100%;
     .app-card-create {
         width: 100%;
         text-align: center;
@@ -45,7 +46,7 @@
             display: inline-block;
             vertical-align: middle;
             font-size: 16px;
-            color: #434C6C;
+            color: $color_title;
             font-weight: bold;
         }
     }
@@ -60,11 +61,6 @@
         border-radius: 8px;
         cursor: pointer;
         height: 150px;
-        .logo /deep/ {
-            img {
-                object-fit: contain;
-            }
-        }
         .tags{
             position: absolute;
             bottom: 10px;
@@ -115,16 +111,19 @@
         .tag-app.rag-tag {
             background: linear-gradient( 180deg, #C098FF 0%, #A16FF4 100%);
         }
-        .logo{
+        .logo /deep/ {
             width: 60px;
             height: 60px;
-            object-fit: contain;
             margin-right: 12px;
-            padding: 10px 5px;
+            /*object-fit: cover;
+            padding: 10px 5px;*/
             background: #FFFFFF;
             box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
             border-radius: 8px;
             border: 0 solid #D9D9D9;
+            img {
+                object-fit: cover;
+            }
         }
         .info{
             width: 0;
@@ -222,7 +221,7 @@
         }
     }
     .smart-create {
-        background: #F4F5FF;
+        background: $color_opacity;
         box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.15);
         border: 1px solid rgba(56,75,247,0.47);
     }

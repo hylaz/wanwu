@@ -1,6 +1,6 @@
 {
   "name": "aibase",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -27,6 +27,7 @@
     "is-base64": "^1.1.0",
     "js-base64": "^3.7.7",
     "jszip": "^3.10.1",
+    "katex": "^0.16.9",
     "mammoth": "^1.10.0",
     "markdown-it": "^14.1.0",
     "markdown-loader": "^8.0.0",
@@ -60,5 +61,10 @@
   "volta": {
     "node": "14.20.0",
     "pnpm": "6.35.1"
+  },
+  "overrides": {
+    "markdown-it-katex": {
+      "katex": ".16.0"
+    }
   }
 }

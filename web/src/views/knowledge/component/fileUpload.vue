@@ -195,12 +195,12 @@
                 >
                   <el-input
                     :min="0"
-                    :max="1"
+                    :max="0.25"
                     :step="0.01"
                     type="number" 
                     v-model.number="ruleForm.docSegment.overlap" 
-                    placeholder="数值范围0-1" 
-                    @change="overlapChange"></el-input>
+                    placeholder="数值范围0-0.25" 
+                    ></el-input>
                 </el-form-item>
               </template>
               <template v-if="this.ruleForm.docSegment.segmentMethod === '1'">
@@ -556,7 +556,7 @@ export default {
       if(val.length === 3){
         this.ruleForm.docAnalyzer = [val[0],val[2]]
       }
-      if (val.includes("ocr")) {
+      if (this.ruleForm.docAnalyzer.includes("ocr")) {
         this.getOcrList();
       } else if (val.includes("model")) {
         this.getParserList();
@@ -570,12 +570,6 @@ export default {
     },
     analyzerDisabled(label) {
       if (label === "text") return true;
-    },
-    overlapChange(val) {
-      if (val > 0.25) {
-        this.ruleForm.docSegment.overlap = 0.25;
-        return;
-      }
     },
     custom() {
       this.$nextTick(() => {
@@ -1090,7 +1084,7 @@ export default {
   width:100%;
 }
 .activeAnalyzer {
-  border-color: #384bf7 !important;
+  border-color: $color !important;
 }
 .question {
   cursor: pointer;
@@ -1100,8 +1094,8 @@ export default {
 .splitterTag {
   margin-right: 10px;
   border: none;
-  background: #f4f5ff;
-  color: #384bf7;
+  background: $color_opacity;
+  color: $color;
   border-radius: 3px;
 }
 .optionInput {
@@ -1150,7 +1144,7 @@ export default {
     }
     .upload-box {
       height: auto;
-      min-height: 190;
+      min-height: 190px;
       width: 100% !important;
       .upload-img {
         width: 56px;
@@ -1160,7 +1154,7 @@ export default {
       .click-text {
         margin-top: 10px;
         .clickUpload {
-          color: #384bf7;
+          color: $color;
           font-weight: bold;
         }
       }
@@ -1169,7 +1163,7 @@ export default {
           margin: 46px 0 10px 0 !important;
           font-size: 32px !important;
           line-height: 36px !important;
-          color: #384bf7;
+          color: $color;
         }
         .el-upload__text {
           margin-top: -10px;
@@ -1213,7 +1207,7 @@ export default {
       p {
         color: #9d8d8d !important;
         .template_downLoad {
-          color: #384bf7;
+          color: $color;
           cursor: pointer;
         }
       }
@@ -1234,7 +1228,7 @@ export default {
       padding: 20px;
     }
     .upload-url:hover {
-      border-color: #384bf7;
+      border-color: $color;
     }
   }
 }
@@ -1266,7 +1260,7 @@ export default {
           display:inline-block;
           width:4px;
           height:14px;
-          background: #384bf7;
+          background: $color;
           margin-right:5px;
         }
       }

@@ -31,7 +31,7 @@
             @click.stop="handleClick(item.mcpServerId)"
         >
           <div class="card-title">
-            <img class="card-logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+            <img class="card-logo" :src="item.avatar.path ? basePath + '/user/api/' + item.avatar.path : defaultAvatar" />
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from">
@@ -64,6 +64,7 @@ export default {
   data() {
     return {
       basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       list: [],
     };
   },

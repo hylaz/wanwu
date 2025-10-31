@@ -69,12 +69,13 @@ export const MODEL_TYPE_TIP = {
         desc:'若需使用，请前往模型管理-联通元景-添加ocr模型'
     },
     model:{
-        label:'pdf_parser模型',
-        desc:'若需使用，请前往模型管理-联通元景-添加pdf文档解析模型'
+        label:'文档解析服务',
+        desc:'若需使用，请前往模型管理-联通元景-添加文档解析服务'
     }
 }
 export const POWER_TYPE = {
     0:'可读',
     10:'可编辑',
-    20:'管理员'
+    20:'管理员',
+    30:'系统管理员'
 }

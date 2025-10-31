@@ -5,7 +5,6 @@ import router from './router'
 import { store } from './store'
 import { i18n } from './lang'
 import './router/permission'
-import "./assets/icons";
 
 import ElementUi from 'element-ui'
 import moment from 'moment';

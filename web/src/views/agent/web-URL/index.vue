@@ -75,7 +75,7 @@ export default {
 </script>
 <style lang="scss" scoped>
     .activeItem{
-        border:1px solid #384BF7!important;
+        border:1px solid $color!important;
     }
     .weburl-container{
         width:100%;
