@@ -805,6 +805,11 @@ export default {
         keyWordPlaceholder:'输入问题中的关键词或文档中的词语搜索',
         newKeyWord:'新建关键词'
     },
+    metaData:{
+        batchEdit:'批量编辑元数据值',
+        selected:'已选择',
+        cancel:'取消',
+    },
     explore:{
         unFavorite:'是否确定将该应用从常用应用列表中移除?',
         favorite:'是否要将该应用设置为常用应用?',

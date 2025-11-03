@@ -181,6 +181,8 @@
     
     <!-- 批量编辑元数据值弹窗 -->
     <batchMetaData ref="batchMetaData" :selectedDocIds="selectedDocIds" @reLoadDocList="reLoadDocList" />
+    <!-- 批量编辑元数据值操作框 -->
+    <BatchMetatButton ref="BatchMetatButton" :selectedCount="selectedTableData.length"/>
   </div>
 </template>
 
@@ -189,10 +191,11 @@ import Pagination from "@/components/pagination.vue";
 import SearchInput from "@/components/searchInput.vue";
 import mataData from './metadata.vue'
 import batchMetaData from './meta/batchMetaData.vue'
+import BatchMetatButton from './meta/batchMetatButton.vue'
 import {getDocList,delDocItem,uploadFileTips,updateDocMeta} from "@/api/knowledge";
 import {mapGetters} from 'vuex';
 export default {
-  components: { Pagination,SearchInput,mataData,batchMetaData},
+  components: { Pagination,SearchInput,mataData,batchMetaData,BatchMetatButton},
   data() {
     return {
       knowledgeName:this.$route.query.name || '',
