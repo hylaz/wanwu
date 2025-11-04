@@ -31,20 +31,32 @@
             @click.stop="handleClick(item.mcpServerId)"
         >
           <div class="card-title">
-            <img class="card-logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+            <img class="card-logo" :src="item.avatar.path ? basePath + '/user/api/' + item.avatar.path : defaultAvatar" />
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from">
                 <label>
-                  已绑定{{ item.toolNum }}个工具
+                  {{ $t('tool.server.count', { count: item.toolNum }) }}
                 </label>
               </span>
             </div>
-            <i class="el-icon-edit-outline action-icon"
-               style="margin-right: 20px"
-               @click.stop="handleAddServer(item)"/>
-            <i class="el-icon-delete-solid action-icon"
-               @click.stop="handleDelete(item)"/>
+            <el-dropdown
+              placement="bottom">
+              <span class="el-dropdown-link">
+                <i class="el-icon-more"
+                   @click.stop/>
+              </span>
+              <el-dropdown-menu slot="dropdown"  style="margin-top: -10px">
+                <el-dropdown-item
+                  @click.native="handleAddServer(item)">
+                  {{$t('common.button.edit')}}
+                </el-dropdown-item>
+                <el-dropdown-item
+                  @click.native="handleDelete(item)">
+                  {{$t('common.button.delete')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
           <div class="card-des">{{ item.desc }}</div>
         </div>
@@ -52,18 +64,19 @@
 
       <el-empty class="noData" v-if="!(list && list.length)" :description="$t('common.noData')"/>
     </div>
-    <serverDialog ref="serverDialog" @handleFetch="fetchList()"/>
+    <addDialog ref="addDialog" @handleFetch="fetchList()"/>
   </div>
 </template>
 <script>
-import serverDialog from "./serverDialog.vue";
+import addDialog from "./addDialog.vue";
 import SearchInput from "@/components/searchInput.vue"
 import { getServerList, deleteServer } from "@/api/mcp";
 export default {
-  components: { SearchInput, serverDialog},
+  components: { SearchInput, addDialog},
   data() {
     return {
       basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       list: [],
     };
   },
@@ -85,15 +98,15 @@ export default {
       this.$router.push({path: `/tool/detail/server?mcpServerId=${mcpServerId}`})
     },
     handleAddServer(item) {
-      this.$refs.serverDialog.showDialog(item)
+      this.$refs.addDialog.showDialog(item)
     },
     handleDelete(item) {
       this.$confirm(
-          "确定要删除 <span style='font-weight: bold;'>" + item.name + "</span> 该服务吗？",
-          "提示",
+        this.$t('tool.server.deleteHint', { name: item.name }),
+        this.$t('common.confirm.title'),
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
+            confirmButtonText: this.$t('common.confirm.confirm'),
+            cancelButtonText: this.$t('common.confirm.cancel'),
             dangerouslyUseHTMLString: true,
             type: "warning",
             center: true,
@@ -103,10 +116,10 @@ export default {
           mcpServerId: item.mcpServerId,
         }).then((res) => {
           if (res.code === 0) {
-            this.$message.success("删除成功")
+            this.$message.success(this.$t('common.info.delInfo'))
             this.fetchList()
           } else {
-            this.$message.error( res.msg || '删除失败')
+            this.$message.error( res.msg || this.$t('common.info.delInfoErr'))
           }
         })
       })

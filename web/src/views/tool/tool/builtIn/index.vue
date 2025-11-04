@@ -4,11 +4,11 @@
       <div class="card-search card-search-cust">
         <div>
           <p class="card-search-des" style="display: flex; align-items: center">
-            <span>内置工具</span>
+            <span>{{ $t('menu.app.builtIn') }}</span>
           </p>
         </div>
         <div>
-          <search-input placeholder="请输入名称进行搜索" ref="searchInput" @handleSearch="handleSearch" />
+          <search-input :placeholder="$t('tool.builtIn.search')" ref="searchInput" @handleSearch="handleSearch" />
         </div>
       </div>
 

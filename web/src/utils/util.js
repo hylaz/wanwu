@@ -95,7 +95,6 @@ export function convertLatexSyntax(inputText) {
     return inputText;
 }
 
-
 export function isSub(data){
     return /\【([0-9]{0,2})\^\】/.test(data)
 }

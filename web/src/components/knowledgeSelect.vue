@@ -1,13 +1,15 @@
 <template>
     <div>
         <el-dialog
-            title="选择知识库"
             :visible.sync="dialogVisible"
             width="40%"
             :before-close="handleClose">
-            <div class="tool-typ">
-                <el-input v-model="toolName" placeholder="输入知识库名称搜索" class="tool-input" suffix-icon="el-icon-search" @keyup.enter.native="searchTool" clearable></el-input>
-            </div>
+            <template slot="title">
+                <div class="diglog_title">
+                  <h3>{{$t('knowledgeSelect.title')}}</h3>
+                   <el-input v-model="toolName" :placeholder="$t('knowledgeSelect.searchPlaceholder')" class="tool-input" suffix-icon="el-icon-search" @keyup.enter.native="searchTool" clearable></el-input>
+                </div>
+            </template>
             <div class="toolContent">
                 <div 
                     v-for="(item,i) in knowledgeData"
@@ -16,18 +18,20 @@
                 >
                     <div class="knowledge-info">
                         <span class="knowledge-name">{{ item.name }}</span>
+                        <span class="knowledge-desc">{{item.description}}</span>
                         <div class="knowledge-meta">
-                            <span class="meta-text">{{item.share ? '公开' : '私密'}}</span>
+                            <span class="meta-text">{{item.share ? $t('knowledgeSelect.public') : $t('knowledgeSelect.private')}}</span>
                             <span v-if="item.share" class="meta-text">{{item.orgName}}</span>
                         </div>
+                        <span class="knowledge-createAt">{{ $t('knowledgeSelect.createTime')}} {{item.createAt}}</span>
                     </div>
-                    <el-button type="text" @click="openTool($event,item)" v-if="!item.checked">添加</el-button>
-                    <el-button type="text" v-else >已添加</el-button>
+                    <el-button type="primary" @click="openTool($event,item)" v-if="!item.checked" size="small">{{ $t('knowledgeSelect.add')}}</el-button>
+                    <el-button type="primary" v-else  size="small">{{ $t('knowledgeSelect.added')}}</el-button>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="submit">确 定</el-button>
+                <el-button @click="handleClose">{{$t('common.button.cancel')}}</el-button>
+                <el-button type="primary" @click="submit">{{$t('common.button.confirm')}}</el-button>
             </span>
         </el-dialog>
     </div>
@@ -91,20 +95,32 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "@/style/markdown.scss";
 /deep/{
     .el-dialog__body{
         padding:10px 20px;
     }
-}
-.createTool{
-    padding:10px;
-    cursor: pointer;
-    .add{
-        padding-right:5px;
+    .el-dialog__header{
+        display:flex;
+        align-items:center;
+        .el-dialog__headerbtn{
+            top:unset!important;
+        }
     }
 }
-.createTool:hover{
-    color: $color;
+.diglog_title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex:1;
+    h3{
+        font-size:16px;
+        font-weight:bold;
+    }
+    .tool-input{
+        width:250px;
+        margin-right:28px;
+    }
 }
 .tool-typ{
     display:flex;
@@ -133,27 +149,54 @@ export default {
     overflow-y:auto;
     .toolContent_item{
         padding:5px 20px;
-        border:1px solid #dbdbdb;
+        border-bottom:1px solid $color_opacity;
         border-radius:6px;
         margin-bottom:10px;
         cursor: pointer;
         display: flex;
         align-items:center;
         justify-content:space-between;
+        /deep/{
+            .el-button--primary{
+                background:#fff!important;
+                border:1px solid #eee!important;
+                padding:8px 16px;
+                border-radius:6px;
+                span{
+                    color:$color !important;
+                    font-size:14px;
+                }
+            }
+        }
         .knowledge-info{
             display: flex;
             flex-direction: column;
             gap: 4px;
             .knowledge-name{
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 600;
+                color:#1c1d23;
+            }
+            .knowledge-desc,.knowledge-createAt{
+                font-size:12px;
+            }
+            .knowledge-desc{
+                color:rgba(28,29,35,.8);
+            }
+            .knowledge-createAt{
+                color:rgba(28,29,35,.35);
+                margin-top:5px;
             }
             .knowledge-meta{
                 display: flex;
                 gap: 8px;
-                .meta-text{
-                    color: #384BF7;
+                margin-top:5px;
+                span{
+                    padding:2px 8px;
+                    background:rgba(139,139,149,.15);
+                    color:#4b4a58;
                     font-size: 12px;
+                    border-radius:6px;
                 }
             }
         }

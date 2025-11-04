@@ -67,6 +67,9 @@ export default {
             agent: '智能体',
             rag: '文本问答',
             workflow: '工作流',
+            custom: '自定义工具',
+            openapi: 'OpenAPI',
+            builtIn: '内置工具',
         },
         knowledge: '知识库',
         account: '账户',
@@ -130,7 +133,10 @@ export default {
             export: '导出',
             view: '查看',
             cancelPublish: '取消发布',
-            add: '创建'
+            add: '创建',
+            fold: '收起',
+            expand: '展开',
+            detail: '详情 >>',
         },
         switch: {
             start: '开启',
@@ -198,9 +204,14 @@ export default {
         },
         info:{
             delInfo:'删除成功',
+            delInfoErr:'删除失败',
             edit:'编辑成功',
-            create:'创建成功'
-        }
+            editErr:'编辑失败',
+            create:'创建成功',
+            createErr:'创建失败',
+            publish:'发布成功',
+            publishErr:'发布失败',
+        },
     },
     docDownload: {
         title: '文档下载',
@@ -805,6 +816,19 @@ export default {
         keyWordPlaceholder:'输入问题中的关键词或文档中的词语搜索',
         newKeyWord:'新建关键词'
     },
+    knowledgeSelect:{
+        title:'选择知识库',
+        searchPlaceholder:'输入知识库名称搜索',
+        public:'公开',
+        private:'私密',
+        createTime:'创建时间',
+        add:'添加',
+        added:'已添加',
+    },
+    metaData:{
+        batchEdit:'批量编辑元数据值',
+        selected:'已选择',
+    },
     explore:{
         unFavorite:'是否确定将该应用从常用应用列表中移除?',
         favorite:'是否要将该应用设置为常用应用?',
@@ -812,29 +836,99 @@ export default {
         delSuccess:'移除成功'
     },
     tool:{
+        tool:'工具',
+        mcp:'MCP服务',
         server:{
             slogan:'可绑定已发布的应用，创建自己的MCP server，并对外提供服务。',
             search:'请输入MCP名称进行搜索',
             create:'创建MCP',
+            addTitle:'创建MCP服务',
+            editTitle:'修改MCP服务',
             avatar:'MCP图标',
             name:'服务名称',
             desc:'服务描述',
+            count:'已绑定 {count} 个工具',
+            deleteHint:"确定要删除 <span style='font-weight: bold;'>{name}</span> 该服务吗？",
             bind: {
                 title:'绑定应用',
-                bind:'绑定应用',
+                search:'搜索应用',
+                add:'添加',
+                added:'已添加',
+                addMsg:'工具添加成功',
                 hint:'已绑定的应用发布新版本之后，引用此工具所创建的MCP服务不会自动更新到该工具的最新版本，以免影响已线上业务的正常运行。若需绑定最新版应用，请手动删除原应用后，重新添加新版应用。',
-                action:'管理',
+                action:'关联',
                 methodName:'显示名称',
                 placeholder:'仅英语',
-                name:'应用',
-                desc:'应用描述',
+                name:'应用名称',
+                type:'类型',
+                desc:'描述',
                 operate:'操作',
                 openapi:{
                     action:'+导入openapi',
                     hint:'导入的openapi不会保存至应用。若想永久保存，方便后续调用，可在资源库-自定义工具模块，将openapi添加为自定义工具。',
                 }
             },
-
+            detail:{
+                example:'请求示例:',
+                apiKey:'API密钥',
+                action:'获取API密钥',
+                key:'密钥',
+                createTime:'创建时间',
+                operate:'操作',
+                deleteHint:'确定要删除当前APIkey吗？',
+            }
+        },
+        integrate: {
+            slogan:'集合各MCP server，即选即用。可支持在插件编排工具中使用。如使用自定义MCP，请在自定义TAB中进行添加和查看。',
+            search:'请输入MCP名称进行搜索',
+            create:'导入MCP',
+            deleteHint:'删除后，历史引用了本MCP服务的智能体将自动取消引用，且此操作不可撤回,确定要删除吗？',
+            addTitle:'导入MCP服务',
+            editTitle:'修改MCP服务',
+            avatar:'MCP图标',
+            name:'服务名称',
+            from:'服务来源',
+            desc:'功能描述',
+            action:'获取MCP工具',
+            publish:'确定发布',
+            sseUrlMsg:'sseUrl为空',
+            sseUrlErr:'请再次检查Server Url格式',
+        },
+        builtIn:{
+            slogan:'内置工具',
+            count: "包含 {count} 个Action",
+            confirm:'确认',
+            update:'更新',
+            desc:'描述：',
+            params:'参数说明：',
+            recommend:'其他MCP服务查看',
+            search:'请输入名称进行搜索',
+            api:'授权-API Key:',
+        },
+        custom:{
+            slogan:'自定义工具',
+            addTitle:'创建自定义工具',
+            editTitle:'修改自定义工具',
+            toolTitle:'创建工具',
+            search:'请输入名称进行搜索',
+            deleteHint:'删除后，历史引用了本自定义工具的智能体将自动取消引用，且此操作不可撤回，确认删除吗？',
+            app:'应用名称',
+            tool:'工具名称',
+            desc:'工具描述',
+            apiAuth:'API身份认证',
+            apiAuthHint:'请完善API身份认证信息',
+            schema:'选择样例',
+            schemaHint:'请输入对应API的openapi3.0结构，可以选择示例了解详情。',
+            example:'样例导入',
+            api:'可用API',
+            apiHint:'请选择API',
+            privacy:'隐私政策',
+            privacyHint:'填写API对应的隐私政策url链接',
+            auth: {
+                title:'鉴权',
+                type:'认证类型',
+                authType:'Auth类型'
+            }
         }
     },
     agent:{

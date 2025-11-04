@@ -12,20 +12,20 @@
         <el-col :span="24" class="left-col">
           <div class="action-form">
             <div class="block prompt-box" v-show="!dialogDetailVisible">
-              <p class="block-title required-label rl">{{ dialogToolVisible ? '应用名称' : '工具名称' }}</p>
+              <p class="block-title required-label rl">{{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
               <el-form-item prop="name">
-                <el-input class="name-input" v-model="form.name" placeholder="输入工具名称"></el-input>
+                <el-input class="name-input" v-model="form.name" :placeholder="$t('common.input.placeholder') + $t('tool.custom.tool')"></el-input>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogToolVisible">
-              <p class="block-title required-label rl">工具描述</p>
+              <p class="block-title required-label rl">{{ $t('tool.custom.desc') }}</p>
               <div v-show="dialogDetailVisible">{{ form.description }}</div>
               <el-form-item prop="description" v-show="!dialogDetailVisible">
-                <el-input class="name-input" v-model="form.description" placeholder="输入工具描述"></el-input>
+                <el-input class="name-input" v-model="form.description" :placeholder="$t('common.input.placeholder') + $t('tool.custom.desc')"></el-input>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
-              <p class="block-title required-label rl">API身份认证</p>
+              <p class="block-title required-label rl">{{ $t('tool.custom.apiAuth') }}</p>
               <div class="rl" @click="preAuthorize">
                 <el-form-item prop="apiAuth">
                   <div class="api-key">{{ form.apiAuth.type }}</div>
@@ -38,23 +38,23 @@
               <p class="block-title required-label rl">Schema</p>
               <div class="rl">
                 <div class="flex" style="margin-bottom: 10px">
-                  <el-select v-model="example" placeholder="选择样例" style="width:100%;"
+                  <el-select v-model="example" :placeholder="$t('tool.custom.schema')" style="width:100%;"
                              @change="exampleChange">
                     <!--<el-option label="模板样例导入" value="json"></el-option>-->
-                    <el-option label="JSON样例导入" value="json"></el-option>
-                    <el-option label="YAML样例导入" value="yaml"></el-option>
+                    <el-option :label="'JSON' + $t('tool.custom.example')" value="json"></el-option>
+                    <el-option :label="'YAML' + $t('tool.custom.example')" value="yaml"></el-option>
                   </el-select>
                 </div>
                 <el-form-item prop="schema">
                   <el-input class="schema-textarea" v-model="form.schema" @blur="listenerSchema"
-                            placeholder="请输入对应API的openapi3.0结构，可以选择示例了解详情。"
+                            :placeholder="$t('tool.custom.schemaHint')"
                             type="textarea"></el-input>
                 </el-form-item>
               </div>
             </div>
 
             <div class="block prompt-box">
-              <p class="block-title required-label rl">可用API</p>
+              <p class="block-title required-label rl">{{ $t('tool.custom.api') }}</p>
               <div class="api-list">
                 <el-form-item prop="apiTable">
                   <el-table
@@ -88,10 +88,10 @@
               </div>
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
-              <p class="block-title rl">隐私政策</p>
+              <p class="block-title rl">{{ $t('tool.custom.privacy') }}</p>
               <el-form-item prop="privacyPolicy">
                 <el-input class="name-input" v-model="form.privacyPolicy"
-                          placeholder="填写API对应的隐私政策url链接"></el-input>
+                          :placeholder="$t('tool.custom.privacyHint')"></el-input>
               </el-form-item>
             </div>
           </div>
@@ -100,7 +100,7 @@
 
       <!--认证弹窗-->
       <el-dialog
-        title="鉴权"
+        :title="$t('tool.custom.auth.title')"
         :visible.sync="dialogAuthVisible"
         width="600px"
         append-to-body
@@ -109,7 +109,7 @@
       >
         <div class="action-form">
           <el-form :rules="apiAuthRules" ref="apiAuthForm" :inline="false" :model="form.apiAuth">
-            <el-form-item label="认证类型">
+            <el-form-item :label="$t('tool.custom.auth.type')">
               <el-radio-group v-model="form.apiAuth.type">
                 <el-radio label="None">None</el-radio>
                 <el-radio label="API Key">API Key</el-radio>
@@ -121,7 +121,7 @@
               <el-form-item label="API key" prop="apiKey">
                 <el-input class="desc-input " v-model="form.apiAuth.apiKey" placeholder="API key" clearable></el-input>
               </el-form-item>
-              <el-form-item label="Auth类型">
+              <el-form-item :label="$t('tool.custom.auth.authType')">
                 <el-radio-group v-model="form.apiAuth.authType">
                   <!--<el-radio label="1">Basic</el-radio>
                   <el-radio label="2">Bearer</el-radio>-->
@@ -151,7 +151,7 @@
     <span slot="footer" class="dialog-footer" v-show="dialogDetailVisible">
         <el-button
           type="primary"
-          @click="dialogDetailVisible = false; title = '修改自定义工具'">编辑</el-button>
+          @click="dialogDetailVisible = false; title = $t('tool.custom.editTitle')">{{$t('common.button.edit')}}</el-button>
     </span>
   </el-dialog>
 </template>
@@ -200,15 +200,15 @@ export default {
       //认证表单
       dialogAuthVisible: false,
       rules: {
-        description: [{required: true, message: '请输入', trigger: 'blur'}],
-        name: [{required: true, message: '请输入', trigger: 'blur'}],
-        schema: [{required: true, message: '请输入', trigger: 'blur'}],
-        apiAuth: [{validator: validateApiAuthFields, message: '请完善API身份认证信息', trigger: 'blur'}],
-        apiTable: [{validator: validateApiTableFields, message: '请选择API', trigger: 'blur'}],
+        description: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        name: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        schema: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiAuth: [{validator: validateApiAuthFields, message: this.$t('tool.custom.apiAuthHint'), trigger: 'blur'}],
+        apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiHint'), trigger: 'blur'}],
       },
       apiAuthRules: {
-        apiKey: [{required: true, message: '请输入', trigger: 'blur'}],
-        customHeaderName: [{required: true, message: '请输入', trigger: 'blur'}],
+        apiKey: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        customHeaderName: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
       },
       schemaConfig: schemaConfig,
       loading: false
@@ -219,7 +219,7 @@ export default {
       this.dialogDetailVisible = dialogDetailVisible
       this.dialogBasicVisible = true
       if (customToolId) {
-        if (!dialogDetailVisible) this.title = '修改自定义工具'
+        if (!dialogDetailVisible) this.title = this.$t('tool.custom.editTitle')
         const params = {
           customToolId: customToolId
         }
@@ -232,14 +232,14 @@ export default {
             }
             this.listenerSchema()
           })
-      } else this.title = '新增自定义工具'
+      } else this.title = this.$t('tool.custom.addTitle')
     },
     showToolDialog(mcpServerId) {
       this.form.mcpServerId = mcpServerId
       this.dialogBasicVisible = true
       this.dialogToolVisible = true
       this.form.description = ' '
-      this.title = '创建工具'
+      this.title = this.$t('tool.custom.toolTitle')
     },
     exampleChange(value) {
       this.form.schema = this.schemaConfig[value]
@@ -283,7 +283,7 @@ export default {
           editCustom(params)
             .then((res) => {
               if (res.code === 0) {
-                this.$message.success("修改成功")
+                this.$message.success(this.$t('common.info.edit'))
                 this.$emit("handleFetch", false)
                 this.cancel()
               }
@@ -294,7 +294,7 @@ export default {
             params.methodNames = this.$refs.apiTable.selection.map(item => item.name)
             addOpenapi(params).then((res) => {
               if (res.code === 0) {
-                this.$message.success("新增成功")
+                this.$message.success(this.$t('common.info.create'))
                 this.$emit("handleFetch", false)
                 this.cancel()
               }
@@ -302,7 +302,7 @@ export default {
           } else {
             addCustom(params).then((res) => {
               if (res.code === 0) {
-                this.$message.success("新增成功")
+                this.$message.success(this.$t('common.info.create'))
                 this.$emit("handleFetch", false)
                 this.cancel()
               }

@@ -249,7 +249,7 @@ export default {
             }
 
             if(Object.keys(val).length > 0){
-                this.metaDataFilterParams = {...val}
+                this.metaDataFilterParams = JSON.parse(JSON.stringify(val))
             }
           },
           immediate:true,

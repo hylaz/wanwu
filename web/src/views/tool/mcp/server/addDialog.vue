@@ -77,8 +77,8 @@ export default {
         desc: ""
       },
       rules: {
-        name: [{required: true, message: "请输入服务名称", trigger: "blur"}],
-        desc: [{required: true, message: "请输入服务描述", trigger: "blur"}]
+        name: [{required: true, message: this.$t('common.input.placeholder') + this.$t('tool.server.name'), trigger: "blur"}],
+        desc: [{required: true, message: this.$t('common.input.placeholder') + this.$t('tool.server.desc'), trigger: "blur"}]
       },
       publishLoading: false
     };
@@ -89,8 +89,8 @@ export default {
       if (item) {
         this.mcpServerId = item.mcpServerId
         this.ruleForm = item
-        this.title = '修改MCP服务'
-      } else this.title = '创建MCP服务'
+        this.title = this.$t('tool.server.editTitle')
+      } else this.title = this.$t('tool.server.addTitle')
     },
     handleUploadAvatar(data) {
       if (data.file) {
@@ -112,6 +112,7 @@ export default {
       this.$emit("handleClose", false)
       this.$refs.ruleForm.resetFields()
       this.$refs.ruleForm.clearValidate()
+      this.mcpServerId = ''
       this.ruleForm = {
         MCPServerId: "",
         avatar: {
@@ -131,16 +132,17 @@ export default {
           }
           if (this.mcpServerId) editServer(params).then((res) => {
             if (res.code === 0) {
-              this.$message.success("发布成功")
+              this.$message.success(this.$t('common.info.publish'))
               this.$emit("handleFetch", false)
               this.handleClose()
             }
           }).finally(() => this.publishLoading = false)
           else addServer(params).then((res) => {
             if (res.code === 0) {
-              this.$message.success("发布成功")
+              this.$message.success(this.$t('common.info.publish'))
               this.$emit("handleFetch", false)
               this.handleClose()
+              this.$router.push({path: `/tool/detail/server?mcpServerId=${res.data.mcpServerId}`})
             }
           }).finally(() => this.publishLoading = false)
         }

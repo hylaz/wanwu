@@ -1,7 +1,7 @@
 <template>
   <div class="add-dialog">
     <el-dialog
-      title="添加MCP服务"
+      :title="title"
       :visible.sync="dialogVisible"
       width="50%"
       :show-close="false"
@@ -15,13 +15,13 @@
           label-width="130px"
           class="demo-ruleForm"
         >
-          <el-form-item label="服务名称" prop="name">
+          <el-form-item :label="$t('tool.integrate.name')" prop="name">
             <el-input v-model="ruleForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="服务来源" prop="from">
+          <el-form-item :label="$t('tool.integrate.from')" prop="from">
             <el-input v-model="ruleForm.from"></el-input>
           </el-form-item>
-          <el-form-item label="功能描述" prop="desc">
+          <el-form-item :label="$t('tool.integrate.desc')" prop="desc">
             <el-input
               type="textarea"
               rows="5"
@@ -39,7 +39,7 @@
               :disabled="isGetMCP"
               :loading="toolsLoading"
             >
-              获取MCP工具
+              {{$t('tool.integrate.action')}}
             </el-button>
           </el-form-item>
         </el-form>
@@ -57,7 +57,7 @@
           @click="submitForm('ruleForm')"
           :loading="publishLoading"
         >
-          确定发布
+          {{$t('tool.integrate.publish')}}
         </el-button>
       </span>
     </el-dialog>
@@ -69,6 +69,10 @@ import { isValidURL } from "@/utils/util";
 
 export default {
   props: {
+    title: {
+      type: String,
+      required: true
+    },
     dialogVisible: {
       type: Boolean,
       required: true
@@ -87,7 +91,7 @@ export default {
   data() {
     const validateUrl = (rule, value, callback) => {
       if (!isValidURL(value)) {
-        callback(new Error("请再次检查Server Url格式"));
+        callback(new Error(this.$t('tool.integrate.sseUrlErr')));
       } else {
         callback();
       }
@@ -101,14 +105,14 @@ export default {
         desc: "",
       },
       rules: {
-        name: [{ required: true, message: "请输入服务名称", trigger: "blur" }],
+        name: [{ required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.name'), trigger: "blur" }],
         from: [
-          { required: true, message: "请输入服务来源", trigger: "blur" },
+          { required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.from'), trigger: "blur" },
         ],
         sseUrl: [
           {
             required: true,
-            message: "请输入服务Server Url",
+            message: this.$t('tool.integrate.sseUrlMsg'),
             trigger: "blur",
           },
           { validator: validateUrl, trigger: "blur" },
@@ -116,7 +120,7 @@ export default {
         desc: [
           {
             required: true,
-            message: "请输入功能描述",
+            message: this.$t('common.input.placeholder') + this.$t('tool.integrate.desc'),
             trigger: "blur",
           },
         ],
@@ -150,7 +154,7 @@ export default {
               mcpId: this.initialData.mcpId
             }).then((res) => {
               if (res.code === 0) {
-                this.$message.success("修改成功")
+                this.$message.success(this.$t('common.info.edit'))
                 this.$emit("handleFetch", false)
                 this.handleCancel()
               }
@@ -159,7 +163,7 @@ export default {
           else setCreate(this.ruleForm)
             .then((res) => {
               if(res.code === 0){
-                this.$message.success("发布成功")
+                this.$message.success(this.$t('common.info.publish'))
                 this.$emit("handleFetch", false)
                 this.handleCancel()
               }

@@ -151,7 +151,7 @@ export default {
                     this.$set(this.customInfos[index], 'children', res.data.actions)
                     this.$set(this.customInfos[index], 'loading',false)
                     this.customInfos[index]['children'].forEach(m => {
-                        m.checked = this.customList.some(item => item.actionName === m.name)
+                        m.checked = this.customList.some(item => item.actionName === m.name && item.toolId === toolId)
                     })
                     
                 }
@@ -163,7 +163,7 @@ export default {
             if(this.activeValue === 'tool'){
                 this.$router.push({path:'/tool?type=tool&mcp=custom'})
             }else if(this.activeValue === 'mcp'){
-                this.$router.push({path:'/tool?type=mcp&mcp=mcp'})
+                this.$router.push({path:'/tool?type=mcp&mcp=integrate'})
             }else{
                 this.$router.push({path:'/appSpace/workflow'})
             }
@@ -260,7 +260,7 @@ export default {
                     this.$set(this.mcpInfos[index], 'children', res.data.actions)
                     this.$set(this.mcpInfos[index], 'loading', false)
                     this.mcpInfos[index]['children'].forEach(m => {
-                        m.checked = this.mcpList.some(item => item.actionName === m.name)
+                        m.checked = this.mcpList.some(item => item.actionName === m.name && item.mcpId === toolId)
                     })
                     
                 }

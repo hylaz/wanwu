@@ -8,7 +8,7 @@
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
           {{foldStatus ? detail.desc : detail.desc.slice(0,268) + '...'}}
           <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
-            {{foldStatus ? '收起' : '详情 >>'}}
+            {{foldStatus ? $t('common.button.fold') : $t('common.button.detail')}}
           </span>
         </p>
         <p v-else class="desc">{{detail.desc}}</p>

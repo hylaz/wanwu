@@ -7,7 +7,7 @@ export const login = {
         commonInfo: {
             login: {
                 logo: {},
-                loginButtonColor: '#2C6DE3',
+                loginButtonColor: '#5983FF',
             },
             home: {},
             tab: {},

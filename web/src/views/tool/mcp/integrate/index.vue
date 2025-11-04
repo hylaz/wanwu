@@ -4,19 +4,12 @@
       <div class="card-search card-search-cust">
         <div>
           <p class="card-search-des" style="display: flex; align-items: center">
-            <span>集合各MCP server，即选即用。可支持在插件编排工具中使用。如使用自定义MCP，请在自定义TAB中进行添加和查看</span>
+            <span>{{$t('tool.integrate.slogan')}}</span>
             <LinkIcon type="mcp" />
           </p>
-          <!--<div class="radio-box" >
-            <el-radio-group v-model="source" @input="radioChange" size="mini">
-              <el-radio label="">全部</el-radio>
-              <el-radio label="1">来自我添加</el-radio>
-              <el-radio label="2">来自广场发送</el-radio>
-            </el-radio-group>
-          </div>-->
         </div>
         <div>
-          <search-input placeholder="请输入MCP名称进行搜索" ref="searchInput" @handleSearch="fetchList" />
+          <search-input :placeholder="$t('tool.integrate.search')" ref="searchInput" @handleSearch="fetchList" />
           <el-button size="mini" type="primary" @click="handleAddMCP">导入</el-button>
         </div>
       </div>
@@ -29,7 +22,7 @@
               <img class="create-img" src="@/assets/imgs/create_icon.png" alt="" />
               <div class="create-filter"></div>
             </div>
-            <span>导入MCP</span>
+            <span>{{$t('tool.integrate.create')}}</span>
           </div>
         </div>
         <div
@@ -49,13 +42,23 @@
                 </label>
               </span>
             </div>
-            <i class="el-icon-edit-outline action-icon"
-               style="margin-right: 20px"
-              @click.stop="handleEdit(item)"/>
-            <i
-              class="el-icon-delete-solid action-icon"
-              @click.stop="handleDelete(item)"
-            ></i>
+            <el-dropdown
+              placement="bottom">
+              <span class="el-dropdown-link">
+                <i class="el-icon-more"
+                   @click.stop/>
+              </span>
+              <el-dropdown-menu slot="dropdown"  style="margin-top: -10px">
+                <el-dropdown-item
+                  @click.native="handleEdit(item)">
+                  {{$t('common.button.edit')}}
+                </el-dropdown-item>
+                <el-dropdown-item
+                  @click.native="handleDelete(item)">
+                  {{$t('common.button.delete')}}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
           <div class="card-des">{{ item.desc }}</div>
         </div>
@@ -69,7 +72,7 @@
       </div>-->
       <el-empty class="noData" v-if="!(list && list.length)" :description="$t('common.noData')"></el-empty>
     </div>
-    <addDialog :dialogVisible="addOpen" :initialData="dialogParams" @handleFetch="fetchList()" @handleClose="handleClose"></addDialog>
+    <addDialog :dialogVisible="addOpen" :title="addTitle" :initialData="dialogParams" @handleFetch="fetchList()" @handleClose="handleClose"></addDialog>
   </div>
 </template>
 <script>
@@ -83,6 +86,7 @@ export default {
     return {
       basePath: this.$basePath,
       addOpen: false, // 自定义添加mcp开关
+      addTitle: "",
       dialogParams: {
         name: "",
         from: "",
@@ -112,9 +116,11 @@ export default {
     },
     handleAddMCP() {
       this.addOpen = true;
+      this.addTitle = this.$t('tool.integrate.addTitle')
     },
     handleEdit(item) {
       this.addOpen = true;
+      this.addTitle = this.$t('tool.integrate.editTitle')
       this.dialogParams = {
         ...item
       };
@@ -130,11 +136,11 @@ export default {
     },
     handleDelete(item) {
       this.$confirm(
-        "删除后，历史引用了本MCP服务的智能体将自动取消引用，且此操作不可撤回,确定要删除吗？",
-        "提示",
+        this.$t('tool.integrate.deleteHint'),
+        this.$t('common.confirm.title'),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
           dangerouslyUseHTMLString: true,
           type: "warning",
           center: true,
@@ -144,10 +150,10 @@ export default {
           mcpId: item.mcpId,
         }).then((res) => {
           if (res.code === 0) {
-            this.$message.success("删除成功")
+            this.$message.success(this.$t('common.info.delInfo'))
             this.fetchList()
           } else {
-            this.$message.error( res.msg || '删除失败')
+            this.$message.error( res.msg || this.$t('common.info.delInfoErr'))
           }
         })
       })

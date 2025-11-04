@@ -110,7 +110,7 @@ export default {
           this.publishLoading = true
           setCreate(params).then((res) => {
             if(res.code === 0){
-              this.$message.success("发布成功")
+              this.$message.success(this.$t('common.info.publish'))
               this.publishLoading = false
               this.handleCancel()
               // 更新发送按钮状态

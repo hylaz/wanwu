@@ -3,37 +3,39 @@
     <div class="common_bg">
       <!-- tabs -->
       <div class="mcp-tabs">
-        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">内置工具</div>
-        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">自定义</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('common.button.import') }}MCP</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('common.button.add') }}MCP</div>
       </div>
 
-      <builtInTools ref="builtInTools" v-if="tabActive === 0"/>
-      <autoTools ref="autoTools" v-if="tabActive === 1"/>
+      <customize ref="customize" v-if="tabActive === 0"/>
+      <server ref="server" v-if="tabActive === 1"/>
     </div>
   </div>
 </template>
 <script>
-import builtInTools from './builtInTools'
-import autoTools from './autoTools'
+import customize from './integrate'
+import server from './server'
 export default {
   data() {
     return {
-      tabActive: 0
+      tabActive:0
     };
   },
   watch: {
     $route: {
       handler() {
-        if (this.$route.query.mcp === "builtIn") this.tabActive = 0
-        if (this.$route.query.mcp === "custom") this.tabActive = 1
+        if (this.$route.query.mcp === "integrate") this.tabActive = 0
+        else if (this.$route.query.mcp === "server") this.tabActive = 1
+        else this.tabActive = 0
       },
       // 深度观察监听
       deep: true
     }
   },
   mounted() {
-    if (this.$route.query.mcp === "builtIn") this.tabActive = 0
-    if (this.$route.query.mcp === "custom") this.tabActive = 1
+    if (this.$route.query.mcp === "integrate") this.tabActive = 0
+    else if (this.$route.query.mcp === "server") this.tabActive = 1
+    else this.tabActive = 0
   },
   methods: {
     tabClick(status){
@@ -41,8 +43,8 @@ export default {
     },
   },
   components: {
-    builtInTools,
-    autoTools
+      customize,
+      server
   },
 };
 </script>

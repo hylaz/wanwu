@@ -63,7 +63,6 @@
                 class="cover-input-icon model-select"
                 :disabled="isPublish"
                 :loading="modelLoading"
-                clearable
                 filterable
                 value-key="modelId"
               >
@@ -293,7 +292,8 @@ export default {
           });
           if (changed && !this.isUpdating) {
             const isMixPriorityMatch = newVal['knowledgeConfig']['matchType'] === 'mix' && newVal['knowledgeConfig']['priorityMatch'];
-            if(newVal['modelParams']!== '' &&  newVal['knowledgebases'].length > 0 || (isMixPriorityMatch && !newVal['knowledgeConfig']['rerankModelId'])){
+            //&&  newVal['knowledgebases'].length > 0 
+            if(newVal['modelParams']!== '' || (isMixPriorityMatch && !newVal['knowledgeConfig']['rerankModelId'])){
               this.updateInfo();
             }
           }

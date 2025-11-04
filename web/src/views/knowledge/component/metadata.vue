@@ -153,7 +153,7 @@ export default {
           ...item,
           metaValue:
             item && item.metaValueType === 'time'
-              ? item.metaValue
+              ? String(item.metaValue)
               : (item && item.metaValue != null ? String(item.metaValue) : ''),
         }))
 

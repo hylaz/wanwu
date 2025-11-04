@@ -8,21 +8,22 @@
     <template slot="title">
       <div class="custom-title">
         <div class="header-section">
-          <h2 class="dialog-title">{{actionDetail.action.name}}</h2>
-          <!-- <p class="dialog-subtitle">{{actionDetail.action.description}}</p> -->
+          <h2 class="dialog-title">{{actionDetail.action && actionDetail.action.name}}</h2>
+          <!-- <p class="dialog-subtitle">{{actionDetail.action && actionDetail.action.description}}</p> -->
         </div>
       </div>
     </template>
 
     <!-- API Key 部分 -->
     <div class="api-key-section">
-      <div class="api-key-label">API Key：</div>
+      <div class="api-key-label">API Key</div>
       <div class="api-key-input-group">
         <el-input
           v-model="apiKey"
           placeholder="请输入apikey"
           class="api-key-input"
           showPassword
+          style="width:300px;"
         />
         <div class="api-key-buttons">
           <el-button style="width: 100px" size="mini" type="primary"  @click="changeApiKey">
@@ -51,7 +52,7 @@
 
 <script>
 import {toolActionDetail} from "@/api/agent";
-import { changeApiKey } from "@/api/mcp"
+import { changeApiKey } from "@/api/mcp";
 export default {
   data() {
     return {
@@ -86,11 +87,12 @@ export default {
     showDiaglog(n){
       this.dialogVisible = true;
       this.currentItem = n
-      this.getDeatil(n);
+      this.getDeatil(n)
     },
     getDeatil(n){
       toolActionDetail({actionName:n.actionName,toolId:n.toolId,toolType:n.toolType}).then(res =>{
         if(res.code === 0){
+          this.actionDetail = res.data || {}
           const base = { action: { name: '', description: '' }, apiKey: '' }
           const payload = res.data || {}
           this.actionDetail = Object.assign({}, base, payload, {
@@ -126,9 +128,8 @@ export default {
     border-bottom:1px solid #dbdbdb;
   }
 }
+
 .header-section {
-  margin-bottom: 24px;
-  
   .dialog-title {
     font-size: 20px;
     font-weight: bold;
@@ -144,11 +145,8 @@ export default {
 }
 
 .api-key-section {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin: 20px 0 15px 0;
-
+  margin-bottom:15px;
+  display:flex;
   .api-key-label {
     font-size: 14px;
     font-weight: 500;
@@ -156,25 +154,22 @@ export default {
     margin-right: 12px;
     white-space: nowrap;
   }
-
+  
   .api-key-input-group {
-    flex: 1;
     display: flex;
     align-items: center;
     gap: 12px;
-
     .api-key-input {
       flex: 1;
     }
-
+    
     .api-key-buttons {
       display: flex;
       flex-direction: row;
-      align-items: center;
       gap: 8px;
-
       .confirm-btn,
       .update-btn {
+        width: 60px;
         height: 32px;
       }
     }

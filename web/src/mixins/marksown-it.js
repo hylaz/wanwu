@@ -16,7 +16,7 @@ export const md = MarkdownIt({
         let preCode = ""
         try {
             if(lang && hljs.getLanguage(lang)){
-                preCode = hljs.highlightAuto(lang,str).value
+                preCode = hljs.highlight(str, { language: lang }).value
             }else{
                 preCode = hljs.highlightAuto(str).value;
             }
@@ -24,11 +24,8 @@ export const md = MarkdownIt({
             preCode = md.utils.escapeHtml(str);
         }
 
-        // 以换行进行分割
         const lines = preCode.split(/\n/).slice(0, -1)
-
-        // 去掉空行
-        let _lines = lines.filter((it,i)=>{ return it!==''})
+        let _lines = lines.filter((it,i) => it !== '')
 
         // 添加自定义行号
         let html = _lines.map((item, index) => {
@@ -53,4 +50,4 @@ export const md = MarkdownIt({
     }
 })
 
-md.use(mk, { "throwOnError": false, "errorColor": " #000000" })
+md.use(mk, { "throwOnError": false, "errorColor": "#000000", "output": "mathml"})

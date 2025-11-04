@@ -211,6 +211,7 @@ marked.setOptions({
   },
 });
 
+
 export default {
   props: ["sessionStatus", "defaultUrl"],
   mixins: [commonMixin],
@@ -814,20 +815,24 @@ img.failed::after {
       border-radius: 6px;
     }
     .answer-content {
-      // width: calc(100% - 30px);
+      width:100%;
       position: relative;
       margin-left: 14px;
       color: #333;
       .answer-content-query {
+        width:100%;
         display: flex;
         flex-wrap: wrap;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-end;
         .answer-text {
           background: #7288fa;
           color: #fff;
           border-radius: 10px 0 10px 10px;
           padding: 10px 10px 10px 20px;
+          margin:0!important;
+          display:inline-block;
+          line-height:1.5;
         }
         .session-setting-id {
           color: rgba(98, 98, 98, 0.5);

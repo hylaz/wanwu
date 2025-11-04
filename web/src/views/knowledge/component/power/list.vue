@@ -42,7 +42,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <div class="action-buttons" v-if="[20,30].includes(permissionType)">
+            <div class="action-buttons">
               <!-- 系统管理员权限：只显示转让按钮 -->
               <template v-if="scope.row.transfer && !scope.row.editing">
                 <el-button
@@ -58,7 +58,6 @@
               <!-- 非管理员权限：显示编辑和删除按钮 -->
               <template v-if="scope.row.editing">
                 <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-check"
@@ -68,7 +67,6 @@
                   保存
                 </el-button>
                 <el-button
-                  v-if="scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-close"
@@ -78,9 +76,8 @@
                   取消
                 </el-button>
               </template>
-              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) || (permissionType === 30 && scope.row.permissionType === 20)">
+              <template v-if="showEdit(scope.row)">
                 <el-button
-                  v-if="!scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-edit"
@@ -90,7 +87,6 @@
                   编辑
                 </el-button>
                 <el-button
-                  v-if="!scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-delete"
@@ -100,8 +96,8 @@
                   删除
                 </el-button>
               </template>
+              <span v-else-if="showInfo(scope.row)" class="noPower">--</span>
             </div>
-             <span v-if="showInfo(scope.row)" class="noPower">无权限</span>
           </template>
         </el-table-column>
       </el-table>
@@ -133,12 +129,28 @@ export default {
     }
   },
   methods: {
+    showEdit(row){
+      if (row.editing) return false;
+      return (
+        !this.permissionType === 0 ||
+        !this.permissionType === 10 ||
+        (this.permissionType === 20 && row.permissionType === 0) ||
+        (this.permissionType === 20 && row.permissionType === 10) ||
+        (this.permissionType === 30 && row.permissionType === 0) ||
+        (this.permissionType === 30 && row.permissionType === 10) ||
+        (this.permissionType === 30 && row.permissionType === 20)
+      );
+    },
     showInfo(row){
+      if (row.editing) return false;
       return (
         row.permissionType === 0 ||
+        row.permissionType === 10 ||
         (this.permissionType === 0 && !row.transfer) ||
         (this.permissionType === 20 && !row.transfer) ||
-        (this.permissionType === 20 && row.permissionType === 20)
+        (this.permissionType === 20 && row.permissionType === 20)||
+        (this.permissionType === 10 && row.permissionType === 30) ||
+        (this.permissionType === 10 && row.permissionType === 20)
       );
     },
     getFilterResult(name) {
@@ -161,12 +173,12 @@ export default {
     },
     handleEdit(row) {
       row.editing = true
-      row.originalType = row.type // 保存原始值
+      row.originalType = row.permissionType // 保存原始值
     },
     handleSave(row) {
       // 保存编辑
       row.editing = false
-      row.originalType = row.type
+      row.originalType = row.permissionType
       const knowledgeUser = {
           orgId:row.orgId,
           userId:row.userId,
@@ -181,7 +193,7 @@ export default {
       }).catch(() => {})
     },
     handleCancel(row) {
-      row.type = row.originalType
+      row.permissionType = row.originalType
       row.editing = false
     },
     handleTransfer(row) {
@@ -196,7 +208,7 @@ export default {
       })
     },
     handleDelete(row) {
-      this.$confirm('确定要删除这条记录吗？', '提示', {
+      this.$confirm('确定要删除这条数据吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

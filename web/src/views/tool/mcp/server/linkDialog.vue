@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      title="绑定应用"
+      :title="$t('tool.server.bind.title')"
       :visible.sync="dialogVisible"
       width="50%"
       :before-close="handleClose">
@@ -14,7 +14,7 @@
           </div>
         </div>
         <el-input
-          v-model="toolName" placeholder="搜索应用" class="tool-input" suffix-icon="el-icon-search"
+          v-model="toolName" :placeholder="$t('tool.server.bind.search')" class="tool-input" suffix-icon="el-icon-search"
           @keyup.enter.native="searchTool" clearable/>
       </div>
       <div class="toolContent">
@@ -35,14 +35,14 @@
                 v-if="!item.checked"
                 type="text"
                 @click="addTool(item)">
-                添加
+                {{ $t('tool.server.bind.add') }}
               </el-button>
               <el-button
                 v-show="item.type !== 'custom'"
                 v-else
                 type="text"
                 style="color:#ccc;">
-                已添加
+                {{ $t('tool.server.bind.added') }}
               </el-button>
               <i
                 v-show="item.type === 'custom'"
@@ -69,13 +69,13 @@
                 v-if="!method.checked"
                 type="text"
                 @click="addTool(item, method)">
-                添加
+                {{ $t('tool.server.bind.add') }}
               </el-button>
               <el-button
                 v-else
                 type="text"
                 style="color:#ccc;">
-                已添加
+                {{ $t('tool.server.bind.added') }}
               </el-button>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default {
       toolList: [
         {
           value: 'custom',
-          name: '自定义工具'
+          name: this.$t('menu.app.custom'),
         },
         // {
         //   value: 'agent',
@@ -165,7 +165,7 @@ export default {
     },
     createText() {
       if (this.activeValue === 'custom') {
-        return '创建自定义工具'
+        return this.$t('common.button.add') + this.$t('menu.app.custom')
       }
     },
     addTool(item, method) {
@@ -181,7 +181,7 @@ export default {
       addServerTool(params).then(res => {
         if (res.code === 0) {
           method.checked = true;
-          this.$message.success('工具添加成功');
+          this.$message.success(this.$t('tool.server.bind.addMsg'));
           this.$emit('handleFetch');
           this.$nextTick(() => {
             this.$forceUpdate();

@@ -7,18 +7,18 @@
       </div>
       <!-- tabs -->
       <div class="mcp-tabs">
-        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">MCP服务</div>
-        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">工具</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('tool.mcp') }}</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('tool.tool') }}</div>
       </div>
 
-      <mcpIndex ref="mcpIndex" v-if="tabActive === 0"/>
-      <toolIndex ref="autoTools" v-if="tabActive === 1"/>
+      <mcp ref="mcp" v-if="tabActive === 0"/>
+      <tool ref="tool" v-if="tabActive === 1"/>
     </div>
   </div>
 </template>
 <script>
-import mcpIndex from './mcpIndex'
-import toolIndex from './toolIndex'
+import mcp from './mcp'
+import tool from './tool'
 
 export default {
   data() {
@@ -30,7 +30,8 @@ export default {
     $route: {
       handler() {
         if (this.$route.query.type === "mcp") this.tabActive = 0
-        if (this.$route.query.type === "tool") this.tabActive = 1
+        else if (this.$route.query.type === "tool") this.tabActive = 1
+        else this.tabActive = 0
       },
       // 深度观察监听
       deep: true
@@ -38,7 +39,8 @@ export default {
   },
   mounted() {
     if (this.$route.query.type === "mcp") this.tabActive = 0
-    if (this.$route.query.type === "tool") this.tabActive = 1
+    else if (this.$route.query.type === "tool") this.tabActive = 1
+    else this.tabActive = 0
   },
   methods: {
     tabClick(status) {
@@ -46,8 +48,8 @@ export default {
     },
   },
   components: {
-    mcpIndex,
-    toolIndex
+    mcp,
+    tool
   },
 };
 </script>
@@ -116,18 +118,6 @@ export default {
     display: none;
   }
 
-  .action-icon {
-    display: none;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #777;
-
-    &:hover {
-      color: $color;
-    }
-  }
-
   .card-box {
     display: flex;
     flex-wrap: wrap;
@@ -151,10 +141,6 @@ export default {
         cursor: pointer;
         box-shadow: 0 2px 8px #171a220d, 0 4px 16px #0000000f;
         border: 1px solid $border_color;
-
-        .action-icon {
-          display: block;
-        }
       }
 
       .card-title {

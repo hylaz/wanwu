@@ -809,4 +809,8 @@ export default {
 
         }
     },
+    metaData:{
+        batchEdit:'批量编辑元数据值',
+        selected:'已选择',
+    },
 }

@@ -2,13 +2,13 @@
   <div class="mcp-detail" id="timeScroll">
     <span class="back" @click="back">{{ $t('menu.back') + $t('menu.tool') }}</span>
     <div class="mcp-title">
-      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="avatarSrc(detail.avatar.path)" alt=""/>
+      <img class="logo" :src="(detail.avatar && detail.avatar.path) ? avatarSrc(detail.avatar.path) : defaultAvatar" alt=""/>
       <div :class="['info',{fold:foldStatus}]">
         <p class="name">{{ detail.name }}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
           {{ foldStatus ? detail.desc : detail.desc.slice(0, 268) + '...' }}
           <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
-            {{ foldStatus ? '收起' : '详情 >>' }}
+            {{ foldStatus ? $t('common.button.fold') : $t('common.button.detail') }}
           </span>
         </p>
         <p v-else class="desc">{{ detail.desc }}</p>
@@ -37,7 +37,7 @@
           </div>
           <div class="tool bg-border">
             <div class="tool-item">
-              <p class="title">请求示例:</p>
+              <p class="title">{{ $t('tool.server.detail.example') }}</p>
               <el-input
                 class="schema-textarea"
                 v-model="detail.sseExample"
@@ -59,7 +59,7 @@
           </div>
           <div class="tool bg-border">
             <div class="tool-item">
-              <p class="title">请求示例:</p>
+              <p class="title">{{ $t('tool.server.detail.example') }}</p>
               <el-input
                 class="schema-textarea"
                 v-model="detail.streamableExample"
@@ -71,11 +71,11 @@
         <div class="tool bg-border">
           <div class="tool-item">
             <div style="display: flex; align-items: center;">
-              <p class="title">绑定应用</p>
+              <p class="title">{{ $t('tool.server.bind.title') }}</p>
               <el-tooltip
                 style="margin-left: 3px;"
                 effect="dark"
-                content="已绑定的应用更新后，引用此应用所创建的MCP服务不会自动更新到该应用的最新版本，以免影响已线上业务的正常运行。若需绑定最新版应用，请手动移除原应用后，重新添加新版应用。"
+                :content="$t('tool.server.bind.hint')"
                 placement="right"
                 popper-class="tooltip">
                 <span class="el-icon-question question-tips"/>
@@ -85,12 +85,12 @@
               <el-button
                 size="mini"
                 @click="$refs.linkDialog.showDialog(detail)"
-              >关联
+              >{{ $t('tool.server.bind.action') }}
               </el-button>
               <el-button
                 size="mini"
-                @click="$refs.addToolDialog.showToolDialog(mcpServerId)"
-              >创建
+                @click="$refs.addDialog.showToolDialog(mcpServerId)"
+              >{{ $t('common.button.add') }}
               </el-button>
             </div>
             <el-table
@@ -98,7 +98,7 @@
               style="width: 100%"
             >
               <el-table-column
-                label="显示名称"
+                :label="$t('tool.server.bind.methodName')"
                 prop="methodName"
                 width="100"
               >
@@ -106,17 +106,17 @@
                   <el-input
                     :readonly="!scope.row.isEditing"
                     v-model="scope.row.methodName"
-                    placeholder="请输入显示名称"
+                    :placeholder="$t('common.input.placeholder') + $t('tool.server.bind.methodName')"
                   ></el-input>
                 </template>
               </el-table-column>
               <el-table-column
-                label="应用名称"
+                :label="$t('tool.server.bind.name')"
                 prop="name"
                 width="100"
               />
               <el-table-column
-                label="类型"
+                :label="$t('tool.server.bind.type')"
                 width="100"
               >
                 <template #default="scope">
@@ -126,19 +126,19 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="描述"
+                :label="$t('tool.server.bind.desc')"
                 prop="desc"
               >
                 <template #default="scope">
                   <el-input
                     :readonly="!scope.row.isEditing"
                     v-model="scope.row.desc"
-                    placeholder="请输入描述"
+                    :placeholder="$t('common.input.placeholder') + $t('tool.server.bind.desc')"
                   ></el-input>
                 </template>
               </el-table-column>
               <el-table-column
-                label="操作"
+                :label="$t('tool.server.bind.operate')"
                 width="200"
               >
                 <template #default="scope">
@@ -171,27 +171,27 @@
 
         <div class="tool bg-border">
           <div class="tool-item">
-            <p class="title">API密钥</p>
+            <p class="title">{{$t('tool.server.detail.apiKey')}}</p>
             <el-button style="width: 100px" size="mini" type="primary" :disabled="detail.hasCustom"
                        @click="handleCreateApiKey">
-              获取API密钥
+              {{$t('tool.server.detail.action')}}
             </el-button>
             <el-table
               :data="apiKeyList"
               style="width: 100%"
             >
               <el-table-column
-                label="密钥"
+                :label="$t('tool.server.detail.key')"
                 prop="apiKey"
                 width="300"
               >
               </el-table-column>
               <el-table-column
-                label="创建时间"
+                :label="$t('tool.server.detail.createTime')"
                 prop="createdAt"
               />
               <el-table-column
-                label="操作"
+                :label="$t('tool.server.detail.operate')"
                 width="200"
               >
                 <template slot-scope="scope">
@@ -208,7 +208,7 @@
         </div>
       </div>
     </div>
-    <addToolDialog ref="addToolDialog" @handleFetch="fetchList"/>
+    <addDialog ref="addDialog" @handleFetch="fetchList"/>
     <linkDialog ref="linkDialog" @handleFetch="fetchList"/>
   </div>
 </template>
@@ -216,17 +216,18 @@
 import {getServer, editServerTool, deleteServerTool} from "@/api/mcp"
 import {createApiKey, delApiKey, getApiKeyList} from "@/api/appspace"
 import {avatarSrc} from "@/utils/util"
-import CopyIcon from "@/components/copyIcon";
-import addToolDialog from "./addToolDialog";
-import linkDialog from "./linkDialog";
+import CopyIcon from "@/components/copyIcon.vue";
+import addDialog from "@/views/tool/tool/custom/addDialog.vue";
+import linkDialog from "./linkDialog.vue";
 
 const APPTYPE_MCPSERVER = 'mcpserver'
 export default {
-  components: {CopyIcon, addToolDialog, linkDialog},
+  components: {CopyIcon, addDialog, linkDialog},
   data() {
     return {
       tabActive: 0,
       basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       mcpServerId: '',
       detail: {},
       apiKeyList: [],
@@ -245,12 +246,12 @@ export default {
   computed: {
     appTypeMap() {
       return {
-        'agent': '智能体',
-        'rag': '文本问答',
-        'workflow': '工作流',
-        'custom': '自定义工具',
-        'openapi': 'OpenAPI',
-        'builtIn': '内置工具'
+        'agent': this.$t('menu.app.agent'),
+        'rag': this.$t('menu.app.rag'),
+        'workflow': this.$t('menu.app.workflow'),
+        'custom': this.$t('menu.app.custom'),
+        'openapi': this.$t('menu.app.openapi'),
+        'builtIn': this.$t('menu.app.builtIn')
       }
     }
   },
@@ -314,7 +315,7 @@ export default {
     },
     handleDeleteApiKey(row) {
       this.$confirm(
-        "确定要删除当前APIkey吗？",
+        this.$t("tool.server.detail.deleteHint"),
         this.$t("common.confirm.title"),
         {
           confirmButtonText: this.$t("common.confirm.confirm"),

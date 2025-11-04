@@ -65,7 +65,7 @@
     </div>
     <el-empty class="noData" v-if="!(listData && listData.length)" :description="$t('common.noData')"></el-empty>
     <tagDialog ref="tagDialog" @relodaData="relodaData" type="knowledge" :title="title"/>
-    <PowerManagement ref="powerManagement" />
+    <PowerManagement ref="powerManagement"/>
   </div>
 </template>
 

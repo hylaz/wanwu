@@ -69,6 +69,7 @@ import PowerCreate from "./create.vue";
 import { transferUserPower,addUserPower } from "@/api/knowledge";
 export default {
   name: "PowerManagement",
+  inject: ['reloadKnowledgeData'],
   components: {
     PowerList,
     PowerCreate,
@@ -175,7 +176,10 @@ export default {
           if(res.code === 0){
             this.$message.success("转让成功");
             this.showList();
-            this.refreshList();
+            this.dialogVisible = false;
+             if (this.reloadKnowledgeData) {
+              this.reloadKnowledgeData();  // 刷新列表
+            }
           }
         }).catch(() => {})
       }else{

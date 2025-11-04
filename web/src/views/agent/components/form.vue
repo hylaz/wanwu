@@ -119,7 +119,6 @@
                 class="cover-input-icon model-select"
                 :disabled="isPublish"
                 :loading="modelLoading"
-                clearable
                 filterable
                 value-key="modelId"
                 @change="handleModelChange($event)"

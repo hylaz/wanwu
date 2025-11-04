@@ -90,7 +90,7 @@ const constantRoutes = [
             },
             {
                 path: '/tool/detail/builtIn',
-                component:resolve =>require(['@/views/tool/toolDetail'],resolve),
+                component:resolve =>require(['@/views/tool/tool/builtIn/detail'],resolve),
                 meta:{perm: [PERMS.TOOL]},
             },
             {
@@ -101,7 +101,7 @@ const constantRoutes = [
             },
             {
                 path: '/tool/detail/server',
-                component:resolve =>require(['@/views/tool/serverDetail'],resolve),
+                component:resolve =>require(['@/views/tool/mcp/server/detail'],resolve),
                 meta:{perm: [PERMS.TOOL]},
             },
             {
