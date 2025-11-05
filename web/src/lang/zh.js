@@ -860,10 +860,13 @@ export default {
             required:'是否必填',
             yes:'是',
             no:'否'
+<<<<<<< HEAD
         },
         promptTemplate:{
             recommended:'推荐',
             personal:'个人',
+=======
+>>>>>>> 20003ef836688d4dd324d4f962b22d35a0f8605a
         }
     },
     agentDiglog:{
