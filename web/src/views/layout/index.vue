@@ -631,6 +631,7 @@ export default {
           padding-right: 2px;
           .right-page-content {
             min-width: 1250px;
+            height: 100%;
           }
         }
       }
