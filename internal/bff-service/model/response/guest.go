@@ -79,6 +79,7 @@ type CustomDefaultIcon struct {
 	RagIcon      string `json:"ragIcon"`
 	AgentIcon    string `json:"agentIcon"`
 	WorkflowIcon string `json:"workflowIcon"`
+	PromptIcon   string `json:"promptIcon"`
 }
 
 type CustomEmail struct {

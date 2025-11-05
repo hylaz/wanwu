@@ -63,3 +63,10 @@ type ToolActionReq struct {
 }
 
 func (req *ToolActionReq) Check() error { return nil }
+
+type CreatePromptByTemplateReq struct {
+	TemplateId string `json:"templateId" validate:"required"`
+	AppBriefConfig
+}
+
+func (req *CreatePromptByTemplateReq) Check() error { return nil }

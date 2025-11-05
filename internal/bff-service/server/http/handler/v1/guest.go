@@ -244,3 +244,36 @@ func DownloadWorkflowTemplate(ctx *gin.Context) {
 	// 直接写入字节数据
 	ctx.Data(http.StatusOK, "application/octet-stream", resp)
 }
+
+// GetPromptTemplateList
+//
+//	@Tags			guest
+//	@Summary		获取提示词模板列表
+//	@Description	获取提示词模板列表
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			name		query		string	false	"模板名称"
+//	@Param			category	query		string	false	"模板分类"
+//	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.PromptTemplateDetail}}
+//	@Router			/prompt/template/list [get]
+func GetPromptTemplateList(ctx *gin.Context) {
+	resp, err := service.GetPromptTemplateList(ctx, ctx.Query("category"), ctx.Query("name"))
+	gin_util.Response(ctx, resp, err)
+}
+
+// GetPromptTemplateDetail
+//
+//	@Tags			guest
+//	@Summary		获取提示词模板详情
+//	@Description	获取提示词模板详情
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			templateId	query		string	true	"模板ID"
+//	@Success		200			{object}	response.Response{data=response.PromptTemplateDetail}
+//	@Router			/prompt/template/detail [get]
+func GetPromptTemplateDetail(ctx *gin.Context) {
+	resp, err := service.GetPromptTemplateDetail(ctx, ctx.Query("templateId"))
+	gin_util.Response(ctx, resp, err)
+}

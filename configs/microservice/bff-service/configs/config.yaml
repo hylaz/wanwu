@@ -87,6 +87,7 @@ default-icon:
   agent: "/v1/static/icon/agent-default-icon.png"
   workflow: "/v1/static/icon/workflow-default-icon.png"
   tool: "/v1/static/icon/custom-tool-default-icon.png"
+  prompt: "/v1/static/icon/prompt-default-icon.png"
 
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
@@ -167,6 +168,9 @@ workflow-template:
   detail_url:
   recommend_url:
 
+prompt-template:
+  configPath: configs/microservice/bff-service/configs/prompt_template_config.yaml
+  
 # --- middleware ---
 
 minio:

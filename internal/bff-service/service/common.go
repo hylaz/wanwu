@@ -280,6 +280,15 @@ func cacheWorkflowAvatar(avatarURL string) request.Avatar {
 	return avatar
 }
 
+func cachePromptAvatar(ctx *gin.Context, avatarObjectPath string) request.Avatar {
+	avatar := request.Avatar{}
+	if avatarObjectPath == "" {
+		avatar.Path = config.Cfg().DefaultIcon.PromptIcon
+		return avatar
+	}
+	return CacheAvatar(ctx, avatarObjectPath, true)
+}
+
 // resizeImage 压缩图像
 func resizeImage(imageData []byte) ([]byte, error) {
 	// 先解码获取图像尺寸

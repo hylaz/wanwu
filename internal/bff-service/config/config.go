@@ -26,7 +26,9 @@ type Config struct {
 	DocCenter         DocCenterConfig            `json:"doc-center" mapstructure:"doc-center"`
 	DefaultIcon       DefaultIconConfig          `json:"default-icon" mapstructure:"default-icon"`
 	WorkflowTemplate  WorkflowTemplatePathConfig `json:"workflow-template" mapstructure:"workflow-template"`
+	PromptTemplate    PromptTemplatePathConfig   `json:"prompt-template" mapstructure:"prompt-template"`
 	WorkflowTemplates []*WorkflowTemplateConfig  `json:"workflows" mapstructure:"workflows"`
+	PromptTemplates   []*PromptTempConfig        `json:"prompts" mapstructure:"prompts"`
 	// middleware
 	Minio minio.Config `json:"minio" mapstructure:"minio"`
 	Redis redis.Config `json:"redis" mapstructure:"redis"`
@@ -96,6 +98,20 @@ type WorkflowTemplatePathConfig struct {
 	DownloadUrl  string `json:"download_url" mapstructure:"download_url"`
 	DetailUrl    string `json:"detail_url" mapstructure:"detail_url"`
 	RecommendUrl string `json:"recommend_url" mapstructure:"recommend_url"`
+}
+
+type PromptTemplatePathConfig struct {
+	ConfigPath string `json:"configPath" mapstructure:"configPath"`
+}
+
+type PromptTempConfig struct {
+	TemplateId string `json:"templateId" mapstructure:"templateId"`
+	Category   string `json:"category" mapstructure:"category"`
+	Avatar     string `json:"avatar"`
+	Name       string `json:"name"`
+	Desc       string `json:"desc" mapstructure:"desc"`
+	Author     string `json:"author" mapstructure:"author"`
+	Prompt     string `json:"prompt" mapstructure:"prompt"`
 }
 
 type WorkflowServiceConfig struct {
@@ -221,6 +237,7 @@ type DefaultIconConfig struct {
 	AgentIcon    string `json:"agent" mapstructure:"agent"`
 	WorkflowIcon string `json:"workflow" mapstructure:"workflow"`
 	ToolIcon     string `json:"tool" mapstructure:"tool"`
+	PromptIcon   string `json:"prompt" mapstructure:"prompt"`
 }
 
 func LoadConfig(in string) error {
@@ -241,6 +258,11 @@ func LoadConfig(in string) error {
 		if err := wt.load(); err != nil {
 			return err
 		}
+	}
+	// 加载提示词模板配置
+	promptIn := _c.PromptTemplate.ConfigPath
+	if err := util.LoadConfig(promptIn, _c); err != nil {
+		return fmt.Errorf("load prompt template config err: %v", err)
 	}
 	return nil
 }
@@ -272,4 +294,13 @@ func (c *Config) WorkflowTemp(templateId string) (WorkflowTemplateConfig, bool) 
 		}
 	}
 	return WorkflowTemplateConfig{}, false
+}
+
+func (c *Config) PromptTemp(templateId string) (PromptTempConfig, bool) {
+	for _, ptf := range c.PromptTemplates {
+		if ptf.TemplateId == templateId {
+			return *ptf, true
+		}
+	}
+	return PromptTempConfig{}, false
 }

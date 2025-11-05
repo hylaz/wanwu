@@ -110,3 +110,22 @@ func CopyCustomPrompt(ctx *gin.Context) {
 	resp, err := service.CopyCustomPrompt(ctx, getUserID(ctx), getOrgID(ctx), req.CustomPromptID)
 	gin_util.Response(ctx, resp, err)
 }
+
+// CreatePromptByTemplate
+//
+//	@Tags			tool
+//	@Summary		复制提示词模板
+//	@Description	复制提示词模板
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.CreatePromptByTemplateReq	true	"通过模板创建提示词的请求参数"
+//	@Success		200		{object}	response.Response{data=response.PromptIDData}
+//	@Router			/prompt/template [post]
+func CreatePromptByTemplate(ctx *gin.Context) {
+	var req request.CreatePromptByTemplateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.CreatePromptByTemplate(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}

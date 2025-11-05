@@ -1510,6 +1510,24 @@ definitions:
     required:
     - tagName
     type: object
+  request.CreatePromptByTemplateReq:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      templateId:
+        type: string
+    required:
+    - name
+    - templateId
+    type: object
   request.CreateSensitiveWordTableReq:
     properties:
       remark:
@@ -3605,6 +3623,8 @@ definitions:
     properties:
       agentIcon:
         type: string
+      promptIcon:
+        type: string
       ragIcon:
         type: string
       workflowIcon:
@@ -4732,6 +4752,38 @@ definitions:
       perm:
         description: 权限
         type: string
+    type: object
+  response.PromptIDData:
+    properties:
+      promptId:
+        type: string
+    type: object
+  response.PromptTemplateDetail:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      category:
+        description: 模板分类
+        type: string
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+      templateId:
+        type: string
+    required:
+    - name
+    - templateId
     type: object
   response.ProxyUploadFileResp:
     properties:
@@ -9788,6 +9840,99 @@ paths:
       summary: 获取自定义Prompt列表
       tags:
       - tool
+  /prompt/template:
+    post:
+      consumes:
+      - application/json
+      description: 复制提示词模板
+      parameters:
+      - description: 通过模板创建提示词的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreatePromptByTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PromptIDData'
+              type: object
+      summary: 复制提示词模板
+      tags:
+      - tool
+  /prompt/template/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取提示词模板详情
+      parameters:
+      - description: 模板ID
+        in: query
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PromptTemplateDetail'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取提示词模板详情
+      tags:
+      - guest
+  /prompt/template/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取提示词模板列表
+      parameters:
+      - description: 模板名称
+        in: query
+        name: name
+        type: string
+      - description: 模板分类
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.PromptTemplateDetail'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取提示词模板列表
+      tags:
+      - guest
   /proxy/file/upload:
     post:
       consumes:

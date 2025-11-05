@@ -112,7 +112,7 @@ func toCustomPrompt(ctx *gin.Context, resp *assistant_service.CustomPromptInfo) 
 		CustomPromptIDResp: response.CustomPromptIDResp{
 			CustomPromptID: resp.CustomPromptId,
 		},
-		Avatar:   CacheAvatar(ctx, resp.AvatarPath, true),
+		Avatar:   cachePromptAvatar(ctx, resp.AvatarPath),
 		Name:     resp.Name,
 		Desc:     resp.Desc,
 		Prompt:   resp.Prompt,
