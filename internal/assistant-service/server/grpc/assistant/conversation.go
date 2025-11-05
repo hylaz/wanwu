@@ -910,7 +910,7 @@ func (s *Service) buildToolPluginListAlgParam(ctx context.Context, sseReq *confi
 					log.Errorf("bocha内置工具配置为空，缺少rerankId。assistantId: %s, toolId: %s", assistantId, tool.ToolId)
 					continue
 				}
-
+				sseReq.UseSearch = true
 				continue
 			}
 			// 获取内置工具详情
