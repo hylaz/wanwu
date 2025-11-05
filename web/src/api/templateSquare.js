@@ -38,3 +38,20 @@ export const copyWorkflowTemplate = (data)=>{
         data
     })
 };
+
+/*---提示词模板---*/
+export const getPromptTempList = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/template/list`,
+        method: 'get',
+        params: data
+    })
+};
+
+export const copyPromptTemplate = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/template`,
+        method: 'post',
+        data
+    })
+};

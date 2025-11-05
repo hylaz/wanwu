@@ -488,7 +488,22 @@ export default {
         life: '生活',
         health: '健康',
         email: '邮件',
-        text: '文案'
+        text: '文案',
+        copyPrompt: '复制提示词',
+        createPrompt: '提示词创建',
+        editPrompt: '提示词编辑',
+        promptDetail: '提示词详情',
+        promptPic: '提示词图标',
+        promptName: '提示词名称',
+        promptNameRules: '名称须在30字符以内',
+        promptDesc: '提示词描述',
+        namePlaceholder: '输入提示词名称，仅支持中文、英文、数字、下划线、中划线、英文（.）',
+        descPlaceholder: '输入提示词描述',
+        promptPlaceholder: '输入提示词',
+        promptText: '提示词',
+        nameRules: '请填写提示词名称',
+        descRules: '请填写提示词描述',
+        promptLimitRules: '提示词描述须在50字符以内',
     },
     // 工作流
     list:{

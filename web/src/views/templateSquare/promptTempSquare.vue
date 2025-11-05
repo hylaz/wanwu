@@ -4,7 +4,7 @@
       <div class="tempSquare-main">
         <div class="tempSquare-content">
           <div class="tempSquare-card-box">
-            <div class="card-search card-search-cust" v-if="!templateUrl">
+            <div class="card-search card-search-cust">
               <div>
                 <span
                   v-for="item in typeList"
@@ -19,11 +19,11 @@
                 style="margin-right: 2px"
                 :placeholder="$t('tempSquare.searchText')"
                 ref="searchInput"
-                @handleSearch="doGetWorkflowTempList"
+                @handleSearch="doGetPromptTempList"
               />
             </div>
 
-            <div class="card-loading-box" v-if="list.length && !templateUrl">
+            <div class="card-loading-box" v-if="list.length">
               <div class="card-box" v-loading="loading">
                 <div
                   class="card"
@@ -35,7 +35,7 @@
                     <img
                       class="card-logo"
                       v-if="item.avatar && item.avatar.path"
-                      :src="item.avatar.path"
+                      :src="basePath + '/user/api/' + item.avatar.path"
                     />
                     <div class="mcp_detailBox">
                       <span class="mcp_name">{{ item.name }}</span>
@@ -52,7 +52,7 @@
                       v-if="!isPublic"
                       class="el-icon-copy-document"
                       :title="$t('tempSquare.copy')"
-                      @click.stop="copyTemplate(item)"
+                      @click.stop="copyPromptTemplate(item)"
                     ></i>
                   </div>
                 </div>
@@ -65,17 +65,15 @@
         </div>
       </div>
     </div>
-    <HintDialog :templateUrl="templateUrl" ref="hintDialog" />
-    <CreateWorkflow type="clone" ref="cloneWorkflowDialog" />
+    <CreatePrompt :type="promptType" ref="clonePromptDialog" />
   </div>
 </template>
 <script>
-import { getWorkflowTempList, downloadWorkflow } from "@/api/templateSquare"
+import { getPromptTempList } from "@/api/templateSquare"
 import SearchInput from "@/components/searchInput.vue"
-import HintDialog from "./components/hintDialog.vue"
-import CreateWorkflow from "@/components/createApp/createWorkflow.vue"
+import CreatePrompt from "@/components/createApp/createPrompt.vue"
 export default {
-  components: { SearchInput, HintDialog, CreateWorkflow },
+  components: { SearchInput, CreatePrompt },
   props: {
     isPublic: true,
     type: ''
@@ -85,8 +83,8 @@ export default {
       basePath: this.$basePath,
       category: this.$t('tempSquare.all'),
       list: [],
-      templateUrl: '',
       loading: false,
+      promptType: 'copy',
       typeRadio: 'all',
       typeList: [
         {name: this.$t('tempSquare.all'), key: 'all'},
@@ -104,41 +102,39 @@ export default {
     };
   },
   mounted() {
-    this.doGetWorkflowTempList()
+    this.doGetPromptTempList()
   },
   methods: {
     changeTab(key) {
       this.typeRadio = key
       this.$refs.searchInput.value = ''
-      this.doGetWorkflowTempList()
+      this.doGetPromptTempList()
     },
-    showHintDialog() {
-      this.$refs.hintDialog.openDialog()
-    },
-    doGetWorkflowTempList() {
+    doGetPromptTempList() {
       const searchInput = this.$refs.searchInput
       let params = {
         name: searchInput.value,
         category: this.typeRadio,
       }
 
-      getWorkflowTempList(params)
+      getPromptTempList(params)
         .then((res) => {
-          const {downloadLink = {}, list} = res.data || {}
-          this.templateUrl = downloadLink.url
-          if (downloadLink.url) this.showHintDialog()
-
+          const {list} = res.data || {}
           this.list = list || []
           this.loading = false
         })
         .catch(() => this.loading = false)
     },
-    copyTemplate(item) {
-      this.$refs.cloneWorkflowDialog.openDialog(item)
+    showPromptDialog(item) {
+      this.$refs.clonePromptDialog.openDialog(item)
     },
-    handleClick(val) {
-      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`
-      this.$router.push({path, query: { templateSquareId: val.templateId, type: this.type }})
+    copyPromptTemplate(item) {
+      this.promptType = 'copy'
+      this.showPromptDialog(item)
+    },
+    handleClick(item) {
+      this.promptType = 'detail'
+      this.showPromptDialog(item)
     },
   },
 };
