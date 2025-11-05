@@ -102,7 +102,7 @@
             />
             <div
               class="answer-content"
-              style="padding:0 10px;color:#E6A23C;"
+              style="padding:10px;color:#E6A23C;"
             >{{n.pendingResponse}}</div>
           </div>
         </div>

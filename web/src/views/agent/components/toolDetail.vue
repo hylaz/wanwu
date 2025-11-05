@@ -20,30 +20,53 @@
       <div class="api-key-input-group">
         <el-input
           v-model="apiKey"
-          placeholder="请输入apikey"
+          :placeholder="$t('agent.toolDetail.inputApikey')"
           class="api-key-input"
           showPassword
-          style="width:300px;"
+          @input="inputApiKey"
         />
         <div class="api-key-buttons">
-          <el-button style="width: 100px" size="mini" type="primary"  @click="changeApiKey">
-            {{actionDetail.apiKey ? '更新' : '确认'}}
+          <el-button style="width: 100px" size="mini" type="primary"  @click="changeApiKey" :disabled="isDisabled">
+            {{actionDetail.apiKey ? $t('tool.builtIn.update') : $t('common.confirm.confirm')}}
           </el-button>
         </div>
       </div>
     </div>
+    <!-- rerank 部分 -->
+    <div class="api-key-section rerank-section" v-if="currentItem && currentItem.toolId === 'bochawebsearch'">
+    <div class="api-key-label">Rerank</div>
+      <el-select
+          v-model="rerankId"
+          :placeholder="$t('agent.toolDetail.selectRerank')"
+          @visible-change="rerankVisible"
+          @change="rerankChange"
+          :loading-text="$t('agent.toolDetail.modelLoadingText')"
+          class="cover-input-icon"
+          style="width:100%;"
+          filterable
+          clearable
+      >
+          <el-option
+          v-for="(item,index) in rerankOptions"
+          :key="item.modelId"
+          :label="item.displayName"
+          :value="item.modelId"
+          >
+          </el-option>
+      </el-select>
+    </div>
 
     <div class="parameters-section">
       <el-table :data="parametersData" border class="parameters-table">
-        <el-table-column prop="key" label="参数" width="120" />
-        <el-table-column prop="type" label="类型" width="100" />
-        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="key" :label="$t('agent.toolDetail.parameters')" width="120" />
+        <el-table-column prop="type" :label="$t('agent.toolDetail.type')" width="100" />
+        <el-table-column prop="description" :label="$t('agent.toolDetail.description')" />
         <el-table-column
           prop="required"
-          label="是否必填"
+          :label="$t('agent.toolDetail.required')"
           width="100"
           align="center"
-          :formatter="(row, column, cellValue) => (cellValue ? '是' : '否')"
+          :formatter="(row, column, cellValue) => (cellValue ? $t('agent.toolDetail.yes'): $t('agent.toolDetail.no'))"
         />
       </el-table>
     </div>
@@ -51,8 +74,9 @@
 </template>
 
 <script>
-import {toolActionDetail} from "@/api/agent";
+import {toolActionDetail,updateRerank} from "@/api/agent";
 import { changeApiKey } from "@/api/mcp";
+import { getRerankList} from "@/api/modelAccess";
 export default {
   data() {
     return {
@@ -66,10 +90,44 @@ export default {
       },
       apiKey: '',
       parametersData: [],
-      currentItem:null
+      currentItem:null,
+      rerankOptions:[],
+      rerankId:'',
+      isDisabled:false
     }
   },
   methods: {
+    inputApiKey(){
+      this.isDisabled = false;
+    },
+     rerankVisible(val){
+      if(val){
+          this.getRerankData();
+      }
+    },
+    rerankChange(val){
+      if(val){
+        const data = {
+          assistantId:this.$router.query.id,
+          toolId:this.currentItem.toolId,
+          toolConfig:{
+            rerankId:this.rerankId
+          }
+        }
+        updateRerank({assistantId:toolId}).then(res =>{
+          if(res.code === 0){
+            this.$emit('updateDetail')
+          }
+        }).catch(() =>{})
+      }
+    },
+    getRerankData(){
+      getRerankList().then(res =>{
+          if(res.code === 0){
+          this.rerankOptions = res.data.list || []
+          }
+      })
+    },
     changeApiKey(){
       changeApiKey({
         apiKey: this.apiKey,
@@ -86,12 +144,18 @@ export default {
     },
     showDiaglog(n){
       this.dialogVisible = true;
-      this.currentItem = n
-      this.getDeatil(n)
+      this.currentItem = n;
+      if(n.toolId === 'bochawebsearch'){
+        this.rerankId = n.toolConfig.rerankId || '';
+      }
+      this.getDeatil(n);
     },
     getDeatil(n){
       toolActionDetail({actionName:n.actionName,toolId:n.toolId,toolType:n.toolType}).then(res =>{
         if(res.code === 0){
+          if(res.data.apiKey !== ''){
+            this.isDisabled = true
+          }
           this.actionDetail = res.data || {}
           const base = { action: { name: '', description: '' }, apiKey: '' }
           const payload = res.data || {}
@@ -120,7 +184,7 @@ export default {
 <style lang="scss" scoped>
 /deep/{
   .el-dialog__body {
-    padding:10px 20px!important;
+    padding:20px!important;
   }
   .el-dialog__header{
     padding:10px 20px !important; 
@@ -151,13 +215,14 @@ export default {
     font-size: 14px;
     font-weight: 500;
     color: #333;
-    margin-right: 12px;
+    min-width:56px;
     white-space: nowrap;
   }
   
   .api-key-input-group {
     display: flex;
     align-items: center;
+    flex:1;
     gap: 12px;
     .api-key-input {
       flex: 1;

@@ -2,7 +2,7 @@
 <template>
     <div class="history-box">
         <div class="session-answer" >
-            <div :class="['session-item','rl']" style="width:600px;">
+            <div :class="['session-item','rl']">
                 <img class="logo" :src="editForm.avatar.path ? `/user/api`+ editForm.avatar.path : '@/assets/imgs/bg-logo.png'" />
                 <div class="answer-content">
                     <p class="name">{{editForm.name || '无信息'}}</p>
@@ -76,9 +76,9 @@
         word-break: break-all;
         height: 100%;
         overflow-y: auto;
-        // padding: 0 !important;
         width:auto;
         .session-item{
+            width:600px;
             min-height: 80px;
             display: flex;
             justify-content:center;
@@ -116,20 +116,22 @@
                     color: #425466 ;
                     text-align: left;
                     cursor: pointer;
-                    width:85%;
-                    margin:0 auto;
+                    width:calc(100% - 50px);
+                    margin:20px auto;
                     .recommend-p{
                         width:100%;
                         margin: 10px 0;
                         padding:  5px 0 5px 15px ;
-                        border:1px solid #C7C7C7;
+                        background:rgba(83,108,143,.08);
                         border-radius:6px;
                         display:flex;
-                        align-items:center;
+                        align-items:center;   
+                        border:1px solid transparent;
                         img{
                             width:16px;
                             height:16px;
                             margin-right: 5px;
+                            flex-shrink: 0;
                         }
                     }
                     .recommend-p:hover{
@@ -139,7 +141,13 @@
                 }
             }
         }
+        
+        @media (max-width: 620px) {
+            .session-item {
+                width: 95vw;
+            }
+        }
     }
 
-
 </style>
+

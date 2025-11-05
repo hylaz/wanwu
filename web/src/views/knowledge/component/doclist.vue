@@ -90,7 +90,6 @@
                 <el-table-column
                   prop="docType"
                   :label="$t('knowledgeManage.fileStyle')"
-                  width="200"
                 >
                 </el-table-column>
                 <el-table-column
@@ -101,6 +100,11 @@
                 <template slot-scope="scope">
                   <span>{{ getSegmentMethodText(scope.row.segmentMethod) }}</span>
                 </template>
+                </el-table-column>
+                <el-table-column
+                  prop="author"
+                  :label="$t('knowledgeManage.author')"
+                >
                 </el-table-column>
                 <el-table-column
                   prop="uploadTime"

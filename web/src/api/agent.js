@@ -339,3 +339,11 @@ export const OpenurlStream = (data,suffix,config={})=>{
         isOpenUrl:true
     })
 }
+//更新博查rerank模型
+export const updateRerank = (data)=>{
+    return service({
+        url: `${BASE_URL}/assistant/tool/config`,
+        method: 'put',
+        data
+    })
+}

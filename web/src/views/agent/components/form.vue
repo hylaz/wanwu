@@ -260,29 +260,7 @@
             </div>
           </div>
         </div>
-        <div class="block prompt-box link-box">
-          <p class="block-title">联网检索</p>
-          <div class="rl">
-            <div
-              class="block-link"
-            >
-              <span class="link-text">
-                <img
-                  :src="require('@/assets/imgs/bocha.png')"
-                  style="width:20px;margin-right:8px;"
-                />
-                <span>博查</span>
-              </span>
-              <span style="display:flex;align-items: center;">
-                <span
-                  class="el-icon-s-operation link-operation"
-                  @click="showLinkDiglog"
-                ></span>
-                <el-switch v-model="editForm.onlineSearchConfig.enable"></el-switch>
-              </span>
-            </div>
-          </div>
-        </div>
+
         <div class="block recommend-box tool-box">
           <p class="block-title tool-title">
             <span>工具</span>
@@ -404,17 +382,11 @@
       :modelform="editForm.modelConfig"
       :limitMaxTokens="limitMaxTokens"
     />
-    <!-- 选择工作类型 -->
+    <!-- 选择工具类型 -->
     <ToolDiaglog
       ref="toolDiaglog"
       @updateDetail="updateDetail"
       :assistantId="editForm.assistantId"
-    />
-    <!-- 联网检索 -->
-    <LinkDialog
-      ref="linkDialog"
-      @setLinkSet="setLinkSet"
-      :linkform="editForm.onlineSearchConfig"
     />
     <!-- 敏感词设置 -->
     <setSafety
@@ -437,7 +409,7 @@
       @sendVisual="sendVisual"
     />
     <!-- 内置工具详情 -->
-    <ToolDeatail ref="toolDeatail" />
+    <ToolDeatail ref="toolDeatail" @updateDetail="updateDetail" />
     <!-- 元数据设置 -->
     <el-dialog
       :visible.sync="metaSetVisible"
@@ -494,7 +466,6 @@ import {
 } from "@/api/agent";
 import ToolDiaglog from "./toolDialog";
 import ToolDeatail from "./toolDetail";
-import LinkDialog from "./linkDialog";
 import knowledgeSetDialog from "./knowledgeSetDialog";
 import { readWorkFlow } from "@/api/workflow";
 import Chat from "./chat";
@@ -507,7 +478,6 @@ export default {
     CreateIntelligent,
     ModelSet,
     ToolDiaglog,
-    LinkDialog,
     setSafety,
     visualSet,
     knowledgeSetDialog,
@@ -531,7 +501,6 @@ export default {
             "prologue",
             "knowledgebases",
             "instructions",
-            "onlineSearchConfig",
             "safetyConfig",
             "recommendQuestion",
             "visionConfig"
@@ -609,12 +578,6 @@ export default {
           temperatureEnable: true,
           topPEnable: true,
           presencePenaltyEnable: true,
-        },
-        onlineSearchConfig: {
-          enable: false,
-          searchKey: "",
-          searchUrl: "",
-          searchRerankId: "",
         },
         safetyConfig: {
           enable: false,
@@ -844,9 +807,6 @@ export default {
         })
         .catch(() => {});
     },
-    showLinkDiglog() {
-      this.$refs.linkDialog.showDialog();
-    },
     addTool() {
       const data = {
         mcpInfos: this.mcpInfos,
@@ -895,11 +855,6 @@ export default {
     },
     setModelSet(data) {
       this.editForm.modelConfig = data;
-    },
-    setLinkSet(data) {
-      this.editForm.onlineSearchConfig.searchKey = data.searchKey;
-      this.editForm.onlineSearchConfig.searchUrl = data.searchUrl;
-      this.editForm.onlineSearchConfig.searchRerankId = data.searchRerankId;
     },
     showModelSet() {
       this.$refs.modelSetDialog.showDialog();
@@ -1002,7 +957,6 @@ export default {
           modelType: modeInfo.modelType,
           provider: modeInfo.provider,
         },
-        onlineSearchConfig: this.editForm.onlineSearchConfig,
         safetyConfig: this.editForm.safetyConfig,
         visionConfig: {picNum:this.editForm.visionConfig.picNum},
         rerankConfig: rerankInfo
@@ -1070,7 +1024,6 @@ export default {
                   };
                 })
               : [],
-          onlineSearchConfig: data.onlineSearchConfig,
           safetyConfig:
             data.safetyConfig !== null
               ? data.safetyConfig
@@ -1765,7 +1718,9 @@ export default {
 .custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
   border-top-color: #ccc !important;
 }
-
+.echo .session-item{
+  width:30vw!important;
+}
 .model-option-content {
   display: flex;
   justify-content: space-between;
