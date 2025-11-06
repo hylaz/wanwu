@@ -175,14 +175,14 @@ func buildCustomMCPDetail(mcp *model.MCPClient) *mcp_service.CustomMCPDetail {
 		},
 	}
 	if mcp.McpSquareId != "" {
-		mcp, exist := config.Cfg().MCP(mcp.McpSquareId)
+		mcpSquareInfo, exist := config.Cfg().MCP(mcp.McpSquareId)
 		if !exist {
 			// 广场MCP不存在，则将McpSquareId置空
 			ret.Info.McpSquareId = ""
 		} else {
 			ret.Info.AvatarPath = mcp.AvatarPath
-			ret.Info.Category = mcp.Category
-			ret.Intro = buildSquareMCPIntro(mcp)
+			ret.Info.Category = mcpSquareInfo.Category
+			ret.Intro = buildSquareMCPIntro(mcpSquareInfo)
 		}
 	}
 	return ret

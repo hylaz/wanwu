@@ -86,6 +86,7 @@ default-icon:
   rag: "/v1/static/icon/rag-default-icon.png"
   agent: "/v1/static/icon/agent-default-icon.png"
   workflow: "/v1/static/icon/workflow-default-icon.png"
+  mcp: "/v1/static/icon/custom-mcp-default-icon.png"
   tool: "/v1/static/icon/custom-tool-default-icon.png"
   prompt: "/v1/static/icon/prompt-default-icon.png"
 

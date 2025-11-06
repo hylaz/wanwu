@@ -4,6 +4,7 @@ import (
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/constant"
@@ -53,7 +54,7 @@ func GetCustomTool(ctx *gin.Context, userID, orgID string, customToolId string) 
 			CustomToolId: info.CustomToolId,
 			Name:         info.Name,
 			Description:  info.Description,
-			Avatar:       CacheAvatar(ctx, info.AvatarPath, true),
+			Avatar:       cacheCustomToolAvatar(ctx, info.AvatarPath),
 		},
 		ToolSquareID:  info.ToolSquareId,
 		Schema:        info.Schema,
@@ -122,7 +123,7 @@ func GetCustomToolList(ctx *gin.Context, userID, orgID, name string) (*response.
 			CustomToolId: item.CustomToolId,
 			Name:         item.Name,
 			Description:  item.Description,
-			Avatar:       CacheAvatar(ctx, item.AvatarPath, true),
+			Avatar:       cacheCustomToolAvatar(ctx, item.AvatarPath),
 		})
 	}
 	return &response.ListResult{
@@ -186,4 +187,13 @@ func openapiSchema2ToolList(doc *openapi3.T) []response.CustomToolActionInfo {
 		}
 	}
 	return list
+}
+
+func cacheCustomToolAvatar(ctx *gin.Context, avatarObjectPath string) request.Avatar {
+	avatar := request.Avatar{}
+	if avatarObjectPath == "" {
+		avatar.Path = config.Cfg().DefaultIcon.ToolIcon
+		return avatar
+	}
+	return CacheAvatar(ctx, avatarObjectPath, true)
 }

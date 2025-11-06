@@ -9,6 +9,7 @@ import (
 	"github.com/UnicomAI/wanwu/api/proto/common"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	mcp_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/mcp-util"
@@ -331,7 +332,7 @@ func toMCPSquareInfo(ctx *gin.Context, mcpSquareInfo *mcp_service.SquareMCPInfo)
 func toCustomMCP(ctx *gin.Context, mcpSquareInfo *mcp_service.SquareMCPInfo) response.MCPSquareInfo {
 	return response.MCPSquareInfo{
 		MCPSquareID: mcpSquareInfo.McpSquareId,
-		Avatar:      CacheAvatar(ctx, mcpSquareInfo.AvatarPath, true),
+		Avatar:      cacheCustomMCPAvatar(ctx, mcpSquareInfo.AvatarPath),
 		Name:        mcpSquareInfo.Name,
 		Desc:        mcpSquareInfo.Desc,
 		From:        mcpSquareInfo.From,
@@ -369,4 +370,13 @@ func toToolAction(tool *common.ToolAction) *protocol.Tool {
 		}
 	}
 	return ret
+}
+
+func cacheCustomMCPAvatar(ctx *gin.Context, avatarObjectPath string) request.Avatar {
+	avatar := request.Avatar{}
+	if avatarObjectPath == "" {
+		avatar.Path = config.Cfg().DefaultIcon.McpIcon
+		return avatar
+	}
+	return CacheAvatar(ctx, avatarObjectPath, true)
 }
