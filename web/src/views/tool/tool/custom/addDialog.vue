@@ -20,25 +20,28 @@
               />
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
-              <p class="block-title required-label rl">{{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
+              <p class="block-title required-label rl">
+                {{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
               <el-form-item prop="name">
-                <el-input class="name-input" v-model="form.name" :placeholder="$t('common.input.placeholder') + (dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool'))"></el-input>
+                <el-input class="name-input" v-model="form.name"
+                          :placeholder="$t('common.input.placeholder') + (dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool'))"/>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogToolVisible">
               <p class="block-title required-label rl">{{ $t('tool.custom.desc') }}</p>
               <div v-show="dialogDetailVisible">{{ form.description }}</div>
               <el-form-item prop="description" v-show="!dialogDetailVisible">
-                <el-input class="name-input" v-model="form.description" :placeholder="$t('common.input.placeholder') + $t('tool.custom.desc')"></el-input>
+                <el-input class="name-input" v-model="form.description"
+                          :placeholder="$t('common.input.placeholder') + $t('tool.custom.desc')"/>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
               <p class="block-title required-label rl">{{ $t('tool.custom.apiAuth') }}</p>
               <div class="rl" @click="preAuthorize">
                 <el-form-item prop="apiAuth">
-                  <div class="api-key">{{ form.apiAuth.type }}</div>
+                  <div class="api-key">{{ authTypeMap[form.apiAuth.authType] }}</div>
                 </el-form-item>
-                <img class="auth-icon" src="@/assets/imgs/auth.png"/>
+                <img class="auth-icon" :src="require('@/assets/imgs/auth.png')" alt=""/>
               </div>
             </div>
 
@@ -54,9 +57,12 @@
                   </el-select>
                 </div>
                 <el-form-item prop="schema">
-                  <el-input class="schema-textarea" v-model="form.schema" @blur="listenerSchema"
-                            :placeholder="$t('tool.custom.schemaHint')"
-                            type="textarea"></el-input>
+                  <el-input
+                    class="schema-textarea"
+                    v-model="form.schema"
+                    @blur="listenerSchema"
+                    :placeholder="$t('tool.custom.schemaHint')"
+                    type="textarea"/>
                 </el-form-item>
               </div>
             </div>
@@ -98,8 +104,10 @@
             <div class="block prompt-box" v-show="!dialogDetailVisible">
               <p class="block-title rl">{{ $t('tool.custom.privacy') }}</p>
               <el-form-item prop="privacyPolicy">
-                <el-input class="name-input" v-model="form.privacyPolicy"
-                          :placeholder="$t('tool.custom.privacyHint')"></el-input>
+                <el-input
+                  class="name-input"
+                  v-model="form.privacyPolicy"
+                  :placeholder="$t('tool.custom.privacyHint')"/>
               </el-form-item>
             </div>
           </div>
@@ -117,28 +125,65 @@
       >
         <div class="action-form">
           <el-form :rules="apiAuthRules" ref="apiAuthForm" :inline="false" :model="form.apiAuth">
-            <el-form-item :label="$t('tool.custom.auth.type')">
-              <el-radio-group v-model="form.apiAuth.type">
-                <el-radio label="None">None</el-radio>
-                <el-radio label="API Key">API Key</el-radio>
-                <!--<el-radio label="3">OAuth</el-radio>-->
-              </el-radio-group>
+            <el-form-item :label="$t('tool.custom.auth.authType')">
+              <el-select v-model="form.apiAuth.authType">
+                <el-option label="None" value="none"/>
+                <el-option :label="$t('tool.custom.auth.headerType')" value="api_key_header"/>
+                <el-option :label="$t('tool.custom.auth.queryType')" value="api_key_query"/>
+              </el-select>
             </el-form-item>
-            <!--API Key-->
-            <div v-show="form.apiAuth.type === 'API Key'">
-              <el-form-item label="API key" prop="apiKey">
-                <el-input class="desc-input " v-model="form.apiAuth.apiKey" placeholder="API key" clearable></el-input>
+            <!--请求头-->
+            <div v-show="form.apiAuth.authType === 'api_key_header'">
+              <el-form-item :label="$t('tool.custom.auth.prefix')" prop="apiKeyHeaderPrefix">
+                <el-select v-model="form.apiAuth.apiKeyHeaderPrefix">
+                  <el-option label="Basic" value="basic"/>
+                  <el-option label="Bearer" value="bearer"/>
+                  <el-option label="Custom" value="custom"/>
+                </el-select>
               </el-form-item>
-              <el-form-item :label="$t('tool.custom.auth.authType')">
-                <el-radio-group v-model="form.apiAuth.authType">
-                  <!--<el-radio label="1">Basic</el-radio>
-                  <el-radio label="2">Bearer</el-radio>-->
-                  <el-radio label="Custom">Custom</el-radio>
-                </el-radio-group>
+              <el-form-item prop="apiKeyHeader">
+                <template #label>
+                  {{ $t('tool.custom.auth.header') }}
+                  <el-tooltip
+                    effect="dark"
+                    :content="$t('tool.custom.auth.headerHint')"
+                    placement="top-start"
+                  >
+                    <span class="el-icon-question tips"/>
+                  </el-tooltip>
+                </template>
+                <el-input
+                  class="desc-input"
+                  v-model="form.apiAuth.apiKeyHeader"
+                  placeholder="Authorization"
+                  clearable
+                />
               </el-form-item>
-              <el-form-item label="Custom Header Name" prop="customHeaderName">
-                <el-input class="desc-input " v-model="form.apiAuth.customHeaderName" placeholder="Custom Header Name"
-                          clearable></el-input>
+              <el-form-item :label="$t('tool.custom.auth.value')" prop="apiKeyValue">
+                <el-input class="desc-input" v-model="form.apiAuth.apiKeyValue" placeholder="API key" clearable/>
+              </el-form-item>
+            </div>
+            <!--查询参数-->
+            <div v-show="form.apiAuth.authType === 'api_key_query'">
+              <el-form-item prop="apiKeyQueryParam">
+                <template #label>
+                  {{ $t('tool.custom.auth.query') }}
+                  <el-tooltip
+                    effect="dark"
+                    :content="$t('tool.custom.auth.queryHint')"
+                    placement="top-start"
+                  >
+                    <span class="el-icon-question tips"/>
+                  </el-tooltip>
+                </template>
+                <el-input
+                  class="desc-input"
+                  v-model="form.apiAuth.apiKeyQueryParam"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item :label="$t('tool.custom.auth.value')" prop="apiKeyValue">
+                <el-input class="desc-input" v-model="form.apiAuth.apiKeyValue" placeholder="API key" clearable/>
               </el-form-item>
             </div>
           </el-form>
@@ -159,7 +204,9 @@
     <span slot="footer" class="dialog-footer" v-show="dialogDetailVisible">
         <el-button
           type="primary"
-          @click="dialogDetailVisible = false; title = $t('tool.custom.editTitle')">{{$t('common.button.edit')}}</el-button>
+          @click="dialogDetailVisible = false; title = $t('tool.custom.editTitle')">{{
+            $t('common.button.edit')
+          }}</el-button>
     </span>
   </el-dialog>
 </template>
@@ -173,8 +220,11 @@ export default {
   components: {uploadAvatar},
   data() {
     const validateApiAuthFields = (rule, value, callback) => {
-      if (this.form.apiAuth.type === 'API Key' &&
-        (!this.form.apiAuth.apiKey || !this.form.apiAuth.customHeaderName)) {
+      if (this.form.apiAuth.authType === 'api_key_header' &&
+        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyHeader)) {
+        callback(new Error(rule.message));
+      } else if (this.form.apiAuth.authType === 'api_key_query' &&
+        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyQueryParam)) {
         callback(new Error(rule.message));
       } else {
         callback();
@@ -203,10 +253,11 @@ export default {
         schema: '',
         privacyPolicy: '',
         apiAuth: {
-          type: 'None',
-          authType: 'Custom',
-          apiKey: '',
-          customHeaderName: '',
+          authType: 'none',
+          apiKeyValue: '',
+          apiKeyHeader: '',
+          apiKeyHeaderPrefix: "basic",
+          apiKeyQueryParam: '',
         },
         avatar: {
           key: "",
@@ -223,12 +274,23 @@ export default {
         apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiHint'), trigger: 'blur'}],
       },
       apiAuthRules: {
-        apiKey: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        customHeaderName: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiKeyValue: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiKeyHeader: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiKeyQueryParam: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiKeyHeaderPrefix: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
       },
       schemaConfig: schemaConfig,
       loading: false
     }
+  },
+  computed: {
+    authTypeMap() {
+      return {
+        none: 'None',
+        api_key_header: this.$t('tool.custom.auth.headerType'),
+        api_key_query: this.$t('tool.custom.auth.queryType')
+      }
+    },
   },
   methods: {
     showDialog(customToolId, dialogDetailVisible) {
@@ -258,7 +320,7 @@ export default {
       this.title = this.$t('tool.custom.toolTitle')
     },
     handleUpdateAvatar(avatar) {
-      this.form = { ...this.form, avatar: avatar };
+      this.form = {...this.form, avatar: avatar};
     },
     exampleChange(value) {
       this.form.schema = this.schemaConfig[value]
@@ -269,10 +331,11 @@ export default {
       this.dialogAuthVisible = false
     },
     listenerApiKey() {
-      this.$refs.apiAuthForm.validate(async (valid) => {
-        if (!valid) return;
-        this.dialogAuthVisible = false
-      })
+      this.rules.apiAuth[0].validator({}, null, (error) => {
+        if (!error) {
+          this.dialogAuthVisible = false;
+        }
+      });
     },
     listenerSchema() {
       const params = JSON.stringify({
@@ -290,11 +353,6 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if (!valid) return;
         this.loading = true
-        if (this.form.apiAuth.type === 'None') {
-          this.form.apiAuth.authType = '';
-          this.form.apiAuth.apiKey = '';
-          this.form.apiAuth.customHeaderName = ''
-        }
         const params = {
           ...this.form
         }
@@ -348,10 +406,11 @@ export default {
         schema: '',
         privacyPolicy: '',
         apiAuth: {
-          type: 'None',
-          authType: 'Custom',
-          apiKey: '',
-          customHeaderName: ''
+          authType: 'none',
+          apiKeyValue: '',
+          apiKeyHeader: '',
+          apiKeyHeaderPrefix: "basic",
+          apiKeyQueryParam: '',
         }
       }
     }
@@ -536,6 +595,7 @@ export default {
   display: block;
   width: 100%;
   text-align: left;
+  float: none;
 }
 
 .api-list {
@@ -546,4 +606,7 @@ export default {
   }
 }
 
+.tips {
+  margin-left: 2px;
+}
 </style>

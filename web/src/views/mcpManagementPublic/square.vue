@@ -33,8 +33,7 @@
                       @click.stop="handleClick(item)"
                   >
                     <div class="card-title">
-                      <img class="card-logo" v-if="item.avatar && item.avatar.path"
-                           :src="basePath + '/user/api/' + item.avatar.path"/>
+                      <img class="card-logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
                       <div class="mcp_detailBox">
                         <span class="mcp_name">{{ item.name }}</span>
                         <span class="mcp_from">
@@ -60,14 +59,16 @@
     </div>
   </div>
 </template>
+
 <script>
 import { getPublicMcpList } from "@/api/mcp"
 import SearchInput from "@/components/searchInput.vue"
+import {avatarSrc} from "@/utils/util";
 export default {
   components: { SearchInput },
   data() {
     return {
-      basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       mcpSquareId: "",
       category: this.$t('tool.square.all'),
       list: [],
@@ -89,6 +90,7 @@ export default {
     this.doGetPublicMcpList()
   },
   methods: {
+    avatarSrc,
     changeTab(key) {
       this.typeRadio = key
       this.$refs.searchInput.value = ''

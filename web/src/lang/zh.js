@@ -847,8 +847,15 @@ export default {
             privacyHint:'填写API对应的隐私政策url链接',
             auth: {
                 title:'鉴权',
-                type:'认证类型',
-                authType:'Auth类型'
+                authType:'认证类型',
+                headerType: '请求头',
+                queryType: '查询参数',
+                prefix:'鉴权头部前缀',
+                header: '键',
+                headerHint: 'HTTP 头部名称，如果你不知道是什么，可以将其保留为 Authorization 或设置为自定义值',
+                value: '值',
+                query: '查询参数',
+                queryHint: '用于传递 API 密钥查询参数的名称，如"http://192.168.0.21:8081/server/test? key=xxx"中的"key"参数',
             }
         },
         square: {
