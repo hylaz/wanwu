@@ -18,7 +18,7 @@
           <div :class="['session-item','rl']">
             <img
               class="logo"
-              :src="'/user/api/'+ userAvatar"
+              :src="userAvatarSrc"
             />
             <div class="answer-content">
               <div class="answer-content-query">
@@ -375,7 +375,12 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('user', ['userAvatar'])
+    ...mapGetters('user', ['userAvatar']),
+    userAvatarSrc(){
+      return this.userAvatar 
+      ? '/user/api/' + this.userAvatar 
+      : require('@/assets/imgs/robot-icon.png');
+    }
   },
   watch: {
     sessionStatus: {
