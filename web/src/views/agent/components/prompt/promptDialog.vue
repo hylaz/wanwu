@@ -84,6 +84,13 @@ export default {
       templateList: []
     }
   },
+  watch:{
+    activeTab(newVal, oldVal) {
+      if (this.dialogVisible && newVal !== oldVal) {
+        this.$emit('tabChange', newVal);
+      }
+    }
+  },
   computed: {
     filteredTemplateList() {
       if (!this.searchKeyword.trim()) {

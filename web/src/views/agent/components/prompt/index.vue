@@ -102,7 +102,7 @@
       </div>
     </div>
     
-    <promptDialog ref="promptDialog"  />
+    <promptDialog ref="promptDialog"  @tabChange="handleTabChange"/>
   </div>
 </template>
 
@@ -195,12 +195,16 @@ export default {
     }
   },
   methods: {
+    handleTabChange(tab){
+      const cards = tab === 'builtIn' ? this.recommendedCards : this.personalCards;
+      this.$refs.promptDialog.showDiglog(cards, tab);
+    },
     getPromptTemplateList(name=''){
       getPromptTemplateList({name}).then(res =>{
         if(res.code === 0){
           this.personalCards = res.data.list || []
         }
-      }).catch(() => {})
+      })
     },
     getPromptBuiltInList(name=''){
       getPromptBuiltInList({name,category:'all'}).then(res =>{
@@ -210,7 +214,7 @@ export default {
               this.checkScrollButton();
             });
         }
-      }).catch(() =>{})
+      })
     },
     handleCardClick(card) {
       this.$emit('card-click', card);
@@ -317,7 +321,7 @@ export default {
     getCardContent(card) {
       if (!card) return null;
       
-      if (card.content) {
+      if (card.prompt) {
         return card.prompt;
       }
       
