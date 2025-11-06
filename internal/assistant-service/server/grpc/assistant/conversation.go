@@ -121,8 +121,8 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 	// 组装查询条件
 	fieldConditions := map[string]interface{}{
 		"conversationId": req.ConversationId,
-		"userId":         req.Identity.UserId,
-		"orgId":          req.Identity.OrgId,
+		"userId.keyword": req.Identity.UserId,
+		"orgId.keyword":  req.Identity.OrgId,
 	}
 
 	// 使用通配符查询所有对话详情索引
