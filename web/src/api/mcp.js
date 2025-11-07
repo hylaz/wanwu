@@ -115,14 +115,6 @@ export const deleteServerTool = (data)=>{
     })
 };
 
-export const getServerToolListCustom = (data)=>{
-    return request({
-        url: `${BASE_URL}/mcp/server/tool/custom/select`,
-        method: 'get',
-        params: data
-    })
-};
-
 export const addOpenapi = (data)=>{
     return request({
         url: `${BASE_URL}/mcp/server/tool/openapi`,

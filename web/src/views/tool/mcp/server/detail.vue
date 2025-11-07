@@ -84,7 +84,7 @@
             <div>
               <el-button
                 size="mini"
-                @click="$refs.linkDialog.showDialog(detail)"
+                @click="$refs.toolDialog.showDialog(detail)"
               >{{ $t('tool.server.bind.action') }}
               </el-button>
               <el-button
@@ -209,7 +209,7 @@
       </div>
     </div>
     <addDialog ref="addDialog" @handleFetch="fetchList"/>
-    <linkDialog ref="linkDialog" @handleFetch="fetchList"/>
+    <toolDialog ref="toolDialog" @handleFetch="fetchList"/>
   </div>
 </template>
 <script>
@@ -218,11 +218,11 @@ import {createApiKey, delApiKey, getApiKeyList} from "@/api/appspace"
 import {avatarSrc} from "@/utils/util"
 import CopyIcon from "@/components/copyIcon.vue";
 import addDialog from "@/views/tool/tool/custom/addDialog.vue";
-import linkDialog from "./linkDialog.vue";
+import toolDialog from "./toolDialog.vue";
 
 const APPTYPE_MCPSERVER = 'mcpserver'
 export default {
-  components: {CopyIcon, addDialog, linkDialog},
+  components: {CopyIcon, addDialog, toolDialog},
   data() {
     return {
       tabActive: 0,
@@ -250,7 +250,7 @@ export default {
         'workflow': this.$t('menu.app.workflow'),
         'custom': this.$t('menu.app.custom'),
         'openapi': this.$t('menu.app.openapi'),
-        'builtIn': this.$t('menu.app.builtIn')
+        'builtin': this.$t('menu.app.builtIn')
       }
     }
   },

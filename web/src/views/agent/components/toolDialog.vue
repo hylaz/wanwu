@@ -210,7 +210,6 @@ export default {
             })
         },
         addMcpItem(n,action){
-            console.log(action)
             addMcp({assistantId:this.assistantId,actionName:action.name,mcpId:n.toolId,mcpType:n.toolType}).then(res =>{
                 if(res.code === 0){
                     this.$set(action, 'checked', true);
@@ -292,8 +291,6 @@ export default {
             this.mcpList = row.mcpInfos || [];
             this.workFlowList = row.workFlowInfos || [];
             this.customList  = row.customInfos || [];
-            console.log(this.customList)
-            console.log(this.mcpList)
         },
 
         setWorkflow(data){
