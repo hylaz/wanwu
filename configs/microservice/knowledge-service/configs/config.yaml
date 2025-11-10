@@ -85,6 +85,7 @@ kafka:
   user: "admin"
   password:
   topic: "doc-rag"
+  knowledge-graph-topic: "rag-knowledge-graph"
   url-analysis-topic: "url-batch-a-prod"
   url-import-topic: "url-batch-i-prod"
   default-partition-num: 3

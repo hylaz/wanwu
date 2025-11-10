@@ -18,10 +18,11 @@ const (
 )
 
 type RagCreateParams struct {
-	UserId           string `json:"userId"`
-	Name             string `json:"knowledgeBase"`
-	KnowledgeBaseId  string `json:"kb_id"`
-	EmbeddingModelId string `json:"embedding_model_id"`
+	UserId               string `json:"userId"`
+	Name                 string `json:"knowledgeBase"`
+	KnowledgeBaseId      string `json:"kb_id"`
+	EmbeddingModelId     string `json:"embedding_model_id"`
+	EnableKnowledgeGraph string `json:"enable_knowledge_graph"`
 }
 
 type RagCommonResp struct {

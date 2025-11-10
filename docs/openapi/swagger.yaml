@@ -1,5 +1,14 @@
 basePath: /openapi/v1
 definitions:
+  request.History:
+    properties:
+      needHistory:
+        type: boolean
+      query:
+        type: string
+      response:
+        type: string
+    type: object
   request.OpenAPIAgentChatRequest:
     properties:
       conversation_id:
@@ -19,6 +28,10 @@ definitions:
     type: object
   request.OpenAPIRagChatRequest:
     properties:
+      history:
+        items:
+          $ref: '#/definitions/request.History'
+        type: array
       query:
         type: string
       stream:

@@ -92,10 +92,17 @@ message CreateKnowledgeReq{
   string name = 3;
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
+  KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
 }
 
 message EmbeddingModelInfo{
   string modelId = 1;
+}
+
+message KnowledgeGraph {
+  bool switch = 1; //知识图谱开关
+  string llmModelId = 2;//大模型id
+  string schemaUrl = 3; //知识图谱schema文件地址
 }
 
 message CreateKnowledgeResp{

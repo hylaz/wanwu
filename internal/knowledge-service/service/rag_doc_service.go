@@ -43,23 +43,27 @@ type RagChunkConfig struct {
 }
 
 type RagImportDocParams struct {
-	DocId               string               `json:"id"`         //文档id
-	KnowledgeName       string               `json:"categoryId"` //知识库名称
-	CategoryId          string               `json:"kb_id"`      //知识库id
-	IsEnhanced          string               `json:"is_enhanced"`
-	UserId              string               `json:"userId"`
-	Overlap             float32              `json:"overlap" `
-	ObjectName          string               `json:"objectName"`
-	SegmentSize         int                  `json:"chunk_size"`
-	OriginalName        string               `json:"originalName"`
-	SegmentType         string               `json:"chunk_type"`
-	SplitType           string               `json:"split_type"` //parent_child|common
-	Separators          []string             `json:"separators"`
-	ParserChoices       []string             `json:"parser_choices"`
-	OcrModelId          string               `json:"ocr_model_id"`
-	PreProcess          []string             `json:"pre_process"`
-	RagMetaDataParams   []*RagMetaDataParams `json:"meta_data"`
-	RagChildChunkConfig *RagChunkConfig      `json:"child_chunk_config"`
+	DocId                 string               `json:"id"`         //文档id
+	KnowledgeName         string               `json:"categoryId"` //知识库名称
+	CategoryId            string               `json:"kb_id"`      //知识库id
+	IsEnhanced            string               `json:"is_enhanced"`
+	UserId                string               `json:"userId"`
+	Overlap               float32              `json:"overlap" `
+	ObjectName            string               `json:"objectName"`
+	SegmentSize           int                  `json:"chunk_size"`
+	OriginalName          string               `json:"originalName"`
+	SegmentType           string               `json:"chunk_type"`
+	SplitType             string               `json:"split_type"` //parent_child|common
+	Separators            []string             `json:"separators"`
+	ParserChoices         []string             `json:"parser_choices"`
+	OcrModelId            string               `json:"ocr_model_id"`
+	PreProcess            []string             `json:"pre_process"`
+	RagMetaDataParams     []*RagMetaDataParams `json:"meta_data"`
+	RagChildChunkConfig   *RagChunkConfig      `json:"child_chunk_config"`
+	KnowledgeGraphSwitch  string               `json:"enable_knowledge_graph"`
+	GraphModelId          string               `json:"graph_model_id"`
+	GraphSchemaObjectName string               `json:"graph_schema_objectname"`
+	GraphSchemaFileName   string               `json:"graph_schema_filename"`
 }
 
 type RagImportUrlDocParams struct {
@@ -181,6 +185,15 @@ func RagImportDoc(ctx context.Context, ragImportDocParams *RagImportDocParams) e
 		Type:      "doc",
 		Doc:       ragImportDocParams,
 	}, config.GetConfig().Kafka.Topic)
+}
+
+// RagBuildKnowledgeGraph 构建知识库图谱
+func RagBuildKnowledgeGraph(ctx context.Context, ragImportDocParams *RagImportDocParams) error {
+	return mq.SendMessage(&RagOperationParams{
+		Operation: "add",
+		Type:      "doc",
+		Doc:       ragImportDocParams,
+	}, config.GetConfig().Kafka.KnowledgeGraphTopic)
 }
 
 // RagImportUrlDoc 导入url文档

@@ -1,5 +1,9 @@
 package util
 
+const (
+	DocFinish = 1
+)
+
 // BuildDocRespStatus rag 1.0 状态码和rag 2.0状态码转换关系如下：
 // rag 2.0  --->     rag 1.0
 // 1     --->     1
@@ -12,6 +16,8 @@ package util
 func BuildDocRespStatus(number int) int {
 	if number < 10 {
 		return number
+	} else if number == 11 { //11标志 文档处理完成，后续需要触发知识图谱生成，对前端也算文档处理完成
+		return DocFinish
 	} else if (number/10)%10 == 6 { //用户责任导致的错误码为61,62...使用5返回前端
 		return 5
 	} else {
@@ -25,7 +31,7 @@ func BuildDocReqStatusList(status int) []int {
 	case -1: //-1 查全部
 		break
 	case 1:
-		statusList = append(statusList, []int{1, 10}...)
+		statusList = append(statusList, []int{1, 10, 11}...)
 	case 3:
 		statusList = append(statusList, []int{31, 32, 33, 34, 35}...)
 	case 5:

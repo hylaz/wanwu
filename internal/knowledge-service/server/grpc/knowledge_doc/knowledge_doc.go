@@ -37,6 +37,7 @@ const (
 	MetaOptionUpdate                = "update"
 	MetaStatusFailed                = "failed"
 	MetaStatusPartial               = "partial"
+	RagDocSuccess                   = 10
 )
 
 func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service.GetDocListReq) (*knowledgebase_doc_service.GetDocListResp, error) {
@@ -87,6 +88,21 @@ func (s *Service) UpdateDocStatus(ctx context.Context, req *knowledgebase_doc_se
 	if err != nil {
 		log.Errorf("docId: %v update doc fail %v", req.DocId, err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+	}
+	if req.Status == RagDocSuccess {
+		knowledge, doc, graph, err := buildKnowledgeInfo(ctx, req.DocId)
+		if err != nil {
+			log.Errorf("docId: %v build knowledge info fail %v", req.DocId, err)
+			return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+		}
+		//开启了知识图谱
+		if graph.KnowledgeGraphSwitch == "true" {
+			err = createKnowledgeGraph(ctx, knowledge, doc, graph)
+			if err != nil {
+				log.Errorf("docId: %v create knowledge graph fail %v", req.DocId, err)
+				return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+			}
+		}
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -1015,4 +1031,73 @@ func buildOptionList(metaList []*model.KnowledgeDocMeta, req *knowledgebase_doc_
 	updateList := buildUpdateMetaMap(req.MetaDataList, metaMap)
 	addList := buildAddMetaList(req)
 	return deleteList, updateList, addList
+}
+
+func buildKnowledgeInfo(ctx context.Context, docId string) (*model.KnowledgeBase, *model.KnowledgeDoc, *orm.KnowledgeGraph, error) {
+	docList, err := orm.SelectDocByDocIdList(ctx, []string{docId}, "", "")
+	if err != nil || len(docList) == 0 {
+		log.Errorf("docId: %v select doc fail %v", docId, err)
+		return nil, nil, nil, util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+	}
+	doc := docList[0]
+	knowledge, err := orm.SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("docId: %v select knowledge fail %v", docId, err)
+		return nil, nil, nil, util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+	}
+
+	//构造知识库图谱
+	knowledgeGraph := orm.BuildKnowledgeGraph(knowledge.KnowledgeGraph)
+	return knowledge, doc, knowledgeGraph, nil
+}
+
+// 创建知识图谱
+func createKnowledgeGraph(ctx context.Context, knowledge *model.KnowledgeBase, doc *model.KnowledgeDoc, graph *orm.KnowledgeGraph) error {
+	importTask, err := orm.SelectKnowledgeImportTaskById(ctx, doc.ImportTaskId)
+	if err != nil {
+		log.Errorf("docId: %v select import task fail %v", doc.DocId, err)
+		return util.ErrCode(errs.Code_KnowledgeDocUpdateStatusFailed)
+	}
+	var config = &model.SegmentConfig{}
+	err = json.Unmarshal([]byte(importTask.SegmentConfig), config)
+	if err != nil {
+		log.Errorf("SegmentConfig process error %s", err.Error())
+		return err
+	}
+	var analyzer = &model.DocAnalyzer{}
+	err = json.Unmarshal([]byte(importTask.DocAnalyzer), analyzer)
+	if err != nil {
+		log.Errorf("DocAnalyzer process error %s", err.Error())
+		return err
+	}
+	var preProcess = &model.DocPreProcess{}
+	err = json.Unmarshal([]byte(importTask.DocPreProcess), preProcess)
+	if err != nil {
+		log.Errorf("DocPreprocess process error %s", err.Error())
+		return err
+	}
+	//3.rag 文档开始导入操作
+	var fileName = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
+
+	return service.RagBuildKnowledgeGraph(ctx, &service.RagImportDocParams{
+		DocId:                 doc.DocId,
+		KnowledgeName:         knowledge.RagName,
+		CategoryId:            knowledge.KnowledgeId,
+		UserId:                knowledge.UserId,
+		Overlap:               config.Overlap,
+		SegmentSize:           config.MaxSplitter,
+		SegmentType:           service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
+		SplitType:             service.RebuildSplitType(config.SegmentMethod),
+		Separators:            config.Splitter,
+		ParserChoices:         analyzer.AnalyzerList,
+		ObjectName:            fileName,
+		OriginalName:          doc.Name,
+		IsEnhanced:            "false",
+		OcrModelId:            importTask.OcrModelId,
+		PreProcess:            preProcess.PreProcessList,
+		KnowledgeGraphSwitch:  graph.KnowledgeGraphSwitch,
+		GraphModelId:          graph.GraphModelId,
+		GraphSchemaObjectName: graph.GraphSchemaObjectName,
+		GraphSchemaFileName:   graph.GraphSchemaFileName,
+	})
 }

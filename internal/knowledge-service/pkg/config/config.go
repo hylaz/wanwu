@@ -100,6 +100,7 @@ type KafkaConfig struct {
 	UrlAnalysisTopic    string `mapstructure:"url-analysis-topic" json:"url-analysis-topic"`
 	UrlImportTopic      string `mapstructure:"url-import-topic" json:"url-import-topic"`
 	Topic               string `mapstructure:"topic" json:"topic"`
+	KnowledgeGraphTopic string `mapstructure:"knowledge-graph-topic" json:"knowledge-graph-topic"`
 	DefaultPartitionNum int32  `mapstructure:"default-partition-num" json:"defaultPartitionNum"`
 }
 

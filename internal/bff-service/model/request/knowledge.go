@@ -23,6 +23,7 @@ type CreateKnowledgeReq struct {
 	Name           string          `json:"name"  validate:"required"`
 	Description    string          `json:"description"`
 	EmbeddingModel *EmbeddingModel `json:"embeddingModelInfo" validate:"required"`
+	KnowledgeGraph *KnowledgeGraph `json:"knowledgeGraph" validate:"required"`
 }
 
 type UpdateKnowledgeReq struct {
@@ -54,6 +55,13 @@ type KnowledgeMatchParams struct {
 
 type EmbeddingModel struct {
 	ModelId string `json:"modelId"  validate:"required"`
+}
+
+// KnowledgeGraph 知识图谱信息
+type KnowledgeGraph struct {
+	Switch     bool   `json:"switch"`     //知识图谱开关
+	LLMModelId string `json:"llmModelId"` //大模型id，开关为true必填
+	SchemaUrl  string `json:"schemaUrl"`  //模型schema文件地址，可以为空
 }
 
 type DeleteKnowledge struct {
@@ -204,6 +212,12 @@ func (c *CreateKnowledgeReq) Check() error {
 	if !util.IsAlphanumeric(c.Name) {
 		errMsg := fmt.Sprintf("知识库名称只能包含中文、数字、小写英文，符号之只能包含下划线和减号 参数(%v)", c.Name)
 		return errors.New(errMsg)
+	}
+	if c.KnowledgeGraph == nil {
+		return errors.New("knowledge graph can not be nil")
+	}
+	if c.KnowledgeGraph.Switch && c.KnowledgeGraph.LLMModelId == "" {
+		return errors.New("knowledge graph llmModelId can not be empty")
 	}
 	return nil
 }

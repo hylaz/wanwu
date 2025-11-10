@@ -89,6 +89,11 @@ func GetDeployInfo(ctx *gin.Context) (interface{}, error) {
 
 // CreateKnowledge 创建知识库
 func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKnowledgeReq) (*response.CreateKnowledgeResp, error) {
+	var llmModelId, schemaUrl string
+	if r.KnowledgeGraph.Switch {
+		llmModelId = r.KnowledgeGraph.LLMModelId
+		schemaUrl = r.KnowledgeGraph.SchemaUrl
+	}
 	resp, err := knowledgeBase.CreateKnowledge(ctx.Request.Context(), &knowledgebase_service.CreateKnowledgeReq{
 		Name:        r.Name,
 		Description: r.Description,
@@ -96,6 +101,11 @@ func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKn
 		OrgId:       orgId,
 		EmbeddingModelInfo: &knowledgebase_service.EmbeddingModelInfo{
 			ModelId: r.EmbeddingModel.ModelId,
+		},
+		KnowledgeGraph: &knowledgebase_service.KnowledgeGraph{
+			Switch:     r.KnowledgeGraph.Switch,
+			LlmModelId: llmModelId,
+			SchemaUrl:  schemaUrl,
 		},
 	})
 	if err != nil {

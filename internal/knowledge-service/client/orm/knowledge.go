@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
 	"github.com/samber/lo"
@@ -168,10 +169,11 @@ func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embedd
 		}
 		//3.通知rag创建知识库
 		return service.RagKnowledgeCreate(ctx, &service.RagCreateParams{
-			UserId:           knowledge.UserId,
-			Name:             knowledge.RagName,
-			KnowledgeBaseId:  knowledge.KnowledgeId,
-			EmbeddingModelId: embeddingModelId,
+			UserId:               knowledge.UserId,
+			Name:                 knowledge.RagName,
+			KnowledgeBaseId:      knowledge.KnowledgeId,
+			EmbeddingModelId:     embeddingModelId,
+			EnableKnowledgeGraph: strconv.FormatBool(knowledge.KnowledgeGraphSwitch > 0),
 		})
 	})
 }
@@ -205,6 +207,14 @@ func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBas
 func UpdateKnowledgeShareCount(tx *gorm.DB, knowledgeId string, count int64) error {
 	var updateParams = map[string]interface{}{
 		"share_count": count,
+	}
+	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Updates(updateParams).Error
+}
+
+// UpdateKnowledgeGraph 更新知识库图谱
+func UpdateKnowledgeGraph(tx *gorm.DB, knowledgeId string, knowledgeGraph string) error {
+	var updateParams = map[string]interface{}{
+		"knowledge_graph": knowledgeGraph,
 	}
 	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Updates(updateParams).Error
 }

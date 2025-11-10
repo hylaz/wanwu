@@ -19,8 +19,9 @@ func (req *OpenAPIAgentChatRequest) Check() error {
 }
 
 type OpenAPIRagChatRequest struct {
-	Query  string `json:"query" validate:"required"`
-	Stream bool   `json:"stream"`
+	Query   string     `json:"query" validate:"required"`
+	Stream  bool       `json:"stream"`
+	History []*History `json:"history"`
 }
 
 func (req *OpenAPIRagChatRequest) Check() error {

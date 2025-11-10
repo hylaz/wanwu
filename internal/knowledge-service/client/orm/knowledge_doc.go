@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"net/url"
 	"strconv"
 
@@ -25,6 +26,13 @@ const (
 	PreprocessSymbol    = "replace_symbols"
 	PreprocessLink      = "delete_links"
 )
+
+type KnowledgeGraph struct {
+	KnowledgeGraphSwitch  string `json:"knowledgeGraphSwitch"`
+	GraphModelId          string `json:"graphModelId"`
+	GraphSchemaObjectName string `json:"graphSchemaObjectName"`
+	GraphSchemaFileName   string `json:"graphSchemaFileName"`
+}
 
 // GetDocList 查询知识库文件列表
 func GetDocList(ctx context.Context, userId, orgId, knowledgeId, name, tag string,
@@ -194,27 +202,57 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 		if doc.Status != model.DocInit {
 			return nil
 		}
+		//构造知识库图谱
+		knowledgeGraph := BuildKnowledgeGraph(knowledge.KnowledgeGraph)
 		//2.rag文档导入
 		return service.RagImportDoc(ctx, &service.RagImportDocParams{
-			DocId:               doc.DocId,
-			KnowledgeName:       knowledge.RagName,
-			CategoryId:          knowledge.KnowledgeId,
-			UserId:              knowledge.UserId,
-			Overlap:             config.Overlap,
-			SegmentSize:         config.MaxSplitter,
-			SegmentType:         service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
-			SplitType:           service.RebuildSplitType(config.SegmentMethod),
-			Separators:          config.Splitter,
-			ParserChoices:       analyzer.AnalyzerList,
-			ObjectName:          objectName,
-			OriginalName:        doc.Name,
-			IsEnhanced:          "false",
-			OcrModelId:          importTask.OcrModelId,
-			PreProcess:          preProcess.PreProcessList,
-			RagMetaDataParams:   ragMetaList,
-			RagChildChunkConfig: buildSubRagChunkConfig(config),
+			DocId:                 doc.DocId,
+			KnowledgeName:         knowledge.RagName,
+			CategoryId:            knowledge.KnowledgeId,
+			UserId:                knowledge.UserId,
+			Overlap:               config.Overlap,
+			SegmentSize:           config.MaxSplitter,
+			SegmentType:           service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
+			SplitType:             service.RebuildSplitType(config.SegmentMethod),
+			Separators:            config.Splitter,
+			ParserChoices:         analyzer.AnalyzerList,
+			ObjectName:            objectName,
+			OriginalName:          doc.Name,
+			IsEnhanced:            "false",
+			OcrModelId:            importTask.OcrModelId,
+			PreProcess:            preProcess.PreProcessList,
+			RagMetaDataParams:     ragMetaList,
+			RagChildChunkConfig:   buildSubRagChunkConfig(config),
+			KnowledgeGraphSwitch:  knowledgeGraph.KnowledgeGraphSwitch,
+			GraphModelId:          knowledgeGraph.GraphModelId,
+			GraphSchemaObjectName: knowledgeGraph.GraphSchemaObjectName,
+			GraphSchemaFileName:   knowledgeGraph.GraphSchemaFileName,
 		})
 	})
+}
+
+// BuildKnowledgeGraph 知识图谱构造
+func BuildKnowledgeGraph(knowledgeGraph string) *KnowledgeGraph {
+	if len(knowledgeGraph) > 0 {
+		graph := knowledgebase_service.KnowledgeGraph{}
+		err := json.Unmarshal([]byte(knowledgeGraph), &graph)
+		if err != nil {
+			log.Errorf("knowledgeGraph process error %s", err.Error())
+		}
+		var graphSchemaObjectName, graphSchemaFileName string
+		if len(graph.SchemaUrl) > 0 {
+			_, graphSchemaObjectName, graphSchemaFileName = service.SplitFilePath(graph.SchemaUrl)
+		}
+		return &KnowledgeGraph{
+			KnowledgeGraphSwitch:  strconv.FormatBool(graph.Switch),
+			GraphModelId:          graph.LlmModelId,
+			GraphSchemaObjectName: graphSchemaObjectName,
+			GraphSchemaFileName:   graphSchemaFileName,
+		}
+	}
+	return &KnowledgeGraph{
+		KnowledgeGraphSwitch: "false",
+	}
 }
 
 // 子rag chunk的配置
@@ -364,24 +402,30 @@ func CreateKnowledgeUrlDoc(ctx context.Context, doc *model.KnowledgeDoc, importT
 		}
 		//3.rag 文档开始导入操作
 		var fileName = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
+		//构造知识库图谱
+		knowledgeGraph := BuildKnowledgeGraph(knowledge.KnowledgeGraph)
 		return service.RagImportDoc(ctx, &service.RagImportDocParams{
-			DocId:               doc.DocId,
-			KnowledgeName:       knowledge.RagName,
-			CategoryId:          knowledge.KnowledgeId,
-			UserId:              doc.UserId,
-			Overlap:             config.Overlap,
-			SegmentSize:         config.MaxSplitter,
-			SegmentType:         service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
-			SplitType:           service.RebuildSplitType(config.SegmentMethod),
-			Separators:          config.Splitter,
-			ParserChoices:       analyzer.AnalyzerList,
-			ObjectName:          fileName,
-			OriginalName:        fileName,
-			IsEnhanced:          "false",
-			OcrModelId:          importTask.OcrModelId,
-			PreProcess:          preProcess.PreProcessList,
-			RagMetaDataParams:   ragMetaList,
-			RagChildChunkConfig: buildSubRagChunkConfig(config),
+			DocId:                 doc.DocId,
+			KnowledgeName:         knowledge.RagName,
+			CategoryId:            knowledge.KnowledgeId,
+			UserId:                doc.UserId,
+			Overlap:               config.Overlap,
+			SegmentSize:           config.MaxSplitter,
+			SegmentType:           service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
+			SplitType:             service.RebuildSplitType(config.SegmentMethod),
+			Separators:            config.Splitter,
+			ParserChoices:         analyzer.AnalyzerList,
+			ObjectName:            fileName,
+			OriginalName:          fileName,
+			IsEnhanced:            "false",
+			OcrModelId:            importTask.OcrModelId,
+			PreProcess:            preProcess.PreProcessList,
+			RagMetaDataParams:     ragMetaList,
+			RagChildChunkConfig:   buildSubRagChunkConfig(config),
+			KnowledgeGraphSwitch:  knowledgeGraph.KnowledgeGraphSwitch,
+			GraphModelId:          knowledgeGraph.GraphModelId,
+			GraphSchemaObjectName: knowledgeGraph.GraphSchemaObjectName,
+			GraphSchemaFileName:   knowledgeGraph.GraphSchemaFileName,
 		})
 	})
 }
@@ -405,6 +449,7 @@ func UpdateDocStatusDocId(ctx context.Context, docId string, status int, metaLis
 				return err
 			}
 		}
+		//如果返回状态是11，同时开启了知识图谱开关，则发送消息触发知识图谱创建
 		return nil
 	})
 }
