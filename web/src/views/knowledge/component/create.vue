@@ -47,7 +47,7 @@
             <el-form-item prop="knowledgeGraph.switch">
                 <template #label>
                    <span>{{$t('knowledgeManage.create.knowledgeGraph')}}:</span>
-                   <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start" popper-class="knowledge-graph-tooltip">
+                   <el-tooltip class="item" effect="dark"  placement="top-start" popper-class="knowledge-graph-tooltip">
                         <span class="el-icon-question question-icon"></span>
                         <template #content>
                          <p v-for="(item,i) in knowledgeGraphTips" :key="i" class="tooltip-item">
