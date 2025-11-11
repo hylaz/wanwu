@@ -52,12 +52,12 @@ def parse_excel_to_schema_json(file_path):
 
         for _, row in df_attribute.iterrows():
             class_name = str(row["类名"]).strip() if pd.notna(row["类名"]) else ""
-            attr_name = str(row["属性名"]).strip() if pd.notna(row["属性名"]) else ""
+            attr_name = str(row["属性/关系名"]).strip() if pd.notna(row["属性/关系名"]) else ""
 
             # 修复说明字段
             key = (class_name, attr_name)
 
-            desc = str(row["属性说明"]).strip() if pd.notna(row["属性说明"]) else ""
+            desc = str(row["属性/关系说明"]).strip() if pd.notna(row["属性/关系说明"]) else ""
 
             # 处理别名字段（支持多个别名用 | 分隔）
             alias = row["别名(多别名以|隔开)"]
@@ -70,8 +70,8 @@ def parse_excel_to_schema_json(file_path):
 
             attribute_list.append({
                 "类名": class_name,
-                "属性名": attr_name,
-                "属性说明": desc,
+                "属性/关系名": attr_name,
+                "属性/关系说明": desc,
                 "属性别名(多别名以|隔开)": alias_str,
                 "值类型": value_type
             })
@@ -88,7 +88,6 @@ def parse_excel_to_schema_json(file_path):
         import traceback
         logger.error(traceback.format_exc())
         logger.error(f"无法读取Excel文件或工作表不存在: {e}")
-        raise Exception("parse graph schema 发生异常：" + str(e))
     return schema
 
 
