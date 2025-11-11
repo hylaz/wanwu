@@ -1,5 +1,20 @@
 basePath: /openapi/v1
 definitions:
+  jwt_util.JWK:
+    properties:
+      alg:
+        type: string
+      e:
+        type: string
+      kid:
+        type: string
+      kty:
+        type: string
+      "n":
+        type: string
+      use:
+        type: string
+    type: object
   request.OpenAPIAgentChatRequest:
     properties:
       conversation_id:
@@ -38,6 +53,34 @@ definitions:
         type: string
     required:
     - grant_type
+    type: object
+  response.JWKS:
+    properties:
+      keys:
+        items:
+          $ref: '#/definitions/jwt_util.JWK'
+        type: array
+    type: object
+  response.OAuthGetUserInfo:
+    properties:
+      avatar:
+        type: string
+      company:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      userId:
+        type: string
+      username:
+        type: string
     type: object
   response.OauthConfig:
     properties:
@@ -183,12 +226,17 @@ definitions:
       expires_in:
         description: token过期时间(毫秒时间戳)
         type: integer
+      id_token:
+        description: ID令牌
+        type: string
       refresh_token:
         description: 刷新令牌
         type: string
       scope:
         description: 权限范围
-        type: string
+        items:
+          type: string
+        type: array
       token_type:
         description: 令牌类型(bearer)
         type: string
@@ -388,6 +436,32 @@ paths:
           schema:
             $ref: '#/definitions/response.RefreshTokenResponse'
       summary: 刷新令牌
+      tags:
+      - OIDC
+  /oauth/jwks:
+    get:
+      description: 自动获取JWKS
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JWKS'
+      summary: 公钥获取链接
+      tags:
+      - OIDC
+  /oauth/userinfo:
+    get:
+      description: 通过access token获取用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthGetUserInfo'
+      summary: OAuth获取用户信息
       tags:
       - OIDC
   /rag/chat:

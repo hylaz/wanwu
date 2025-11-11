@@ -8,8 +8,8 @@ services:
     container_name: ${WANWU_MYSQL_HOST}
     networks:
       - ${WANWU_DOCKER_NETWORK}
-    # ports:
-    #   - 3306:3306
+    ports:
+      - 3306:3306
     volumes:
       - wanwu_mysql_data:/var/lib/mysql
       - ./configs/middleware/mysql/initdb.d:/docker-entrypoint-initdb.d
@@ -270,6 +270,9 @@ services:
       CUSTOM_INFO_REGISTER_BY_EMAIL: ${WANWU_BFF_REGISTER_BY_EMAIL}
       CUSTOM_INFO_RESET_PASSWORD_BY_EMAIL: ${WANWU_BFF_RESET_PASSWORD_BY_EMAIL}
       CUSTOM_INFO_LOGIN_BY_EMAIL: ${WANWU_BFF_LOGIN_BY_EMAIL}
+      OAUTH_RSA_PRIVATE_KEY_PATH: ${WANWU_BFF_OAUTH_RSA_PRIVATE_KEY_PATH}
+      OAUTH_RSA_PUBLIC_KEY_PATH: ${WANWU_BFF_OAUTH_RSA_PUBLIC_KEY_PATH}
+      OAUTH_SWITCH: ${WANWU_BFF_OAUTH_SWITCH}
     working_dir: /app
     command: ./bin/bff-service
     healthcheck:

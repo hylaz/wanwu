@@ -1,60 +1,109 @@
 package jwt_util
 
 import (
+	"context"
 	"errors"
 	"time"
 
-	"github.com/UnicomAI/wanwu/pkg/log"
+	oauth2_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/oauth2-util"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 )
 
 const (
 	// jwt subject
-	OAUTH = "oauth"
+	ACCESS = "access_token"
 
-	AccessTokenTimeout  = int64(60 * 30)     // 30 min
-	IDTokenTimeout      = int64(60 * 30)     //30 min
-	RefreshTokenTimeout = int64(60 * 60 * 7) // 7天
+	AccessTokenTimeout  = int64(60 * 30)          // 30 min
+	IDTokenTimeout      = int64(60 * 30)          //30 min
+	RefreshTokenTimeout = int64(60 * 60 * 24 * 7) // 7天
 )
 
-type AuthClaims struct {
-	UserID     string `json:"userId"` // 用户ID
-	BufferTime int64  `json:"bufferTime"`
+type AccessTokenClaims struct {
+	Scope    []string `json:"scope"`    // access token访问范围
+	UserID   string   `json:"userId"`   // 用户ID
+	ClientID string   `json:"clientId"` // Client ID
 	jwt.StandardClaims
 }
 
-func InitAuthJWT(key string) {
-	if userSecretKey != "" {
-		log.Panicf("jwt already init")
-	}
-	if key == "" {
-		log.Panicf("jwt secret key empty")
-	}
-	userSecretKey = key
+func GenerateAccessToken(userID, clientID, issuer string, scopes []string, timeout int64) (string, error) {
+	return generateAccessToken(userID, clientID, issuer, scopes, timeout, userSecretKey) //与登录同一个密钥
 }
 
-func GenerateOauthToken(userID string, timeout int64) (*CustomClaims, string, error) {
-	return generateOauthToken(userID, timeout, userSecretKey)
+func ParseAccessToken(token string) (*AccessTokenClaims, error) {
+	return parseAccessToken(token, userSecretKey)
 }
 
-func generateOauthToken(id string, timeout int64, secretKey string) (*CustomClaims, string, error) {
+func GenerateRefreshToken(ctx context.Context, userID, clientID string, timeout int64) (string, error) {
+	return generateRefreshToken(ctx, userID, clientID, timeout)
+}
+
+func generateAccessToken(id, clientID, issuer string, scopes []string, timeout int64, secretKey string) (string, error) {
 	if secretKey == "" {
-		return nil, "", errors.New("jwt secret key empty")
+		return "", errors.New("jwt secret key empty")
 	}
 	nowTime := time.Now().Unix()
-	claims := &CustomClaims{
-		UserID:     id,
-		BufferTime: nowTime + BufferTime, // 缓冲时间，当nowTime大于等于BufferTime and nowTime小于ExpiresAt是获得新的token
+	//access token
+	claims := &AccessTokenClaims{
+		UserID:   id,
+		ClientID: clientID,
+		Scope:    scopes,
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    "wanwu",
-			Subject:   USER,              // 用途，目前固定user
+			Issuer:    issuer,
+			Subject:   ACCESS,            // 用途，目前固定access
 			NotBefore: nowTime,           // 生效时间
 			ExpiresAt: nowTime + timeout, // 过期时间
 		},
 	}
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secretKey))
+	access_token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secretKey))
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
-	return claims, token, err
+	return access_token, err
+}
+
+func parseAccessToken(token, secretKey string) (*AccessTokenClaims, error) {
+	if secretKey == "" {
+		return nil, errors.New("jwt secret key empty")
+	}
+	tokenClaims, err := jwt.ParseWithClaims(token, &AccessTokenClaims{}, func(token *jwt.Token) (i interface{}, e error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+				return nil, ErrTokenMalformed
+			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				// Token is expired
+				return nil, ErrTokenExpired
+			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
+				return nil, ErrTokenNotValidYet
+			} else {
+				return nil, ErrTokenInvalid
+			}
+		}
+	}
+	if tokenClaims != nil {
+		if claims, ok := tokenClaims.Claims.(*AccessTokenClaims); ok && tokenClaims.Valid {
+			return claims, nil
+		}
+		return nil, ErrTokenInvalid
+
+	} else {
+		return nil, ErrTokenInvalid
+	}
+}
+
+func generateRefreshToken(ctx context.Context, userID, clientID string, timeout int64) (string, error) {
+	refreshToken := uuid.NewString()
+	//save refresh token to redis
+	expied := time.Duration(timeout) * time.Second
+	err := oauth2_util.SaveRefreshToken(ctx, refreshToken, expied, oauth2_util.RefreshTokenPayload{
+		UserID:   userID,
+		ClientID: clientID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return refreshToken, nil
 }

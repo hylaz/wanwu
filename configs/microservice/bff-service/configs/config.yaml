@@ -26,6 +26,13 @@ log:
 jwt:
   signing-key:
 
+oauth:
+  switch:
+
+oauth_rsa:
+  private_key_path:
+  public_key_path:
+
 decrypt-passwd:
   iv: "sdf4ddfsFD86Vdf2"
   key: "f5Su3GhNMM1rndyp"

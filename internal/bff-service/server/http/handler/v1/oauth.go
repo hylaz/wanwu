@@ -31,7 +31,8 @@ func Authorize(ctx *gin.Context) {
 		gin_util.Response(ctx, nil, err)
 		return
 	}
-	callback, authCode, err := service.Authorize(ctx, &req)
+	userID := getUserID(ctx)
+	callback, authCode, err := service.Authorize(ctx, &req, userID)
 	if err != nil {
 		gin_util.Response(ctx, nil, err)
 		return

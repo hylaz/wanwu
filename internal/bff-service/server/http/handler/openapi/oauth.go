@@ -63,7 +63,39 @@ func Refresh(ctx *gin.Context) {
 //	@Success		200	{object}	response.OauthConfig
 //	@Router			/.well-known/openid-configuration [get]
 func OauthConfig(ctx *gin.Context) {
-
 	resp, err := service.OauthConfig(ctx)
+	if err != nil {
+		gin_util.Response(ctx, resp, err)
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+// JWKS
+//
+//	@Summary		公钥获取链接
+//	@Description	自动获取JWKS
+//	@Tags			OIDC
+//	@Produce		json
+//	@Success		200	{object}	response.JWKS
+//	@Router			/oauth/jwks [get]
+func JWKS(ctx *gin.Context) {
+	resp, err := service.JWKS(ctx)
+	if err != nil {
+		gin_util.Response(ctx, resp, err)
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+// OauthGetUserInfo
+//
+//	@Summary		OAuth获取用户信息
+//	@Description	通过access token获取用户信息
+//	@Tags			OIDC
+//	@Produce		json
+//	@Success		200	{object}	response.OAuthGetUserInfo
+//	@Router			/oauth/userinfo [get]
+func OAuthGetUserInfo(ctx *gin.Context) {
+	userID := getUserID(ctx)
+	resp, err := service.OAuthGetUserInfo(ctx, userID)
 	gin_util.Response(ctx, resp, err)
 }

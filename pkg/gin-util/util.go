@@ -36,6 +36,10 @@ const (
 	APP_TYPE = "APP_TYPE"
 
 	ANSWER = "ANSWER"
+
+	// OAuth相关
+	OAUTH_SCOPE     = "SCOPE"
+	OAUTH_CLIENT_ID = "OAuth_Client_ID"
 )
 
 // http common query key

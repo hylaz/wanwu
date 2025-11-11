@@ -53,11 +53,14 @@ func TestOAuth2RedisUtil(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := SaveRefreshToken(ctx, "refresh_123", time.Minute); err != nil {
+	if err := SaveRefreshToken(ctx, "refresh_123", time.Minute, RefreshTokenPayload{
+		ClientID: "client_1",
+		UserID:   "user_1",
+	}); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := ValidateRefreshToken(ctx, "refresh_123"); err != nil {
+	if _, err := ValidateRefreshToken(ctx, "refresh_123", "client_1"); err != nil {
 		t.Fatal(err)
 	}
 }

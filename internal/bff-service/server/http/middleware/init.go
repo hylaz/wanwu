@@ -10,6 +10,10 @@ import (
 func Init() {
 	jwt_util.InitUserJWT(config.Cfg().JWT.SigningKey)
 
+	if config.Cfg().OAuth.OAuthSwitch != 0 {
+		jwt_util.InitIDTokenJWT(config.Cfg().OAuthJWT.RSAPrivateKeyPath, config.Cfg().OAuthJWT.RSAPublicKeyPath)
+	}
+
 	mid.InitWrapper(Record)
 
 	// --- openapi ---

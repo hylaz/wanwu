@@ -15,6 +15,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/pkg/ahocorasick"
 	assistant_template "github.com/UnicomAI/wanwu/internal/bff-service/pkg/assistant-template"
 	mcp_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/mcp-util"
+	oauth2_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/oauth2-util"
 	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler"
 	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/i18n"
@@ -96,6 +97,9 @@ func main() {
 	// init redis
 	if err := redis.InitOP(ctx, config.Cfg().Redis); err != nil {
 		log.Fatalf("init redis err: %v", err)
+	}
+	if err := oauth2_util.Init(redis.OP().Cli()); err != nil {
+		log.Fatalf("init oauth redis err: %v", err)
 	}
 	// init model provider
 	mp.Init(config.Cfg().Server.CallbackUrl)

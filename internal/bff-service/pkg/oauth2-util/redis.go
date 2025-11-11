@@ -19,6 +19,11 @@ type CodePayload struct {
 	UserID   string `json:"user_id"`
 }
 
+type RefreshTokenPayload struct {
+	ClientID string `json:"client_id"`
+	UserID   string `json:"user_id"`
+}
+
 func SaveCode(ctx context.Context, code string, payload CodePayload) error {
 	b, _ := json.Marshal(payload)
 	if err := _redis.Set(ctx, getRedisCodeKey(code), string(b), expirationCode).Err(); err != nil {
@@ -45,21 +50,30 @@ func ValidateCode(ctx context.Context, code, clientID string) (CodePayload, erro
 	return payload, nil
 }
 
-func SaveRefreshToken(ctx context.Context, refreshToken string, expiration time.Duration) error {
-	if err := _redis.Set(ctx, getRedisRefreshTokenKey(refreshToken), 1, expiration).Err(); err != nil {
+func SaveRefreshToken(ctx context.Context, refreshToken string, expiration time.Duration, payload RefreshTokenPayload) error {
+	b, _ := json.Marshal(payload)
+	if err := _redis.Set(ctx, getRedisRefreshTokenKey(refreshToken), b, expiration).Err(); err != nil {
 		return fmt.Errorf("save refresh token %v err: %v", refreshToken, err)
 	}
 	return nil
 }
 
-func ValidateRefreshToken(ctx context.Context, refreshToken string) error {
-	if err := _redis.Get(ctx, getRedisRefreshTokenKey(refreshToken)).Err(); err != nil {
-		return fmt.Errorf("validate refresh token %v err: %v", refreshToken, err)
+func ValidateRefreshToken(ctx context.Context, refreshToken, clientID string) (RefreshTokenPayload, error) {
+	ret := _redis.Get(ctx, getRedisRefreshTokenKey(refreshToken))
+	if err := ret.Err(); err != nil {
+		return RefreshTokenPayload{}, fmt.Errorf("validate code %v err: %v", refreshToken, err)
+	}
+	var payload RefreshTokenPayload
+	if err := json.Unmarshal([]byte(ret.Val()), &payload); err != nil {
+		return RefreshTokenPayload{}, fmt.Errorf("validate code %v unmarshal err: %v", refreshToken, err)
+	}
+	if payload.ClientID != clientID {
+		return RefreshTokenPayload{}, fmt.Errorf("validate code %v client_id %v err: invalid client_id %v", refreshToken, payload.ClientID, clientID)
 	}
 	if err := _redis.Del(ctx, getRedisRefreshTokenKey(refreshToken)).Err(); err != nil {
-		return fmt.Errorf("validate refresh token %v delete err: %v", refreshToken, err)
+		return RefreshTokenPayload{}, fmt.Errorf("validate refresh token %v delete err: %v", refreshToken, err)
 	}
-	return nil
+	return payload, nil
 }
 
 // --- internal ---

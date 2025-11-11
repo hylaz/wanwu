@@ -1,145 +1,188 @@
 package service
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	oauth2_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/oauth2-util"
+	jwt_util "github.com/UnicomAI/wanwu/pkg/jwt-util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func Authorize(ctx *gin.Context, req *request.AuthRequest) (string, string, error) {
-	return "", "", nil
-	// //TODO: 调用获取client
-	// credential, err := auth.GetCredential(ctx, &auth_service.GetCredentialReq{
-	// 	ClientId: req.ClientID,
-	// })
-	// if err != nil {
-	// 	return "", "", fmt.Errorf("%v get auth info err:%v", req.ClientID, err)
-	// }
-	// if !credential.Status {
-	// 	return "", "", fmt.Errorf("client id: %v has been disabled", credential.ClientId)
-	// }
-	// if credential.ClientId != req.ClientID || (req.RedirectURI != "" && req.RedirectURI != credential.Callback) {
-	// 	return "", "", fmt.Errorf("client id: %v or redirecturi: %v missmatch", req.ClientID, req.RedirectURI)
-	// }
-	// _, token, _ := jwt_util.GenerateCode(req.UserID, config.OAUTH_CODE, credential.ClientId, credential.ClientSecret, jwt_util.CodeTimeout)
-	// return credential.Callback, token, nil
+var ISSUER = os.Getenv("WANWU_CALLBACK_LLM_BASE_URL") +
+	os.Getenv("WANWU_EXTERNAL_SCHEME") +
+	"://" + os.Getenv("WANWU_EXTERNAL_ENDPOINT")
+
+func Authorize(ctx *gin.Context, req *request.AuthRequest, userID string) (string, string, error) {
+	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
+		ClientId: req.ClientID,
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("%v get auth info err:%v", req.ClientID, err)
+	}
+	if !oauthApp.Status {
+		return "", "", fmt.Errorf("client id: %v has been disabled", oauthApp.ClientId)
+	}
+	if oauthApp.ClientId != req.ClientID || (req.RedirectURI != "" && req.RedirectURI != oauthApp.RedirectUri) {
+		return "", "", fmt.Errorf("client id: %v or redirecturi: %v missmatch", req.ClientID, req.RedirectURI)
+	}
+	//code save to redis
+	code := uuid.NewString()
+	oauth2_util.SaveCode(ctx, code, oauth2_util.CodePayload{
+		ClientID: req.ClientID,
+		UserID:   userID,
+	})
+	return oauthApp.RedirectUri, code, nil
 }
 
 func Token(ctx *gin.Context, req *request.TokenRequest) (*response.TokenResponse, error) {
-	//TODO:
-	return nil, nil
+	codePayload, err := oauth2_util.ValidateCode(ctx, req.Code, req.ClientID)
+	if err != nil {
+		return nil, fmt.Errorf("validate code timeout err", err)
+	}
+	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
+		ClientId: req.ClientID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%v get auth info err:%v", req.ClientID, err)
+	}
+	err = validateCode(req.ClientID, req.ClientSecret, req.RedirectURI, codePayload, oauthApp)
+	if err != nil {
+		return nil, err
+	}
+	user, err := iam.GetUserInfo(ctx, &iam_service.GetUserInfoReq{
+		UserId: codePayload.UserID,
+		OrgId:  "",
+	})
+	if err != nil {
+		return nil, err
+	}
+	//access token
+	var scopes []string = []string{""} //预留scope处理
+	accessToken, err := jwt_util.GenerateAccessToken(user.UserId, req.ClientID, ISSUER, scopes, jwt_util.AccessTokenTimeout)
+	if err != nil {
+		return nil, err
+	}
 
-	// userId, err := validateCode(ctx, req.Code, req.ClientID, req.ClientSecret, req.RedirectURI)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// user, err := iam.GetUserInfo(ctx, &iam_service.GetUserInfoReq{
-	// 	UserId: userId,
-	// 	OrgId:  "",
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// _, token, refreshToken, _ := jwt_util.GenerateOauthToken(user.UserId, req.ClientID, jwt_util.UserTokenTimeout, jwt_util.RefreshTokenTimeout)
-	// return &response.TokenResponse{
-	// 	AccessToken:  token,
-	// 	ExpiresIn:    jwt_util.UserTokenTimeout,
-	// 	TokenType:    "Bearer",
-	// 	RefreshToken: refreshToken,
-	// 	Scope:        "",
-	// }, nil
-}
-
-func Credential(ctx *gin.Context, req *request.CredentialRequest) (*response.TokenResponse, error) {
-	//TODO:
-	return nil, nil
-
-	// credential, err := auth.GetCredential(ctx, &auth_service.GetCredentialReq{
-	// 	ClientId: req.ClientID,
-	// })
-	// if err != nil {
-	// 	return nil, fmt.Errorf("get %v credential info err:%v", req.ClientID, err)
-	// }
-	// if !credential.Status {
-	// 	return nil, fmt.Errorf("client id: %v has been disabled", credential.ClientId)
-	// }
-	// if credential.ClientId != req.ClientID || req.ClientSecret != credential.ClientSecret {
-	// 	return nil, fmt.Errorf("clinet id: %v or client secret missmatch", req.ClientID)
-	// }
-	// _, token, refreshToken, _ := jwt_util.GenerateOauthToken("", req.ClientID, jwt_util.UserTokenTimeout, jwt_util.RefreshTokenTimeout)
-	// return &response.TokenResponse{
-	// 	AccessToken:  token,
-	// 	ExpiresIn:    jwt_util.UserTokenTimeout,
-	// 	TokenType:    "Bearer",
-	// 	RefreshToken: refreshToken,
-	// 	Scope:        "",
-	// }, nil
+	//id token
+	idToken, err := jwt_util.GenerateIDToken(user.UserId, user.UserName, req.ClientID, ISSUER, jwt_util.IDTokenTimeout)
+	if err != nil {
+		return nil, err
+	}
+	//refresh token
+	refreshToken, err := jwt_util.GenerateRefreshToken(ctx, user.UserId, req.ClientID, jwt_util.RefreshTokenTimeout)
+	if err != nil {
+		return nil, err
+	}
+	return &response.TokenResponse{
+		AccessToken:  accessToken,
+		ExpiresIn:    jwt_util.AccessTokenTimeout,
+		TokenType:    "Bearer",
+		IDToken:      idToken,
+		RefreshToken: refreshToken,
+		Scope:        scopes,
+	}, nil
 }
 
 func Refresh(ctx *gin.Context, req *request.RefreshRequest) (*response.RefreshTokenResponse, error) {
-	//TODO:
-	return nil, nil
-
-	// oldClaims, err := jwt_util.ParseToken(req.RefreshToken)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// credential, err := auth.GetCredential(ctx, &auth_service.GetCredentialReq{
-	// 	ClientId: req.ClientID,
-	// })
-	// if err != nil {
-	// 	return nil, fmt.Errorf("get %v credential info err:%v", req.ClientID, err)
-	// }
-	// if !credential.Status {
-	// 	return nil, fmt.Errorf("client id: %v has been disabled", credential.ClientId)
-	// }
-	// if credential.ClientId != req.ClientID || req.ClientSecret != credential.ClientSecret || oldClaims.ID != req.ClientID {
-	// 	return nil, fmt.Errorf("clinetId:%v or clientSecret missmatch", req.ClientID)
-	// }
-	// _, token, refreshToken, err := jwt_util.GenerateOauthToken(
-	// 	oldClaims.ID,
-	// 	req.ClientID,
-	// 	jwt_util.UserTokenTimeout,
-	// 	jwt_util.RefreshTokenTimeout,
-	// )
-	// return &response.RefreshTokenResponse{
-	// 	AccessToken:  token,
-	// 	ExpiresAt:    strconv.Itoa(int(time.Now().Add(time.Duration(jwt_util.UserTokenTimeout) * time.Second).UnixMilli())),
-	// 	RefreshToken: refreshToken,
-	// }, nil
+	refreshPayload, err := oauth2_util.ValidateRefreshToken(ctx, req.RefreshToken, req.ClientID)
+	if err != nil {
+		return nil, err
+	}
+	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
+		ClientId: req.ClientID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !oauthApp.Status {
+		return nil, fmt.Errorf("client id: %v has been disabled", oauthApp.ClientId)
+	}
+	if req.ClientSecret != oauthApp.ClientSecret {
+		return nil, fmt.Errorf("clinetId:%v or clientSecret missmatch", req.ClientID)
+	}
+	scopes := []string{} //scopes处理预留
+	//new access token
+	accessToken, err := jwt_util.GenerateAccessToken(refreshPayload.UserID, req.ClientID, ISSUER, scopes, jwt_util.AccessTokenTimeout)
+	if err != nil {
+		return nil, err
+	}
+	//new refresh token
+	refreshToken, err := jwt_util.GenerateRefreshToken(ctx, refreshPayload.UserID, refreshPayload.ClientID, jwt_util.RefreshTokenTimeout)
+	if err != nil {
+		return nil, err
+	}
+	return &response.RefreshTokenResponse{
+		AccessToken:  accessToken,
+		ExpiresAt:    strconv.Itoa(int(time.Now().Add(time.Duration(jwt_util.UserTokenTimeout) * time.Second).UnixMilli())),
+		RefreshToken: refreshToken,
+	}, nil
 }
 
 func OauthConfig(ctx *gin.Context) (*response.OauthConfig, error) {
-	return nil, nil
-	// icon.URL, _ = url.JoinPath(os.Getenv("WANWU_EXTERNAL_SCHEME")+"://"+os.Getenv("WANWU_EXTERNAL_ENDPOINT"),
-	// 		os.Getenv("WANWU_WORKFLOW_DEFAULT_ICON"))
+
+	return &response.OauthConfig{
+		Issuer:           ISSUER,
+		AuthEndpoint:     ISSUER + "/user/api/v1" + "/oauth/code/authorize",
+		TokenEndpoint:    ISSUER + "/user/api/openapi/v1" + "/oauth/code/token",
+		JwksUri:          ISSUER + "/user/api/openapi/v1" + "/oauth/jwks",
+		UserInfoEndpoint: ISSUER + "/user/api/openapi/v1" + "/oauth/userinfo",
+		ResponseTypes:    []string{"code"},
+		IDtokenSignAlg:   []string{"RS256"},
+		SubjectTypes:     []string{"public"},
+	}, nil
 }
 
-func validateCode(ctx *gin.Context, code, clientID, clientSecret, redirectURI string) (string, error) {
+func JWKS(ctx *gin.Context) (*response.JWKS, error) {
 
-	//TODO:
-	return "", nil
-	// credential, err := auth.GetCredential(ctx, &auth_service.GetCredentialReq{
-	// 	ClientId: clientID,
-	// })
-	// if err != nil {
-	// 	return "", fmt.Errorf("validate code get credential info err:%v", err)
-	// }
-	// if !credential.Status {
-	// 	return "", fmt.Errorf("client id: %v has been disabled", credential.ClientId)
-	// }
-	// if credential.ClientId != clientID || credential.ClientSecret != clientSecret || (redirectURI != "" && redirectURI != credential.Callback) {
-	// 	return "", fmt.Errorf("client id:%v client secret or redirecturi mismatch", credential.ClientId)
-	// }
-	// claims, err := jwt_util.ParseCode(code, clientSecret)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// if claims.Issuer != clientID || claims.Subject != config.OAUTH_CODE {
-	// 	return "", fmt.Errorf("issuer or subject error")
-	// }
-	// return claims.ID, nil
+	return &response.JWKS{Keys: []jwt_util.JWK{*jwt_util.JWKInstance}}, nil
+}
+
+func OAuthGetUserInfo(ctx *gin.Context, userID string) (*response.OAuthGetUserInfo, error) {
+	user, err := iam.GetUserInfo(ctx, &iam_service.GetUserInfoReq{
+		UserId: userID,
+		OrgId:  "",
+	})
+	if err != nil {
+		return nil, err
+	}
+	avataUri := cacheUserAvatar(ctx, user.AvatarPath)
+	return &response.OAuthGetUserInfo{
+		UserID:    user.UserId,
+		Username:  user.UserName,
+		Email:     user.Email,
+		Nickname:  user.NickName,
+		Phone:     user.Phone,
+		Gender:    user.Gender,
+		AvatarUri: ISSUER + "/user/api" + avataUri.Path,
+		Remark:    user.Remark,
+		Company:   user.Company,
+	}, nil
+}
+
+func validateCode(clientID, clientSecret, redirectUri string, codePayload oauth2_util.CodePayload, appInfo *iam_service.OauthApp) error {
+
+	if !appInfo.Status {
+		return fmt.Errorf("client id: %v has been disabled", codePayload.ClientID)
+	}
+	if codePayload.ClientID != clientID { //两次传的不一样
+		return fmt.Errorf("client_id mismatch: expected %v, got %v", codePayload.ClientID, clientID)
+	}
+
+	if appInfo.ClientSecret != clientSecret {
+		return fmt.Errorf("client_secret error for client_id: %v", codePayload.ClientID)
+	}
+
+	if redirectUri != "" && redirectUri != appInfo.RedirectUri {
+		return fmt.Errorf("redirect_uri err: got %v", redirectUri)
+	}
+	return nil
 }
 
 func CreateOauthApp(ctx *gin.Context, userId string, req *request.CreateOauthAppReq) error {

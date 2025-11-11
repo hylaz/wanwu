@@ -19,6 +19,8 @@ type Config struct {
 	Server            ServerConfig               `json:"server" mapstructure:"server"`
 	Log               LogConfig                  `json:"log" mapstructure:"log"`
 	JWT               JWTConfig                  `json:"jwt" mapstructure:"jwt"`
+	OAuth             OAuthSwitch                `json:"oauth" mapstructure:"oauth"`
+	OAuthJWT          OAuthJWTConfig             `json:"oauth_rsa" mapstructure:"oauth_rsa"`
 	Decrypt           DecryptPasswd              `json:"decrypt-passwd" mapstructure:"decrypt-passwd"`
 	I18n              i18n.Config                `json:"i18n" mapstructure:"i18n"`
 	AssistantTemplate AssistantTemplateConfig    `json:"assistant-template" mapstructure:"assistant-template"`
@@ -70,6 +72,15 @@ type LogConfig struct {
 
 type JWTConfig struct {
 	SigningKey string `json:"signing-key" mapstructure:"signing-key"`
+}
+
+type OAuthSwitch struct {
+	OAuthSwitch int `json:"switch" mapstructure:"switch"`
+}
+
+type OAuthJWTConfig struct {
+	RSAPrivateKeyPath string `json:"private_key_path" mapstructure:"private_key_path"`
+	RSAPublicKeyPath  string `json:"public_key_path" mapstructure:"public_key_path"`
 }
 
 type DecryptPasswd struct {

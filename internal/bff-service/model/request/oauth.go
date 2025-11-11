@@ -24,16 +24,6 @@ func (t *TokenRequest) Check() error {
 	return nil
 }
 
-type CredentialRequest struct {
-	GrantType    string `json:"grant_type" validate:"required,eq=client_credentials" `
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-}
-
-func (t *CredentialRequest) Check() error {
-	return nil
-}
-
 type RefreshRequest struct {
 	GrantType    string `json:"grant_type" validate:"required,eq=refresh_token"`
 	ClientID     string `json:"client_id"`

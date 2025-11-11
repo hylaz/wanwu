@@ -311,6 +311,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/oauth/jwks": {
+            "get": {
+                "description": "自动获取JWKS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OIDC"
+                ],
+                "summary": "公钥获取链接",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.JWKS"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/userinfo": {
+            "get": {
+                "description": "通过access token获取用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OIDC"
+                ],
+                "summary": "OAuth获取用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthGetUserInfo"
+                        }
+                    }
+                }
+            }
+        },
         "/rag/chat": {
             "post": {
                 "description": "文本问答OpenAPI",
@@ -414,6 +454,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "jwt_util.JWK": {
+            "type": "object",
+            "properties": {
+                "alg": {
+                    "type": "string"
+                },
+                "e": {
+                    "type": "string"
+                },
+                "kid": {
+                    "type": "string"
+                },
+                "kty": {
+                    "type": "string"
+                },
+                "n": {
+                    "type": "string"
+                },
+                "use": {
+                    "type": "string"
+                }
+            }
+        },
         "request.OpenAPIAgentChatRequest": {
             "type": "object",
             "required": [
@@ -470,6 +533,49 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.JWKS": {
+            "type": "object",
+            "properties": {
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jwt_util.JWK"
+                    }
+                }
+            }
+        },
+        "response.OAuthGetUserInfo": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -689,13 +795,20 @@ const docTemplate = `{
                     "description": "token过期时间(毫秒时间戳)",
                     "type": "integer"
                 },
+                "id_token": {
+                    "description": "ID令牌",
+                    "type": "string"
+                },
                 "refresh_token": {
                     "description": "刷新令牌",
                     "type": "string"
                 },
                 "scope": {
                     "description": "权限范围",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "token_type": {
                     "description": "令牌类型(bearer)",
