@@ -129,3 +129,21 @@ func CreatePromptByTemplate(ctx *gin.Context) {
 	resp, err := service.CreatePromptByTemplate(ctx, getUserID(ctx), getOrgID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }
+
+// GetPromptOptimize
+//
+//	@Tags			tool
+//	@Summary		获取提示词优化结果
+//	@Description	获取提示词优化结果
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.PromptOptimizeReq	true	"提示词优化请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/prompt/optimize [post]
+func GetPromptOptimize(ctx *gin.Context) {
+	var req request.PromptOptimizeReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	service.GetPromptOptimize(ctx, getUserID(ctx), getOrgID(ctx), req)
+}

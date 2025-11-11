@@ -1,15 +1,23 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
+	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
+	"github.com/UnicomAI/wanwu/pkg/log"
+	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
+	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -60,6 +68,103 @@ func GetPromptTemplateDetail(ctx *gin.Context, templateId string) (*response.Pro
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_prompt_template_detail", "get prompt template detail empty")
 	}
 	return buildPromptTempDetail(promptCfg), nil
+}
+
+func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.PromptOptimizeReq) {
+	// 获取模型信息
+	modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: req.ModelId})
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+
+	// 构建请求信息
+	var stream bool = true
+	reqInfo := &mp_common.LLMReq{
+		Model: modelInfo.Model,
+		Messages: []mp_common.OpenAIReqMsg{
+			{
+				Role:    mp_common.MsgRoleSystem,
+				Content: strings.ReplaceAll(config.Cfg().PromptEngineering.Optimization, "{{message}}", req.Prompt),
+			},
+			{
+				Role:    mp_common.MsgRoleUser,
+				Content: req.Prompt,
+			},
+		},
+		Stream: &stream,
+	}
+
+	// 配置模型参数
+	llm, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return
+	}
+	iLLM, ok := llm.(mp.ILLM)
+	if !ok {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: invalid provider", modelInfo.ModelId)))
+		return
+	}
+
+	// chat completions
+	llmReq, err := iLLM.NewReq(reqInfo)
+	if err != nil {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions NewReq err: %v", modelInfo.ModelId, err)))
+		return
+	}
+	_, sseCh, err := iLLM.ChatCompletions(ctx.Request.Context(), llmReq)
+	if err != nil {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: %v", modelInfo.ModelId, err)))
+		return
+	}
+
+	// stream
+	var answer string
+	ctx.Header("Cache-Control", "no-cache")
+	ctx.Header("Connection", "keep-alive")
+	ctx.Header("Content-Type", "text/event-stream; charset=utf-8")
+	var data *mp_common.LLMResp
+	for sseResp := range sseCh {
+		data, ok = sseResp.ConvertResp()
+		var dataStr string
+		if ok && data != nil {
+			currentResponse := "" // 记录当前流式增量内容
+			if len(data.Choices) > 0 && data.Choices[0].Delta != nil {
+				answer = answer + data.Choices[0].Delta.Content
+				delta := data.Choices[0].Delta
+				currentResponse = delta.Content // 当前流式块的响应内容
+			}
+
+			// 构建目标结构
+			streamData := response.CustomPromptOpt{
+				Code:     data.Code,
+				Message:  "success",
+				Response: currentResponse,
+				Finish:   "",
+				Usage:    &data.Usage,
+			}
+			if len(data.Choices) > 0 {
+				streamData.Finish = data.Choices[0].FinishReason
+				if streamData.Finish == "" {
+					streamData.Finish = "0" // 继续生成
+				} else if streamData.Finish == "stop" {
+					streamData.Finish = "1" // 结束标志
+				}
+			}
+
+			dataByte, _ := json.Marshal(streamData)
+			dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
+		} else {
+			dataStr = fmt.Sprintf("%v\n", sseResp.String())
+		}
+		if _, err = ctx.Writer.Write([]byte(dataStr)); err != nil {
+			log.Errorf("model %v chat completions sse err: %v", modelInfo.ModelId, err)
+		}
+		ctx.Writer.Flush()
+	}
+
+	ctx.Set(gin_util.STATUS, http.StatusOK)
+	ctx.Set(gin_util.RESULT, answer)
 }
 
 // --- internal ---

@@ -806,6 +806,19 @@ definitions:
         description: Title is a human-readable title for the tool, useful for UI display
         type: string
     type: object
+  request.AddReportReq:
+    properties:
+      content:
+        type: string
+      knowledgeId:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - knowledgeId
+    - title
+    type: object
   request.AnalysisUrlDocReq:
     properties:
       knowledgeId:
@@ -1255,6 +1268,16 @@ definitions:
       path:
         description: 前端请求地址，例如：/v1/static/avatar/abc/def.png (请求非必填)
         type: string
+    type: object
+  request.BatchAddReportReq:
+    properties:
+      fileUploadId:
+        type: string
+      knowledgeId:
+        type: string
+    required:
+    - fileUploadId
+    - knowledgeId
     type: object
   request.BatchCreateDocSegmentReq:
     properties:
@@ -1808,6 +1831,16 @@ definitions:
     required:
     - modelId
     type: object
+  request.DeleteReportReq:
+    properties:
+      contentId:
+        type: string
+      knowledgeId:
+        type: string
+    required:
+    - contentId
+    - knowledgeId
+    type: object
   request.DeleteSensitiveVocabularyReq:
     properties:
       tableId:
@@ -1984,6 +2017,13 @@ definitions:
     required:
     - appId
     - appType
+    type: object
+  request.GenerateReportReq:
+    properties:
+      knowledgeId:
+        type: string
+    required:
+    - knowledgeId
     type: object
   request.GetModelRequest:
     properties:
@@ -2531,6 +2571,16 @@ definitions:
     required:
     - userId
     type: object
+  request.PromptOptimizeReq:
+    properties:
+      modelId:
+        type: string
+      prompt:
+        type: string
+    required:
+    - modelId
+    - prompt
+    type: object
   request.PublishAppRequest:
     properties:
       appId:
@@ -2877,6 +2927,22 @@ definitions:
     required:
     - docIdList
     - knowledgeId
+    type: object
+  request.UpdateReportReq:
+    properties:
+      content:
+        type: string
+      contentId:
+        type: string
+      knowledgeId:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - contentId
+    - knowledgeId
+    - title
     type: object
   request.UpdateSensitiveWordTableReplyReq:
     properties:
@@ -4078,6 +4144,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.EmbeddingModelInfo'
         description: embedding模型信息
+      graphSwitch:
+        description: 图谱开关
+        type: integer
       knowledgeId:
         description: 知识库id
         type: string
@@ -4816,6 +4885,38 @@ definitions:
     - ragId
     - rerankConfig
     type: object
+  response.ReportInfo:
+    properties:
+      content:
+        type: string
+      contentId:
+        type: string
+      title:
+        type: string
+    type: object
+  response.ReportPageResult:
+    properties:
+      createdAt:
+        description: 生成时间：unix时间戳，若为空串显示-
+        type: string
+      list:
+        description: 社区报告内容列表
+        items:
+          $ref: '#/definitions/response.ReportInfo'
+        type: array
+      pageNo:
+        description: 当前页码
+        type: integer
+      pageSize:
+        description: 每页数量
+        type: integer
+      status:
+        description: 状态：0.未生成(-) 1.生成中 2.已生成 3.生成失败
+        type: integer
+      total:
+        description: 社区报告数量：如果为0显示-
+        type: integer
+    type: object
   response.RequestFile:
     properties:
       fileUrl:
@@ -5359,24 +5460,51 @@ definitions:
     type: object
 info:
   contact: {}
-  description: "## HTTP Header\r\n| Header        | 说明      |\r\n| ------------- |
-    --------- |\r\n| Authorization | JWT token |\r\n| X-Language    | 语言Code  |\r\n|
-    X-Org-Id      | 组织ID    |\r\n| X-Client-Id   | 客户端标识|\r\n\r\n## HTTP Status\r\n|
-    HTTP Status             | 说明                   |\r\n| -----------------------
-    | ---------------------- |\r\n| 200, StatusOK           | 请求返回成功           |\r\n|
-    400, StatusBadRequest   | 请求返回失败，用于业务 |\r\n| 401, StatusUnauthorized | JWT认证失败
-    \           |\r\n| 403, StatusForbidden    | 没有权限               |\r\n\r\n## 权限-菜单对应表\r\n|
-    一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\r\n|-------------|-------|------|------|------|------|\r\n|
-    guest       |       |      | 【访客】 |      |      |\r\n| common      |       |      |
-    【通用】 |      |      |\r\n| permission  |       |      | 权限管理 |      |      |\r\n|
-    permission  | user  |      | 权限管理 | 用户管理 |      |\r\n| permission  | org   |      |
-    权限管理 | 组织管理 |      |\r\n| permission  | role  |      | 权限管理 | 角色管理 |      |\r\n\r\n##
-    `/v1/user/permission`返回用例\r\n```json\r\n{\r\n  \"code\": 0,\r\n  \"data\": {\r\n
-    \   \"orgPermission\": {\r\n      \"org\": {\"id\": \"test-org-id\", \"name\":
-    \"test-org-name\"},\r\n      \"permissions\": [\r\n        {\"perm\": \"permission\"},\r\n
-    \       {\"perm\": \"permission.user\"},\r\n        {\"perm\": \"permission.org\"},\r\n
-    \       {\"perm\": \"permission.role\"}\r\n      ]\r\n    }\r\n  },\r\n  \"msg\":
-    \"操作成功\"\r\n}\r\n```"
+  description: |-
+    ## HTTP Header
+    | Header        | 说明      |
+    | ------------- | --------- |
+    | Authorization | JWT token |
+    | X-Language    | 语言Code  |
+    | X-Org-Id      | 组织ID    |
+    | X-Client-Id   | 客户端标识|
+
+    ## HTTP Status
+    | HTTP Status             | 说明                   |
+    | ----------------------- | ---------------------- |
+    | 200, StatusOK           | 请求返回成功           |
+    | 400, StatusBadRequest   | 请求返回失败，用于业务 |
+    | 401, StatusUnauthorized | JWT认证失败            |
+    | 403, StatusForbidden    | 没有权限               |
+
+    ## 权限-菜单对应表
+    | 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |
+    |-------------|-------|------|------|------|------|
+    | guest       |       |      | 【访客】 |      |      |
+    | common      |       |      | 【通用】 |      |      |
+    | permission  |       |      | 权限管理 |      |      |
+    | permission  | user  |      | 权限管理 | 用户管理 |      |
+    | permission  | org   |      | 权限管理 | 组织管理 |      |
+    | permission  | role  |      | 权限管理 | 角色管理 |      |
+
+    ## `/v1/user/permission`返回用例
+    ```json
+    {
+      "code": 0,
+      "data": {
+        "orgPermission": {
+          "org": {"id": "test-org-id", "name": "test-org-name"},
+          "permissions": [
+            {"perm": "permission"},
+            {"perm": "permission.user"},
+            {"perm": "permission.org"},
+            {"perm": "permission.role"}
+          ]
+        }
+      },
+      "msg": "操作成功"
+    }
+    ```
   title: AI Agent Productivity Platform API
   version: v0.0.1
 paths:
@@ -8118,6 +8246,160 @@ paths:
       summary: 知识库组织列表
       tags:
       - knowledge
+  /knowledge/report/add:
+    post:
+      consumes:
+      - application/json
+      description: 单条新增社区报告
+      parameters:
+      - description: 单条新增社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddReportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 单条新增社区报告
+      tags:
+      - knowledge
+  /knowledge/report/batch/add:
+    post:
+      consumes:
+      - application/json
+      description: 批量新增社区报告
+      parameters:
+      - description: 批量新增社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.BatchAddReportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 批量新增社区报告
+      tags:
+      - knowledge
+  /knowledge/report/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除社区报告
+      parameters:
+      - description: 删除社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteReportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除社区报告
+      tags:
+      - knowledge
+  /knowledge/report/generate:
+    post:
+      consumes:
+      - application/json
+      description: 生成社区报告
+      parameters:
+      - description: 生成社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.GenerateReportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 生成社区报告
+      tags:
+      - knowledge
+  /knowledge/report/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取社区报告
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ReportPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取社区报告
+      tags:
+      - knowledge
+  /knowledge/report/update:
+    post:
+      consumes:
+      - application/json
+      description: 编辑社区报告
+      parameters:
+      - description: 编辑社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateReportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑社区报告
+      tags:
+      - knowledge
   /knowledge/select:
     post:
       consumes:
@@ -9797,6 +10079,28 @@ paths:
                     type: object
               type: object
       summary: 获取自定义Prompt列表
+      tags:
+      - tool
+  /prompt/optimize:
+    post:
+      consumes:
+      - application/json
+      description: 获取提示词优化结果
+      parameters:
+      - description: 提示词优化请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PromptOptimizeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取提示词优化结果
       tags:
       - tool
   /prompt/template:

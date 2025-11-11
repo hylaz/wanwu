@@ -65,3 +65,10 @@ type CreatePromptByTemplateReq struct {
 }
 
 func (req *CreatePromptByTemplateReq) Check() error { return nil }
+
+type PromptOptimizeReq struct {
+	Prompt  string `json:"prompt" validate:"required"`
+	ModelId string `json:"modelId" validate:"required"`
+}
+
+func (req *PromptOptimizeReq) Check() error { return nil }

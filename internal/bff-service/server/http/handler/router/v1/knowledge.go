@@ -78,4 +78,12 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/user/edit", http.MethodPost, v1.EditKnowledgeUser, "修改知识库用户", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeGrant))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/user/delete", http.MethodDelete, v1.DeleteKnowledgeUser, "删除知识库用户", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeGrant))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/user/admin/transfer", http.MethodPost, v1.TransferKnowledgeUserAdmin, "转让管理员权限", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeSystem))
+
+	// 知识库社区报告
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/list", http.MethodGet, v1.GetKnowledgeReport, "获取社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/generate", http.MethodPost, v1.GenerateKnowledgeReport, "生成社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/delete", http.MethodDelete, v1.DeleteKnowledgeReport, "删除社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/update", http.MethodPost, v1.UpdateKnowledgeReport, "更新社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/add", http.MethodPost, v1.AddKnowledgeReport, "单条新增社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/batch/add", http.MethodPost, v1.BatchAddKnowledgeReport, "批量新增社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 }
