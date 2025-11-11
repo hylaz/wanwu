@@ -71,4 +71,7 @@ func Init() {
 
 	// --- statistic_client ---
 	mid.NewSub("statistic_client", "统计分析", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- oauth ---
+	mid.NewSub("oauth", "OAuth密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 }

@@ -107,6 +107,20 @@ service IAMService {
   rpc ResetPasswordSendEmailCode(ResetPasswordSendEmailCodeReq) returns (google.protobuf.Empty) {}
   // 邮箱重置密码
   rpc ResetPasswordByEmail(ResetPasswordByEmailReq) returns (google.protobuf.Empty) {}
+
+  // --- oauth ---
+  // 创建OAuth应用
+  rpc CreateOauthApp(CreateOauthAppReq) returns (google.protobuf.Empty);
+  // 删除OAuth应用
+  rpc DeleteOauthApp(DeleteOauthAppReq) returns (google.protobuf.Empty);
+  // 更新OAuth应用
+  rpc UpdateOauthApp(UpdateOauthAppReq) returns (google.protobuf.Empty);
+  // 获取OAuth应用列表
+  rpc GetOauthAppList(GetOauthAppListReq) returns (OauthAppListResp);
+  // 更新OAuth应用状态
+  rpc UpdateOauthAppStatus(UpdateOauthAppStatusReq) returns (google.protobuf.Empty);
+  // 根据clientID获取oauth app信息
+  rpc GetOauthApp(GetOauthAppReq) returns (OauthApp);
 }
 
 message Perm {
@@ -488,4 +502,51 @@ message ResetPasswordByEmailReq{
   string email = 1;
   string password = 2;
   string code = 3;
+}
+
+// --- oauth ---
+message CreateOauthAppReq{
+  string userId = 1;
+  string name = 2;
+  string desc = 3;
+  string redirectUri = 4;
+}
+
+message DeleteOauthAppReq{
+  string clientId = 1;
+}
+
+message UpdateOauthAppReq{
+  string clientId = 1;
+  string name = 2;
+  string desc = 3;
+  string redirectUri = 4;
+}
+
+message GetOauthAppListReq{
+  string userId = 1;
+}
+
+message OauthAppListResp{
+  repeated OauthApp apps = 1;
+}
+
+message OauthApp{
+  string clientId = 1;
+  string name = 2;
+  string desc = 3;
+  string redirectUri = 4;
+  string clientSecret = 5;
+  bool status = 6;
+  int64 createdAt = 7;
+  int64 updatedAt = 8;
+}
+
+message UpdateOauthAppStatusReq{
+  string clientId = 1;
+  bool status = 2;
+}
+
+message GetOauthAppReq{
+  string clientId = 1;
 }

@@ -157,10 +157,16 @@
 {"code":0,"key":"iam_user_deleted","langs":{"en":"the user has been deleted","zh":"用户已被删除"}}
 {"code":120002,"key":"iam_login_captcha","langs":{"en":"refresh captcha err:  %v","zh":"刷新验证码错误: %v"}}
 {"code":120021,"key":"iam_role_create","langs":{"en":"create role err: %v","zh":"创建角色错误: %v"}}
-{"code":120031,"key":"iam_user_overview","langs":{"en":"get user over view err: %v","zh":"获取用户总览错误:%v"}}
-{"code":120031,"key":"iam_user_trend","langs":{"en":"get user trend err: %v","zh":"获取用户趋势统计错误:%v"}}
+{"code":120031,"key":"iam_user_overview","langs":{"en":"get user over view err: %v","zh":"获取用户总览错误: %v"}}
+{"code":120031,"key":"iam_user_trend","langs":{"en":"get user trend err: %v","zh":"获取用户趋势统计错误: %v"}}
 {"code":120031,"key":"iam_user_email","langs":{"en":"email has not been registered","zh":"邮箱未注册"}}
-{"code":120031,"key":"iam_user_email_code","langs":{"en":"email register send code err: %v","zh":"邮箱发送验证码错误：%v"}}
+{"code":120031,"key":"iam_user_email_code","langs":{"en":"email register send code err: %v","zh":"邮箱发送验证码错误: %v"}}
+{"code":120041,"key":"oauth_app_create","langs":{"zh":"创建oauth应用错误: %v"}}
+{"code":120041,"key":"oauth_app_delete","langs":{"zh":"删除oauth应用(%v)错误: %v"}}
+{"code":120041,"key":"oauth_app_update","langs":{"zh":"更改oauth应用(%v)错误: %v"}}
+{"code":120041,"key":"oauth_app_list","langs":{"zh":"获取oauth应用列表错误: %v"}}
+{"code":120041,"key":"oauth_app_status_update","langs":{"zh":"更改oauth应用(%v)状态错误: %v"}}
+{"code":120041,"key":"oauth_app_get","langs":{"zh":"获取oauth应用(%v)错误: %v"}}
 {"code":0,"key":"","langs":{}}
 {"code":250001,"key":"model_create_err","langs":{"zh":"模型导入异常:%v"}}
 {"code":250001,"key":"model_validate_err","langs":{"zh":"未找到目前模型的协议类型"}}

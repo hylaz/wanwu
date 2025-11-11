@@ -7,6 +7,26 @@
     },
     "basePath": "/openapi/v1",
     "paths": {
+        "/.well-known/openid-configuration": {
+            "get": {
+                "description": "自动获取 OP 的配置信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OIDC"
+                ],
+                "summary": "动态客户端发现配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OauthConfig"
+                        }
+                    }
+                }
+            }
+        },
         "/agent/chat": {
             "post": {
                 "description": "智能体对话OpenAPI",
@@ -189,6 +209,100 @@
                 }
             }
         },
+        "/oauth/code/token": {
+            "post": {
+                "description": "授权码方式-获取Token",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OIDC"
+                ],
+                "summary": "授权码方式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "授权类型",
+                        "name": "grant_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "授权码",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "回调地址",
+                        "name": "redirect_uri",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "备案密钥",
+                        "name": "client_secret",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TokenResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/code/token/refresh": {
+            "post": {
+                "description": "刷新令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OIDC"
+                ],
+                "summary": "刷新令牌",
+                "parameters": [
+                    {
+                        "description": "RefreshToken",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RefreshRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RefreshTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/rag/chat": {
             "post": {
                 "description": "文本问答OpenAPI",
@@ -332,6 +446,68 @@
                 }
             }
         },
+        "request.RefreshRequest": {
+            "type": "object",
+            "required": [
+                "grant_type"
+            ],
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "client_secret": {
+                    "type": "string"
+                },
+                "grant_type": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OauthConfig": {
+            "type": "object",
+            "properties": {
+                "authorization_endpoint": {
+                    "description": "获取授权码接口",
+                    "type": "string"
+                },
+                "id_token_signing_alg_values_supported": {
+                    "description": "jwt签名算法",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "issuer": {
+                    "description": "auth的base url",
+                    "type": "string"
+                },
+                "jwks_uri": {
+                    "description": "获取jwt公钥",
+                    "type": "string"
+                },
+                "response_types_supported": {
+                    "description": "授权模式，默认code",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subject_types_supported": {
+                    "description": "用户标识类型，即 ID Token中的sub是如何生成的。",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "token_endpoint": {
+                    "description": "获取token接口",
+                    "type": "string"
+                }
+            }
+        },
         "response.OpenAIChatHistory": {
             "type": "object",
             "properties": {
@@ -465,6 +641,23 @@
                 }
             }
         },
+        "response.RefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "访问令牌",
+                    "type": "string"
+                },
+                "expires_at": {
+                    "description": "token过期时间(毫秒时间戳)",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "刷新令牌(可选)",
+                    "type": "string"
+                }
+            }
+        },
         "response.Response": {
             "type": "object",
             "properties": {
@@ -473,6 +666,31 @@
                 },
                 "data": {},
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "访问令牌",
+                    "type": "string"
+                },
+                "expires_in": {
+                    "description": "token过期时间(毫秒时间戳)",
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "description": "刷新令牌",
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "权限范围",
+                    "type": "string"
+                },
+                "token_type": {
+                    "description": "令牌类型(bearer)",
                     "type": "string"
                 }
             }

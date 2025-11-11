@@ -26,6 +26,49 @@ definitions:
     required:
     - query
     type: object
+  request.RefreshRequest:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      grant_type:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - grant_type
+    type: object
+  response.OauthConfig:
+    properties:
+      authorization_endpoint:
+        description: 获取授权码接口
+        type: string
+      id_token_signing_alg_values_supported:
+        description: jwt签名算法
+        items:
+          type: string
+        type: array
+      issuer:
+        description: auth的base url
+        type: string
+      jwks_uri:
+        description: 获取jwt公钥
+        type: string
+      response_types_supported:
+        description: 授权模式，默认code
+        items:
+          type: string
+        type: array
+      subject_types_supported:
+        description: 用户标识类型，即 ID Token中的sub是如何生成的。
+        items:
+          type: string
+        type: array
+      token_endpoint:
+        description: 获取token接口
+        type: string
+    type: object
   response.OpenAIChatHistory:
     properties:
       query:
@@ -112,6 +155,18 @@ definitions:
       msg_id:
         type: string
     type: object
+  response.RefreshTokenResponse:
+    properties:
+      access_token:
+        description: 访问令牌
+        type: string
+      expires_at:
+        description: token过期时间(毫秒时间戳)
+        type: string
+      refresh_token:
+        description: 刷新令牌(可选)
+        type: string
+    type: object
   response.Response:
     properties:
       code:
@@ -120,11 +175,42 @@ definitions:
       msg:
         type: string
     type: object
+  response.TokenResponse:
+    properties:
+      access_token:
+        description: 访问令牌
+        type: string
+      expires_in:
+        description: token过期时间(毫秒时间戳)
+        type: integer
+      refresh_token:
+        description: 刷新令牌
+        type: string
+      scope:
+        description: 权限范围
+        type: string
+      token_type:
+        description: 令牌类型(bearer)
+        type: string
+    type: object
 info:
   contact: {}
   title: AI Agent Productivity Platform - Open API
   version: v0.0.1
 paths:
+  /.well-known/openid-configuration:
+    get:
+      description: 自动获取 OP 的配置信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OauthConfig'
+      summary: 动态客户端发现配置
+      tags:
+      - OIDC
   /agent/chat:
     post:
       consumes:
@@ -241,6 +327,69 @@ paths:
       summary: 获取MCPServer streamable 类型消息
       tags:
       - openapi
+  /oauth/code/token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 授权码方式-获取Token
+      parameters:
+      - description: 授权类型
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      - description: 授权码
+        in: formData
+        name: code
+        required: true
+        type: string
+      - description: Client ID
+        in: formData
+        name: client_id
+        required: true
+        type: string
+      - description: 回调地址
+        in: formData
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 备案密钥
+        in: formData
+        name: client_secret
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TokenResponse'
+      summary: 授权码方式
+      tags:
+      - OIDC
+  /oauth/code/token/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 刷新令牌
+      parameters:
+      - description: RefreshToken
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RefreshTokenResponse'
+      summary: 刷新令牌
+      tags:
+      - OIDC
   /rag/chat:
     post:
       consumes:

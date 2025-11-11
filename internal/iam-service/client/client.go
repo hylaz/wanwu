@@ -92,4 +92,13 @@ type IClient interface {
 
 	ResetPasswordSendEmailCode(ctx context.Context, email string) *errs.Status
 	ResetPasswordByEmail(ctx context.Context, email, password, code string) *errs.Status
+
+	// --- oauth app ---
+
+	CreateOauthApp(ctx context.Context, req *model.OauthApp) *errs.Status
+	DeleteOauthApp(ctx context.Context, clientID string) *errs.Status
+	UpdateOauthApp(ctx context.Context, req *model.OauthApp) *errs.Status
+	GetOauthAppList(ctx context.Context, userID uint32) ([]*orm.OauthAppInfo, *errs.Status)
+	UpdateOauthAppStatus(ctx context.Context, clientID string, status bool) *errs.Status
+	GetOauthApp(ctx context.Context, clientID string) (*orm.OauthAppInfo, *errs.Status)
 }

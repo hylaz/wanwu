@@ -123,3 +123,9 @@ func WithOrgUserEnable() SQLOption {
 		return db.Where("status != ? OR status IS NULL", OrgUserStatusDisabled)
 	})
 }
+
+func WithClientID(clientID string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("client_id = ?", clientID)
+	})
+}

@@ -1506,6 +1506,18 @@ definitions:
     required:
     - tagName
     type: object
+  request.CreateOauthAppReq:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      redirectUri:
+        type: string
+    required:
+    - name
+    - redirectUri
+    type: object
   request.CreatePromptByTemplateReq:
     properties:
       avatar:
@@ -1804,6 +1816,13 @@ definitions:
         type: string
     required:
     - modelId
+    type: object
+  request.DeleteOauthAppReq:
+    properties:
+      clientId:
+        type: string
+    required:
+    - clientId
     type: object
   request.DeleteSensitiveVocabularyReq:
     properties:
@@ -2862,6 +2881,31 @@ definitions:
     required:
     - docIdList
     - knowledgeId
+    type: object
+  request.UpdateOauthAppReq:
+    properties:
+      clientId:
+        type: string
+      desc:
+        type: string
+      name:
+        type: string
+      redirectUri:
+        type: string
+    required:
+    - clientId
+    - name
+    - redirectUri
+    type: object
+  request.UpdateOauthAppStatusReq:
+    properties:
+      clientId:
+        type: string
+      status:
+        description: 启停状态
+        type: boolean
+    required:
+    - clientId
     type: object
   request.UpdateSensitiveWordTableReplyReq:
     properties:
@@ -4647,6 +4691,27 @@ definitions:
     - model
     - modelType
     - provider
+    type: object
+  response.OauthAppInfo:
+    properties:
+      clientId:
+        description: 客户端ID
+        type: string
+      clientSecret:
+        description: 客户端密钥
+        type: string
+      desc:
+        description: 应用描述
+        type: string
+      name:
+        description: 应用名称
+        type: string
+      redirectUri:
+        description: oauth重定向地址
+        type: string
+      status:
+        description: oauth应用开关
+        type: boolean
     type: object
   response.OrgID:
     properties:
@@ -9394,6 +9459,169 @@ paths:
       summary: 模型启用/关闭
       tags:
       - model
+  /oauth/app:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的OAuth应用
+      parameters:
+      - description: OAuth应用ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除OAuth应用
+      tags:
+      - oauth
+    post:
+      consumes:
+      - application/json
+      description: 创建新的OAuth应用
+      parameters:
+      - description: OAuth应用创建请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 创建OAuth应用
+      tags:
+      - oauth
+    put:
+      consumes:
+      - application/json
+      description: 更新OAuth应用信息
+      parameters:
+      - description: OAuth应用更新请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新OAuth应用
+      tags:
+      - oauth
+  /oauth/app/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取OAuth应用分页列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.OauthAppInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取OAuth应用列表
+      tags:
+      - oauth
+  /oauth/app/status:
+    put:
+      consumes:
+      - application/json
+      description: 启用或禁用OAuth应用
+      parameters:
+      - description: OAuth应用状态更新请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOauthAppStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新OAuth应用状态
+      tags:
+      - oauth
+  /oauth/code/authorize:
+    get:
+      consumes:
+      - application/json
+      description: 授权码方式-获取授权码
+      parameters:
+      - description: 备案ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: 重定向URI
+        in: query
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 响应类型
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: 权限范围
+        in: query
+        name: scope
+        type: string
+      - description: 状态参数
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: 重定向到指定URI
+          schema:
+            type: string
+      summary: 授权码方式
+      tags:
+      - oauth
   /org:
     delete:
       consumes:

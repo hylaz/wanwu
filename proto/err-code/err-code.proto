@@ -29,6 +29,7 @@ enum Code {
   IAMOrg = 120011; // 组织相关错误
   IAMRole = 120021; // 角色相关错误
   IAMUser = 120031; // 用户相关错误
+  IAMOauth = 120041; // OAuth相关错误
 
   // --- perm-service ---
   // [130000, 139999]

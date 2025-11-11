@@ -32,6 +32,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.OrgUser{},
 		model.OrgRole{},
 		model.Captcha{},
+		model.OauthApp{},
 	); err != nil {
 		return nil, err
 	}
@@ -118,6 +119,17 @@ type EmailLoginInfo struct {
 	ID                   uint32
 	IsEmailCheck         bool
 	LastUpdatePasswordAt int64
+}
+
+type OauthAppInfo struct {
+	Name         string
+	Description  string
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
+	Status       bool
+	CreatedAt    int64
+	UpdatedAt    int64
 }
 
 func toErrStatus(key string, args ...string) *err_code.Status {

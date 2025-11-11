@@ -61,6 +61,12 @@ const (
 	IAMService_RegisterSendEmailCode_FullMethodName       = "/iam_service.IAMService/RegisterSendEmailCode"
 	IAMService_ResetPasswordSendEmailCode_FullMethodName  = "/iam_service.IAMService/ResetPasswordSendEmailCode"
 	IAMService_ResetPasswordByEmail_FullMethodName        = "/iam_service.IAMService/ResetPasswordByEmail"
+	IAMService_CreateOauthApp_FullMethodName              = "/iam_service.IAMService/CreateOauthApp"
+	IAMService_DeleteOauthApp_FullMethodName              = "/iam_service.IAMService/DeleteOauthApp"
+	IAMService_UpdateOauthApp_FullMethodName              = "/iam_service.IAMService/UpdateOauthApp"
+	IAMService_GetOauthAppList_FullMethodName             = "/iam_service.IAMService/GetOauthAppList"
+	IAMService_UpdateOauthAppStatus_FullMethodName        = "/iam_service.IAMService/UpdateOauthAppStatus"
+	IAMService_GetOauthApp_FullMethodName                 = "/iam_service.IAMService/GetOauthApp"
 )
 
 // IAMServiceClient is the client API for IAMService service.
@@ -151,6 +157,19 @@ type IAMServiceClient interface {
 	ResetPasswordSendEmailCode(ctx context.Context, in *ResetPasswordSendEmailCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 邮箱重置密码
 	ResetPasswordByEmail(ctx context.Context, in *ResetPasswordByEmailReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- oauth ---
+	// 创建OAuth应用
+	CreateOauthApp(ctx context.Context, in *CreateOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除OAuth应用
+	DeleteOauthApp(ctx context.Context, in *DeleteOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新OAuth应用
+	UpdateOauthApp(ctx context.Context, in *UpdateOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取OAuth应用列表
+	GetOauthAppList(ctx context.Context, in *GetOauthAppListReq, opts ...grpc.CallOption) (*OauthAppListResp, error)
+	// 更新OAuth应用状态
+	UpdateOauthAppStatus(ctx context.Context, in *UpdateOauthAppStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 根据clientID获取oauth app信息
+	GetOauthApp(ctx context.Context, in *GetOauthAppReq, opts ...grpc.CallOption) (*OauthApp, error)
 }
 
 type iAMServiceClient struct {
@@ -571,6 +590,66 @@ func (c *iAMServiceClient) ResetPasswordByEmail(ctx context.Context, in *ResetPa
 	return out, nil
 }
 
+func (c *iAMServiceClient) CreateOauthApp(ctx context.Context, in *CreateOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, IAMService_CreateOauthApp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) DeleteOauthApp(ctx context.Context, in *DeleteOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, IAMService_DeleteOauthApp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) UpdateOauthApp(ctx context.Context, in *UpdateOauthAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, IAMService_UpdateOauthApp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetOauthAppList(ctx context.Context, in *GetOauthAppListReq, opts ...grpc.CallOption) (*OauthAppListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OauthAppListResp)
+	err := c.cc.Invoke(ctx, IAMService_GetOauthAppList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) UpdateOauthAppStatus(ctx context.Context, in *UpdateOauthAppStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, IAMService_UpdateOauthAppStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetOauthApp(ctx context.Context, in *GetOauthAppReq, opts ...grpc.CallOption) (*OauthApp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OauthApp)
+	err := c.cc.Invoke(ctx, IAMService_GetOauthApp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IAMServiceServer is the server API for IAMService service.
 // All implementations must embed UnimplementedIAMServiceServer
 // for forward compatibility.
@@ -659,6 +738,19 @@ type IAMServiceServer interface {
 	ResetPasswordSendEmailCode(context.Context, *ResetPasswordSendEmailCodeReq) (*emptypb.Empty, error)
 	// 邮箱重置密码
 	ResetPasswordByEmail(context.Context, *ResetPasswordByEmailReq) (*emptypb.Empty, error)
+	// --- oauth ---
+	// 创建OAuth应用
+	CreateOauthApp(context.Context, *CreateOauthAppReq) (*emptypb.Empty, error)
+	// 删除OAuth应用
+	DeleteOauthApp(context.Context, *DeleteOauthAppReq) (*emptypb.Empty, error)
+	// 更新OAuth应用
+	UpdateOauthApp(context.Context, *UpdateOauthAppReq) (*emptypb.Empty, error)
+	// 获取OAuth应用列表
+	GetOauthAppList(context.Context, *GetOauthAppListReq) (*OauthAppListResp, error)
+	// 更新OAuth应用状态
+	UpdateOauthAppStatus(context.Context, *UpdateOauthAppStatusReq) (*emptypb.Empty, error)
+	// 根据clientID获取oauth app信息
+	GetOauthApp(context.Context, *GetOauthAppReq) (*OauthApp, error)
 	mustEmbedUnimplementedIAMServiceServer()
 }
 
@@ -791,6 +883,24 @@ func (UnimplementedIAMServiceServer) ResetPasswordSendEmailCode(context.Context,
 }
 func (UnimplementedIAMServiceServer) ResetPasswordByEmail(context.Context, *ResetPasswordByEmailReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResetPasswordByEmail not implemented")
+}
+func (UnimplementedIAMServiceServer) CreateOauthApp(context.Context, *CreateOauthAppReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOauthApp not implemented")
+}
+func (UnimplementedIAMServiceServer) DeleteOauthApp(context.Context, *DeleteOauthAppReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOauthApp not implemented")
+}
+func (UnimplementedIAMServiceServer) UpdateOauthApp(context.Context, *UpdateOauthAppReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOauthApp not implemented")
+}
+func (UnimplementedIAMServiceServer) GetOauthAppList(context.Context, *GetOauthAppListReq) (*OauthAppListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOauthAppList not implemented")
+}
+func (UnimplementedIAMServiceServer) UpdateOauthAppStatus(context.Context, *UpdateOauthAppStatusReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOauthAppStatus not implemented")
+}
+func (UnimplementedIAMServiceServer) GetOauthApp(context.Context, *GetOauthAppReq) (*OauthApp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOauthApp not implemented")
 }
 func (UnimplementedIAMServiceServer) mustEmbedUnimplementedIAMServiceServer() {}
 func (UnimplementedIAMServiceServer) testEmbeddedByValue()                    {}
@@ -1551,6 +1661,114 @@ func _IAMService_ResetPasswordByEmail_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IAMService_CreateOauthApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOauthAppReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).CreateOauthApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_CreateOauthApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).CreateOauthApp(ctx, req.(*CreateOauthAppReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_DeleteOauthApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOauthAppReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).DeleteOauthApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_DeleteOauthApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).DeleteOauthApp(ctx, req.(*DeleteOauthAppReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_UpdateOauthApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOauthAppReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).UpdateOauthApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_UpdateOauthApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).UpdateOauthApp(ctx, req.(*UpdateOauthAppReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetOauthAppList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOauthAppListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetOauthAppList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetOauthAppList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetOauthAppList(ctx, req.(*GetOauthAppListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_UpdateOauthAppStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOauthAppStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).UpdateOauthAppStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_UpdateOauthAppStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).UpdateOauthAppStatus(ctx, req.(*UpdateOauthAppStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetOauthApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOauthAppReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetOauthApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetOauthApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetOauthApp(ctx, req.(*GetOauthAppReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IAMService_ServiceDesc is the grpc.ServiceDesc for IAMService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1721,6 +1939,30 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResetPasswordByEmail",
 			Handler:    _IAMService_ResetPasswordByEmail_Handler,
+		},
+		{
+			MethodName: "CreateOauthApp",
+			Handler:    _IAMService_CreateOauthApp_Handler,
+		},
+		{
+			MethodName: "DeleteOauthApp",
+			Handler:    _IAMService_DeleteOauthApp_Handler,
+		},
+		{
+			MethodName: "UpdateOauthApp",
+			Handler:    _IAMService_UpdateOauthApp_Handler,
+		},
+		{
+			MethodName: "GetOauthAppList",
+			Handler:    _IAMService_GetOauthAppList_Handler,
+		},
+		{
+			MethodName: "UpdateOauthAppStatus",
+			Handler:    _IAMService_UpdateOauthAppStatus_Handler,
+		},
+		{
+			MethodName: "GetOauthApp",
+			Handler:    _IAMService_GetOauthApp_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
