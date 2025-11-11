@@ -219,6 +219,14 @@ func UpdateKnowledgeGraph(tx *gorm.DB, knowledgeId string, knowledgeGraph string
 	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Updates(updateParams).Error
 }
 
+// UpdateKnowledgeReportStatus 更新社区报告状态
+func UpdateKnowledgeReportStatus(ctx context.Context, knowledgeId string, reportStatus int) error {
+	var updateParams = map[string]interface{}{
+		"report_status": model.ReportStatus(reportStatus),
+	}
+	return db.GetHandle(ctx).Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Updates(updateParams).Error
+}
+
 // DeleteKnowledge 删除知识库
 func DeleteKnowledge(ctx context.Context, knowledgeBase *model.KnowledgeBase) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
@@ -259,6 +267,31 @@ func DeleteKnowledgeFileInfo(tx *gorm.DB, knowledgeId string, resultList []*mode
 	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
 		Update("doc_size", gorm.Expr("doc_size - ?", docSize)).
 		Update("doc_count", gorm.Expr("doc_count - ?", len(resultList))).Error
+}
+
+// CreateKnowledgeReport 创建知识库社区报告
+func CreateKnowledgeReport(ctx context.Context, knowledgeId string) error {
+	knowledge, err := SelectKnowledgeById(ctx, knowledgeId, "", "")
+	if err != nil {
+		return err
+	}
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		//1.更新生成条数
+		err := tx.Model(&model.KnowledgeBase{}).Where("knowledge_id=?", knowledgeId).Update("report_create_count", gorm.Expr("report_create_count + ?", 1)).Error
+		if err != nil {
+			return err
+		}
+		//构造知识库图谱
+		knowledgeGraph := BuildKnowledgeGraph(knowledge.KnowledgeGraph)
+		//2.通知rag生成社区报告
+		return service.RagCreateKnowledgeReport(ctx, &service.RagImportDocParams{
+			KnowledgeName:        knowledge.RagName,
+			CategoryId:           knowledge.KnowledgeId,
+			UserId:               knowledge.UserId,
+			KnowledgeGraphSwitch: knowledgeGraph.KnowledgeGraphSwitch,
+			GraphModelId:         knowledgeGraph.GraphModelId,
+		})
+	})
 }
 
 func createKnowledge(tx *gorm.DB, knowledge *model.KnowledgeBase) error {

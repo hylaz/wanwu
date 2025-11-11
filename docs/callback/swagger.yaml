@@ -1537,6 +1537,28 @@ paths:
       summary: 更新文档状态（模型扩展调用）
       tags:
       - callback
+  /api/knowledge/status:
+    post:
+      consumes:
+      - application/json
+      description: 更新知识库状态
+      parameters:
+      - description: 更新知识库状态请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CallbackUpdateDocStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 更新知识库状态
+      tags:
+      - callback
   /model/{modelId}:
     get:
       consumes:

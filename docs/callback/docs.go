@@ -129,6 +129,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/knowledge/status": {
+            "post": {
+                "description": "更新知识库状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "更新知识库状态",
+                "parameters": [
+                    {
+                        "description": "更新知识库状态请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CallbackUpdateDocStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/model/{modelId}": {
             "get": {
                 "consumes": [

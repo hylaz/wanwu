@@ -190,6 +190,25 @@ func UpdateDocStatus(ctx *gin.Context) {
 	gin_util.Response(ctx, nil, err)
 }
 
+// UpdateKnowledgeStatus
+//
+//	@Tags			callback
+//	@Summary		更新知识库状态
+//	@Description	更新知识库状态
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.CallbackUpdateDocStatusReq	true	"更新知识库状态请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/api/knowledge/status [post]
+func UpdateKnowledgeStatus(ctx *gin.Context) {
+	var req request.CallbackUpdateKnowledgeStatusReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.UpdateKnowledgeStatus(ctx, &req)
+	gin_util.Response(ctx, nil, err)
+}
+
 // DocStatusInit
 //
 //	@Tags			callback

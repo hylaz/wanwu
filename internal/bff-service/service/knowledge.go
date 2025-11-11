@@ -205,6 +205,14 @@ func UpdateKnowledgeMetaValue(ctx *gin.Context, userId, orgId string, r *request
 	return nil
 }
 
+func UpdateKnowledgeStatus(ctx *gin.Context, r *request.CallbackUpdateKnowledgeStatusReq) error {
+	_, err := knowledgeBase.UpdateKnowledgeStatus(ctx.Request.Context(), &knowledgebase_service.UpdateKnowledgeStatusReq{
+		KnowledgeId:  r.KnowledgeId,
+		ReportStatus: r.ReportStatus,
+	})
+	return err
+}
+
 func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagKnowledgeInfo {
 	retMap := make(map[string][]*request.RagKnowledgeInfo)
 	for _, knowledge := range knowledgeList.KnowledgeList {

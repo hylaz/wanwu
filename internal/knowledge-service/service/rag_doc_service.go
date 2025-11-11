@@ -21,6 +21,8 @@ const (
 	SplitByDefault  string = "split_by_default"
 	SplitTypeCommon string = "common"
 	SplitTypeParent string = "parent_child"
+
+	RagCommunityReport string = "community_report"
 )
 
 type RagOperationParams struct {
@@ -64,6 +66,7 @@ type RagImportDocParams struct {
 	GraphModelId          string               `json:"graph_model_id"`
 	GraphSchemaObjectName string               `json:"graph_schema_objectname"`
 	GraphSchemaFileName   string               `json:"graph_schema_filename"`
+	MessageType           string               `json:"message_type"`
 }
 
 type RagImportUrlDocParams struct {

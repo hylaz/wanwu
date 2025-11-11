@@ -16,7 +16,7 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	query		request.DocListReq	true	"文档列表查询请求参数"
-//	@Success		200		{object}	response.PageResult{list=[]response.ListDocResp}
+//	@Success		200		{object}	response.Response{data=response.DocPageResult}
 //	@Router			/knowledge/doc/list [get]
 func GetDocList(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)

@@ -241,6 +241,15 @@ func (s *Service) UpdateKnowledgeMetaValue(ctx context.Context, req *knowledgeba
 	return nil, nil
 }
 
+func (s *Service) UpdateKnowledgeStatus(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeStatusReq) (*emptypb.Empty, error) {
+	err := orm.UpdateKnowledgeReportStatus(ctx, req.KnowledgeId, int(req.ReportStatus))
+	if err != nil {
+		log.Errorf("更新知识库状态失败(%v)  参数(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseUpdateFailed)
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func buildDocMetaMap(docMetaList []*model.KnowledgeDocMeta) map[string]map[string][]*model.KnowledgeDocMeta {
 	docMetaMap := make(map[string]map[string][]*model.KnowledgeDocMeta)
 	for _, v := range docMetaList {

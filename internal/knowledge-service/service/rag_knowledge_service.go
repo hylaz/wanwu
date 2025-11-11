@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/mq"
 	"strings"
 	"time"
 
@@ -159,6 +160,16 @@ func RagKnowledgeCreate(ctx context.Context, ragCreateParams *RagCreateParams) e
 		return errors.New(resp.Message)
 	}
 	return nil
+}
+
+// RagCreateKnowledgeReport 创建知识库社区报告
+func RagCreateKnowledgeReport(ctx context.Context, ragImportDocParams *RagImportDocParams) error {
+	ragImportDocParams.MessageType = RagCommunityReport
+	return mq.SendMessage(&RagOperationParams{
+		Operation: "add",
+		Type:      "doc",
+		Doc:       ragImportDocParams,
+	}, config.GetConfig().Kafka.KnowledgeGraphTopic)
 }
 
 // RagKnowledgeUpdate rag更新知识库

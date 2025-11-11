@@ -73,6 +73,13 @@ message GetDocListResp {
   int64 total = 2;
   int32 pageNum = 3;
   int32 pageSize = 4;
+  KnowledgeInfo knowledgeInfo = 5;
+}
+
+message KnowledgeInfo {
+  string knowledgeId = 1;//知识库id
+  string knowledgeName = 2;//知识库名称
+  int32 graphSwitch = 3; //知识库图谱开关
 }
 
 message ImportDocReq {
@@ -206,6 +213,7 @@ message DocInfo{
   string errorMsg = 8;
   string segmentMethod = 9;//分段方式 0：通用分段，1：父子分段
   string userId = 10;
+  int32 graphStatus = 11;//0:待处理，1.解析中，2.解析成功，3.解析失败
 }
 
 message DocSegmentListReq{

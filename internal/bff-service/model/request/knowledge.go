@@ -81,6 +81,12 @@ type CallbackUpdateDocStatusReq struct {
 	CommonCheck
 }
 
+type CallbackUpdateKnowledgeStatusReq struct {
+	KnowledgeId  string `json:"knowledgeId" validate:"required"`
+	ReportStatus int32  `json:"reportStatus" validate:"required"` //此状态不会是0
+	CommonCheck
+}
+
 type CallbackMetaData struct {
 	Key    string `json:"key"`
 	MetaId string `json:"metaId" validate:"required"`

@@ -19,7 +19,7 @@ import (
 )
 
 // GetDocList 查询知识库所属文档列表
-func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (*response.PageResult, error) {
+func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (*response.DocPageResult, error) {
 	resp, err := knowledgeBaseDoc.GetDocList(ctx.Request.Context(), &knowledgebase_doc_service.GetDocListReq{
 		KnowledgeId: r.KnowledgeId,
 		DocName:     r.DocName,
@@ -32,11 +32,17 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 	if err != nil {
 		return nil, err
 	}
-	return &response.PageResult{
+	knowledgeInfo := resp.KnowledgeInfo
+	return &response.DocPageResult{
 		List:     buildDocRespList(ctx, resp.Docs, r.KnowledgeId),
 		Total:    resp.Total,
 		PageNo:   int(resp.PageNum),
 		PageSize: int(resp.PageSize),
+		DocKnowledgeInfo: &response.DocKnowledgeInfo{
+			KnowledgeId:   knowledgeInfo.KnowledgeId,
+			KnowledgeName: knowledgeInfo.KnowledgeName,
+			GraphSwitch:   knowledgeInfo.GraphSwitch,
+		},
 	}, nil
 }
 
@@ -233,6 +239,7 @@ func buildDocRespList(ctx *gin.Context, dataList []*knowledgebase_doc_service.Do
 			KnowledgeId:   knowledgeId,
 			SegmentMethod: data.SegmentMethod,
 			Author:        authorMap[data.UserId],
+			GraphStatus:   data.GraphStatus,
 		})
 	}
 	return retList

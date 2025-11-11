@@ -31,6 +31,8 @@ service KnowledgeBaseService {
   rpc GetKnowledgeMetaValueList(KnowledgeMetaValueListReq) returns (KnowledgeMetaValueListResp) {}
   // 更新知识库元数据值列表
   rpc UpdateKnowledgeMetaValue(UpdateKnowledgeMetaValueReq) returns (google.protobuf.Empty) {}
+  // 修改知识库状态
+  rpc UpdateKnowledgeStatus(UpdateKnowledgeStatusReq) returns (google.protobuf.Empty) {}
 }
 
 message DeleteKnowledgeReq{
@@ -45,6 +47,11 @@ message UpdateKnowledgeReq{
   string description = 3;
   string userId = 4;
   string orgId = 5;
+}
+
+message UpdateKnowledgeStatusReq{
+  string knowledgeId = 1;
+  int32 reportStatus = 2;
 }
 
 message KnowledgeHitReq{

@@ -41,6 +41,12 @@ const (
 )
 
 func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service.GetDocListReq) (*knowledgebase_doc_service.GetDocListResp, error) {
+	//查询知识库信息
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("没有操作该知识库的权限 错误(%v) 参数(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
+	}
 	//入口层已经校验过用户权限，此处无需校验
 	list, total, err := orm.GetDocList(ctx, "", "", req.KnowledgeId,
 		req.DocName, req.DocTag, util.BuildDocReqStatusList(int(req.Status)), req.PageSize, req.PageNum)
@@ -57,7 +63,7 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 		}
 	}
 
-	return buildDocListResp(list, importTaskList, total, req.PageSize, req.PageNum), nil
+	return buildDocListResp(list, importTaskList, knowledge, total, req.PageSize, req.PageNum), nil
 }
 
 func (s *Service) GetDocDetail(ctx context.Context, req *knowledgebase_doc_service.GetDocDetailReq) (*knowledgebase_doc_service.DocInfo, error) {
@@ -621,7 +627,7 @@ func checkDocStatus(docList []*model.KnowledgeDoc) ([]uint32, []*model.Knowledge
 }
 
 // buildDocListResp 构造知识库文档列表
-func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.KnowledgeImportTask, total int64, pageSize int32, pageNum int32) *knowledgebase_doc_service.GetDocListResp {
+func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.KnowledgeImportTask, knowledge *model.KnowledgeBase, total int64, pageSize int32, pageNum int32) *knowledgebase_doc_service.GetDocListResp {
 	segmentConfigMap := buildSegmentConfigMap(importTaskList)
 	var retList = make([]*knowledgebase_doc_service.DocInfo, 0)
 	if len(list) > 0 {
@@ -634,6 +640,11 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 		Docs:     retList,
 		PageSize: pageSize,
 		PageNum:  pageNum,
+		KnowledgeInfo: &knowledgebase_doc_service.KnowledgeInfo{
+			KnowledgeId:   knowledge.KnowledgeId,
+			KnowledgeName: knowledge.Name,
+			GraphSwitch:   int32(knowledge.KnowledgeGraphSwitch),
+		},
 	}
 }
 
@@ -649,6 +660,7 @@ func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.S
 		ErrorMsg:      item.ErrorMsg,
 		SegmentMethod: buildSegmentMethod(item, segmentConfigMap),
 		UserId:        item.UserId,
+		GraphStatus:   int32(model.BuildGraphShowStatus(item.GraphStatus)),
 	}
 }
 

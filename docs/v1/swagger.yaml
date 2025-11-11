@@ -3795,6 +3795,15 @@ definitions:
           $ref: '#/definitions/response.ChildSegmentInfo'
         type: array
     type: object
+  response.DocKnowledgeInfo:
+    properties:
+      graphSwitch:
+        type: integer
+      knowledgeId:
+        type: string
+      knowledgeName:
+        type: string
+    type: object
   response.DocMenu:
     properties:
       children:
@@ -3832,6 +3841,21 @@ definitions:
       metaValueType:
         description: number，time, string
         type: string
+    type: object
+  response.DocPageResult:
+    properties:
+      docKnowledgeInfo:
+        $ref: '#/definitions/response.DocKnowledgeInfo'
+      list:
+        items:
+          $ref: '#/definitions/response.ListDocResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
     type: object
   response.DocSearchContent:
     properties:
@@ -4223,6 +4247,9 @@ definitions:
       fileSize:
         description: 文件大小，预留
         type: string
+      graphStatus:
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        type: integer
       knowledgeId:
         description: 知识库id
         type: string
@@ -7468,12 +7495,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.PageResult'
+            - $ref: '#/definitions/response.Response'
             - properties:
-                list:
-                  items:
-                    $ref: '#/definitions/response.ListDocResp'
-                  type: array
+                data:
+                  $ref: '#/definitions/response.DocPageResult'
               type: object
       security:
       - JWT: []

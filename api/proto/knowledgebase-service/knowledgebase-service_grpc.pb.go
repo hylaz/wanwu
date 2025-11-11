@@ -32,6 +32,7 @@ const (
 	KnowledgeBaseService_GetKnowledgeMetaSelect_FullMethodName        = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaSelect"
 	KnowledgeBaseService_GetKnowledgeMetaValueList_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaValueList"
 	KnowledgeBaseService_UpdateKnowledgeMetaValue_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeMetaValue"
+	KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName         = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeStatus"
 )
 
 // KnowledgeBaseServiceClient is the client API for KnowledgeBaseService service.
@@ -62,6 +63,8 @@ type KnowledgeBaseServiceClient interface {
 	GetKnowledgeMetaValueList(ctx context.Context, in *KnowledgeMetaValueListReq, opts ...grpc.CallOption) (*KnowledgeMetaValueListResp, error)
 	// 更新知识库元数据值列表
 	UpdateKnowledgeMetaValue(ctx context.Context, in *UpdateKnowledgeMetaValueReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 修改知识库状态
+	UpdateKnowledgeStatus(ctx context.Context, in *UpdateKnowledgeStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type knowledgeBaseServiceClient struct {
@@ -192,6 +195,16 @@ func (c *knowledgeBaseServiceClient) UpdateKnowledgeMetaValue(ctx context.Contex
 	return out, nil
 }
 
+func (c *knowledgeBaseServiceClient) UpdateKnowledgeStatus(ctx context.Context, in *UpdateKnowledgeStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseServiceServer is the server API for KnowledgeBaseService service.
 // All implementations must embed UnimplementedKnowledgeBaseServiceServer
 // for forward compatibility.
@@ -220,6 +233,8 @@ type KnowledgeBaseServiceServer interface {
 	GetKnowledgeMetaValueList(context.Context, *KnowledgeMetaValueListReq) (*KnowledgeMetaValueListResp, error)
 	// 更新知识库元数据值列表
 	UpdateKnowledgeMetaValue(context.Context, *UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error)
+	// 修改知识库状态
+	UpdateKnowledgeStatus(context.Context, *UpdateKnowledgeStatusReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedKnowledgeBaseServiceServer()
 }
 
@@ -265,6 +280,9 @@ func (UnimplementedKnowledgeBaseServiceServer) GetKnowledgeMetaValueList(context
 }
 func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeMetaValue(context.Context, *UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateKnowledgeMetaValue not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeStatus(context.Context, *UpdateKnowledgeStatusReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateKnowledgeStatus not implemented")
 }
 func (UnimplementedKnowledgeBaseServiceServer) mustEmbedUnimplementedKnowledgeBaseServiceServer() {}
 func (UnimplementedKnowledgeBaseServiceServer) testEmbeddedByValue()                              {}
@@ -503,6 +521,24 @@ func _KnowledgeBaseService_UpdateKnowledgeMetaValue_Handler(srv interface{}, ctx
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseService_UpdateKnowledgeStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateKnowledgeStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeStatus(ctx, req.(*UpdateKnowledgeStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -557,6 +593,10 @@ var KnowledgeBaseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateKnowledgeMetaValue",
 			Handler:    _KnowledgeBaseService_UpdateKnowledgeMetaValue_Handler,
+		},
+		{
+			MethodName: "UpdateKnowledgeStatus",
+			Handler:    _KnowledgeBaseService_UpdateKnowledgeStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

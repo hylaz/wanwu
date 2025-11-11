@@ -3595,16 +3595,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.PageResult"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "list": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/response.ListDocResp"
-                                            }
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocPageResult"
                                         }
                                     }
                                 }
@@ -15793,6 +15790,20 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DocKnowledgeInfo": {
+            "type": "object",
+            "properties": {
+                "graphSwitch": {
+                    "type": "integer"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "knowledgeName": {
+                    "type": "string"
+                }
+            }
+        },
         "response.DocMenu": {
             "type": "object",
             "properties": {
@@ -15843,6 +15854,29 @@ const docTemplate = `{
                 "metaValueType": {
                     "description": "number，time, string",
                     "type": "string"
+                }
+            }
+        },
+        "response.DocPageResult": {
+            "type": "object",
+            "properties": {
+                "docKnowledgeInfo": {
+                    "$ref": "#/definitions/response.DocKnowledgeInfo"
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ListDocResp"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -16420,6 +16454,10 @@ const docTemplate = `{
                 "fileSize": {
                     "description": "文件大小，预留",
                     "type": "string"
+                },
+                "graphStatus": {
+                    "description": "图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败",
+                    "type": "integer"
                 },
                 "knowledgeId": {
                     "description": "知识库id",

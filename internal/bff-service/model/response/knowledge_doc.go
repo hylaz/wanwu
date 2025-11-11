@@ -1,5 +1,19 @@
 package response
 
+type DocPageResult struct {
+	List             []*ListDocResp    `json:"list"`
+	Total            int64             `json:"total"`
+	PageNo           int               `json:"pageNo"`
+	PageSize         int               `json:"pageSize"`
+	DocKnowledgeInfo *DocKnowledgeInfo `json:"docKnowledgeInfo"`
+}
+
+type DocKnowledgeInfo struct {
+	KnowledgeId   string `json:"knowledgeId"`
+	KnowledgeName string `json:"knowledgeName"`
+	GraphSwitch   int32  `json:"graphSwitch"`
+}
+
 type ListDocResp struct {
 	DocId         string `json:"docId"`
 	DocName       string `json:"docName"`       //文档名称
@@ -11,6 +25,7 @@ type ListDocResp struct {
 	FileSize      string `json:"fileSize"`      //文件大小，预留
 	SegmentMethod string `json:"segmentMethod"` //分段模式 0:通用分段，1：父子分段
 	Author        string `json:"author"`        // 上传文档 作者
+	GraphStatus   int32  `json:"graphStatus"`   //图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
 }
 
 type DocImportTipResp struct {

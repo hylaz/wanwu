@@ -520,11 +520,6 @@ func buildUpdateParams(status int) (map[string]interface{}, bool) {
 			"graph_status": model.GraphStatus(status),
 		}, false
 	}
-	if model.InReportStatus(status) { //社区报告状态
-		return map[string]interface{}{
-			"report_status": model.ReportStatus(status),
-		}, false
-	}
 	//更新文档状态
 	return map[string]interface{}{
 		"status":    status,
