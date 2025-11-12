@@ -2151,8 +2151,6 @@ def get_uk_kb_id(userId, kb_name):
                 "must": [
                     {"term": {"userId": userId}},
                     {"term": {"kb_name": kb_name}},
-                    # {"match": {"userId": userId}},
-                    # {"match": {"kb_name": kb_name}},
                 ]
             }
         }
@@ -2191,10 +2189,10 @@ def get_uk_kb_emb_model_id(userId, kb_name):
     return embedding_model_id
 
 
-def get_uk_kb_enable_graph(userId, kb_name):
-    """ 获取知识库映射的graph  """
-    enable_knowledge_graph = False
-    logger.info(f"userId:{userId},kb_name:{kb_name} ====== get_uk_kb_enable_graph")
+def get_uk_kb_info(userId, kb_name):
+    """ 获取知识库info  """
+    kb_info = {}
+    logger.info(f"userId:{userId},kb_name:{kb_name} ====== get_uk_kb_info")
     # 查询条件
     query = {
         "query": {
@@ -2207,12 +2205,18 @@ def get_uk_kb_enable_graph(userId, kb_name):
         }
     }
     response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
-    # 遍历搜索结果，获取 kb_id
+    assert len(response["hits"]["hits"]) == 1
     for hit in response["hits"]["hits"]:
+        kb_id = hit['_source']["kb_id"]
+        if not kb_id:
+            kb_id = get_maas_kb_id(userId, kb_name)  # 如果没有找到，则从 maas 知识库中获取
+        kb_info["kb_id"] = kb_id
+        kb_info["embedding_model_id"] = hit['_source']["embedding_model_id"]
         if "enable_graph" in hit['_source']:
-            enable_knowledge_graph = hit['_source']["enable_graph"]
-    logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 enable_knowledge_graph 为:{enable_knowledge_graph}")
-    return enable_knowledge_graph
+            kb_info["enable_knowledge_graph"] = hit['_source']["enable_graph"]
+    logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 kb_info 为:{kb_info}")
+    return kb_info
+
 
 def update_uk_kb_name(userId, old_kb_name, new_kb_name):
     """ 更新 uk映射表 知识库名 """

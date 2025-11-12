@@ -186,6 +186,19 @@ def del_konwledge_base(user_id, kb_name, kb_id=""):
             if os.path.exists(kb_path): shutil.rmtree(kb_path)
         return response_info
 
+     #删除 知识图谱
+    kb_info = milvus_utils.get_kb_info(user_id, kb_name)
+    if "enable_knowledge_graph" in kb_info and kb_info["enable_knowledge_graph"]:
+        try:
+            graph_utils.delete_kb_graph(user_id, kb_name)
+            graph_redis_client = redis_utils.get_redis_connection()
+            kb_id = kb_info["id"]
+            redis_utils.delete_graph_vocabulary_set(graph_redis_client, kb_id)
+            # milvus_utils.del_milvus_kb_graph(user_id, kb_name, kb_id)
+            # logger.info(f"知识图谱删除成功, kb_name:{kb_name}")
+        except Exception as e:
+            logger.error(f"知识图谱删除失败, error: {repr(e)}")
+
     # --------------3、删除路径
     kb_path = os.path.join(user_data_path, user_id, kb_name)
     if os.path.exists(kb_path):

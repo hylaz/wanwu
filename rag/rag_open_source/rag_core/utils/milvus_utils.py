@@ -581,32 +581,27 @@ def update_milvus_content_status(user_id: str, kb_name: str, file_name: str, con
     return make_request(url, data)
 
 
-def get_knowledge_enable_graph(user_id, kb_name):
-    response_info = {'code': 1, "message": ''}
-
-    url = MILVUS_BASE_URL + '/rag/kn/enable_graph'
+def get_kb_info(user_id, kb_name):
+    error_message = ""
+    url = MILVUS_BASE_URL + '/rag/kn/get_kb_info'
     headers = {'Content-Type': 'application/json'}
     data = {'userId': user_id, "kb_name": kb_name}
     try:
         response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
         if response.status_code != 200:
-            response_info['message'] = str(response.text)
+            error_message = str(response.text)
         else:
             result_data = json.loads(response.text)
             if result_data['code'] != 0:
-                response_info['code'] = result_data['code']
-                response_info['message'] = result_data['message']
+                error_message = result_data['message']
             else:
-                response_info["code"] = 0
-                response_info['data'] = result_data['data']
                 logger.info("milvus查询知识库graph状态请求成功")
-                return response_info
+                return result_data['data']["kb_info"]
     except Exception as e:
-        response_info['code'] = 1
-        response_info['message'] = str(e)
+        error_message = str(e)
 
-    logger.error(f"milvus查询知识库graph状态请求失败：{response_info['message']}")
-    return response_info
+    logger.error(f"milvus查询知识库graph状态请求失败：{error_message}")
+    return {}
 
 
 def get_milvus_content_status(user_id: str, kb_name: str, content_id_list: list):

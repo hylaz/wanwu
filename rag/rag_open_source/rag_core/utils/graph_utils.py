@@ -19,14 +19,6 @@ logger = setup_logging(app_name, logger_name)
 logger.info(logger_name + '---------LOG_FILE：' + repr(app_name))
 
 
-def use_graph(user_id:str, kb_name:str):
-    response = milvus_utils.get_knowledge_enable_graph(user_id, kb_name)
-    if response["code"] != 0:
-        logger.error(f"check use graph failed, {response['message']}")
-        return False
-
-    return response["data"]["enable_knowledge_graph"]
-
 def parse_excel_to_schema_json(file_path):
     """
     解析 Excel 文件中的 '类目表' 和 '类目属性表'，输出指定 JSON 结构

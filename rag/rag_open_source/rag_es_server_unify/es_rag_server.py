@@ -247,28 +247,27 @@ def add_vector_data():
     finally:
         logger.info(f"{userId},{kb_name},bulk_add end")
 
-
-@app.route('/rag/kn/enable_graph', methods=['POST'])
-def get_enable_graph():
+@app.route('/rag/kn/get_kb_info', methods=['POST'])
+def get_kb_info():
     """ 查询知识库是否开启知识图谱"""
-    logger.info("-----------------------启动知识库是否开启知识图谱查询-------------------\n")
+    logger.info("-----------------------启动知识库info查询-------------------\n")
     data = request.get_json()
     userId = data.get("userId")
     kb_name = data.get("kb_name")
     try:
         # ******** 先检查 是否有新建 index ***********
         es_ops.create_index_if_not_exists(KBNAME_MAPPING_INDEX, mappings=es_mapping.uk_mappings)  # 确保 KBNAME_MAPPING_INDEX 已创建
-        enable_knowledge_graph = es_ops.get_uk_kb_enable_graph(userId, kb_name)
-        logger.info(f"当前用户:{userId},知识库:{kb_name}, enable_knowledge_graph: {enable_knowledge_graph}")
+        kb_info = es_ops.get_uk_kb_info(userId, kb_name)
+        logger.info(f"当前用户:{userId},知识库:{kb_name}, kb_info: {kb_info}")
         result = {
             "code": 0,
             "message": "success",
             "data": {
-                "enable_knowledge_graph": enable_knowledge_graph
+                "kb_info": kb_info
             }
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{userId},知识库是否开启知识图谱查询的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{userId},知识库info查询接口返回结果为：{jsonarr}")
         return jsonarr
     except Exception as e:
         result = {
