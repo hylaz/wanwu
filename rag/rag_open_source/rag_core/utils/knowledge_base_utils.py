@@ -650,7 +650,6 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
                 graph_search_list.extend(temp_graph_search_list)  # 直接放进去先
                 community_reports.extend(temp_community_reports)  # 直接放进去先
 
-
         # 多路召回融合
         # reank重排
         if not milvus_useful_list and not es_useful_list:  # 都为空不走重排,直接返回
@@ -669,7 +668,7 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
 
 
         # ========= 标签召回的结果需要置顶到最前面---去重并取topK start =========
-        if label_useful_list or community_reports:
+        if label_useful_list:
             new_search_list = []
             new_scores = []
             tmp_sl_content = {}  # 去重使用
@@ -682,9 +681,6 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
                     new_search_list.append(item)
                     new_scores.append(1)
                     tmp_sl_content[item['content_id']] = item['snippet']
-            for item in community_reports:  # 将SPO及社区报告置顶
-                new_search_list.append(item)
-                new_scores.append(1)
 
             for s, x in zip(sorted_scores, sorted_search_list):
                 if x['content_id'] not in tmp_sl_content:
@@ -701,6 +697,19 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
 
         sorted_scores, sorted_search_list, has_child = aggregate_chunks(user_id, sorted_scores, sorted_search_list)
         logger.info(f"aggregate_chunks result, has_child: {has_child}, sorted_scores: {sorted_scores}, sorted_search_list: {sorted_search_list}")
+        # ======= 将SPO及社区报告置顶 start =======
+        if community_reports:
+            new_search_list = []
+            new_scores = []
+            for item in community_reports:  # 将SPO及社区报告置顶
+                new_search_list.append(item)
+                new_scores.append(1)
+            for s, x in zip(sorted_scores, sorted_search_list):
+                new_search_list.append(x)
+                new_scores.append(s)
+            sorted_search_list = new_search_list[:top_k]
+            sorted_scores = new_scores[:top_k]
+
         rerank_result = rerank_utils.rerank_search(question, sorted_scores, sorted_search_list, rate, return_meta,
                                                    prompt_template, default_answer, auto_citation)
 
@@ -891,7 +900,7 @@ def get_graph_search_list(user_id, kb_names, question, top_k, kb_ids=[], filter_
             if triple_text_list:
                 triple_text = f"知识图谱信息:({'|'.join(triple_text_list)}) "
                 community_reports.append({"snippet": triple_text, "meta_data": {},
-                                          "title": "知识图谱", "chunk_type": "graph_info"})
+                                          "title": "知识图谱", "content_type": "graph"})
 
             # if community_reports:
             #     community_reports[0]["snippet"] = triple_text + community_reports[0]["snippet"]

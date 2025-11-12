@@ -397,6 +397,7 @@ def search_knowledge_base():
         auto_citation = init_info.get("auto_citation", False)
         # 是否query改写
         rewrite_query = init_info.get("rewrite_query", False)
+        use_graph = init_info.get("rewrite_query", False)
         filter_file_name_list = init_info.get("filter_file_name_list", [])
         rerank_mod = init_info.get("rerank_mod", "rerank_model")
         # Dify开源版本问答时需指定rerank模型
@@ -458,7 +459,7 @@ def search_knowledge_base():
                                                    filter_file_name_list=filter_file_name_list,
                                                    rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                    weights=weights, metadata_filtering_conditions=metadata_filtering_conditions,
-                                                   knowledge_base_info=knowledge_base_info)
+                                                   knowledge_base_info=knowledge_base_info, use_graph=use_graph)
         json_str = json.dumps(response_info, ensure_ascii=False)
 
         response = make_response(json_str)

@@ -376,6 +376,7 @@ async def search(request: Request):
     rerank_model_id = json_request.get("rerank_model_id", '')
     weights = json_request.get("weights", None)
     retrieve_method = json_request.get("retrieve_method", "hybrid_search")
+    use_graph = json_request.get("use_graph", False)
 
     # metadata filtering params
     metadata_filtering = json_request.get("metadata_filtering", False)
@@ -480,7 +481,7 @@ async def search(request: Request):
                                                                rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                                weights=weights,
                                                                metadata_filtering_conditions=metadata_filtering_conditions,
-                                                               knowledge_base_info=knowledge_base_info
+                                                               knowledge_base_info=knowledge_base_info, use_graph=use_graph
                                                                )
             else:
                 rerank_result = get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent,
@@ -489,7 +490,7 @@ async def search(request: Request):
                                                            rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                            weights=weights,
                                                            metadata_filtering_conditions=metadata_filtering_conditions,
-                                                           knowledge_base_info=knowledge_base_info
+                                                           knowledge_base_info=knowledge_base_info, use_graph=use_graph
                                                            )
 
             logger.info("===>data_flywheel=%s,has_effective_cache=%s,rerank_result=%s" % (data_flywheel,has_effective_cache,json.dumps(rerank_result, ensure_ascii=False)))
