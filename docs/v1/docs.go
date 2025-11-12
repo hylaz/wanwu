@@ -4634,6 +4634,260 @@ const docTemplate = `{
                 }
             }
         },
+        "/knowledge/report/add": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "单条新增社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "单条新增社区报告",
+                "parameters": [
+                    {
+                        "description": "单条新增社区报告请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddReportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/report/batch/add": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "批量新增社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "批量新增社区报告",
+                "parameters": [
+                    {
+                        "description": "批量新增社区报告请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.BatchAddReportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/report/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "删除社区报告",
+                "parameters": [
+                    {
+                        "description": "删除社区报告请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteReportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/report/generate": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "生成社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "生成社区报告",
+                "parameters": [
+                    {
+                        "description": "生成社区报告请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GenerateReportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/report/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "获取社区报告",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ReportPageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/report/update": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "编辑社区报告",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "编辑社区报告",
+                "parameters": [
+                    {
+                        "description": "编辑社区报告请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateReportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge/select": {
             "post": {
                 "security": [
@@ -11385,6 +11639,25 @@ const docTemplate = `{
                 }
             }
         },
+        "request.AddReportReq": {
+            "type": "object",
+            "required": [
+                "content",
+                "knowledgeId",
+                "title"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "request.AnalysisUrlDocReq": {
             "type": "object",
             "required": [
@@ -12046,6 +12319,21 @@ const docTemplate = `{
                 },
                 "path": {
                     "description": "前端请求地址，例如：/v1/static/avatar/abc/def.png (请求非必填)",
+                    "type": "string"
+                }
+            }
+        },
+        "request.BatchAddReportReq": {
+            "type": "object",
+            "required": [
+                "fileUploadId",
+                "knowledgeId"
+            ],
+            "properties": {
+                "fileUploadId": {
+                    "type": "string"
+                },
+                "knowledgeId": {
                     "type": "string"
                 }
             }
@@ -12875,6 +13163,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeleteReportReq": {
+            "type": "object",
+            "required": [
+                "contentId",
+                "knowledgeId"
+            ],
+            "properties": {
+                "contentId": {
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.DeleteSensitiveVocabularyReq": {
             "type": "object",
             "required": [
@@ -13123,6 +13426,17 @@ const docTemplate = `{
                 },
                 "appType": {
                     "description": "应用类型",
+                    "type": "string"
+                }
+            }
+        },
+        "request.GenerateReportReq": {
+            "type": "object",
+            "required": [
+                "knowledgeId"
+            ],
+            "properties": {
+                "knowledgeId": {
                     "type": "string"
                 }
             }
@@ -14447,6 +14761,29 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/request.DocMetaData"
                     }
+                }
+            }
+        },
+        "request.UpdateReportReq": {
+            "type": "object",
+            "required": [
+                "content",
+                "contentId",
+                "knowledgeId",
+                "title"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "contentId": {
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
@@ -16258,6 +16595,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "graphSwitch": {
+                    "description": "图谱开关",
+                    "type": "integer"
+                },
                 "knowledgeId": {
                     "description": "知识库id",
                     "type": "string"
@@ -17367,6 +17708,52 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppSafetyConfig"
                         }
                     ]
+                }
+            }
+        },
+        "response.ReportInfo": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "contentId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ReportPageResult": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "生成时间：unix时间戳，若为空串显示-",
+                    "type": "string"
+                },
+                "list": {
+                    "description": "社区报告内容列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ReportInfo"
+                    }
+                },
+                "pageNo": {
+                    "description": "当前页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态：0.未生成(-) 1.生成中 2.已生成 3.生成失败",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "社区报告数量：如果为0显示-",
+                    "type": "integer"
                 }
             }
         },

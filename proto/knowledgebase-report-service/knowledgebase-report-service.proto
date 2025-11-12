@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package knowledgebase_report_service;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "gitlab.ai-yuanjing.cn/ai-platform-private/backend-used-bff/common-api/api/proto/knowledgebase-report-service";
+
+service KnowledgeBaseReportService {
+  // 获取知识库社区报告
+  rpc GetKnowledgeReport(GetReportReq) returns (GetReportResp) {}
+  // 生成知识库社区报告
+  rpc GenerateKnowledgeReport(ReportIdentity) returns (google.protobuf.Empty) {}
+  // 删除知识库社区报告
+  rpc DeleteKnowledgeReport(DeleteReportReq) returns (google.protobuf.Empty) {}
+  // 更新知识库社区报告
+  rpc UpdateKnowledgeReport(UpdateReportReq) returns (google.protobuf.Empty) {}
+  // 单条新增知识库社区报告
+  rpc AddKnowledgeReport(AddReportReq) returns (google.protobuf.Empty) {}
+  // 批量新增知识库社区报告
+  rpc BatchAddKnowledgeReport(BatchAddKnowledgeReportReq) returns (google.protobuf.Empty) {}
+}
+
+message GetReportReq{
+  ReportIdentity knowledgeInfo = 1;
+  int32 pageSize = 2;
+  int32 pageNum = 3;
+}
+
+message GetReportResp{
+  int32 total = 1; // 社区报告数量
+  string createdAt = 2; // 生成时间
+  int32 status = 3; // 状态：0.未生成(-) 1.生成中 2.已生成 3.生成失败
+  repeated ReportInfo list = 4;
+}
+
+message ReportInfo{
+  string contentId = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message ReportIdentity{
+  string knowledgeId = 1;
+  string userId = 2;
+  string orgId = 3;
+}
+
+message DeleteReportReq{
+  ReportIdentity knowledgeInfo = 1;
+  string contentId = 2;
+}
+
+message UpdateReportReq{
+  ReportIdentity knowledgeInfo = 1;
+  ReportInfo data = 2;
+}
+
+message AddReportReq{
+  ReportIdentity knowledgeInfo = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message BatchAddKnowledgeReportReq{
+  ReportIdentity knowledgeInfo = 1;
+  string fileUrl = 2;
+}

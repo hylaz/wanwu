@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	knowledgebase_report_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-report-service"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
@@ -40,6 +41,7 @@ var (
 	knowledgeBaseSplitter   knowledgebase_splitter_service.KnowledgeBaseSplitterServiceClient
 	knowledgeBasePermission knowledgebase_permission_service.KnowledgeBasePermissionServiceClient
 	knowledgeBaseKeywords   knowledgebase_keywords_service.KnowledgeBaseKeywordsServiceClient
+	knowledgeBaseReport     knowledgebase_report_service.KnowledgeBaseReportServiceClient
 	app                     app_service.AppServiceClient
 	rag                     rag_service.RagServiceClient
 	assistant               assistant_service.AssistantServiceClient
