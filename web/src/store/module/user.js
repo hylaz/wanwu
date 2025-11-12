@@ -1,10 +1,10 @@
 import {login, getPermission, getCommonInfo, login2FA2new, login2FA2exist, login2FA1} from '@/api/user'
 import { fetchOrgs } from "@/api/permission/org"
-import { redirectUrl } from "@/utils/util"
+import {jumpOAuth, redirectUrl} from "@/utils/util"
 import { formatPerms } from "@/router/permission"
 import { replaceRouter } from "@/router"
 
-const processLogin = (res, commit) => {
+const processLogin = (res, commit, params) => {
     const orgs = res.data.orgs || []
     const orgPermission = res.data.orgPermission || {}
     const orgId = orgPermission.org ? orgPermission.org.id : ''
@@ -28,6 +28,12 @@ const processLogin = (res, commit) => {
         commit('setCommonInfo', {data: res.data.custom || {}})
 
         commit('setIs2FA', false)
+
+        if (params.client_id) {
+            // 重定向到OAuth页面
+            jumpOAuth(params)
+            return
+        }
 
         // 更新权限路由
         replaceRouter(permission.orgPermission)
@@ -93,9 +99,9 @@ export const user = {
       }
   },
   actions: {
-      async LoginIn({ commit }, loginInfo) {
+      async LoginIn({ commit }, { loginInfo, params }) {
           const res = await login(loginInfo)
-          processLogin(res, commit)
+          processLogin(res, commit, params)
       },
 
       async LoginIn2FA1({ commit }, loginInfo) {
@@ -106,13 +112,13 @@ export const user = {
           }
       },
 
-      async LoginIn2FA2({ commit }, loginInfo) {
+      async LoginIn2FA2({ commit }, { loginInfo, params }) {
           const res = await (
               "newPassword" in loginInfo && "oldPassword" in loginInfo
                   ? login2FA2new(loginInfo)
                   : login2FA2exist(loginInfo)
           )
-          processLogin(res, commit)
+          processLogin(res, commit, params)
       },
 
       // 获取权限

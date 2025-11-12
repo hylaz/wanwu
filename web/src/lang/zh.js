@@ -830,7 +830,7 @@ export default {
                 add:'添加',
                 added:'已添加',
                 addMsg:'工具添加成功',
-                apiWarming:'该工具暂未绑定API Key，会导致调用失败!',
+                apiWarning:'该工具暂未绑定API Key，会导致调用失败!',
                 hint:'已绑定的应用发布新版本之后，引用此工具所创建的MCP服务不会自动更新到该工具的最新版本，以免影响已线上业务的正常运行。若需绑定最新版应用，请手动删除原应用后，重新添加新版应用。',
                 action:'关联',
                 methodName:'显示名称',
@@ -1097,4 +1097,18 @@ export default {
         close: '关闭',
         reload: '刷新'
     },
+    oauth: {
+        title: 'OAuth密钥管理',
+        name: '第三方平台名称',
+        desc: '描述',
+        status: '状态',
+        create: '创建OAuth密钥',
+        edit: '编辑OAuth密钥',
+        deleteHint: '确定要删除该OAuth密钥吗？',
+        popup: {
+            title: '使用元景万悟账号登录',
+            perm: '将获得以下权限：',
+            detail: '访问您的个人资料（包括用户名、头像）等基础信息',
+        }
+    }
 }

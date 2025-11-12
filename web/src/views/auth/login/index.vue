@@ -91,6 +91,14 @@ export default {
         key: '',
         b64: ''
       },
+      params: {
+        client_id: '',
+        redirect_uri: '',
+        scope: '',
+        response_type: '',
+        state: '',
+        client_name: ''
+      }
     }
   },
   created() {
@@ -98,6 +106,37 @@ export default {
     // if (this.$store.state.user.token && localStorage.getItem("access_cert") && !this.$store.state.user.is2FA) redirectUrl()
 
     this.getImgCode()
+  },
+  watch: {
+    $route: {
+      handler() {
+        this.params = this.$route.query
+        if (
+          this.$store.state.user.token &&
+          localStorage.getItem("access_cert") &&
+          !this.$store.state.user.is2FA &&
+          this.params.client_id
+        ) this.$router.push({
+          path: "/oauth",
+          query: this.params
+        });
+
+      },
+      // 深度观察监听
+      deep: true
+    }
+  },
+  mounted() {
+    this.params = this.$route.query
+    if (
+      this.$store.state.user.token &&
+      localStorage.getItem("access_cert") &&
+      !this.$store.state.user.is2FA &&
+      this.params.client_id
+    ) this.$router.push({
+      path: "/oauth",
+      query: this.params
+    });
   },
   computed: {
     ...mapState('login', ['commonInfo'])
@@ -131,8 +170,8 @@ export default {
       try {
         if (this.commonInfo.loginEmail.email.status) {
           const {isEmailCheck, isUpdatePassword} = await this.LoginIn2FA1(data)
-          this.$refs.dialog2FA.showDialog(isEmailCheck, isUpdatePassword)
-        } else await this.LoginIn(data)
+          this.$refs.dialog2FA.showDialog(isEmailCheck, isUpdatePassword, this.params)
+        } else await this.LoginIn({ loginInfo: data, params: this.params })
       } catch (e) {
         await this.getImgCode()
       }

@@ -172,7 +172,15 @@ export default {
         key: '',
         b64: ''
       },
-      basePath: this.$basePath
+      basePath: this.$basePath,
+      params: {
+        client_id: '',
+        redirect_uri: '',
+        scope: '',
+        response_type: '',
+        state: '',
+        client_name: ''
+      }
     }
   },
   computed: {
@@ -180,11 +188,12 @@ export default {
   },
   methods: {
     ...mapActions('user', ['LoginIn2FA2']),
-    showDialog(isEmailCheck, isUpdatePassword) {
+    showDialog(isEmailCheck, isUpdatePassword, params) {
       this.$store.commit('user/setIs2FA', true)
       this.dialogVisible = true
       this.isEmailCheck = isEmailCheck
       this.isUpdatePassword = isUpdatePassword
+      this.params = params
     },
     addByEnterKey(e) {
       if (e.keyCode === 13) {
@@ -207,7 +216,7 @@ export default {
           delete data.oldPassword
         }
 
-        await this.LoginIn2FA2(data)
+        await this.LoginIn2FA2({ loginInfo: data, params: this.params })
       })
 
     },

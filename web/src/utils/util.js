@@ -63,6 +63,13 @@ export const jumpPermUrl = () => {
     router.push({path: path || '/404'})
 }
 
+export const jumpOAuth = (params) => {
+    router.push({
+        path: "/oauth",
+        query: params
+    });
+}
+
 export const redirectUrl = () => {
     // 跳到有权限的第一个页面
     jumpPermUrl()
