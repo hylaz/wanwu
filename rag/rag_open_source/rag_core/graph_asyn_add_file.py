@@ -60,11 +60,11 @@ def kafkal():
             master_control_logger.info('收到kafka消息：' + repr(message.value))
             message_value = json.loads(message.value)
 
-            file_id = message_value["doc"]["id"]
             kb_name = message_value["doc"]["categoryId"]
             user_id = message_value["doc"]["userId"]
             kb_id = message_value["doc"].get("kb_id", "")
             filename = message_value["doc"].get("originalName", "")
+            file_id = message_value["doc"].get("id", "")
             graph_schema_objectname = message_value["doc"].get("graph_schema_objectname", "")
             graph_schema_filename = message_value["doc"].get("graph_schema_filename", "")
             enable_knowledge_graph = message_value["doc"].get("enable_knowledge_graph", False)
@@ -102,8 +102,8 @@ def kafkal():
                         extrac_graph_data(user_id, kb_name, filename, file_id, enable_knowledge_graph,
                                         graph_schema_objectname, graph_schema_filename, graph_model_id, kb_id=kb_id)
                     elif message_type == "community_report":
-                        generate_community_report(user_id, kb_name, file_id, enable_knowledge_graph, graph_model_id,
-                                                kb_id)
+                        generate_community_report(user_id, kb_name, enable_knowledge_graph, graph_model_id,
+                                                kb_id=kb_id)
                     else:
                         logger.warning(f"未知的message_type: {message_type}")
                         master_control_logger.warning(f"未知的message_type: {message_type}")
@@ -237,9 +237,9 @@ def extrac_graph_data(user_id, kb_name, file_name, file_id, enable_knowledge_gra
     mq_rel_utils.update_doc_status(file_id, status=100)
 
 
-def generate_community_report(user_id, kb_name, file_id, enable_knowledge_graph, graph_model_id="", kb_id=""):
+def generate_community_report(user_id, kb_name, enable_knowledge_graph, graph_model_id="", kb_id=""):
     # 社区报告开始生成
-    mq_rel_utils.update_kb_status(file_id, status=130)
+    mq_rel_utils.update_kb_status(kb_id, status=130)
 
     # 清理旧的社区报告
     try:
@@ -253,7 +253,7 @@ def generate_community_report(user_id, kb_name, file_id, enable_knowledge_graph,
         logger.error(repr(e))
         logger.error(f"清理社区报告失败, user_id=%s,kb_name=%s" % (user_id, kb_name))
         master_control_logger.error(f"清理社区报告失败, user_id=%s,kb_name=%s" % (user_id, kb_name) + repr(e))
-        mq_rel_utils.update_kb_status(file_id, status=124)
+        mq_rel_utils.update_kb_status(kb_id, status=124)
         return
 
     # 提取社区报告
@@ -268,7 +268,7 @@ def generate_community_report(user_id, kb_name, file_id, enable_knowledge_graph,
         logger.error(repr(e))
         logger.error(f"生成社区报告失败, user_id=%s,kb_name=%s" % (user_id, kb_name))
         master_control_logger.error(f"生成社区报告失败, user_id=%s,kb_name=%s" % (user_id, kb_name) + repr(e))
-        mq_rel_utils.update_kb_status(file_id, status=122)
+        mq_rel_utils.update_kb_status(kb_id, status=122)
         return
 
     # 存储社区报告
@@ -303,13 +303,13 @@ def generate_community_report(user_id, kb_name, file_id, enable_knowledge_graph,
         logger.error(repr(e))
         logger.error(f"社区报告插入milvus失败, user_id=%s,kb_name=%s" % (user_id, kb_name))
         master_control_logger.error(f"社区报告插入milvus失败, user_id=%s,kb_name=%s" % (user_id, kb_name) + repr(e))
-        mq_rel_utils.update_kb_status(file_id, status=123)
+        mq_rel_utils.update_kb_status(kb_id, status=123)
         return
 
     # 最终完成
     logger.info("user_id=%s,kb_name=%s" % (user_id, kb_name) + '===== 社区报告生成且存储完成')
     master_control_logger.info("user_id=%s,kb_name=%s,kb_id=%s" % (user_id, kb_name, kb_id) + '===== 社区报告生成且存储完成')
-    mq_rel_utils.update_kb_status(file_id, status=120)
+    mq_rel_utils.update_kb_status(kb_id, status=120)
 
 if __name__ == "__main__":
     kafkal()
