@@ -230,6 +230,10 @@ func oauthValidateReqApp(clientID, clientSecret, redirectUri string, appInfo *ia
 }
 
 func CreateOauthApp(ctx *gin.Context, userId string, req *request.CreateOauthAppReq) error {
+	isURI := isValidURI(req.RedirectURI)
+	if !isURI {
+		return grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "redirect uri invalid")
+	}
 	_, err := iam.CreateOauthApp(ctx, &iam_service.CreateOauthAppReq{
 		UserId:      userId,
 		Name:        req.Name,
@@ -253,6 +257,10 @@ func DeleteOauthApp(ctx *gin.Context, req *request.DeleteOauthAppReq) error {
 }
 
 func UpdateOauthApp(ctx *gin.Context, req *request.UpdateOauthAppReq) error {
+	isURI := isValidURI(req.RedirectURI)
+	if !isURI {
+		return grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "redirect uri invalid")
+	}
 	_, err := iam.UpdateOauthApp(ctx, &iam_service.UpdateOauthAppReq{
 		ClientId:    req.ClientID,
 		Name:        req.Name,
@@ -303,4 +311,12 @@ func UpdateOauthAppStatus(ctx *gin.Context, req *request.UpdateOauthAppStatusReq
 		return err
 	}
 	return nil
+}
+
+func isValidURI(rawURI string) bool {
+	u, err := url.ParseRequestURI(rawURI)
+	if err != nil {
+		return false
+	}
+	return u.Scheme != "" && u.Host != ""
 }
