@@ -11,7 +11,7 @@ import tiktoken
 import json_repair
 
 from config import get_config
-from utils import call_llm_api, graph_processor, tree_comm
+from utils import call_llm_api, graph_processor
 from utils.logger import logger
 
 

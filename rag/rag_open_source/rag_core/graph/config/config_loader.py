@@ -46,12 +46,6 @@ class ConstructionConfig:
         if self.datasets_no_chunk is None:
             self.datasets_no_chunk = ["hotpot", "2wiki", "musique", "graphrag-bench", "anony_chs", "anony_eng"]
 
-@dataclass
-class TreeCommConfig:
-    """Tree-Comm algorithm configuration"""
-    embedding_model: str = "all-MiniLM-L6-v2"
-    struct_weight: float = 0.3
-    enable_fast_mode: bool = True
 
 @dataclass
 class FAISSConfig:
@@ -115,17 +109,6 @@ class PerformanceConfig:
     batch_size: int = 16
     memory_optimization: bool = True
 
-@dataclass
-class EvaluationConfig:
-    """Evaluation configuration"""
-    enable_evaluation: bool = True
-    metrics: list = None
-    save_detailed_results: bool = True
-    
-    def __post_init__(self):
-        if self.metrics is None:
-            self.metrics = ["accuracy", "precision", "recall", "f1"]
-
 class ConfigManager:
     """
     Main configuration manager for the KT-RAG framework.
@@ -144,13 +127,11 @@ class ConfigManager:
         self.datasets: Dict[str, DatasetConfig] = {}
         self.triggers: Optional[TriggersConfig] = None
         self.construction: Optional[ConstructionConfig] = None
-        self.tree_comm: Optional[TreeCommConfig] = None
         self.retrieval: Optional[RetrievalConfig] = None
         self.embeddings: Optional[EmbeddingsConfig] = None
         self.prompts: Dict[str, Any] = {}
         self.output: Optional[OutputConfig] = None
         self.performance: Optional[PerformanceConfig] = None
-        self.evaluation: Optional[EvaluationConfig] = None
 
         self.load_config()
     
@@ -189,10 +170,8 @@ class ConfigManager:
         self.triggers = TriggersConfig(**triggers_data)
         
         construction_data = self.config_data.get("construction", {})
-        tree_comm_data = construction_data.pop("tree_comm", {})
         self.construction = ConstructionConfig(**construction_data)
-        self.tree_comm = TreeCommConfig(**tree_comm_data)
-        
+
         retrieval_data = self.config_data.get("retrieval", {})
         faiss_data = retrieval_data.pop("faiss", {})
         agent_data = retrieval_data.pop("agent", {})
@@ -210,9 +189,7 @@ class ConfigManager:
         
         performance_data = self.config_data.get("performance", {})
         self.performance = PerformanceConfig(**performance_data)
-        
-        evaluation_data = self.config_data.get("evaluation", {})
-        self.evaluation = EvaluationConfig(**evaluation_data)
+
     
     def _validate_config(self) -> None:
         """Validate the loaded configuration."""
@@ -232,9 +209,7 @@ class ConfigManager:
         # Validate numerical parameters
         if self.retrieval.top_k <= 0:
             raise ValueError("top_k must be positive")
-        
-        if self.tree_comm.struct_weight < 0 or self.tree_comm.struct_weight > 1:
-            raise ValueError("struct_weight must be between 0 and 1")
+
     
     def get_dataset_config(self, dataset_name: str) -> DatasetConfig:
         """Get configuration for a specific dataset."""
@@ -282,13 +257,11 @@ class ConfigManager:
             "datasets": {name: asdict(config) for name, config in self.datasets.items()},
             "triggers": asdict(self.triggers),
             "construction": asdict(self.construction),
-            "tree_comm": asdict(self.tree_comm),
             "retrieval": asdict(self.retrieval),
             "embeddings": asdict(self.embeddings),
             "prompts": self.prompts,
             "output": asdict(self.output),
             "performance": asdict(self.performance),
-            "evaluation": asdict(self.evaluation),
         }
     
     def create_output_directories(self) -> None:

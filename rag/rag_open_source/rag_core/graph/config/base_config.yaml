@@ -11,10 +11,6 @@ construction:
   max_workers: 8
   mode: agent
   overlap: 200
-  tree_comm:
-    embedding_model: all-MiniLM-L6-v2
-    enable_fast_mode: true
-    struct_weight: 0.3
     
 datasets:
   demo:
