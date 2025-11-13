@@ -75,14 +75,7 @@ export const getDocLink = (id) => {
         method: "get"
     });
 };
-//下载文档
-export const downDoc = (url) => {
-    return service({
-        url: `/konwledgeServe${url}`,
-        method: "get",
-        responseType: 'blob'
-    });
-};
+
 //命中测试
 export const test = (data) => {
     return service({
@@ -515,5 +508,54 @@ export const getGraphDetail = (data)=>{
         url: `${BASE_URL}/knowledge/graph`,
         method: 'get',
         params:data
+    })
+};
+
+//单条新增社区报告
+export const createCommunityReport = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/add`,
+        method: 'post',
+        data
+    })
+};
+//批量新增社区报告
+export const createBatchCommunityReport = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/batch/add`,
+        method: 'post',
+        data
+    })
+};
+//删除社区报告
+export const delCommunityReport = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/delete`,
+        method: 'delete',
+        data
+    })
+};
+//生成社区报告
+export const generateCommunityReport = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/generate`,
+        method: 'post',
+        data
+    })
+};
+//获取社区报告
+export const getCommunityReportList = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/list`,
+        method: 'get',
+        params:data
+    })
+};
+//编辑社区报告
+export const editCommunityReportList = (data)=>{
+    return service({
+        url: `${BASE_URL}/knowledge/report/update`,
+        method: 'post',
+        data
     })
 };

@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="$t('knowledgeManage.communityReport.addCommunityReport')"
+    :title="title"
     :visible.sync="dialogVisible"
     width="50%"
     :before-close="handleClose"
@@ -17,6 +17,7 @@
         <el-radio-group
           v-model="createType"
           @input="typeChange($event)"
+          v-if="type === 'add'"
         >
           <el-radio-button :label="'single'">{{$t('knowledgeManage.create.single')}}</el-radio-button>
           <el-radio-button :label="'file'">{{$t('knowledgeManage.create.file')}}</el-radio-button>
@@ -38,7 +39,7 @@
       <template v-if="createType === 'single'">
         <el-form-item
           :label="$t('knowledgeManage.create.title')"
-          prop="content"
+          prop="title"
           :rules="[{ required: true, message: $t('knowledgeManage.create.titlePlaceholder'), trigger: 'blur' }]"
         >
           <el-input
@@ -60,7 +61,7 @@
             :rows="6"
           ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('knowledgeManage.create.typeTitle')">
+        <el-form-item :label="$t('knowledgeManage.create.typeTitle')" v-if="type === 'add'">
           <el-checkbox-group v-model="checkType">
             <el-checkbox
               label="more"
@@ -84,6 +85,7 @@
   </el-dialog>
 </template>
 <script>
+import { createBatchCommunityReport,createCommunityReport,editCommunityReportList} from "@/api/knowledge";
 import fileUpload from "@/components/fileUpload";
 import {
   createSegment,
@@ -92,28 +94,22 @@ import {
 } from "@/api/knowledge";
 export default {
   components: { fileUpload },
-  props: {
-    parentId: {
-      type: String,
-      default: ""
-    }
-  },
   data() {
     return {
       btnLoading: false,
       accept: ".csv",
       checkType: [],
-      inputVisible: false,
-      inputValue: "",
       createType: "single",
       ruleForm: {
+        content: "",
+        knowledgeId: "",
         title: "",
-        docId: "",
-        fileUploadId: "",
+        fileUploadId:""
       },
+      type:'add',
       dialogVisible: false,
       templateUrl: "/user/api/v1/static/docs/segment.csv",
-      isChildChunk: false,
+      title: ""
     };
   },
   methods: {
@@ -132,9 +128,15 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    showDialog(docId) {
+    showDialog(knowledgeId,type="") {
+      this.type = type
+      if(type === 'edit'){
+        this.title = this.$t('knowledgeManage.communityReport.viewDetail')
+      }else{
+        this.title = this.$t('knowledgeManage.communityReport.addCommunityReport')
+      }
       this.dialogVisible = true;
-      this.ruleForm.docId = docId;
+      this.ruleForm.knowledgeId = knowledgeId;
       this.clearForm();
     },
     submit(formName) {
@@ -148,49 +150,42 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.btnLoading = true;
-          if (this.isChildChunk) {
-            this.createChildChunk();
-          } else {
-            this.createParentChunk();
+          if(this.type === 'add'){
+            this.createCommunityReport()
+          }else{
+            this.editCommunityReportList()
           }
+          
         } else {
           return false;
         }
       });
     },
-    createParentChunk() {
-      const data = this.isChildChunk
-        ? { content: this.ruleForm.content, docId: this.ruleForm.docId }
-        : {
-            content: this.ruleForm.content,
-            docId: this.ruleForm.docId,
-            labels: this.ruleForm.labels,
-          };
-      createSegment(data)
-        .then((res) => {
-          if (res.code === 0) {
-            this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
-            if (!this.checkType.length) {
-              this.dialogVisible = false;
-              this.$emit("updateDataBatch");
-            } else {
-              this.clearForm();
-              this.$emit("updateData");
-            }
-            this.btnLoading = false;
-          }
-        })
-        .catch(() => {
-          this.btnLoading = false;
-        });
-    },
-    createChildChunk() {
-      const data = {
-        content: [this.ruleForm.content],
-        docId: this.ruleForm.docId,
-        parentId: this.parentId
+    editCommunityReportList(){
+       const data = {
+        content: this.ruleForm.content,
+        knowledgeId: this.ruleForm.knowledgeId,
+        title: this.ruleForm.title
       };
-      createSegmentChild(data).then((res) => {
+      editCommunityReportList(data).then(res =>{
+        if(res.code === 0){
+          this.$message.success(this.$t('knowledgeManage.create.editSuccess'));
+          this.clearForm();
+          this.$emit("refreshData");
+          this.dialogVisible = false;
+          this.btnLoading = false;
+        }
+      }).catch(() => {
+        this.btnLoading = false;
+      })
+    },
+    createCommunityReport() {
+      const data = {
+        content: this.ruleForm.content,
+        knowledgeId: this.ruleForm.knowledgeId,
+        title: this.ruleForm.title
+      };
+      createCommunityReport(data).then((res) => {
         if (res.code === 0) {
             this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
             if (!this.checkType.length) {
@@ -198,7 +193,7 @@ export default {
             } else {
               this.clearForm();
             }
-            this.$emit("updateChildData");
+            this.$emit("refreshData");
             this.btnLoading = false;
           }
       }).catch(() => {
@@ -209,15 +204,15 @@ export default {
       this.btnLoading = true;
       const data = {
         fileUploadId: this.ruleForm.fileUploadId,
-        docId: this.ruleForm.docId,
+        knowledgeId: this.ruleForm.knowledgeId,
       };
-      createBatchSegment(data)
+      createBatchCommunityReport(data)
         .then((res) => {
           if (res.code === 0) {
             this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
             this.dialogVisible = false;
             this.btnLoading = false;
-            this.$emit("updateDataBatch");
+            this.$emit("refreshData");
           }
         })
         .catch(() => {

@@ -16,50 +16,50 @@
         :size="''"
         border
       >
-        <el-descriptions-item label="名称">{{
-          res.fileName
-        }}</el-descriptions-item>
-        <el-descriptions-item label="社区报告数量">
-          {{ res.segmentTotalNum }}
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.name')">
+          {{ $t('knowledgeManage.communityReport.communityReport') }}
         </el-descriptions-item>
-        <el-descriptions-item label="生成时间">{{
-          res.uploadTime
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentTotalNum')">
+          {{ res.total }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.uploadTime')">{{
+          res.createdAt !== '' ? $formatDate(res.createdAt) : '-'
         }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{
-          Number(res.segmentType) === 0 ? $t('knowledgeManage.autoChunk') : $t('knowledgeManage.autoConfigChunk')
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentType')">{{
+         communityReportStatus[res.status]
         }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="btn">
-      <el-button
-          type="primary"
-          @click="handleStatus('stop')"
-          size="mini"
-          :loading="loading.stop"
-          v-if="[10,20,30].includes(permissionType)"
-          >生成/重新生成</el-button>
+        <el-button
+            type="primary"
+            @click="generateReport"
+            size="mini"
+            :loading="loading.stop"
+            :disabled="!res.canGenerate"
+            >{{ res.generateLabel === '' ? $t('knowledgeManage.communityReport.generate') : res.generateLabel }}</el-button>
         <el-button
           type="primary"
-          @click="handleStatus('stop')"
+          @click="createReport"
           size="mini"
           :loading="loading.stop"
-          v-if="[10,20,30].includes(permissionType)"
-          >新增社区报告</el-button>
+          :disabled="!res.canAddReport"
+          >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}</el-button>
       </div>
 
       <div class="card">
-        <el-row :gutter="20" v-if="res.contentList.length > 0">
+        <el-row :gutter="20" v-if="res && res.list && res.list.length > 0">
           <el-col
             :span="6"
-            v-for="(item, index) in res.contentList"
+            v-for="(item, index) in res.list"
             :key="index"
             class="card-box"
           >
             <el-card class="box-card">
               <div slot="header" class="clearfix">
-                <span>{{ $t('knowledgeManage.split')+":" + item.contentNum }}</span>
+                <span>{{item.title}}</span>
                 <div>
-                  <el-dropdown @command="handleCommand" placement="bottom" v-if="[10,20,30].includes(permissionType)">
+                  <el-dropdown @command="handleCommand" placement="bottom">
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
@@ -95,13 +95,18 @@
         </el-pagination>
       </div>
     </div>
+    <createReport ref="createReport" @refreshData="getList"></createReport>
   </div>
 </template>
 <script>
-import { getSectionList,setSectionStatus,delSegment } from "@/api/knowledge";
+import { getCommunityReportList,delCommunityReport,generateCommunityReport} from "@/api/knowledge";
+import { COMMUNITY_REPORT_STATUS } from "@/views/knowledge/config";
 import {mapGetters} from 'vuex';
+import commonMixin from "@/mixins/common";
+import createReport from "./create.vue";
 export default {
-  components:{},
+  components:{createReport},
+  mixins: [commonMixin],
   data() {
     return {
       obj: {},
@@ -118,6 +123,7 @@ export default {
       res: {
         contentList: [],
       },
+      communityReportStatus: COMMUNITY_REPORT_STATUS,
     };
   },
   computed: {
@@ -141,33 +147,44 @@ export default {
     }
   },
   methods: {
+    createReport(){
+      this.$refs.createReport.showDialog(this.obj.knowledgeId);
+    },
+    generateReport(){
+      generateCommunityReport({knowledgeId:this.obj.knowledgeId}).then(res =>{
+        if(res.code === 0){
+          this.$message.success(this.$t('knowledgeManage.communityReport.generateSuccess'));
+          this.getList();
+        }
+      })
+    },
     handleCommand(value){
       const {type, item} = value || {}
        switch (type) {
           case 'delete':
-            this.delSection(item)
+            this.delReport(item)
             break
         }
     },
-    delSection(item){
-      delSegment({contentId:item.contentId,docId:this.obj.knowledgeId || this.obj.id}).then(res =>{
+    delReport(item){
+      delCommunityReport({contentId:item.contentId,knowledgeId:this.obj.knowledgeId}).then(res =>{
         if(res.code === 0){
-          this.$message.success('删除成功');
+          this.$message.success(this.$t('knowledgeManage.communityReport.deleteSuccess'));
           this.getList();
         }
-      }).catch(() =>{})
+      })
     },
     getList() {
       this.loading.itemStatus = true;
-      getSectionList({
-        docId: this.obj.knowledgeId || this.obj.id,
+      getCommunityReportList({
+        knowledgeId: this.obj.knowledgeId,
         pageNo: this.page.pageNo,
         pageSize:this.page.pageSize
       })
         .then((res) => {
           this.loading.itemStatus = false;
           this.res = res.data;
-          this.page.total = this.res.segmentTotalNum;
+          this.page.total = this.res.total;
         })
         .catch(() => {
           this.loading.itemStatus = false;
@@ -175,6 +192,9 @@ export default {
     },
     handleClick(item, index) {
       // 点击卡片事件，可根据需求添加功能
+      this.$refs.createReport.ruleForm.content = item.content;
+      this.$refs.createReport.ruleForm.title = item.title;
+      this.$refs.createReport.showDialog(this.obj.knowledgeId,'edit')
     },
     handleCurrentChange(val) {
       this.page.pageNo = val;
@@ -183,25 +203,6 @@ export default {
     handleSizeChange(val) {
       this.page.pageSize = val;
       this.getList();
-    },
-    handleStatus(type) {
-      this.loading.stop = true;
-      setSectionStatus({
-        docId: this.obj.knowledgeId || this.obj.id,
-        contentStatus: type==='start' ? "true" :"false",
-        contentId: "",
-        all:true,
-      })
-        .then((res) => {
-          this.loading.stop = false;
-          if (res.code === 0) {
-            this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-            this.getList();
-          }
-        })
-        .catch(() => {
-          this.loading.stop = false;
-        });
     },
   },
 };

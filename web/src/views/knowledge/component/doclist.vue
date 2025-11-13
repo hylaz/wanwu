@@ -136,6 +136,14 @@
                   </template>
                 </el-table-column>
                 <el-table-column
+                  prop="graphSwitch"
+                  label="图谱解析状态"
+                >
+                   <template slot-scope="scope">
+                      <span>{{scope.row.graphSwitch === 1 ? '解析成功' : '解析失败'}}</span>
+                   </template>
+                </el-table-column>
+                <el-table-column
                   :label="$t('knowledgeManage.operate')"
                   width="260"
                 >

@@ -95,3 +95,9 @@ export const KNOWLEDGE_GRAPH_TIPS = [
         content: i18n.t('knowledgeManage.config.attentionDescriptionContent')
     }
 ]
+export const COMMUNITY_REPORT_STATUS = {
+    0: '-',
+    1: '生成中',
+    2: '已生成',
+    3: '生成失败',
+}

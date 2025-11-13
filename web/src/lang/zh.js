@@ -809,10 +809,15 @@ export default {
         communityReport:{
             name:"名称",
             segmentTotalNum:"社区报告数量",
+            communityReport:"社区报告",
             uploadTime:"生成时间",
             segmentType:"状态",
-            generate:"生成/重新生成",
+            generate:"生成",
             addCommunityReport:"新增社区报告",
+            deleteSuccess:"删除成功",
+            generateSuccess:"生成成功",
+            
+            viewDetail:"详情查看"
         },
         meta:{
             batchEdit:'批量编辑元数据值',
