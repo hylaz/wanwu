@@ -22,15 +22,22 @@
         <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentTotalNum')">
           {{ res.total }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.uploadTime')">{{
-          res.createdAt !== '' ? $formatDate(res.createdAt) : '-'
-        }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.uploadTime')">
+          {{ formatDate(res.createdAt) }}
+        </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentType')">{{
          communityReportStatus[res.status]
         }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="btn">
+        <el-button
+          type="primary"
+          icon="el-icon-refresh"
+          @click="refreshData"
+          size="mini"
+          :loading="loading.itemStatus"
+        >{{ $t('common.gpuDialog.reload') }}</el-button>
         <el-button
             type="primary"
             @click="generateReport"
@@ -57,7 +64,9 @@
           >
             <el-card class="box-card">
               <div slot="header" class="clearfix">
-                <span>{{item.title}}</span>
+                <el-tooltip :content="item.title" placement="top" :disabled="item.title.length <= 10">
+                  <span>{{ item.title.length > 10 ? item.title.substring(0, 10) + '...' : item.title }}</span>
+                </el-tooltip>
                 <div>
                   <el-dropdown @command="handleCommand" placement="bottom">
                     <span class="el-dropdown-link">
@@ -95,7 +104,7 @@
         </el-pagination>
       </div>
     </div>
-    <createReport ref="createReport" @refreshData="getList"></createReport>
+    <createReport ref="createReport" @refreshData="refreshData"></createReport>
   </div>
 </template>
 <script>
@@ -147,6 +156,28 @@ export default {
     }
   },
   methods: {
+    formatDate(value) {
+      if (value === null || value === undefined || value === '') {
+        return '-'
+      }
+      let dateValue = value
+      if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+        const timestamp = typeof value === 'string' ? parseInt(value) : value
+        if (timestamp.toString().length === 10) {
+          dateValue = timestamp * 1000
+        } else {
+          dateValue = timestamp
+        }
+      }
+      const dateFormatFilter =
+        (this.$options.filters && this.$options.filters.dateFormat) || null
+      return dateFormatFilter ? dateFormatFilter(dateValue) : dateValue
+    },
+    refreshData() {
+      setTimeout(() => {
+        this.getList();
+      },500);
+    },
     createReport(){
       this.$refs.createReport.showDialog(this.obj.knowledgeId,'add');
     },

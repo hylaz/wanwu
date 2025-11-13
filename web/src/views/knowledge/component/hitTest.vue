@@ -63,8 +63,8 @@
               <div class="resultTitle">
                 <span>
                   <span class="tag"  @click="showSectionDetail(index)">{{$t('knowledgeManage.section')}}#{{index+1}}</span>
-                  <span v-if="['graph','communityreport'].includes(item.contentType)" class="segment-type">
-                    {{item.contentType === 'graph' ? '知识图谱' : '社区报告'}}
+                  <span v-if="['graph','community_report'].includes(item.contentType)" class="segment-type">
+                    {{item.contentType === 'graph' ? '#知识图谱' : '#社区报告'}}
                   </span>
                   <span v-else>
                     <span class="segment-type">{{item.childContentList && item.childContentList.length > 0 ? '#父子分段' : '#通用分段'}}</span>

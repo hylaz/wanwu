@@ -33,6 +33,7 @@
               </div>
 
               <div class="content_title">
+                                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" >{{$t('common.gpuDialog.reload')}}</el-button>
                 <el-button size="mini" type="primary" @click="$router.push(`/knowledge/graphMap/${docQuery.knowledgeId}?name=${knowledgeName}`)" v-if="graphSwitch && tableData.length > 0">知识图谱</el-button>
                 <el-button size="mini" type="primary" @click="$router.push(`/knowledge/communityReport?knowledgeId=${docQuery.knowledgeId} &name=${knowledgeName}`)" v-if="graphSwitch && tableData.length > 0">
                   <span>社区报告</span>
@@ -40,7 +41,6 @@
                     <i class="el-icon-question" style="margin-left: 2px;"></i>
                   </el-tooltip>
                 </el-button>
-                <el-button size="mini" type="primary" icon="el-icon-refresh" @click="reload" >{{$t('common.gpuDialog.reload')}}</el-button>
                 <el-button size="mini" type="primary" @click="showMeta" v-if="[10,20,30].includes(permissionType)">元数据管理</el-button>
                 <el-button size="mini" type="primary" @click="$router.push(`/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&graphSwitch=${graphSwitch}`)">命中测试</el-button>
                 <el-button
@@ -101,7 +101,6 @@
                 <el-table-column
                   prop="segmentMethod"
                   label="分段模式"
-                  width="200"
                 >
                 <template slot-scope="scope">
                   <span>{{ getSegmentMethodText(scope.row.segmentMethod) }}</span>
@@ -142,7 +141,7 @@
                 </el-table-column>
                 <el-table-column
                   prop="graphStatus"
-                  label="图谱解析状态"
+                  :label="$t('knowledgeManage.graph.graphStatus')"
                 >
                    <template slot-scope="scope">
                       <span>{{knowledgeGraphStatus[scope.row.graphStatus]}}</span>

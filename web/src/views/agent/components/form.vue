@@ -369,7 +369,7 @@
         </div>
         <!-- 知识图谱开关 -->
         <div class="block prompt-box link-box" v-if="showGraphSwitch">
-            <graphSwitch ref="graphSwitch" @graphSwitchchange="graphSwitchchange" :label="'知识图谱'" :graphSwitch="editForm.knowledgeConfig.useGraph"/>
+            <graphSwitch ref="graphSwitch" @graphSwitchchange="graphSwitchchange" :label="$t('knowledgeManage.create.knowledgeGraph')" :graphSwitch="editForm.knowledgeConfig.useGraph"/>
         </div>
       </div>
       <div class="drawer-test">

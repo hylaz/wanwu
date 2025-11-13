@@ -113,7 +113,7 @@ export default {
       default: function() {
         return {
           largeThreshold: 500,
-          hideLabelZoom: 0.8,
+          hideLabelZoom: 0.5,
           enableWorkerLayout: true,
           simplifyEdgeOnLarge: true,
           disableAnimateOnLarge: true
@@ -204,30 +204,26 @@ export default {
         layout: {
           type: this.layout,
           preventOverlap: true,
-          nodeSize: 20,
-          nodeSpacing: 50,
+          nodeSize: 50,
+          nodeSpacing: 60,
+          autoFit: 'view',
           ...this.getLayoutConfig()
         },
         defaultNode: {
           type: 'circle',
-          size: 20,
+          size: 50,
           labelCfg: {
-            position: 'bottom',
-            offset: 10,
+            position: 'center',
+            offset: 0,
             style: {
               fill: '#333',
-              fontSize: 14,
-              fontWeight: 'normal',
-              background: {
-                fill: '#fff',
-                padding: [2, 4, 2, 4],
-                radius: 2
-              }
+              fontSize: 12,
+              fontWeight: 'normal'
             }
           },
           style: {
-            fill: '#C6E5FF',
-            stroke: '#5B8FF9',
+            fill: '#e4e4fe',
+            stroke: '#d4d0e9',
             lineWidth: 2
           },
           ...this.nodeStyle
@@ -235,7 +231,7 @@ export default {
         defaultEdge: {
           type: 'line',
           style: {
-            stroke: '#A3B1BF',
+            stroke: '#c7cad9',
             lineWidth: 2,
             endArrow: false
           },
@@ -259,23 +255,23 @@ export default {
         },
         nodeStateStyles: {
           hover: {
-            fill: '#91d5ff',
-            stroke: '#1890ff',
+            fill: '#bebefe',
+            stroke: '#d4d0e9',
             lineWidth: 3
           },
           selected: {
-            fill: '#91d5ff',
-            stroke: '#1890ff',
+            fill: '#bebefe',
+            stroke: '#c7cad9',
             lineWidth: 3
           }
         },
         edgeStateStyles: {
           hover: {
-            stroke: '#1890ff',
+            stroke: '#c7cad9',
             lineWidth: 3
           },
           selected: {
-            stroke: '#1890ff',
+            stroke: '#c7cad9',
             lineWidth: 3
           }
         }
@@ -295,13 +291,12 @@ export default {
         this.graph.data(transformedData)
         this.graph.render()
         
-        if (this.autoFit) {
-          this.fitView()
-        }
-        // 默认缩放为100%，以画布中心为缩放中心
-        const width = this.graph.getWidth()
-        const height = this.graph.getHeight()
-        this.graph.zoomTo(1, { x: width / 2, y: height / 2 })
+        this.$nextTick(() => {
+          // 适应视图，让图谱占满整个屏幕
+          this.graph.fitView(20, true)
+          // 设置缩放比例为100%
+          this.zoom = 1
+        })
       }
 
       window.addEventListener('resize', this.handleResize)
@@ -314,11 +309,11 @@ export default {
       const configs = {
         force: {
           preventOverlap: true,
-          nodeSize: 20,
-          nodeSpacing: 50,
-          linkDistance: 150,
-          nodeStrength: -100,
-          edgeStrength: 0.3,
+          nodeSize: 50,
+          nodeSpacing: 60,
+          linkDistance: 30,
+          nodeStrength: -50,
+          edgeStrength: 0.5,
           collideStrength: 0.8,
           alpha: 0.3,
           alphaDecay: 0.02,
@@ -326,16 +321,16 @@ export default {
         },
         dagre: {
           rankdir: 'TB',
-          nodesep: 50,
-          ranksep: 50
+          nodesep: 60,
+          ranksep: 60
         },
         circular: {
-          radius: 200,
+          radius: 150,
           startRadius: 10,
-          endRadius: 300
+          endRadius: 200
         },
         radial: {
-          unitRadius: 100,
+          unitRadius: 60,
           nodeSize: 50
         }
       }
@@ -375,8 +370,8 @@ export default {
  
        this.graph.on('viewportchange', () => {
          if (this.graph) {
-           const hideLabelZoom = (this.performance && this.performance.hideLabelZoom) || 0.8
-           const minZoom = hideLabelZoom > 0 ? hideLabelZoom : 0.3
+           const hideLabelZoom = (this.performance && this.performance.hideLabelZoom) || 0.5
+           const minZoom = hideLabelZoom > 0 ? hideLabelZoom : 0.5
            let zoom = this.graph.getZoom()
            const maxZoom = 2
            // 如果缩放小于最小限制，自动调整到最小缩放，以画布中心为缩放中心
@@ -408,26 +403,34 @@ export default {
 
     updateGraphData(data) {
       if (!this.graph) return
- 
+
       const safeData = {
         nodes: Array.isArray(data && data.nodes)
           ? data.nodes.map(n => ({ ...n }))
           : [],
         edges: Array.isArray(data && data.edges)
-          ? data.edges.map(e => {
-              const { label, ...rest } = e || {}
-              return { ...rest }
-            })
+          ? data.edges.map(e => ({ ...(e || {}) }))
           : []
       }
       this.graph.data(safeData)
       this.graph.render()
       
-      if (this.autoFit) {
-        this.$nextTick(() => {
-          this.fitView()
-        })
-      }
+      this.$nextTick(() => {
+        if (this.autoFit) {
+          // 设置缩放比例为100%
+          this.zoom = 1
+        } else {
+          // 如果不自动适应，只设置缩放为100%
+          const graphWidth = this.graph.getWidth()
+          const graphHeight = this.graph.getHeight()
+          const centerPoint = {
+            x: graphWidth / 2,
+            y: graphHeight / 2
+          }
+          this.graph.zoomTo(1, centerPoint)
+          this.zoom = 1
+        }
+      })
     },
  
     toggleLabelsByZoom() {
@@ -469,9 +472,9 @@ export default {
     zoomOut() {
       if (!this.graph) return
       const currentZoom = this.graph.getZoom()
-      const hideLabelZoom = (this.performance && this.performance.hideLabelZoom) || 0.8
+      const hideLabelZoom = (this.performance && this.performance.hideLabelZoom) || 0.5
       // 最小缩放限制为 hideLabelZoom，确保label能够显示
-      const minZoom = hideLabelZoom > 0 ? hideLabelZoom : 0.3
+      const minZoom = hideLabelZoom > 0 ? hideLabelZoom : 0.5
       const calculatedZoom = currentZoom * 0.8
       const newZoom = Math.max(calculatedZoom, minZoom)
       

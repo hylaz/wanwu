@@ -795,6 +795,13 @@ export default {
             sceneDescriptionContent:'用于回答问题的chunk切片跨多个文件或同文件的不同章节，依赖chunk之间通过实体关系实现多跳、关系类检索才能实现更全面的上下文召回。',
             attentionDescription:'注意事项:',
             attentionDescriptionContent:'开启后将对非表格类文档在导入解析环节调用大语言模型抽取三元组、构建知识图谱，会增加文档解析处理时长并增加大模型tokens资源开销。检索召回时会增加图谱检索召回会增加检索耗时。',
+            generating:'生成中',
+            generated:'已生成',
+            generationFailed:'生成失败',
+            pending:'待处理',
+            processing:'解析中',
+            finished:'解析成功',
+            failed:'解析失败',
         },
         graph:{
             refresh:'刷新数据',
@@ -804,7 +811,8 @@ export default {
             resetZoom:'实际大小',
             processing:'处理中',
             finished:'已完成',
-            failed:'处理失败'
+            failed:'处理失败',
+            graphStatus:'图谱解析状态',
         },
         communityReport:{
             name:"名称",
@@ -815,8 +823,7 @@ export default {
             generate:"生成",
             addCommunityReport:"新增社区报告",
             deleteSuccess:"删除成功",
-            generateSuccess:"生成成功",
-            
+            generateSuccess:"已开始生成",
             viewDetail:"详情查看"
         },
         meta:{

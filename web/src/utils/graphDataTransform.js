@@ -1,18 +1,3 @@
-function generateColorFromString(str) {
-  if (!str) return '#C6E5FF'
-  
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  
-  const hue = Math.abs(hash % 360)
-  const saturation = 60 + (Math.abs(hash) % 20)
-  const lightness = 50 + (Math.abs(hash) % 20)
-  
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
-}
-
 export function transformGraphData(backendData) {
   if (!backendData) {
     return { nodes: [], edges: [] }
@@ -21,22 +6,12 @@ export function transformGraphData(backendData) {
   const nodes = Array.isArray(backendData.nodes) ? backendData.nodes : []
   const edges = Array.isArray(backendData.edges) ? backendData.edges : []
   
-  const typeColorMap = {}
-  nodes.forEach(node => {
-    const entityType = node.entity_type || ''
-    if (entityType && !typeColorMap[entityType]) {
-      typeColorMap[entityType] = generateColorFromString(entityType)
-    }
-  })
-  
   const nodeIdMap = new Map()
 
   const transformedNodes = nodes.map((node, index) => {
     const nodeId = node.entity_name || `node_${index}`
     const nodeLabel = node.entity_name || `node_${index}`
-    const nodeSize = node.pagerank ? Math.max(15, Math.min(30, node.pagerank * 100)) : 20
-    const entityType = node.entity_type || ''
-    const nodeColor = typeColorMap[entityType] || '#C6E5FF'
+    const nodeSize = node.pagerank ? Math.max(40, Math.min(60, node.pagerank * 100)) : 50
 
     if (node && node.entity_name) {
       nodeIdMap.set(node.entity_name, nodeId)
@@ -48,21 +23,22 @@ export function transformGraphData(backendData) {
       nodeIdMap.set(String(node.id), nodeId)
     }
 
+    // 排除原始 node 中的 style，让 graphConfig 的默认样式生效
+    const { style, ...nodeWithoutStyle } = node || {}
+    
     return {
-      ...node,
+      ...nodeWithoutStyle,
       id: nodeId,
       label: nodeLabel,
       originalLabel: nodeLabel,
       type: 'circle',
-      size: nodeSize,
-      style: {
-        fill: nodeColor
-      }
+      size: nodeSize
     }
   })
 
   const transformedEdges = edges.map((edge, index) => {
     const edgeId = `e${index}`
+    const edgeLabel = edge.description || ''
 
     const source =
       nodeIdMap.get(edge && edge.source_entity) ||
@@ -86,16 +62,15 @@ export function transformGraphData(backendData) {
       (edge && edge.target_id ? String(edge.target_id) : undefined) ||
       `target_${index}`
 
+    // 排除原始 edge 中的 style，让 graphConfig 的默认样式生效
+    const { style, ...edgeWithoutStyle } = edge || {}
+    
     return {
+      ...edgeWithoutStyle,
       id: edgeId,
       source,
       target,
-      ...(edge.weight && {
-        style: {
-          lineWidth: Math.max(1, Math.min(5, edge.weight / 2))
-        }
-      }),
-      ...edge
+      label: edgeLabel
     }
   })
   return {

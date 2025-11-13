@@ -97,13 +97,13 @@ export const KNOWLEDGE_GRAPH_TIPS = [
 ]
 export const COMMUNITY_REPORT_STATUS = {
     0: '-',
-    1: '生成中',
-    2: '已生成',
-    3: '生成失败',
+    1: i18n.t('knowledgeManage.config.config.generating'),
+    2: i18n.t('knowledgeManage.config.config.generated'),
+    3: i18n.t('knowledgeManage.config.config.generationFailed'),
 }
 export const KNOWLEDGE_GRAPH_STATUS = {
-    0: '待处理',
-    1: '解析中',
-    2: '解析成功',
-    3: '解析失败',
+    0: i18n.t('knowledgeManage.config.pending'),
+    1: i18n.t('knowledgeManage.config.processing'),
+    2: i18n.t('knowledgeManage.config.finished'),
+    3: i18n.t('knowledgeManage.config.failed'),
 }

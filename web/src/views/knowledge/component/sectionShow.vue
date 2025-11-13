@@ -10,7 +10,7 @@
       <!-- 父分段区域 -->
       <div class="parent-segment" v-if="parentSegment">
         <div class="segment-header">
-          <span class="parent-badge" v-if="['graph','communityreport'].includes(parentSegment.contentType)">{{parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告'}}</span>
+          <span class="parent-badge" v-if="['graph','community_report'].includes(parentSegment.contentType)">{{parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告'}}</span>
           <span class="parent-badge" v-else>{{segmentList.length > 0 ? '父分段' :'通用分段'}}</span>
           <div class="parent-score">
             <span class="score-label">命中得分:</span>
