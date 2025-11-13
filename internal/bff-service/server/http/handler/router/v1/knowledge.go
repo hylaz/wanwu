@@ -86,4 +86,8 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/update", http.MethodPost, v1.UpdateKnowledgeReport, "更新社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/add", http.MethodPost, v1.AddKnowledgeReport, "单条新增社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/report/batch/add", http.MethodPost, v1.BatchAddKnowledgeReport, "批量新增社区报告", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+
+	// 知识图谱详情
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/graph", http.MethodGet, v1.GetKnowledgeGraph, "获取知识图谱详情", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
+
 }

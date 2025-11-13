@@ -174,3 +174,24 @@ func UpdateKnowledgeMetaValue(ctx *gin.Context) {
 	err := service.UpdateKnowledgeMetaValue(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, nil, err)
 }
+
+// GetKnowledgeGraph
+//
+//	@Tags			knowledge
+//	@Summary		查询知识图谱详情
+//	@Description	查询知识图谱详情
+//	@Security		JWT
+//	@Accept			json
+//	@Param			data	body	request.KnowledgeGraphReq	true	"查询知识图谱详情"
+//	@Produce		json
+//	@Success		200	{object}	response.Response{data=response.KnowledgeGraphResp}
+//	@Router			/knowledge/graph [get]
+func GetKnowledgeGraph(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeGraphReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeGraph(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}

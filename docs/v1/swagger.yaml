@@ -4976,8 +4976,17 @@ definitions:
     type: object
   response.ReportPageResult:
     properties:
+      canAddReport:
+        description: 是否可新增社区报告：true.可新增 false.不可新增
+        type: boolean
+      canGenerate:
+        description: 是否可生成：true.可生成 false.不可生成
+        type: boolean
       createdAt:
-        description: 生成时间：unix时间戳，若为空串显示-
+        description: 生成时间：unix毫秒级时间戳，若为空串显示-
+        type: string
+      generateLabel:
+        description: '生成社区报告按钮文案: 生成/重新生成'
         type: string
       list:
         description: 社区报告内容列表
@@ -9845,6 +9854,10 @@ paths:
       - application/json
       description: 获取OAuth应用分页列表
       parameters:
+      - description: 第三方平台名(模糊查询)
+        in: query
+        name: name
+        type: string
       - description: 页面编号，从1开始
         in: query
         name: pageNo

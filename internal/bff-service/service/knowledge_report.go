@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 )
 
-func GetKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.GetReportReq) (*response.ReportPageResult, error) {
+func GetKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportSelectReq) (*response.KnowledgeReportPageResult, error) {
 	resp, err := knowledgeBaseReport.GetKnowledgeReport(ctx, &knowledgebase_report_service.GetReportReq{
 		KnowledgeInfo: &knowledgebase_report_service.ReportIdentity{
 			KnowledgeId: req.KnowledgeId,
@@ -28,7 +28,7 @@ func GetKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.Get
 	return buildKnowledgeReportList(req, resp), nil
 }
 
-func GenerateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.GenerateReportReq) error {
+func GenerateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportGenerateReq) error {
 	_, err := knowledgeBaseReport.GenerateKnowledgeReport(ctx, &knowledgebase_report_service.ReportIdentity{
 		KnowledgeId: req.KnowledgeId,
 		UserId:      userId,
@@ -37,7 +37,7 @@ func GenerateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *reques
 	return err
 }
 
-func DeleteKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.DeleteReportReq) error {
+func DeleteKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportDeleteReq) error {
 	_, err := knowledgeBaseReport.DeleteKnowledgeReport(ctx, &knowledgebase_report_service.DeleteReportReq{
 		KnowledgeInfo: &knowledgebase_report_service.ReportIdentity{
 			KnowledgeId: req.KnowledgeId,
@@ -49,7 +49,7 @@ func DeleteKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.
 	return err
 }
 
-func UpdateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.UpdateReportReq) error {
+func UpdateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportUpdateReq) error {
 	_, err := knowledgeBaseReport.UpdateKnowledgeReport(ctx, &knowledgebase_report_service.UpdateReportReq{
 		KnowledgeInfo: &knowledgebase_report_service.ReportIdentity{
 			KnowledgeId: req.KnowledgeId,
@@ -65,7 +65,7 @@ func UpdateKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.
 	return err
 }
 
-func AddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.AddReportReq) error {
+func AddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportAddReq) error {
 	_, err := knowledgeBaseReport.AddKnowledgeReport(ctx, &knowledgebase_report_service.AddReportReq{
 		KnowledgeInfo: &knowledgebase_report_service.ReportIdentity{
 			KnowledgeId: req.KnowledgeId,
@@ -78,7 +78,7 @@ func AddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.Add
 	return err
 }
 
-func BatchAddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.BatchAddReportReq) error {
+func BatchAddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *request.KnowledgeReportBatchAddReq) error {
 	docUrl, err := minio.GetUploadFileWithExpire(ctx, req.FileUploadId)
 	if err != nil {
 		log.Errorf("GetUploadFileWithNotExpire error %v", err)
@@ -99,21 +99,24 @@ func BatchAddKnowledgeReport(ctx *gin.Context, userId, orgId string, req *reques
 	return err
 }
 
-func buildKnowledgeReportList(req *request.GetReportReq, resp *knowledgebase_report_service.GetReportResp) *response.ReportPageResult {
-	retList := make([]*response.ReportInfo, 0)
+func buildKnowledgeReportList(req *request.KnowledgeReportSelectReq, resp *knowledgebase_report_service.GetReportResp) *response.KnowledgeReportPageResult {
+	retList := make([]*response.KnowledgeReportInfo, 0)
 	for _, v := range resp.List {
-		retList = append(retList, &response.ReportInfo{
+		retList = append(retList, &response.KnowledgeReportInfo{
 			Content:   v.Content,
 			ContentId: v.ContentId,
 			Title:     v.Title,
 		})
 	}
-	return &response.ReportPageResult{
-		List:      retList,
-		Total:     resp.Total,
-		PageNo:    req.PageNo,
-		PageSize:  req.PageSize,
-		CreatedAt: resp.CreatedAt,
-		Status:    resp.Status,
+	return &response.KnowledgeReportPageResult{
+		List:          retList,
+		Total:         resp.Total,
+		PageNo:        req.PageNo,
+		PageSize:      req.PageSize,
+		CreatedAt:     resp.CreatedAt,
+		Status:        resp.Status,
+		CanGenerate:   resp.CanGenerate,
+		CanAddReport:  resp.CanAddReport,
+		GenerateLabel: resp.GenerateLabel,
 	}
 }

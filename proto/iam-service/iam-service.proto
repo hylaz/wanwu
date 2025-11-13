@@ -525,8 +525,9 @@ message UpdateOauthAppReq{
 
 message GetOauthAppListReq{
   string userId = 1;
-  int32 pageNo = 2;
-  int32 pageSize = 3;
+  string name = 2;
+  int32 pageNo = 3;
+  int32 pageSize = 4;
 }
 
 message OauthAppListResp{

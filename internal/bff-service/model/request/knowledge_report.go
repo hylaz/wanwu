@@ -1,23 +1,23 @@
 package request
 
-type GetReportReq struct {
+type KnowledgeReportSelectReq struct {
 	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	PageSearch
 	CommonCheck
 }
 
-type GenerateReportReq struct {
+type KnowledgeReportGenerateReq struct {
 	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	CommonCheck
 }
 
-type DeleteReportReq struct {
+type KnowledgeReportDeleteReq struct {
 	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	ContentId   string `json:"contentId"  form:"contentId"  validate:"required"`
 	CommonCheck
 }
 
-type UpdateReportReq struct {
+type KnowledgeReportUpdateReq struct {
 	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	ContentId   string `json:"contentId"  form:"contentId"  validate:"required"`
 	Content     string `json:"content"  form:"content"  validate:"required"`
@@ -25,14 +25,14 @@ type UpdateReportReq struct {
 	CommonCheck
 }
 
-type AddReportReq struct {
+type KnowledgeReportAddReq struct {
 	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	Content     string `json:"content"  form:"content"  validate:"required"`
 	Title       string `json:"title"  form:"title"  validate:"required"`
 	CommonCheck
 }
 
-type BatchAddReportReq struct {
+type KnowledgeReportBatchAddReq struct {
 	KnowledgeId  string `json:"knowledgeId"  form:"knowledgeId"  validate:"required"`
 	FileUploadId string `json:"fileUploadId"  validate:"required"`
 	CommonCheck

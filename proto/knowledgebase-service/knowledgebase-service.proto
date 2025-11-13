@@ -33,6 +33,8 @@ service KnowledgeBaseService {
   rpc UpdateKnowledgeMetaValue(UpdateKnowledgeMetaValueReq) returns (google.protobuf.Empty) {}
   // 修改知识库状态
   rpc UpdateKnowledgeStatus(UpdateKnowledgeStatusReq) returns (google.protobuf.Empty) {}
+  // 获取知识图谱详情
+  rpc GetKnowledgeGraph(KnowledgeGraphReq) returns (KnowledgeGraphResp){}
 }
 
 message DeleteKnowledgeReq{
@@ -241,3 +243,18 @@ message MetaValueOperation{
   KnowledgeMetaData metaInfo = 1;
   string option = 2; // add, delete, update
 }
+
+message KnowledgeGraphReq{
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message KnowledgeGraphResp{
+  int32 processingCount = 1;
+  int32 successCount = 2;
+  int32 failedCount = 3;
+  int32 total = 4;
+  string schema = 5;
+}
+

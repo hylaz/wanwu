@@ -176,6 +176,11 @@ type RagKnowledgeChatReq struct {
 	CommonCheck
 }
 
+type KnowledgeGraphReq struct {
+	KnowledgeId string `json:"knowledgeId"  form:"knowledgeId" validate:"required"`
+	CommonCheck
+}
+
 type CustomModelInfo struct {
 	LlmModelID string `json:"llm_model_id"`
 }

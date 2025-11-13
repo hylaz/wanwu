@@ -45,7 +45,7 @@ func (s *Service) UpdateOauthApp(ctx context.Context, req *iam_service.UpdateOau
 }
 
 func (s *Service) GetOauthAppList(ctx context.Context, req *iam_service.GetOauthAppListReq) (*iam_service.OauthAppListResp, error) {
-	apps, total, err := s.cli.GetOauthAppList(ctx, util.MustU32(req.UserId), toOffset(req), req.PageSize)
+	apps, total, err := s.cli.GetOauthAppList(ctx, util.MustU32(req.UserId), req.Name, toOffset(req), req.PageSize)
 	if err != nil {
 		return nil, errStatus(errs.Code_IAMOauth, err)
 	}

@@ -70,6 +70,13 @@
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
 {"code":110000,"key":"bff_doc_center_file_md","langs":{"en":"no markdown files found: %v","zh":"未含有md文件: %v"}}
+{"code":0,"key":"------ oauth ------","langs":{}}
+{"code":110000,"key":"bff_oauth_status","langs":{"en":"client id (%v) has been disabled","zh":"客户端ID(%v)已被禁用"}}
+{"code":110000,"key":"bff_oauth_secret","langs":{"en":"client secret is incorrect.","zh":"客户端密钥错误"}}
+{"code":110000,"key":"bff_oauth_redirect_uri","langs":{"en":"redirect uri not registered","zh":"重定向地址未注册"}}
+{"code":110000,"key":"bff_oauth_client_id_mismatch","langs":{"en":"the IDs of the two requests do not match.","zh":"两次请求的ID不匹配"}}
+{"code":110000,"key":"bff_oauth_client_id","langs":{"en":"client id not registered","zh":"客户端ID(%v)未注册"}}
+{"code":110000,"key":"bff_oauth_err","langs":{"en":"OAuth err:%v","zh":"OAuth错误:%v"}}
 {"code":0,"key":"------ assistant ------","langs":{}}
 {"code":0,"key":"bff_assistant_template_name","langs":{"en":"%v_copy%v","zh":"%v_副本%v"}}
 {"code":0,"key":"------ sensitive ------","langs":{}}
@@ -254,6 +261,11 @@
 {"code":146005,"key":"","langs":{"zh":"知识库删除权限失败，请稍后重试"}}
 {"code":146006,"key":"","langs":{"zh":"知识库的授权权限只有用户本人才能删除"}}
 {"code":146007,"key":"","langs":{"zh":"知识库转让失败"}}
+{"code":147001,"key":"","langs":{"zh":"获取社区报告失败，请稍后重试"}}
+{"code":147002,"key":"","langs":{"zh":"新增社区报告失败，请稍后重试"}}
+{"code":147003,"key":"","langs":{"zh":"删除社区报告失败，请稍后重试"}}
+{"code":147004,"key":"","langs":{"zh":"更新社区报告失败，请稍后重试"}}
+{"code":147005,"key":"","langs":{"zh":"生成社区报告失败，请稍后重试"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}

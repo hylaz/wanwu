@@ -29,7 +29,7 @@ type KnowledgeDoc struct {
 	FileType     string      `gorm:"column:file_type;type:varchar(20);not null;default:''" json:"fileType"`
 	FileSize     int64       `gorm:"column:file_size;type:bigint(20);COMMENT:'文件大小，单位byte'" json:"fileSize"`
 	Status       int         `gorm:"column:status;type:tinyint(1);not null;comment:'0-待处理， 1- 处理完成， 2-正在审核中(目前没有)，3-正在解析中，4-审核未通过（目前没有），5-解析失败';" json:"status"`
-	GraphStatus  GraphStatus `gorm:"column:graph_status;type:tinyint(1);not null;comment:'0-待处理， 100- 生成成功， 101-生成图谱获取chunk文本失败，102-提取图谱失败，103-图谱持久化存储失败，预留100~120';" json:"graphStatus"`
+	GraphStatus  GraphStatus `gorm:"column:graph_status;type:int(11);not null;comment:'0-待处理， 100- 生成成功， 101-生成图谱获取chunk文本失败，102-提取图谱失败，103-图谱持久化存储失败，预留100~120';" json:"graphStatus"`
 	ErrorMsg     string      `gorm:"column:error_msg;type:longtext;not null;comment:'解析的错误信息'" json:"errorMsg"`
 	CreatedAt    int64       `gorm:"column:create_at;type:bigint(20);not null;" json:"createAt"` // Create Time
 	UpdatedAt    int64       `gorm:"column:update_at;type:bigint(20);not null;" json:"updateAt"` // Update Time

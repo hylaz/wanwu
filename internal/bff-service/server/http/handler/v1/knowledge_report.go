@@ -15,12 +15,12 @@ import (
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	query		request.GetReportReq	true	"获取社区报告请求参数"
+//	@Param			data	query		request.KnowledgeReportSelectReq	true	"获取社区报告请求参数"
 //	@Success		200		{object}	response.Response{data=response.ReportPageResult}
 //	@Router			/knowledge/report/list [get]
 func GetKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.GetReportReq
+	var req request.KnowledgeReportSelectReq
 	if !gin_util.BindQuery(ctx, &req) {
 		return
 	}
@@ -36,12 +36,12 @@ func GetKnowledgeReport(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.GenerateReportReq	true	"生成社区报告请求参数"
+//	@Param			data	body		request.KnowledgeReportGenerateReq	true	"生成社区报告请求参数"
 //	@Success		200		{object}	response.Response
 //	@Router			/knowledge/report/generate [post]
 func GenerateKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.GenerateReportReq
+	var req request.KnowledgeReportGenerateReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
@@ -57,12 +57,12 @@ func GenerateKnowledgeReport(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.DeleteReportReq	true	"删除社区报告请求参数"
+//	@Param			data	body		request.KnowledgeReportDeleteReq	true	"删除社区报告请求参数"
 //	@Success		200		{object}	response.Response
 //	@Router			/knowledge/report/delete [delete]
 func DeleteKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.DeleteReportReq
+	var req request.KnowledgeReportDeleteReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
@@ -78,12 +78,12 @@ func DeleteKnowledgeReport(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.UpdateReportReq	true	"编辑社区报告请求参数"
+//	@Param			data	body		request.KnowledgeReportUpdateReq	true	"编辑社区报告请求参数"
 //	@Success		200		{object}	response.Response
 //	@Router			/knowledge/report/update [post]
 func UpdateKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.UpdateReportReq
+	var req request.KnowledgeReportUpdateReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
@@ -99,12 +99,12 @@ func UpdateKnowledgeReport(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.AddReportReq	true	"单条新增社区报告请求参数"
+//	@Param			data	body		request.KnowledgeReportAddReq	true	"单条新增社区报告请求参数"
 //	@Success		200		{object}	response.Response
 //	@Router			/knowledge/report/add [post]
 func AddKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.AddReportReq
+	var req request.KnowledgeReportAddReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
@@ -120,12 +120,12 @@ func AddKnowledgeReport(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.BatchAddReportReq	true	"批量新增社区报告请求参数"
+//	@Param			data	body		request.KnowledgeReportBatchAddReq	true	"批量新增社区报告请求参数"
 //	@Success		200		{object}	response.Response
 //	@Router			/knowledge/report/batch/add [post]
 func BatchAddKnowledgeReport(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.BatchAddReportReq
+	var req request.KnowledgeReportBatchAddReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}

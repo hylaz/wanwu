@@ -7215,6 +7215,12 @@
                 "summary": "获取OAuth应用列表",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "第三方平台名(模糊查询)",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "页面编号，从1开始",
                         "name": "pageNo",
@@ -18118,8 +18124,20 @@
         "response.ReportPageResult": {
             "type": "object",
             "properties": {
+                "canAddReport": {
+                    "description": "是否可新增社区报告：true.可新增 false.不可新增",
+                    "type": "boolean"
+                },
+                "canGenerate": {
+                    "description": "是否可生成：true.可生成 false.不可生成",
+                    "type": "boolean"
+                },
                 "createdAt": {
-                    "description": "生成时间：unix时间戳，若为空串显示-",
+                    "description": "生成时间：unix毫秒级时间戳，若为空串显示-",
+                    "type": "string"
+                },
+                "generateLabel": {
+                    "description": "生成社区报告按钮文案: 生成/重新生成",
                     "type": "string"
                 },
                 "list": {

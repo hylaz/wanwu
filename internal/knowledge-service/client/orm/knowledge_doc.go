@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"net/url"
 	"strconv"
+
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
@@ -525,4 +526,21 @@ func buildUpdateParams(status int) (map[string]interface{}, bool) {
 		"status":    status,
 		"error_msg": util.BuildDocErrMessage(status),
 	}, true
+}
+
+// SelectGraphStatus 查询知识图谱状态
+func SelectGraphStatus(ctx context.Context, knowledgeId string, userId, orgId string) ([]*model.KnowledgeDoc, error) {
+	var docList []*model.KnowledgeDoc
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeID(knowledgeId)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).Select("doc_id", "graph_status").
+		Find(&docList).Error
+	if err != nil {
+		log.Errorf("SelectDocByDocId userId %s err: %v", userId, err)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+	}
+	if len(docList) == 0 {
+		log.Errorf("SelectDocByDocId userId %s doc list empty", userId)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+	}
+	return docList, nil
 }

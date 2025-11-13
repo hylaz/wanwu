@@ -33,6 +33,7 @@ const (
 	KnowledgeBaseService_GetKnowledgeMetaValueList_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaValueList"
 	KnowledgeBaseService_UpdateKnowledgeMetaValue_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeMetaValue"
 	KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName         = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeStatus"
+	KnowledgeBaseService_GetKnowledgeGraph_FullMethodName             = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeGraph"
 )
 
 // KnowledgeBaseServiceClient is the client API for KnowledgeBaseService service.
@@ -65,6 +66,8 @@ type KnowledgeBaseServiceClient interface {
 	UpdateKnowledgeMetaValue(ctx context.Context, in *UpdateKnowledgeMetaValueReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 修改知识库状态
 	UpdateKnowledgeStatus(ctx context.Context, in *UpdateKnowledgeStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取知识图谱详情
+	GetKnowledgeGraph(ctx context.Context, in *KnowledgeGraphReq, opts ...grpc.CallOption) (*KnowledgeGraphResp, error)
 }
 
 type knowledgeBaseServiceClient struct {
@@ -205,6 +208,16 @@ func (c *knowledgeBaseServiceClient) UpdateKnowledgeStatus(ctx context.Context, 
 	return out, nil
 }
 
+func (c *knowledgeBaseServiceClient) GetKnowledgeGraph(ctx context.Context, in *KnowledgeGraphReq, opts ...grpc.CallOption) (*KnowledgeGraphResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(KnowledgeGraphResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_GetKnowledgeGraph_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseServiceServer is the server API for KnowledgeBaseService service.
 // All implementations must embed UnimplementedKnowledgeBaseServiceServer
 // for forward compatibility.
@@ -235,6 +248,8 @@ type KnowledgeBaseServiceServer interface {
 	UpdateKnowledgeMetaValue(context.Context, *UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error)
 	// 修改知识库状态
 	UpdateKnowledgeStatus(context.Context, *UpdateKnowledgeStatusReq) (*emptypb.Empty, error)
+	// 获取知识图谱详情
+	GetKnowledgeGraph(context.Context, *KnowledgeGraphReq) (*KnowledgeGraphResp, error)
 	mustEmbedUnimplementedKnowledgeBaseServiceServer()
 }
 
@@ -283,6 +298,9 @@ func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeMetaValue(context.
 }
 func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeStatus(context.Context, *UpdateKnowledgeStatusReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateKnowledgeStatus not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) GetKnowledgeGraph(context.Context, *KnowledgeGraphReq) (*KnowledgeGraphResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKnowledgeGraph not implemented")
 }
 func (UnimplementedKnowledgeBaseServiceServer) mustEmbedUnimplementedKnowledgeBaseServiceServer() {}
 func (UnimplementedKnowledgeBaseServiceServer) testEmbeddedByValue()                              {}
@@ -539,6 +557,24 @@ func _KnowledgeBaseService_UpdateKnowledgeStatus_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseService_GetKnowledgeGraph_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KnowledgeGraphReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).GetKnowledgeGraph(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_GetKnowledgeGraph_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).GetKnowledgeGraph(ctx, req.(*KnowledgeGraphReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -597,6 +633,10 @@ var KnowledgeBaseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateKnowledgeStatus",
 			Handler:    _KnowledgeBaseService_UpdateKnowledgeStatus_Handler,
+		},
+		{
+			MethodName: "GetKnowledgeGraph",
+			Handler:    _KnowledgeBaseService_GetKnowledgeGraph_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

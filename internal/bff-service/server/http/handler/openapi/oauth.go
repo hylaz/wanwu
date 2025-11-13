@@ -99,3 +99,32 @@ func OAuthGetUserInfo(ctx *gin.Context) {
 	resp, err := service.OAuthGetUserInfo(ctx, userID)
 	gin_util.Response(ctx, resp, err)
 }
+
+// OAuthLogin
+//
+//	@Summary		OAuth登录授权
+//	@Description	返回OAuth登录页面
+//	@Tags			OIDC
+//	@Accept			json
+//	@Produce		json
+//	@Param			client_id		query		string	true	"备案ID"
+//	@Param			redirect_uri	query		string	true	"重定向URI"
+//	@Param			response_type	query		string	true	"响应类型"
+//	@Param			scope			query		string	false	"权限范围"
+//	@Param			state			query		string	true	"状态参数"
+//	@Success		302				{string}	string	"重定向到指定URI"
+//	@Router			/oauth/login [get]
+func OAuthLogin(ctx *gin.Context) {
+	var req request.OAuthRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+	loginUri, err := service.OAuthLogin(ctx, &req)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+
+	ctx.Redirect(http.StatusFound, loginUri)
+}

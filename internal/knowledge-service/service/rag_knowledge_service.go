@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/mq"
 	"strings"
 	"time"
+
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/mq"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/http"
@@ -133,6 +134,18 @@ type RagBatchUpdateMetaKeyParams struct {
 type RagMetaMapKeys struct {
 	OldKey string `json:"old_key"`
 	NewKey string `json:"new_key"`
+}
+
+type RagKnowledgeGraphParams struct {
+	UserId        string `json:"userId"`        // 用户id
+	KnowledgeBase string `json:"knowledgeBase"` // 知识库名称
+	KnowledgeId   string `json:"kb_id"`         // 知识库id
+}
+
+type RagKnowledgeGraphResp struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // RagKnowledgeCreate rag创建知识库
@@ -319,4 +332,33 @@ func RagBatchUpdateMeta(ctx context.Context, ragUpdateParams *RagBatchUpdateMeta
 		return errors.New(resp.Message)
 	}
 	return nil
+}
+
+// RagKnowledgeGraph rag知识图谱
+func RagKnowledgeGraph(ctx context.Context, knowledgeGraphParams *RagKnowledgeGraphParams) (*RagKnowledgeGraphResp, error) {
+	ragServer := config.GetConfig().RagServer
+	url := ragServer.Endpoint + ragServer.KnowledgeGraphUri
+	paramsByte, err := json.Marshal(knowledgeGraphParams)
+	if err != nil {
+		return nil, err
+	}
+	result, err := http.GetClient().PostJson(ctx, &http_client.HttpRequestParams{
+		Url:        url,
+		Body:       paramsByte,
+		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
+		MonitorKey: "rag_knowledge_graph",
+		LogLevel:   http_client.LogAll,
+	})
+	if err != nil {
+		return nil, err
+	}
+	var resp RagKnowledgeGraphResp
+	if err := json.Unmarshal(result, &resp); err != nil {
+		log.Errorf(err.Error())
+		return nil, err
+	}
+	if resp.Code != successCode {
+		return nil, errors.New(resp.Message)
+	}
+	return &resp, nil
 }

@@ -117,6 +117,11 @@ rag-server:
   batch-delete-meta-key-uri: '/rag/delete-meta-by-keys'
   batch-rename-meta-key-uri: '/rag/rename-meta-keys'
   update-file-metas-uri: '/rag/update-file-metas'
+  get-community-report-list-uri: '/rag/get-community-report-list'
+  batch-add-reports-uri: '/rag/batch-add-reports'
+  update-report-uri: '/rag/update-report'
+  batch-delete-reports-uri: '/rag/batch-delete-reports'
+  knowledge-graph-uri: '/rag/knowledgeBase-graph'
   timeout: 60
 
 usage-limit:

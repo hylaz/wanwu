@@ -94,3 +94,40 @@ type KnowledgeMetaValues struct {
 	MetaValue     []string `json:"metaValue"` // 确定值
 	MetaValueType string   `json:"metaValueType"`
 }
+
+type KnowledgeGraphResp struct {
+	ProcessingCount int32                 `json:"processingCount"` //处理中
+	SuccessCount    int32                 `json:"successCount"`    //成功数量
+	FailCount       int32                 `json:"failCount"`       //失败数量
+	Total           int32                 `json:"total"`           //总数
+	Graph           *KnowledgeGraphSchema `json:"graph"`           //知识图谱节点、边
+}
+
+type KnowledgeGraphSchema struct {
+	Directed  bool                        `json:"directed"`
+	MutiGraph bool                        `json:"mutigraph"`
+	Graph     *KnowledgeGraphSourceIdList `json:"graph"`
+	Nodes     []*KnowledgeGraphNode       `json:"nodes"`
+	Edges     []*KnowledgeGraphEdge       `json:"edges"`
+}
+
+type KnowledgeGraphSourceIdList struct {
+	SourceIdList []string `json:"source_id"`
+}
+
+type KnowledgeGraphNode struct {
+	EntityName  string   `json:"entity_name"`
+	EntityType  string   `json:"entity_type"`
+	Description string   `json:"description"`
+	SourceId    []string `json:"source_id"`
+	Rank        int32    `json:"rank"`
+	PageRank    float64  `json:"pagerank"`
+}
+
+type KnowledgeGraphEdge struct {
+	SourceEntity string   `json:"source_entity"`
+	TargetEntity string   `json:"target_entity"`
+	Description  string   `json:"description"`
+	Weight       float64  `json:"weight"`
+	SourceId     []string `json:"source_id"`
+}

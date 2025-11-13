@@ -1,9 +1,7 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
@@ -32,18 +30,13 @@ func OAuthAuthorize(ctx *gin.Context) {
 		return
 	}
 	userID := getUserID(ctx)
-	callback, authCode, err := service.OAuthAuthorize(ctx, &req, userID)
+	callbackUri, err := service.OAuthAuthorize(ctx, &req, userID)
 	if err != nil {
 		gin_util.Response(ctx, nil, err)
 		return
 	}
-	redirectURI := fmt.Sprintf(
-		"%s?code=%s&state=%s",
-		callback,
-		url.QueryEscape(authCode),
-		url.QueryEscape(req.State), // 对state也进行编码
-	)
-	ctx.Redirect(http.StatusFound, redirectURI)
+
+	ctx.Redirect(http.StatusFound, callbackUri)
 }
 
 // CreateOauthApp
@@ -111,12 +104,13 @@ func UpdateOauthApp(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			pageNo		query		int	true	"页面编号，从1开始"
-//	@Param			pageSize	query		int	true	"单页数量，从1开始"
+//	@Param			name		query		string	false	"第三方平台名(模糊查询)"
+//	@Param			pageNo		query		int		true	"页面编号，从1开始"
+//	@Param			pageSize	query		int		true	"单页数量，从1开始"
 //	@Success		200			{object}	response.Response{data=response.PageResult{list=[]response.OAuthAppInfo}}
 //	@Router			/oauth/app/list [get]
 func GetOauthAppList(ctx *gin.Context) {
-	resp, err := service.GetOauthAppList(ctx, getUserID(ctx), getPageNo(ctx), getPageSize(ctx))
+	resp, err := service.GetOauthAppList(ctx, getUserID(ctx), ctx.Query("name"), getPageNo(ctx), getPageSize(ctx))
 	gin_util.Response(ctx, resp, err)
 
 }

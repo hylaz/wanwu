@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"time"
+
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
@@ -247,6 +248,50 @@ func (s *Service) UpdateKnowledgeStatus(ctx context.Context, req *knowledgebase_
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseUpdateFailed)
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) GetKnowledgeGraph(ctx context.Context, req *knowledgebase_service.KnowledgeGraphReq) (*knowledgebase_service.KnowledgeGraphResp, error) {
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	docInfo, err := orm.SelectGraphStatus(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	var processCount, successCount, failCount int32
+	for _, info := range docInfo {
+		if info.GraphStatus == model.GraphProcessing {
+			processCount++
+		} else if info.GraphStatus == model.GraphSuccess {
+			successCount++
+		} else if info.GraphStatus == model.GraphChunkFail || info.GraphStatus == model.GraphExtractFail || info.GraphStatus == model.GraphStoreFail {
+			failCount++
+		}
+	}
+	resp, err := rag_service.RagKnowledgeGraph(ctx, &rag_service.RagKnowledgeGraphParams{
+		KnowledgeId:   knowledge.KnowledgeId,
+		KnowledgeBase: knowledge.RagName,
+		UserId:        knowledge.UserId,
+	})
+	if err != nil {
+		log.Errorf("RagKnowledgeGraph error %s", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseGraphFailed)
+	}
+	schema, err := json.Marshal(resp.Data)
+	if err != nil {
+		log.Errorf("RagKnowledgeGraph marshal error %s", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseGraphFailed)
+	}
+	return &knowledgebase_service.KnowledgeGraphResp{
+		ProcessingCount: processCount,
+		SuccessCount:    successCount,
+		FailedCount:     failCount,
+		Total:           processCount + successCount + failCount,
+		Schema:          string(schema),
+	}, nil
 }
 
 func buildDocMetaMap(docMetaList []*model.KnowledgeDocMeta) map[string]map[string][]*model.KnowledgeDocMeta {

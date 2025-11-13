@@ -8,7 +8,7 @@ const (
 	ReportLoadFail    ReportStatus = 121 //社区报告加载失败
 	ReportExtractFail ReportStatus = 122 //社区报告生成失败
 	ReportStoreFail   ReportStatus = 123 //社区报告持久化存储失败
-	ReportProcessing  ReportStatus = 130
+	ReportProcessing  ReportStatus = 130 //社区报告生成中
 	ReportEnd         ReportStatus = 139
 )
 
@@ -25,7 +25,7 @@ type KnowledgeBase struct {
 	KnowledgeGraphSwitch int          `gorm:"column:knowledge_graph_switch;type:tinyint(1);not null;default:0;comment:'知识图谱开关，方便查询过滤，0：关闭，1：开启';" json:"knowledgeGraphSwitch"`
 	KnowledgeGraph       string       `gorm:"column:knowledge_graph;type:longtext;not null;comment:'知识图谱配置';" json:"knowledgeGraph"`
 	ReportCreateCount    int          `gorm:"column:report_create_count;type:int(11);not null;default:0;comment:'社区报告生成数量'" json:"reportCreateCount"`
-	ReportStatus         ReportStatus `gorm:"column:report_status;type:tinyint(1);not null;comment:'0-待处理， 120- 生成成功， 130-生成中，121-社区报告加载图谱失败，122-生成社区报告失败，123-社区报告持久化存储失败，预留120~140';" json:"reportStatus"`
+	ReportStatus         ReportStatus `gorm:"column:report_status;type:int(11);not null;comment:'0-待处理， 120- 生成成功， 130-生成中，121-社区报告加载图谱失败，122-生成社区报告失败，123-社区报告持久化存储失败，预留120~140';" json:"reportStatus"`
 	CreatedAt            int64        `gorm:"column:create_at;type:bigint(20);not null;" json:"createAt"` // Create Time
 	UpdatedAt            int64        `gorm:"column:update_at;type:bigint(20);not null;" json:"updateAt"` // Update Time
 	UserId               string       `gorm:"column:user_id;index:idx_user_id_name,priority:1;type:varchar(64);not null;default:'';" json:"userId"`

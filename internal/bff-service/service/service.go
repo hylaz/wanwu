@@ -97,6 +97,7 @@ func Init() error {
 	knowledgeBaseKeywords = knowledgebase_keywords_service.NewKnowledgeBaseKeywordsServiceClient(knowledgeBaseConn)
 	knowledgeBaseSplitter = knowledgebase_splitter_service.NewKnowledgeBaseSplitterServiceClient(knowledgeBaseConn)
 	knowledgeBasePermission = knowledgebase_permission_service.NewKnowledgeBasePermissionServiceClient(knowledgeBaseConn)
+	knowledgeBaseReport = knowledgebase_report_service.NewKnowledgeBaseReportServiceClient(knowledgeBaseConn)
 	rag = rag_service.NewRagServiceClient(ragConn)
 	assistant = assistant_service.NewAssistantServiceClient(assistantConn)
 	safety = safety_service.NewSafetyServiceClient(appConn)

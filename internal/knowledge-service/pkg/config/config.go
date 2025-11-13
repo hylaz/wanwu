@@ -153,5 +153,10 @@ type RagServerConfig struct {
 	DocChildSegmentUpdateUri  string `mapstructure:"doc-child-segment-update-uri" json:"doc-child-segment-update-uri"`
 	BatchDeleteMetaKeyUri     string `mapstructure:"batch-delete-meta-key-uri" json:"batch-delete-meta-key-uri"`
 	BatchRenameMetakeyUri     string `mapstructure:"batch-rename-meta-key-uri" json:"batch-rename-meta-key-uri"`
+	GetCommunityReportListUri string `mapstructure:"get-community-report-list-uri" json:"get-community-report-list-uri"`
+	BatchAddReportsUri        string `mapstructure:"batch-add-reports-uri" json:"batch-add-reports-uri"`
+	UpdateReportUri           string `mapstructure:"update-report-uri" json:"update-report-uri"`
+	BatchDeleteReportsUri     string `mapstructure:"batch-delete-reports-uri" json:"batch-delete-reports-uri"`
+	KnowledgeGraphUri         string `mapstructure:"knowledge-graph-uri" json:"knowledge-graph-uri"`
 	Timeout                   int64  `mapstructure:"timeout" json:"timeout"`
 }

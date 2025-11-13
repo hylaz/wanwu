@@ -98,7 +98,7 @@ type IClient interface {
 	CreateOauthApp(ctx context.Context, req *model.OauthApp) *errs.Status
 	DeleteOauthApp(ctx context.Context, clientID string) *errs.Status
 	UpdateOauthApp(ctx context.Context, req *model.OauthApp) *errs.Status
-	GetOauthAppList(ctx context.Context, userID uint32, offset, limit int32) ([]*model.OauthApp, int64, *errs.Status)
+	GetOauthAppList(ctx context.Context, userID uint32, name string, offset, limit int32) ([]*model.OauthApp, int64, *errs.Status)
 	UpdateOauthAppStatus(ctx context.Context, clientID string, status bool) *errs.Status
 	GetOauthApp(ctx context.Context, clientID string) (*model.OauthApp, *errs.Status)
 }

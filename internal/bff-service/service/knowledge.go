@@ -10,11 +10,13 @@ import (
 	"strings"
 	"time"
 
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/gin-gonic/gin"
@@ -212,6 +214,28 @@ func UpdateKnowledgeStatus(ctx *gin.Context, r *request.CallbackUpdateKnowledgeS
 		ReportStatus: r.ReportStatus,
 	})
 	return err
+}
+
+// GetKnowledgeGraph 查询知识图谱详情
+func GetKnowledgeGraph(ctx *gin.Context, userId, orgId string, req *request.KnowledgeGraphReq) (*response.KnowledgeGraphResp, error) {
+	resp, err := knowledgeBase.GetKnowledgeGraph(ctx.Request.Context(), &knowledgebase_service.KnowledgeGraphReq{
+		UserId:      userId,
+		OrgId:       orgId,
+		KnowledgeId: req.KnowledgeId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	graph := &response.KnowledgeGraphResp{
+		ProcessingCount: resp.ProcessingCount,
+		SuccessCount:    resp.SuccessCount,
+		FailCount:       resp.FailedCount,
+		Total:           resp.Total,
+	}
+	if err = json.Unmarshal([]byte(resp.Schema), graph); err != nil {
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("knowledge graph unmarshal err: %v", err))
+	}
+	return graph, nil
 }
 
 func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagKnowledgeInfo {

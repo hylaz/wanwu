@@ -66,7 +66,7 @@ type RagImportDocParams struct {
 	GraphModelId          string               `json:"graph_model_id"`
 	GraphSchemaObjectName string               `json:"graph_schema_objectname"`
 	GraphSchemaFileName   string               `json:"graph_schema_filename"`
-	MessageType           string               `json:"message_type"`
+	MessageType           string               `json:"message_type,omitempty"`
 }
 
 type RagImportUrlDocParams struct {

@@ -4,29 +4,60 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	oauth2_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/oauth2-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	jwt_util "github.com/UnicomAI/wanwu/pkg/jwt-util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest, userID string) (string, string, error) {
+func OAuthLogin(ctx *gin.Context, req *request.OAuthRequest) (string, error) {
+	issuer, err := oauth2_util.GetIssuer()
+	if err != nil {
+		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
+	}
+	loginUri := issuer + "/aibase/login"
+
+	// 将 []string 转为以空格分隔的字符串
+	scopeStr := strings.Join(req.Scopes, " ")
+
 	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
 		ClientId: req.ClientID,
 	})
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	if !oauthApp.Status {
-		return "", "", fmt.Errorf("client id: %v has been disabled", oauthApp.ClientId)
+	loginURI := fmt.Sprintf(
+		"%s?client_id=%s&response_type=%s&scope=%s&client_name=%s&redirect_uri=%s&state=%s",
+		loginUri,
+		url.QueryEscape(req.ClientID), //ID
+		url.QueryEscape(req.ResponseType),
+		url.QueryEscape(scopeStr),
+		url.QueryEscape(oauthApp.Name),
+		url.QueryEscape(req.RedirectURI),
+		url.QueryEscape(req.State), // 对state也进行编码
+	)
+
+	return loginURI, nil
+}
+
+func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest, userID string) (string, error) {
+	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
+		ClientId: req.ClientID,
+	})
+	if err != nil {
+		return "", err
 	}
-	if oauthApp.ClientId != req.ClientID || (req.RedirectURI != "" && req.RedirectURI != oauthApp.RedirectUri) {
-		return "", "", fmt.Errorf("client id: %v or redirecturi: %v missmatch", req.ClientID, req.RedirectURI)
+	err = oauthValidateReqApp(req.ClientID, "", req.RedirectURI, oauthApp)
+	if err != nil {
+		return "", err
 	}
 	//code save to redis
 	code := uuid.NewString()
@@ -34,25 +65,31 @@ func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest, userID string) 
 		ClientID: req.ClientID,
 		UserID:   userID,
 	}); err != nil {
-		return "", "", fmt.Errorf("%v get auth info err:%v", req.ClientID, err)
+		return "", grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
-	return oauthApp.RedirectUri, code, nil
+	redirectURI := fmt.Sprintf(
+		"%s?code=%s&state=%s",
+		req.RedirectURI,
+		url.QueryEscape(code),
+		url.QueryEscape(req.State), // 对state也进行编码
+	)
+	return redirectURI, nil
 }
 
 func OAuthToken(ctx *gin.Context, req *request.OAuthTokenRequest) (*response.OAuthTokenResponse, error) {
-	codePayload, err := oauth2_util.ValidateCode(ctx, req.Code, req.ClientID)
-	if err != nil {
-		return nil, fmt.Errorf("validate code timeout err: %v", err)
-	}
 	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
 		ClientId: req.ClientID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%v get auth info err: %v", req.ClientID, err)
+		return nil, err
 	}
-	err = oauthValidateCode(req.ClientID, req.ClientSecret, req.RedirectURI, codePayload, oauthApp)
+	err = oauthValidateReqApp(req.ClientID, req.ClientSecret, req.RedirectURI, oauthApp)
 	if err != nil {
 		return nil, err
+	}
+	codePayload, err := oauth2_util.ValidateCode(ctx, req.Code, req.ClientID)
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
 	user, err := iam.GetUserInfo(ctx, &iam_service.GetUserInfoReq{
 		UserId: codePayload.UserID,
@@ -65,17 +102,17 @@ func OAuthToken(ctx *gin.Context, req *request.OAuthTokenRequest) (*response.OAu
 	scopes := []string{} //预留scope处理
 	accessToken, err := oauth2_util.GenerateAccessToken(user.UserId, req.ClientID, scopes, oauth2_util.AccessTokenTimeout)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFJWT, err.Error())
 	}
 	//id token
 	idToken, err := oauth2_util.GenerateIDToken(user.UserId, user.UserName, req.ClientID, oauth2_util.IDTokenTimeout)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFJWT, err.Error())
 	}
 	//refresh token
 	refreshToken, err := oauth2_util.GenerateRefreshToken(ctx, user.UserId, req.ClientID, oauth2_util.RefreshTokenExpiration)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
 	return &response.OAuthTokenResponse{
 		AccessToken:  accessToken,
@@ -88,32 +125,30 @@ func OAuthToken(ctx *gin.Context, req *request.OAuthTokenRequest) (*response.OAu
 }
 
 func OAuthRefresh(ctx *gin.Context, req *request.OAuthRefreshRequest) (*response.OAuthRefreshTokenResponse, error) {
-	refreshPayload, err := oauth2_util.ValidateRefreshToken(ctx, req.RefreshToken, req.ClientID)
-	if err != nil {
-		return nil, err
-	}
 	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
 		ClientId: req.ClientID,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if !oauthApp.Status {
-		return nil, fmt.Errorf("client id: %v has been disabled", oauthApp.ClientId)
+	err = oauthValidateReqApp(req.ClientID, req.ClientSecret, "", oauthApp)
+	if err != nil {
+		return nil, err
 	}
-	if req.ClientSecret != oauthApp.ClientSecret {
-		return nil, fmt.Errorf("clinetId:%v or clientSecret missmatch", req.ClientID)
+	refreshPayload, err := oauth2_util.ValidateRefreshToken(ctx, req.RefreshToken, req.ClientID)
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
 	scopes := []string{} //scopes处理预留
 	//new access token
 	accessToken, err := oauth2_util.GenerateAccessToken(refreshPayload.UserID, req.ClientID, scopes, oauth2_util.AccessTokenTimeout)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFJWT, err.Error())
 	}
 	//new refresh token
 	refreshToken, err := oauth2_util.GenerateRefreshToken(ctx, refreshPayload.UserID, refreshPayload.ClientID, oauth2_util.RefreshTokenExpiration)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
 	return &response.OAuthRefreshTokenResponse{
 		AccessToken:  accessToken,
@@ -125,14 +160,15 @@ func OAuthRefresh(ctx *gin.Context, req *request.OAuthRefreshRequest) (*response
 func OAuthConfig(ctx *gin.Context) (*response.OAuthConfig, error) {
 	issuer, err := oauth2_util.GetIssuer()
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
+	issuer = issuer + "/user/api/openapi/v1"
 	return &response.OAuthConfig{
 		Issuer:           issuer,
-		AuthEndpoint:     issuer + "/user/api/v1" + "/oauth/code/authorize",
-		TokenEndpoint:    issuer + "/user/api/openapi/v1" + "/oauth/code/token",
-		JwksUri:          issuer + "/user/api/openapi/v1" + "/oauth/jwks",
-		UserInfoEndpoint: issuer + "/user/api/openapi/v1" + "/oauth/userinfo",
+		AuthEndpoint:     issuer + "/oauth/login",
+		TokenEndpoint:    issuer + "/oauth/code/token",
+		JwksUri:          issuer + "/oauth/jwks",
+		UserInfoEndpoint: issuer + "/oauth/userinfo",
 		ResponseTypes:    []string{"code"},
 		IDtokenSignAlg:   []string{"RS256"},
 		SubjectTypes:     []string{"public"},
@@ -142,7 +178,7 @@ func OAuthConfig(ctx *gin.Context) (*response.OAuthConfig, error) {
 func OAuthJWKS(ctx *gin.Context) (*response.OAuthJWKS, error) {
 	jwk, err := oauth2_util.GetJWK()
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_err", err.Error())
 	}
 	return &response.OAuthJWKS{Keys: []oauth2_util.JWK{jwk}}, nil
 }
@@ -157,12 +193,12 @@ func OAuthGetUserInfo(ctx *gin.Context, userID string) (*response.OAuthGetUserIn
 	}
 	issuer, err := oauth2_util.GetIssuer()
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
 	avatar := cacheUserAvatar(ctx, user.AvatarPath)
 	avatarUri, err := url.JoinPath(issuer, "/user/api", avatar.Path)
 	if err != nil {
-		return nil, err
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
 	return &response.OAuthGetUserInfo{
 		UserID:    user.UserId,
@@ -177,20 +213,18 @@ func OAuthGetUserInfo(ctx *gin.Context, userID string) (*response.OAuthGetUserIn
 	}, nil
 }
 
-func oauthValidateCode(clientID, clientSecret, redirectUri string, codePayload oauth2_util.CodePayload, appInfo *iam_service.OauthApp) error {
+func oauthValidateReqApp(clientID, clientSecret, redirectUri string, appInfo *iam_service.OauthApp) error {
 	if !appInfo.Status {
-		return fmt.Errorf("client id: %v has been disabled", codePayload.ClientID)
+		return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_status", clientID)
 	}
-	if codePayload.ClientID != clientID { //两次传的不一样
-		return fmt.Errorf("client_id mismatch: expected %v, got %v", codePayload.ClientID, clientID)
+	if appInfo.ClientId != clientID {
+		return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_client_id", clientID)
 	}
-
-	if appInfo.ClientSecret != clientSecret {
-		return fmt.Errorf("client_secret error for client_id: %v", codePayload.ClientID)
+	if clientSecret != "" && appInfo.ClientSecret != clientSecret {
+		return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_secret")
 	}
-
 	if redirectUri != "" && redirectUri != appInfo.RedirectUri {
-		return fmt.Errorf("redirect_uri err: got %v", redirectUri)
+		return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_oauth_redirect_uri")
 	}
 	return nil
 }
@@ -231,9 +265,10 @@ func UpdateOauthApp(ctx *gin.Context, req *request.UpdateOauthAppReq) error {
 	return nil
 }
 
-func GetOauthAppList(ctx *gin.Context, userId string, pageNo, pageSize int32) (*response.PageResult, error) {
+func GetOauthAppList(ctx *gin.Context, userId, name string, pageNo, pageSize int32) (*response.PageResult, error) {
 	resp, err := iam.GetOauthAppList(ctx, &iam_service.GetOauthAppListReq{
 		UserId:   userId,
+		Name:     name,
 		PageNo:   pageNo,
 		PageSize: pageSize,
 	})

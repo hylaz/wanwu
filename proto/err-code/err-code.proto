@@ -50,6 +50,7 @@ enum Code {
   KnowledgeBaseDuplicateName = 141008; // 已存在同名知识库
   KnowledgeBaseSelectFailed = 141009; // 查询知识库列表失败，请稍后重试
   KnowledgeBaseHitFailed = 141010; // 命中测试失败，请稍后重试
+  KnowledgeBaseGraphFailed = 141011; // 查询知识图谱失败，请稍后重试
   KnowledgeDocDeleteDuringParse = 142001; // 文档正在解析文档，不可删除
   KnowledgeDocDeleteFailed = 142002; // 文档删除失败，请稍后重试
   KnowledgeDocSegmentStatusUpdateFail = 142003; // 修改文档分段状态失败，请稍后重试
@@ -101,6 +102,11 @@ enum Code {
   KnowledgeDeletePermissionFailed = 146005;// 知识库删除权限失败，请稍后重试
   KnowledgeDeleteGrantPermissionFailed = 146006;// 知识库的授权权限只有用户本人才能删除
   KnowledgeTransferPermissionFailed = 146007;// 知识库转让失败
+  KnowledgeGetReportFailed = 147001; // 获取社区报告失败，请稍后重试
+  KnowledgeAddReportFailed = 147002; // 新增社区报告失败，请稍后重试
+  KnowledgeDeleteReportFailed = 147003; // 删除社区报告失败，请稍后重试
+  KnowledgeUpdateReportFailed = 147004; // 更新社区报告失败，请稍后重试
+  KnowledgeGenerateReportFailed = 147005; // 生成社区报告失败，请稍后重试
 
   // --- rag-service ---
   // [150000, 159999]
