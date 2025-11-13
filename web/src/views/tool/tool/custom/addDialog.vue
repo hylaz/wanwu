@@ -347,12 +347,28 @@ export default {
         })
     },
     preAuthorize() {
+      this.form.apiAuth.apiKeyHeaderPrefix = this.form.apiAuth.apiKeyHeaderPrefix || "basic"
       this.dialogAuthVisible = true
     },
     submit() {
       this.$refs.form.validate(async (valid) => {
         if (!valid) return;
         this.loading = true
+        switch (this.form.apiAuth.authType) {
+          case 'none':
+            this.form.apiAuth.apiKeyValue = ''
+            this.form.apiAuth.apiKeyHeader = ''
+            this.form.apiAuth.apiKeyHeaderPrefix = ''
+            this.form.apiAuth.apiKeyQueryParam = ''
+            break
+          case 'api_key_query':
+            this.form.apiAuth.apiKeyHeader = ''
+            this.form.apiAuth.apiKeyHeaderPrefix = ''
+            break
+          case 'api_key_header':
+            this.form.apiAuth.apiKeyQueryParam = ''
+            break
+        }
         const params = {
           ...this.form
         }
