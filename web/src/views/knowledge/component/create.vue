@@ -331,7 +331,7 @@ export default {
     },
     async downloadTemplate() {
       const url = "/user/api/v1/static/docs/graph_schema.xlsx";
-      const fileName = "graph_schema.xlsx.xlsx";
+      const fileName = "graph_schema.xlsx";
       try {
         const response = await fetch(url);
         if (!response.ok)

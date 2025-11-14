@@ -848,6 +848,26 @@ export default {
            rowKeyTips:"行的Key不能为空",
            rowValueTips:"行的Value不能为空",
            noNeedUpdate:"没有需要更新的数据"
+        },
+        hitTest:{
+            name:'命中测试',
+            title:'命中分段测试',
+            hitTestBtn:'开始测试',
+            hitTestResult:'命中预测结果',
+            metaDataFilter:'元数据过滤配置',
+            graph:'知识图谱',
+            communityReport:'社区报告',
+            commonSegment:'通用分段',
+            parentSonSegment:'父子分段',
+            childSegmentCount:'个子分段',
+            hitChildSegment:'命中{count}个子分段',
+            hitScore:'命中得分',
+            noData:'暂无数据',
+            inputQuestion:'请输入问题',
+            fileName:'文件名称',
+            selectSearchType:'请选择检索方式',
+            selectRerankModel:'请选择Rerank模型',
+            fillInMissingInfo:'存在未填信息,请补充',
         }
     },
     knowledgeSelect:{
@@ -1048,6 +1068,10 @@ export default {
         copyToInput:'复制入框',
         clearHistory:'清空历史',
         clickCopy:'点击复制',
+        fileTypeNotSupported:'文件类型不支持或体积过大',
+        fileTypeNotSupportedTips:'非图片类型文件只能上传一个，已自动忽略多余文件',
+        fileTypeNotSupportedTips1:'部分文件类型不支持或超出数量限制，已自动忽略',
+        fileTypeNotSupportedTips2:'部分文件类型不支持或体积过大，已自动忽略',
         toolDetail:{
             modelLoadingText:'模型加载中...',
             selectRerank:'请选择rerank模型',

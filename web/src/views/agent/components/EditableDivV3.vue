@@ -138,16 +138,16 @@
             // this.getModelData()
         },
         mounted(){
-            this.$nextTick(() => {
-            this.$setupDragAndDrop({
-            containerSelector: '.editable--input',
-            maxImageFiles: this.maxPicNum,
-            onFiles: (files) => {
-                this.isDragging = true
-                this.processFiles(files)
-                }
-            })
-             }) 
+            // this.$nextTick(() => {
+            // this.$setupDragAndDrop({
+            // containerSelector: '.editable--input',
+            // maxImageFiles: this.maxPicNum,
+            // onFiles: (files) => {
+            //     this.isDragging = true
+            //     this.processFiles(files)
+            //     }
+            // })
+            //  }) 
         },
         methods:{
             // 处理文件的方法，提取出来供 handleDrop 和 onFiles 使用

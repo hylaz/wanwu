@@ -2,6 +2,8 @@
  * 通用 mixins 方法
  * 提供项目中常用的工具方法和生命周期钩子
  */
+import { i18n } from '@/lang'
+
 export default {
   data() {
     return {
@@ -64,7 +66,7 @@ export default {
           // 如果没有有效文件，直接返回
           if (!firstValidFile) {
             if (this && this.$message && this.$message.warning) {
-              this.$message.warning('文件类型不支持或体积过大')
+              this.$message.warning(i18n.t('agent.fileTypeNotSupported'))
             }
             return
           }
@@ -127,11 +129,11 @@ export default {
           // 提示被拒文件
           if (rejected.length && this && this.$message && this.$message.warning) {
             if (!isImageType && rawFiles.length > 1) {
-              this.$message.warning('非图片类型文件只能上传一个，已自动忽略多余文件')
+              this.$message.warning(i18n.t('agent.fileTypeNotSupportedTips'))
             } else if (isImageType && safeFiles.length < rawFiles.length) {
-              this.$message.warning('部分文件类型不支持或超出数量限制，已自动忽略')
+              this.$message.warning(i18n.t('agent.fileTypeNotSupportedTips1'))
             } else {
-              this.$message.warning('部分文件类型不支持或体积过大，已自动忽略')
+              this.$message.warning(i18n.t('agent.fileTypeNotSupportedTips2'))
             }
           }
 
