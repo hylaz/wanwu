@@ -359,6 +359,7 @@ func toMCPServerDetail(ctx *gin.Context, mcpServerInfo *mcp_service.MCPServerInf
 			MCPServerToolID: mcpServerToolInfo.McpServerToolId,
 			MethodName:      mcpServerToolInfo.Name,
 			Type:            mcpServerToolInfo.Type,
+			Id:              mcpServerToolInfo.AppToolId,
 			Name:            mcpServerToolInfo.AppToolName,
 			Desc:            mcpServerToolInfo.Desc,
 		})

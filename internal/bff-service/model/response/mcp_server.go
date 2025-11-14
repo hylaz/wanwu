@@ -29,6 +29,7 @@ type MCPServerToolInfo struct {
 	MCPServerToolID string `json:"mcpServerToolId"` // mcpServerToolId
 	MethodName      string `json:"methodName"`      // 显示名称
 	Type            string `json:"type"`            // 类型
+	Id              string `json:"id"`              // 应用或工具id
 	Name            string `json:"name"`            // 应用或工具名称
 	Desc            string `json:"desc"`            // 描述
 }
