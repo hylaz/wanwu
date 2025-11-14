@@ -530,6 +530,9 @@ func transKnowledgebases2Proto(kbConfig request.AppKnowledgebaseConfig) *assista
 		KeywordPriority:      kbConfig.Config.KeywordPriority,
 		PriorityMatch:        kbConfig.Config.PriorityMatch,
 		SemanticsPriority:    kbConfig.Config.SemanticsPriority,
+		TermWeight:           kbConfig.Config.TermWeight,
+		TermWeightEnable:     kbConfig.Config.TermWeightEnable,
+		UseGraph:             kbConfig.Config.UseGraph,
 		AppKnowledgeBaseList: transKnowledgeParams(kbConfig.Knowledgebases),
 	}
 }
