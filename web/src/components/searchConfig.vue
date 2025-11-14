@@ -12,8 +12,9 @@
         <span v-if="!setType" class="vertical-form-title">检索方式配置</span>
     </template>
       <div
-        v-for="item in searchTypeData"
+        v-for="(item,index) in searchTypeData"
         :class="['searchType-list',{ 'active': item.showContent }]"
+        :key="index"
       >
         <div
           class="searchType-title"
@@ -40,6 +41,7 @@
               v-for="mixItem in item.mixType"
               :class="['weightType',{ 'active': mixItem.value === item.mixTypeValue }]"
               @click.stop="mixTypeClick(item,mixItem)"
+              :key="mixItem.name"
             >
               <p class="weightType-name">{{mixItem.name}}</p>
               <p class="weightType-desc">{{mixItem.desc}}</p>
@@ -169,6 +171,13 @@
           </el-row>
         </div>
       </div>
+    </el-form-item>
+    <el-form-item label="是否使用图谱">
+      <el-switch
+        v-model="formInline.knowledgeMatchParams.useGraph"
+        @change="handleUseGraphChange"
+      >
+      </el-switch>
     </el-form-item>
   </el-form>
 </template>
