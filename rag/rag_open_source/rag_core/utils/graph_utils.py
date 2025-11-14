@@ -497,7 +497,7 @@ def get_graph_search_list(user_id, kb_names, question, top_k, kb_ids=[], filter_
                 contents.append(s["content"])
             if contents:
                 newline = '\n'
-                report_texts = f"社区报告信息:{newline}({newline.join(contents)}) "
+                report_texts = f"社区报告信息:{newline}{newline.join(contents)} "
                 graph_list.append({"snippet": report_texts, "meta_data": {},
                                           "title": "知识图谱-社区报告", "content_type": "community_report"})
         if not all([not(ent) for ent in entities]):  # 如果有图关键词，则进行优先社区报告检索
