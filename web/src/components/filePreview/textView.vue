@@ -4,7 +4,7 @@
       <span>txt</span>
       <span class="copy" @click="()=>{copy && copycb()}">
         <span class="el-icon-copy-document"></span>
-        复制
+        {{$t('common.button.copy')}}
       </span>
     </div>
     <div class="txt" :loading="loading" style="width: 100%; height: 100%;white-space: pre-wrap;">{{ textContent }}</div>

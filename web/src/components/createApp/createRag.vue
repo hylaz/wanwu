@@ -21,13 +21,12 @@
                 :on-change="uploadOnChange"
                 >
             <div class="echo-img">
-              
-                <img :src="getImageSrc()" /> 
-                <p class="echo-img-tip" v-if="isLoading">
-                  图片上传中
-                  <span class="el-icon-loading"></span>
-                </p>
-                <p class="echo-img-tip" v-else>点击上传图片</p>
+              <img :src="getImageSrc()" />
+              <p class="echo-img-tip" v-if="isLoading">
+                {{$t('common.fileUpload.imgUploading')}}
+                <span class="el-icon-loading"></span>
+              </p>
+              <p class="echo-img-tip" v-else>{{$t('common.fileUpload.clickUploadImg')}}</p>
             </div>
             </el-upload>
         </el-form-item>

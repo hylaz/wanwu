@@ -20,7 +20,7 @@
         <slot name="selection" ></slot>
 
         <!-- 索引区 -->
-        <el-table-column v-if="index" type="index" :index="indexMethod" width="62" label="序号"></el-table-column>
+        <el-table-column v-if="index" type="index" :index="indexMethod" width="62" :label="$t('common.table.num')"></el-table-column>
 
         <!-- 头部 -->
         <slot name="haed"></slot>

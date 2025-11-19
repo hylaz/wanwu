@@ -22,7 +22,7 @@
               :src="form.avatar && form.avatar.path ? form.avatar.path : (defaultIcon || defaultLogo)"
             />
             <p class="upload-hint">
-              {{this.$t('common.fileUpload.clickUploadImg')}}
+              {{$t('common.fileUpload.clickUploadImg')}}
             </p>
           </el-upload>
         </el-form-item>

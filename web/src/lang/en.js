@@ -191,7 +191,8 @@ export default {
         table: {
             operation: '操作',
             detail: '详情',
-            total: '合计'
+            total: '合计',
+            num: '序号'
         },
         message: {
             success: '操作成功',

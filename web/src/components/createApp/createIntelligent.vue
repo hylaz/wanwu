@@ -23,10 +23,10 @@
             <div class="echo-img">
                 <img :src="getImageSrc()" />
                 <p class="echo-img-tip" v-if="isLoading">
-                  {{this.$t('common.fileUpload.imgUploading')}}
+                  {{$t('common.fileUpload.imgUploading')}}
                   <span class="el-icon-loading"></span>
                 </p>
-                <p class="echo-img-tip" v-else>{{this.$t('common.fileUpload.clickUploadImg')}}</p>
+                <p class="echo-img-tip" v-else>{{$t('common.fileUpload.clickUploadImg')}}</p>
             </div>
             </el-upload>
         </el-form-item>

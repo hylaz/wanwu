@@ -24,7 +24,7 @@
               :src="form.avatar && form.avatar.path ? basePath + '/user/api/' + form.avatar.path : (defaultIcon || defaultLogo)"
             />
             <p class="upload-hint" v-if="type !== detail">
-              {{this.$t('common.fileUpload.clickUploadImg')}}
+              {{$t('common.fileUpload.clickUploadImg')}}
             </p>
           </el-upload>
         </el-form-item>
