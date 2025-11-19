@@ -85,6 +85,7 @@ func (c *Client) UpdateModel(ctx context.Context, tab *model_client.ModelImporte
 	// 更新
 	if err := c.db.WithContext(ctx).Model(existing).Updates(map[string]interface{}{
 		"display_name":    tab.DisplayName,
+		"model_desc":      tab.ModelDesc,
 		"model_icon_path": tab.ModelIconPath,
 		"publish_date":    tab.PublishDate,
 		"provider_config": tab.ProviderConfig,
@@ -153,7 +154,7 @@ func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported
 	if tab.IsActive {
 		db = sqlopt.WithIsActive(true).Apply(db)
 	}
-	if err := db.Order("created_at DESC").Find(&modelInfos).Error; err != nil {
+	if err := db.Order("updated_at DESC").Find(&modelInfos).Error; err != nil {
 		return nil, toErrStatus("model_list_models_err", err.Error())
 	}
 	return modelInfos, nil

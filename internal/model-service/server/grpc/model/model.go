@@ -41,6 +41,7 @@ func (s *Service) UpdateModel(ctx context.Context, req *model_service.ModelInfo)
 		ModelIconPath:  req.ModelIconPath,
 		PublishDate:    req.PublishDate,
 		ProviderConfig: req.ProviderConfig,
+		ModelDesc:      req.ModelDesc,
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
