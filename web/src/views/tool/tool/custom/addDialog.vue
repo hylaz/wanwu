@@ -61,7 +61,7 @@
                     class="schema-textarea"
                     v-model="form.schema"
                     @blur="listenerSchema"
-                    :placeholder="$t('tool.custom.schemaHint')"
+                    :placeholder="$t('tool.custom.schemaPlaceholder')"
                     type="textarea"/>
                 </el-form-item>
               </div>
@@ -107,7 +107,7 @@
                 <el-input
                   class="name-input"
                   v-model="form.privacyPolicy"
-                  :placeholder="$t('tool.custom.privacyHint')"/>
+                  :placeholder="$t('tool.custom.privacyPlaceholder')"/>
               </el-form-item>
             </div>
           </div>
@@ -270,8 +270,8 @@ export default {
         description: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
         name: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
         schema: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        apiAuth: [{validator: validateApiAuthFields, message: this.$t('tool.custom.apiAuthHint'), trigger: 'blur'}],
-        apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiHint'), trigger: 'blur'}],
+        apiAuth: [{validator: validateApiAuthFields, message: this.$t('tool.custom.apiAuthPlaceholder'), trigger: 'blur'}],
+        apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiPlaceholder'), trigger: 'blur'}],
       },
       apiAuthRules: {
         apiKeyValue: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],

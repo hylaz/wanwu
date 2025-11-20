@@ -8,7 +8,7 @@
       @click="back"
     >
     <span class="el-icon-arrow-left"></span>
-    返回
+     {{ $t('menu.back')}}
     </span>
     <div class="mcp-title">
       <img
@@ -42,21 +42,21 @@
         <div>
           <div class="overview bg-border">
             <div class="overview-item">
-              <div class="item-title">• &nbsp;使用概述</div>
+              <div class="item-title">• &nbsp;{{ $t('square.summary') }}</div>
               <div
                 class="item-desc"
                 v-html="parseTxt(detail.summary)"
               ></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;特性说明</div>
+              <div class="item-title">• &nbsp;{{ $t('square.feature') }}</div>
               <div
                 class="item-desc"
                 v-html="parseTxt(detail.feature)"
               ></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;应用场景</div>
+              <div class="item-title">• &nbsp;{{ $t('square.scenario') }}</div>
               <div class="item-desc">
                 <div v-html="parseTxt(detail.scenario)"></div>
               </div>
@@ -64,7 +64,7 @@
           </div>
           <div class="overview bg-border">
             <div class="overview-item">
-              <div class="item-title" style="width:110px;">• &nbsp;工作流配置说明</div>
+              <div class="item-title" style="width:110px;">• &nbsp;{{ $t('agent.agentDetail.workFlowInstruction') }}</div>
               <div
                 class="item-desc"
                 v-html="parseTxt(detail.workFlowInstruction)"
@@ -75,7 +75,7 @@
       </div>
 
       <div class="right-recommend">
-        <p style="margin: 20px 0;color: #333;">更多推荐</p>
+        <p style="margin: 20px 0;color: #333;">{{ $t('agent.agentDetail.recommend') }}</p>
         <div
           class="recommend-item"
           v-for="(item ,i) in recommendList"

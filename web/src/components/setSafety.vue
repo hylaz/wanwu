@@ -1,18 +1,18 @@
 <template>
     <el-dialog
-    title="新增敏感词"
+    :title="$t('safety.setSafety.title')"
     :visible.sync="dialogVisible"
     width="50%"
     :before-close="handleClose">
         <el-form :model="ruleForm" ref="ruleForm"  class="demo-ruleForm">
             <el-form-item 
-            label="敏感词表" 
+            :label="$t('safety.setSafety.table')"
             prop="tables"
-            :rules="[{ required: true, message: '请选择敏感词表', trigger: 'blur'}]"
+            :rules="[{ required: true, message: $t('safety.setSafety.tableMsg'), trigger: 'blur'}]"
             >
                 <el-select 
-                    v-model="ruleForm.tables" 
-                    placeholder="请选择" 
+                    v-model="ruleForm.tables"
+                    :placeholder="$t('common.select.placeholder')"
                     @visible-change="visibleChange" 
                     style="width:65%;" 
                     multiple 
@@ -26,11 +26,11 @@
                     :value="item">
                     </el-option>
                 </el-select>
-                <span @click="goCreate" class="goSafety"><span class="el-icon-d-arrow-right"></span>创建敏感词</span>
+                <span @click="goCreate" class="goSafety"><span class="el-icon-d-arrow-right"></span>{{ $t('safety.setSafety.create') }}</span>
             </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submit('ruleForm')">确 定</el-button>
+            <el-button type="primary" @click="submit('ruleForm')">{{ $t('common.button.confirm') }}</el-button>
         </span>
     </el-dialog>
 </template>

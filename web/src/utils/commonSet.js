@@ -12,11 +12,11 @@ export const AppType = {
     agentTemplate: i18n.t('appSpace.agentTemp'),
 }
 export const SafetyType = {
-    Political: i18n.t('safetyType.political'),
-    Revile: i18n.t('safetyType.revile'),
-    Pornography: i18n.t('safetyType.pornography'),
-    ViolentTerror: i18n.t('safetyType.violentTerror'),
-    Illegal: i18n.t('safetyType.illegal'),
-    InformationSecurity: i18n.t('safetyType.informationSecurity'),
-    Other: i18n.t('safetyType.other'),
+    Political: i18n.t('common.safetyType.political'),
+    Revile: i18n.t('common.safetyType.revile'),
+    Pornography: i18n.t('common.safetyType.pornography'),
+    ViolentTerror: i18n.t('common.safetyType.violentTerror'),
+    Illegal: i18n.t('common.safetyType.illegal'),
+    InformationSecurity: i18n.t('common.safetyType.informationSecurity'),
+    Other: i18n.t('common.safetyType.other'),
 }

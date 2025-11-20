@@ -31,13 +31,13 @@
               v-if="fileList.length > 0 && fileList[0].back === 'true'"
             ></i>
             <div class="el-upload__text" v-if="fileList.length <= 0">
-              {{$t('knowledgeManage.dragFileTips')}}<em>&nbsp;{{$t('knowledgeManage.clickUpload')}}</em>
+              {{ $t('common.fileUpload.uploadText') }}<em>&nbsp;{{ $t('common.fileUpload.uploadClick') }}</em>
             </div>
           </div>
 
           <div class="el-upload__tip" slot="tip" style="color: red">
             {{$t('knowledgeManage.clickUploadTips')}}&nbsp;&nbsp;
-            <a :href="templateUrl">{{$t('knowledgeManage.downTemplate')}}</a>
+            <a :href="templateUrl">{{ $t('common.fileUpload.templateClick') }}</a>
             <br />
             {{$t('knowledgeManage.notReshContent')}}
           </div>

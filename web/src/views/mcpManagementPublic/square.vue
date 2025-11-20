@@ -20,7 +20,7 @@
                 {{ item.name }}
               </span>
                 </div>
-                <search-input style="margin-right: 2px" :placeholder="$t('tool.square.searchHint')" ref="searchInput"
+                <search-input style="margin-right: 2px" :placeholder="$t('tool.square.searchPlaceholder')" ref="searchInput"
                               @handleSearch="doGetPublicMcpList"/>
               </div>
 
@@ -70,19 +70,19 @@ export default {
     return {
       defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       mcpSquareId: "",
-      category: this.$t('tool.square.all'),
+      category: this.$t('square.all'),
       list: [],
       loading:false,
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('tool.square.all'), key: 'all'},
-        {name: this.$t('tool.square.gov'), key: 'gov'},
-        {name: this.$t('tool.square.industry'), key: 'industry'},
-        {name: this.$t('tool.square.edu'), key: 'edu'},
-        {name: this.$t('tool.square.medical'), key: 'medical'},
-        {name: this.$t('tool.square.data'), key: 'data'},
-        {name: this.$t('tool.square.creator'), key: 'create'},
-        {name: this.$t('tool.square.search'), key: 'search'},
+        {name: this.$t('square.all'), key: 'all'},
+        {name: this.$t('square.gov'), key: 'gov'},
+        {name: this.$t('square.industry'), key: 'industry'},
+        {name: this.$t('square.edu'), key: 'edu'},
+        {name: this.$t('square.medical'), key: 'medical'},
+        {name: this.$t('square.data'), key: 'data'},
+        {name: this.$t('square.creator'), key: 'create'},
+        {name: this.$t('square.search'), key: 'search'},
       ]
     };
   },

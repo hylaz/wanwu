@@ -91,21 +91,21 @@ export default {
   data() {
     return {
       basePath: this.$basePath,
-      category: this.$t('tempSquare.all'),
+      category: this.$t('square.all'),
       list: [],
       templateUrl: '',
       loading: false,
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('tempSquare.all'), key: 'all'},
-        {name: this.$t('tempSquare.gov'), key: 'gov'},
-        {name: this.$t('tempSquare.industry'), key: 'industry'},
-        {name: this.$t('tempSquare.edu'), key: 'edu'},
-        {name: this.$t('tempSquare.tourism'), key: 'tourism'},
-        // {name: this.$t('tempSquare.medical'), key: 'medical'},
-        {name: this.$t('tempSquare.data'), key: 'data'},
-        {name: this.$t('tempSquare.creator'), key: 'create'},
-        {name: this.$t('tempSquare.search'), key: 'search'},
+        {name: this.$t('square.all'), key: 'all'},
+        {name: this.$t('square.gov'), key: 'gov'},
+        {name: this.$t('square.industry'), key: 'industry'},
+        {name: this.$t('square.edu'), key: 'edu'},
+        {name: this.$t('square.tourism'), key: 'tourism'},
+        // {name: this.$t('square.medical'), key: 'medical'},
+        {name: this.$t('square.data'), key: 'data'},
+        {name: this.$t('square.creator'), key: 'create'},
+        {name: this.$t('square.search'), key: 'search'},
       ]
     };
   },

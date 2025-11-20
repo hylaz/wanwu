@@ -125,7 +125,7 @@ export default {
           customPromptId: item.customPromptId,
         }).then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t('common.info.delInfo'))
+            this.$message.success(this.$t('common.info.delete'))
             this.fetchList()
           }
         })

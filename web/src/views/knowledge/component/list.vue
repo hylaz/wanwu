@@ -17,7 +17,7 @@
                     :underline="false"
                     @click="handleHit"
                     style="padding:0 15px;"
-                >{{$t('knowledgeManage.hitTest')}}</el-link>
+                >{{$t('knowledgeManage.hitTest.name')}}</el-link>
                 <el-link
                     type="danger"
                     :underline="false"

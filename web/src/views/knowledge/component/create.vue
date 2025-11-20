@@ -143,10 +143,10 @@
                   class="upload-img"
                 />
                 <p class="click-text">
-                  {{ $t("knowledgeManage.create.dragUpload")
-                  }}<span class="clickUpload">{{
-                    $t("knowledgeManage.create.clickUpload")
-                  }}</span>
+                  {{ $t('common.fileUpload.uploadText') }}
+                  <span class="clickUpload">
+                    {{ $t('common.fileUpload.uploadClick') }}
+                  </span>
                 </p>
               </div>
               <div class="tips">

@@ -26,22 +26,22 @@
       <div class="left-info">
         <div class="tempSquare-tabs">
           <div :class="['tempSquare-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">
-            {{$t('tempSquare.info')}}
+            {{$t('square.info')}}
           </div>
         </div>
 
         <div>
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{$t('tempSquare.summary')}}</div>
+              <div class="item-title">• &nbsp;{{$t('square.summary')}}</div>
               <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{$t('tempSquare.feature')}}</div>
+              <div class="item-title">• &nbsp;{{$t('square.feature')}}</div>
               <div class="item-desc" v-html="parseTxt(detail.feature)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{$t('tempSquare.scenario')}}</div>
+              <div class="item-title">• &nbsp;{{$t('square.scenario')}}</div>
               <div class="item-desc" >
                 <div v-html="parseTxt(detail.scenario)"></div>
               </div>
@@ -49,13 +49,13 @@
           </div>
           <div class="overview bg-border" v-if="detail.note">
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{$t('tempSquare.note')}}</div>
+              <div class="item-title">• &nbsp;{{$t('square.note')}}</div>
               <div class="item-desc" v-html="parseTxt(detail.note)"></div>
             </div>
           </div>
           <div class="overview bg-border" v-if="detail.detail">
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{$t('tempSquare.detail')}}</div>
+              <div class="item-title">• &nbsp;{{$t('square.detail')}}</div>
               <div class="item-desc">
                 <div class="readme-content markdown-body tempSquare-markdown" v-html="md.render(detail.detail || '')"></div>
               </div>

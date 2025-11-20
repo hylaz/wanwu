@@ -81,13 +81,13 @@ export default {
   data() {
     return {
       basePath: this.$basePath,
-      category: this.$t('tempSquare.all'),
+      category: this.$t('square.all'),
       list: [],
       loading: false,
       promptType: 'copy',
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('tempSquare.all'), key: 'all'},
+        {name: this.$t('square.all'), key: 'all'},
         {name: this.$t('tempSquare.learn'), key: 'learn'},
         {name: this.$t('tempSquare.media'), key: 'media'},
         {name: this.$t('tempSquare.role'), key: 'role'},

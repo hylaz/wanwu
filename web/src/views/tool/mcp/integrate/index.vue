@@ -152,10 +152,10 @@ export default {
           mcpId: item.mcpId,
         }).then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t('common.info.delInfo'))
+            this.$message.success(this.$t('common.info.delete'))
             this.fetchList()
           } else {
-            this.$message.error( res.msg || this.$t('common.info.delInfoErr'))
+            this.$message.error( res.msg || this.$t('common.info.deleteErr'))
           }
         })
       })
