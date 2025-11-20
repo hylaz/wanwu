@@ -50,16 +50,17 @@ func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) 
 func UploadFileByWorkflow(ctx *gin.Context, fileName, file string) (*response.UploadFileByWorkflowResp, error) {
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.UploadFileUri)
 	ret := &response.UploadFileByWorkflowResp{}
+	requestBody := map[string]string{
+		"name": fileName,
+		"data": file,
+	}
 	if resp, err := resty.New().
 		R().
 		SetContext(ctx.Request.Context()).
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
 		SetHeaders(workflowHttpReqHeader(ctx)).
-		SetQueryParams(map[string]string{
-			"name": fileName,
-			"data": file,
-		}).
+		SetBody(requestBody).
 		SetResult(ret).
 		Post(url); err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_upload_file", err.Error())
