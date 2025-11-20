@@ -24,6 +24,8 @@ from know_sse import get_query_dict_cache, query_rewrite
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from logging_config import setup_logging
 from settings import MONGO_URL, USE_DATA_FLYWHEEL
+from qa import index as qa_index
+
 # 定义路径
 paths = ["./parser_data"]
 # 遍历路径列表
@@ -1290,17 +1292,21 @@ def getReportsList():
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     return response
 
-@app.route("/rag/knowledgeBase-graph", methods=['POST'])
-def knowledgeBaseGraph():
-    logger.info('---------------获取知识库知识图谱---------------')
+
+# ================= QA 知识库相关接口 =================
+# 1. 创建问答库
+@app.route("/rag/init-QA-base", methods=['POST'])
+def init_qa_base():
+    """ 创建问答库 """
+    logger.info('---------------init-QA-base---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-
-        graph_data = graph_utils.get_kb_graph_data(user_id, kb_name, kb_id=kb_id)
-        response_info = {'code': 0, "message": "", "data": graph_data}
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        embedding_model_id = data["embedding_model_id"]
+        logger.info(f"[init_qa_base] uid={user_id}, base={qa_base}, qaid={qa_id}, embed={embedding_model_id}")
+        response_info = qa_index.init_qa_base(user_id, qa_base, qa_id, embedding_model_id)
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     except Exception as e:
@@ -1309,6 +1315,218 @@ def knowledgeBaseGraph():
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     return response
+
+
+# 2. 删除问答库
+@app.route("/rag/delete-QA-base", methods=['POST'])
+def delete_qa_base():
+    """ 删除问答库 """
+    logger.info('---------------delete-QA-base---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        logger.info(f"[delete_qa_base] uid={user_id}, base={qa_base}, qaid={qa_id}")
+        response_info = qa_index.delete_qa_base(user_id, qa_base, qa_id)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 3. 批量新增问答对
+@app.route("/rag/batch-add-QAs", methods=['POST'])
+def batch_add_qas():
+    """ 批量新增问答对 """
+    logger.info('---------------batch-add-QAs---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pairs = data["QAPairs"]
+        logger.info(f"[batch_add_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, count={len(qa_pairs)}")
+        response_info = qa_index.batch_add_qas(user_id, qa_base, qa_id, qa_pairs)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 4. 查看问答对列表
+@app.route("/rag/get-QA-list", methods=['POST'])
+def get_qa_list():
+    """ 查看问答对列表 """
+    logger.info('---------------get-QA-list---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        page_size = data["page_size"]
+        search_after = data["search_after"]
+        logger.info(
+            f"[get_qa_list] uid={user_id}, base={qa_base}, qaid={qa_id}, size={page_size}, after={search_after}")
+        response_info = qa_index.get_qa_list(user_id, qa_base, qa_id, page_size, search_after)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 5. 更新问答对
+@app.route("/rag/update-QA", methods=['POST'])
+def update_qa():
+    """ 更新问答对 """
+    logger.info('---------------update-QA---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pairs = data["QAPairs"]
+        logger.info(f"[update_qa] uid={user_id}, base={qa_base}, qaid={qa_id}, count={len(qa_pairs)}")
+        response_info = qa_index.update_qa(user_id, qa_base, qa_id, qa_pairs)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 6. 删除问答对
+@app.route("/rag/batch-delete-QAs", methods=['POST'])
+def batch_delete_qas():
+    """ 批量删除问答对 """
+    logger.info('---------------batch-delete-QAs---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pair_ids = data["QAPairIds"]
+        logger.info(f"[batch_delete_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, ids={qa_pair_ids}")
+        response_info = qa_index.batch_delete_qas(user_id, qa_base, qa_id, qa_pair_ids)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 7. 启停问答对
+@app.route("/rag/update-QA-status", methods=['POST'])
+def update_qa_status():
+    """ 启停问答对 """
+    logger.info('---------------update-QA-status---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pair_id = data["QAPairId"]
+        status = data["status"]
+        logger.info(
+            f"[update_qa_status] uid={user_id}, base={qa_base}, qaid={qa_id}, pair={qa_pair_id}, status={status}")
+        response_info = qa_index.update_qa_status(user_id, qa_base, qa_id, qa_pair_id, status)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.1 批量更新元数据
+@app.route("/rag/update-QA-metas", methods=['POST'])
+def update_qa_metas():
+    """ 批量更新元数据 """
+    logger.info('---------------update-QA-metas---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        metas = data["metas"]
+        logger.info(f"[update_qa_metas] uid={user_id}, base={qa_base}, qaid={qa_id}, metas={len(metas)}")
+        response_info = qa_index.update_qa_metas(user_id, qa_base, qa_id, metas)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.2 批量删除元数据
+@app.route("/rag/delete-meta-by-keys", methods=['POST'])
+def delete_meta_by_keys():
+    """ 批量删除元数据 """
+    logger.info('---------------delete-meta-by-keys---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        keys = data["keys"]
+        logger.info(f"[delete_meta_by_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, keys={keys}")
+        response_info = qa_index.delete_meta_by_keys(user_id, qa_base, qa_id, keys)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.3 批量重命名元数据 Key
+@app.route("/rag/rename-meta-keys", methods=['POST'])
+def rename_meta_keys():
+    """ 批量重命名元数据 Key """
+    logger.info('---------------rename-meta-keys---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        mappings = data["mappings"]
+        logger.info(f"[rename_meta_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, mappings={mappings}")
+        response_info = qa_index.rename_meta_keys(user_id, qa_base, qa_id, mappings)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
