@@ -18,7 +18,7 @@
       <div class="left-info">
         <!-- tabs -->
         <div class="mcp-tabs">
-          <div v-if="mcpSquareId" :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('tool.square.info') }}</div>
+          <div v-if="mcpSquareId" :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('square.info') }}</div>
           <div style="display: inline-block">
             <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('tool.square.sseUrl') }}</div>
           </div>
@@ -27,15 +27,15 @@
         <div v-if="tabActive === 0">
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('tool.square.summary') }}</div>
+              <div class="item-title">• &nbsp;{{ $t('square.summary') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('tool.square.feature') }}</div>
+              <div class="item-title">• &nbsp;{{ $t('square.feature') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.feature)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('tool.square.scenario') }}</div>
+              <div class="item-title">• &nbsp;{{ $t('square.scenario') }}</div>
               <div class="item-desc" >
                 <div v-html="parseTxt(detail.scenario)"></div>
               </div>
@@ -43,13 +43,13 @@
           </div>
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('tool.square.manual') }}</div>
+              <div class="item-title">• &nbsp;{{ $t('square.manual') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.manual)"></div>
             </div>
           </div>
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('tool.square.detail') }}</div>
+              <div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>
               <div class="item-desc">
                 <div class="readme-content markdown-body mcp-markdown" v-html="md.render(detail.detail || '')"></div>
               </div>

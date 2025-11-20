@@ -155,7 +155,7 @@ export default {
           this.tableLoading = true;
           let res = await delKeyWord(jsondata);
           if (res.code === 0) {
-            this.$message.success(this.$t('common.info.delInfo'));
+            this.$message.success(this.$t('common.info.delete'));
             this.getTableData(this.docQuery)//获取知识分类数据
           }
           this.tableLoading = false;

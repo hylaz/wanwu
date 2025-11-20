@@ -295,7 +295,7 @@ export default {
     handleDeleteTool(row) {
       deleteServerTool(row).then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t('common.info.delInfo'))
+            this.$message.success(this.$t('common.info.delete'))
             this.detail.tools = this.detail.tools.filter(item => item.mcpServerToolId !== row.mcpServerToolId)
           }
         }
@@ -324,7 +324,7 @@ export default {
       ).then(() => {
         delApiKey({apiId: row.apiId}).then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t('common.info.delInfo'));
+            this.$message.success(this.$t('common.info.delete'));
             this.apiKeyList = this.apiKeyList.filter(item => item.apiId !== row.apiId)
           }
         });

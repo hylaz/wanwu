@@ -22,14 +22,14 @@
           </el-select>
         </div>
         <div>
-          <el-button size="mini" type="primary" @click="$router.push('/knowledge/keyword')">{{$t('knowledgeManage.keyWordManage')}}</el-button>
+          <el-button size="mini" type="primary" @click="$router.push('/knowledge/keyword')" v-if="category === 0">{{$t('knowledgeManage.keyWordManage')}}</el-button>
           <el-button size="mini" type="primary" @click="showCreate()" icon="el-icon-plus">
             {{$t('common.button.create')}}
           </el-button>
         </div>
       </div>
-      <knowledgeList :appData="knowledgeData" @editItem="editItem" @reloadData="getTableData" ref="knowledgeList" v-loading="tableLoading" :category="category"/>
-      <createKnowledge ref="createKnowledge" @reloadData="getTableData" :category="category"/>
+      <knowledgeList :appData="knowledgeData" @editItem="editItem" @reloadData="tabClick" ref="knowledgeList" v-loading="tableLoading" :category="category"/>
+      <createKnowledge ref="createKnowledge" @reloadData="tabClick" :category="category"/>
     </div>
   </div>
 </template>

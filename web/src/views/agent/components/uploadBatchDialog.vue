@@ -69,7 +69,7 @@
                                     </div>
                                 </div>
                                 <div v-else>
-                                    <i class="el-icon-upload"></i><p>{{$t('common.fileUpload.uploadClick')}}</p>
+                                    <i class="el-icon-upload"></i><p>{{ $t('common.fileUpload.uploadText') + $t('common.fileUpload.uploadClick') }}</p>
                                     <div class="tips">
                                         <p>{{$t('common.fileUpload.typeFileTip1')}}
                                             <span>{{tipsArr}}</span>

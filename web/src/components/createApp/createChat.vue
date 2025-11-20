@@ -28,7 +28,7 @@
         </el-form-item>
         <el-form-item :label="$t('list.chatName')+':'" prop="name">
           <el-input
-            :placeholder="$t('list.chatNameHint')"
+            :placeholder="$t('list.chatNamePlaceholder')"
             v-model="form.name"
             maxlength="30"
             show-word-limit
@@ -81,7 +81,7 @@ export default {
                 callback();
               } else {
                 callback(
-                  new Error(this.$t('list.chatNameHint'))
+                  new Error(this.$t('list.chatNamePlaceholder'))
                 );
               }
             },

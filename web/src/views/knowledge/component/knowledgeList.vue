@@ -147,8 +147,8 @@ export default {
     editItem(row) {
       this.$emit('editItem', row)
     },
-    relodaData(){
-      this.$emit('reloadData');
+    relodaData(category){
+      this.$emit('reloadData',category);
     },
     deleteItem(knowledgeId){
       this.$confirm(this.$t('knowledgeManage.delKnowledgeTips'), this.$t('knowledgeManage.tip'), {
@@ -162,7 +162,7 @@ export default {
               .then(res =>{
                 if(res.code === 0){
                   this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-                  this.$emit('reloadData')
+                  this.$emit('reloadData',this.category);
                 }
               })
               .catch(() => {})
@@ -179,6 +179,7 @@ export default {
       }).then(() => {})
     },
     toDocList(n){
+      if(this.category !== 0) return;
       this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`});
       this.setPermissionType(n.permissionType)
     },

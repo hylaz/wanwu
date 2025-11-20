@@ -2,11 +2,7 @@
   <div>
     <el-dialog
       top="10vh"
-      :title="
-        this.isEdit
-          ? $t('knowledgeManage.editInfo')
-          : $t('knowledgeManage.createKnowledge')
-      "
+      :title="getTitle()"
       :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       width="70%"
@@ -22,7 +18,7 @@
         @submit.native.prevent
       >
         <el-form-item
-          :label="$t('knowledgeManage.knowledgeName') + '：'"
+          :label="category === 0 ? $t('knowledgeManage.knowledgeName') + '：' : $t('knowledgeManage.qaDatabase.name') + '：'"
           prop="name"
         >
           <el-input
@@ -57,7 +53,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="knowledgeGraph.switch">
+        <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
           <template #label>
             <span>{{ $t("knowledgeManage.create.knowledgeGraph") }}:</span>
             <el-tooltip
@@ -143,10 +139,10 @@
                   class="upload-img"
                 />
                 <p class="click-text">
-                  {{ $t("knowledgeManage.create.dragUpload")
-                  }}<span class="clickUpload">{{
-                    $t("knowledgeManage.create.clickUpload")
-                  }}</span>
+                  {{ $t('common.fileUpload.uploadText') }}
+                  <span class="clickUpload">
+                    {{ $t('common.fileUpload.uploadClick') }}
+                  </span>
                 </p>
               </div>
               <div class="tips">
@@ -333,6 +329,21 @@ export default {
       //下拉框显示的时候请求模型列表
       if (val) {
         this.getModelData();
+      }
+    },
+    getTitle(){
+      if(this.category === 0){
+        if(this.isEdit){
+          return this.$t('knowledgeManage.editInfo')
+        }else{
+          return this.$t('knowledgeManage.createKnowledge')
+        }
+      }else{
+        if(this.isEdit){
+          return this.$t('knowledgeManage.qaDatabase.editInfo')
+        }else{
+          return this.$t('knowledgeManage.qaDatabase.createKnowledge')
+        }
       }
     },
     async downloadTemplate() {
@@ -559,13 +570,13 @@ export default {
         ...this.ruleForm,
         category: this.category,
       };
-      createKnowledgeItem(this.ruleForm)
+      createKnowledgeItem(data)
         .then((res) => {
           if (res.code === 0) {
             this.$message.success(
               this.$t("knowledgeManage.create.createSuccess")
             );
-            this.$emit("reloadData");
+            this.$emit("reloadData",this.category);
             this.dialogVisible = false;
           }
         })
@@ -584,7 +595,7 @@ export default {
             this.$message.success(
               this.$t("knowledgeManage.create.editSuccess")
             );
-            this.$emit("reloadData");
+            this.$emit("reloadData",this.category);
             this.clearform();
             this.dialogVisible = false;
           }

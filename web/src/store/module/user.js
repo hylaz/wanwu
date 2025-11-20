@@ -1,6 +1,6 @@
 import {login, getPermission, getCommonInfo, login2FA2new, login2FA2exist, login2FA1} from '@/api/user'
 import { fetchOrgs } from "@/api/permission/org"
-import {jumpOAuth, redirectUrl, redirectUserInfoPage} from "@/utils/util"
+import {jumpOAuth, redirectUserInfoPage} from "@/utils/util"
 import { formatPerms } from "@/router/permission"
 import { replaceRouter } from "@/router"
 
