@@ -106,6 +106,7 @@
 |      Workflow      |   ✅   |                ✅                |             ✅              |                ✅                |                ✅                |
 |  Local deployment  |   ✅   |                ✅                |             ✅              |                ✅                |                ✅                |
 |  license friendly  |   ✅   |   ❌(Commercially restricted)    | ❌(Commercially restricted) |      Not fully open source      |                ✅                |
+|      GraphRAG      |   ✅   |                ❌                |             ❌              |                ✅                |                ❌                |
 |    Multi-tenant    |   ✅   |   ❌(Commercially restricted)    | ❌(Commercially restricted) |                ✅                | ✅(Users are not interconnected) |
 > As of August 1, 2025.
 
@@ -239,7 +240,7 @@ To help you quickly get started with this project, we strongly recommend that yo
 | Feature                                                      | Detailed Description                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- |
 | [Model Management](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/1.%E6%A8%A1%E5%9E%8B%E7%AE%A1%E7%90%86.md) | Supports users to import LLM, Embedding, and Rerank models from various model providers, including Unicom Yuanjing, OpenAI-API-compatible, Ollama, Tongyi Qianwen, and Volcano Engine. [Model Import Methods - Detailed Version](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/%E6%A8%A1%E5%9E%8B%E5%AF%BC%E5%85%A5%E6%96%B9%E5%BC%8F-%E8%AF%A6%E7%BB%86%E7%89%88.md) |
-| [Knowledge Base](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93) | In terms of document parsing capabilities: supports uploading of 12 file types and URL parsing; Supports private deployment and integration for document parsing via two methods: OCR and [a proprietary MinerU model (for scenarios like titles, tables, and formulas)](https://github.com/UnicomAI/DocParserServer/tree/main) ; document segmentation settings support both general segmentation and parent-child segmentation. In terms of optimization capabilities: supports metadata management and metadata filtering queries, supports adding, deleting, and modifying segmented content, supports setting keyword tags for segments to improve recall performance, supports segment enable/disable operations, and supports hit testing. In terms of retrieval capabilities: supports multiple retrieval modes including vector search, full-text search, and hybrid search. In terms of Q&A capabilities: supports automatic citation of sources and generating answers with both text and images.<br |
+| [Knowledge Base](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93) | In terms of document parsing capabilities: supports uploading of 12 file types and URL parsing; Supports private deployment and integration for document parsing via two methods: OCR and [a proprietary MinerU model (for scenarios like titles, tables, and formulas)](https://github.com/UnicomAI/DocParserServer/tree/main) ; document segmentation settings support both general segmentation and parent-child segmentation. In terms of optimization capabilities: supports metadata management 、Graph RAG and metadata filtering queries, supports adding, deleting, and modifying segmented content, supports setting keyword tags for segments to improve recall performance, supports segment enable/disable operations, and supports hit testing. In terms of retrieval capabilities: supports multiple retrieval modes including vector search, full-text search, and hybrid search. In terms of Q&A capabilities: supports automatic citation of sources and generating answers with both text and images.<br |
 | [Resource Library](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/3.%E5%B7%A5%E5%85%B7%E5%B9%BF%E5%9C%BA.md) | Supports importing your own MCP services or custom tools for use in workflows and agents. |
 | [Safety Guardrails](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/4.%E5%AE%89%E5%85%A8%E6%8A%A4%E6%A0%8F.md) | Users can create sensitive word lists to control the safety of the model's output. |
 | [Text Q&A](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/5.%E6%96%87%E6%9C%AC%E9%97%AE%E7%AD%94.md) | A dedicated knowledge advisor based on a private knowledge base. It supports features like knowledge base management, Q&A, knowledge summarization, personalized parameter configuration, safety guardrails, and retrieval configuration to improve the efficiency of knowledge management and learning. Supports publishing text Q&A applications publicly or privately, and can be published as an API. |
@@ -247,34 +248,36 @@ To help you quickly get started with this project, we strongly recommend that yo
 | [Agent](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/7.%E6%99%BA%E8%83%BD%E4%BD%93.md) | Create agents based on user scenarios and business requirements. Supports model selection, prompt setting, web search, knowledge base selection, MCP, workflows, and custom tools. Supports publishing agent applications publicly or privately, and can be published as an API and a Web URL. |
 | [App Marketplace](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/8.%E5%BA%94%E7%94%A8%E5%B9%BF%E5%9C%BA.md) | Allows users to experience published applications, including Text Q&A, Workflows, and Agents. |
 | [MCP Hub](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.MCP%E5%B9%BF%E5%9C%BA.md) | Features 100+ pre-selected industry-specific MCP servers, ready for immediate use. |
+| [Template Plaza](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.%E6%A8%A1%E6%9D%BF%E5%B9%BF%E5%9C%BA.md) | Built-in with 50+ optimized industry prompts, available for immediate use. |
 | [Settings](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | The platform supports multi-tenancy, allowing users to manage organizations, roles, users, and perform basic platform configuration. |
 
 ------
 
 ### &#x1F4F0; TO DO LIST
 
-- [ ] Multi-modal model access
-- [ ] Agent and model evaluation
-- [ ] Agent monitoring statistics
-- [ ] Model experience
-- [ ] Prompt engineering
+- [ ]  Multimodal model access
+- [ ]  Multimodal file parsing
+- [ ]  Support importing knowledge bases from APIs and databases
+- [ ]  General-purpose agents
+- [ ]  A2A protocol
+- [ ]  Multi-agent
+- [ ]  Agent and model evaluation
+- [ ]  Agent monitoring statistics and Trace tracking
+- [ ]  Model experience
+- [ ]  Prompt engineering
 
 ------
 
 ### &#128172; Q & A
 
 - **[Q] Error when starting Elastic (elastic-wanwu) on Linux system: Memory limited without swap.**
-  
   **[A]** Stop the service, run `sudo sysctl -w vm.max_map_count=262144`, and then restart the service.
   
 - **[Q] After the system services start normally, the mysql-wanwu-setup and elastic-wanwu-setup containers exit with status code Exited (0).**
-  
   **[A]** This is normal. These two containers are used to complete some initialization tasks and will automatically exit after execution.
   
 - **[Q] Regarding model import**
-  
   **[A]** Taking the import of Unicom Yuanjing LLM as an example (the process is similar for importing OpenAI-API-compatible models, Embedding, or Rerank types):
-  
   ```
   1. The Open API interface for Unicom Yuanjing MaaS Cloud LLM is, for example: https://maas.ai-yuanjing.com/openapi/compatible-mode/v1/chat/completions
   2. The API Key applied for by the user on Unicom Yuanjing MaaS Cloud looks like: sk-abc********************xyz
