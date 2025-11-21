@@ -1171,7 +1171,7 @@ export default {
         fileTypeNotSupportedTips: '非图片类型文件只能上传一个，已自动忽略多余文件',
         fileTypeNotSupportedTips1: '部分文件类型不支持或超出数量限制，已自动忽略',
         fileTypeNotSupportedTips2: '部分文件类型不支持或体积过大，已自动忽略',
-        answerOperationTip:'该内容由A1生成，内容仅供参考，请仔细甄别',
+        answerOperationTip:'该内容由AI生成，内容仅供参考，请仔细甄别',
         toolDetail: {
             modelLoadingText: '模型加载中...',
             selectRerank: '请选择rerank模型',
