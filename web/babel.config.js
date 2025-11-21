@@ -10,9 +10,9 @@ module.exports = {
       debug: false
     }]
   ],
-    plugins: [
-      ['@babel/plugin-transform-optional-chaining', { loose: false }],
-    ],
+  plugins: [
+    ['@babel/plugin-transform-optional-chaining', {loose: false}],
+  ],
   env: {
     production: {
       plugins: []
