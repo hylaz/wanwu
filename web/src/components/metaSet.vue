@@ -58,7 +58,7 @@
               v-model="item.value"
               v-if="item.type === 'string' || item.type === ''"
               @blur="metaValueBlur(item)"
-              :placeholder="$t('common.select.placeholder') + 'value'"
+              :placeholder="$t('common.input.placeholder') + 'value'"
               :disabled="item.condition === 'empty' || item.condition === 'not empty'"
             >
               <template #prefix>
