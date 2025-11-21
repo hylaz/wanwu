@@ -3,7 +3,6 @@
 const path = require("path");
 const {name} = require('./package.json')
 const webpack = require('webpack')
-const VersionInfoPlugin = require('./build/version-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -223,7 +222,6 @@ module.exports = {
       new webpack.optimize.MinChunkSizePlugin({
         minChunkSize: 50000 // Minimum number of characters
       }),
-      new VersionInfoPlugin()
     ]
   },
 };
