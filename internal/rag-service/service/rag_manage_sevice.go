@@ -200,7 +200,7 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 	// RAG属性参数
 	ragChatParams.Question = req.Question
 	ragChatParams.Stream = true
-	ragChatParams.Chichat = true
+	ragChatParams.Chichat = knowledgeConfig.ChiChat
 	ragChatParams.History = make([]*HistoryItem, 0)
 	ragChatParams.RewriteQuery = true
 	ragChatParams.ReturnMeta = true
