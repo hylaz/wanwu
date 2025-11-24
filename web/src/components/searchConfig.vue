@@ -7,9 +7,9 @@
   >
     <el-form-item class="vertical-form-item">
       <template #label>
-        <span v-if="!setType" class="vertical-form-title">{{
-          $t("searchConfig.title")
-        }}</span>
+        <span v-if="!setType" class="vertical-form-title">
+          {{ $t("searchConfig.title") }}
+        </span>
       </template>
       <div
         v-for="(item, index) in searchTypeData"
@@ -50,16 +50,13 @@
             @click.stop
           >
             <el-col class="mixTypeRange-title">
-              <span
-                >{{ $t("searchConfig.semantics") }}[{{
-                  item.mixTypeRange
-                }}]</span
-              >
-              <span
-                >{{ $t("searchConfig.keyword") }}[{{
-                  (1 - (item.mixTypeRange || 0)).toFixed(1)
-                }}]</span
-              >
+              <span>
+                {{ $t("searchConfig.semantics") }}[{{ item.mixTypeRange }}]
+              </span>
+              <span>
+                {{ $t("searchConfig.keyword") }}
+                [{{ (1 - (item.mixTypeRange || 0)).toFixed(1) }}]
+              </span>
             </el-col>
             <el-col>
               <el-slider
