@@ -177,9 +177,9 @@
     </el-form-item>
     <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
       <template #label>
-        <span class="graph-switch-title">{{
-          $t("knowledgeManage.graph.useGraph")
-        }}</span>
+        <span class="graph-switch-title">
+          {{ $t("knowledgeManage.graph.useGraph") }}
+        </span>
       </template>
       <el-switch v-model="formInline.knowledgeMatchParams.useGraph">
       </el-switch>

@@ -28,38 +28,41 @@
             <span class="knowledge-name">{{ item.name }}</span>
             <span class="knowledge-desc">{{ item.description }}</span>
             <div class="knowledge-meta">
-              <span class="meta-text">{{
-                item.share
-                  ? $t("knowledgeManage.public")
-                  : $t("knowledgeManage.private")
-              }}</span>
-              <span v-if="item.share" class="meta-text">{{
-                item.orgName
-              }}</span>
+              <span class="meta-text">
+                {{
+                  item.share
+                    ? $t("knowledgeManage.public")
+                    : $t("knowledgeManage.private")
+                }}
+              </span>
+              <span v-if="item.share" class="meta-text">
+                {{ item.orgName }}
+              </span>
             </div>
-            <span class="knowledge-createAt"
-              >{{ $t("knowledgeSelect.createTime") }} {{ item.createAt }}</span
-            >
+            <span class="knowledge-createAt">
+              {{ $t("knowledgeSelect.createTime") }} {{ item.createAt }}
+            </span>
           </div>
           <el-button
             type="primary"
             @click="openTool($event, item)"
             v-if="!item.checked"
             size="small"
-            >{{ $t("knowledgeSelect.add") }}</el-button
           >
-          <el-button type="primary" v-else size="small">{{
-            $t("knowledgeSelect.added")
-          }}</el-button>
+            {{ $t("knowledgeSelect.add") }}
+          </el-button>
+          <el-button type="primary" v-else size="small">
+            {{ $t("knowledgeSelect.added") }}
+          </el-button>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">{{
-          $t("common.button.cancel")
-        }}</el-button>
-        <el-button type="primary" @click="submit">{{
-          $t("common.button.confirm")
-        }}</el-button>
+        <el-button @click="handleClose">
+          {{ $t("common.button.cancel") }}
+        </el-button>
+        <el-button type="primary" @click="submit">
+          {{ $t("common.button.confirm") }}
+        </el-button>
       </span>
     </el-dialog>
   </div>

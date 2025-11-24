@@ -53,8 +53,9 @@
             type="primary"
             @click="$router.push('/knowledge/keyword')"
             v-if="category === 0"
-            >{{ $t("knowledgeManage.keyWordManage") }}</el-button
           >
+            {{ $t("knowledgeManage.keyWordManage") }}
+          </el-button>
           <el-button
             size="mini"
             type="primary"

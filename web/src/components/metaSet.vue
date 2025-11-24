@@ -6,7 +6,8 @@
         type="primary"
         @click="addMetaItem"
         size="small"
-        >{{ $t("metaSet.add") }}
+      >
+        {{ $t("metaSet.add") }}
       </el-button>
       <el-switch
         v-model="metaDataFilterParams.filterEnable"

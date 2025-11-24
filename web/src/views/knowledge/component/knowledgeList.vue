@@ -20,11 +20,13 @@
             />
             <div class="create-filter"></div>
           </div>
-          <span>{{
-            category === 0
-              ? $t("knowledgeManage.createKnowledge")
-              : $t("knowledgeManage.createQaDatabase")
-          }}</span>
+          <span>
+            {{
+              category === 0
+                ? $t("knowledgeManage.createKnowledge")
+                : $t("knowledgeManage.createQaDatabase")
+            }}
+          </span>
         </div>
       </div>
       <template v-if="listData && listData.length">
@@ -40,8 +42,8 @@
               :src="require('@/assets/imgs/knowledgeIcon.png')"
             />
             <p :class="['smartDate']">
-              {{ n.docCount || 0
-              }}{{
+              {{ n.docCount || 0 }}
+              {{
                 category === 0
                   ? $t("knowledgeManage.docCountUnit")
                   : $t("knowledgeManage.qaCountUnit")
@@ -71,9 +73,9 @@
               <span class="el-icon-price-tag icon-tag"></span>
               {{ $t("knowledgeManage.addTag") }}
             </span>
-            <span v-else @click.stop="addTag(n.knowledgeId, n)">{{
-              formattedTagNames(n.knowledgeTagList)
-            }}</span>
+            <span v-else @click.stop="addTag(n.knowledgeId, n)">
+              {{ formattedTagNames(n.knowledgeTagList) }}
+            </span>
           </div>
           <div class="editor">
             <el-tooltip
@@ -82,11 +84,13 @@
               :content="n.orgName"
               placement="right-start"
             >
-              <span style="margin-right: 52px; color: #999; font-size: 12px">{{
-                n.orgName.length > 10
-                  ? n.orgName.substring(0, 10) + "..."
-                  : n.orgName
-              }}</span>
+              <span style="margin-right: 52px; color: #999; font-size: 12px">
+                {{
+                  n.orgName.length > 10
+                    ? n.orgName.substring(0, 10) + "..."
+                    : n.orgName
+                }}
+              </span>
             </el-tooltip>
             <div v-if="n.share" class="publishType" style="right: 22px">
               <span v-if="n.share" class="publishType-tag">
@@ -106,13 +110,15 @@
                 <el-dropdown-item
                   command="edit"
                   v-if="[30].includes(n.permissionType)"
-                  >{{ $t("common.button.edit") }}</el-dropdown-item
                 >
+                  {{ $t("common.button.edit") }}
+                </el-dropdown-item>
                 <el-dropdown-item
                   command="delete"
                   v-if="[30].includes(n.permissionType)"
-                  >{{ $t("common.button.delete") }}</el-dropdown-item
                 >
+                  {{ $t("common.button.delete") }}
+                </el-dropdown-item>
                 <el-dropdown-item command="power">
                   {{ $t("knowledgeSelect.power") }}
                 </el-dropdown-item>

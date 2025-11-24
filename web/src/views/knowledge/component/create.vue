@@ -155,8 +155,8 @@
               </div>
               <div class="tips">
                 <p>
-                  <span class="red">*</span
-                  >{{ $t("knowledgeManage.create.schemaTip1") }}
+                  <span class="red">*</span>
+                  {{ $t("knowledgeManage.create.schemaTip1") }}
                   <a
                     class="template_downLoad"
                     href="#"
@@ -165,8 +165,8 @@
                   >
                 </p>
                 <p>
-                  <span class="red">*</span
-                  >{{ $t("knowledgeManage.create.schemaTip2") }}
+                  <span class="red">*</span>
+                  {{ $t("knowledgeManage.create.schemaTip2") }}
                 </p>
               </div>
             </div>
@@ -226,12 +226,12 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose()">{{
-          $t("common.confirm.cancel")
-        }}</el-button>
-        <el-button type="primary" @click="submitForm('ruleForm')">{{
-          $t("common.confirm.confirm")
-        }}</el-button>
+        <el-button @click="handleClose()">
+          {{ $t("common.confirm.cancel") }}
+        </el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">
+          {{ $t("common.confirm.confirm") }}
+        </el-button>
       </span>
     </el-dialog>
   </div>

@@ -21,10 +21,10 @@
             class="test_ipt"
           />
           <div class="test_btn">
-            <el-button type="primary" size="small" @click="startTest"
-              >{{ $t("knowledgeManage.startTest")
-              }}<span class="el-icon-caret-right"></span
-            ></el-button>
+            <el-button type="primary" size="small" @click="startTest">
+              {{ $t("knowledgeManage.startTest") }}
+              <span class="el-icon-caret-right"></span>
+            </el-button>
           </div>
         </div>
         <div class="hitTest_input meta_box">
@@ -53,9 +53,9 @@
             >
               <div class="resultTitle">
                 <span>
-                  <span class="tag" @click="showSectionDetail(index)"
-                    >{{ $t("knowledgeManage.section") }}#{{ index + 1 }}</span
-                  >
+                  <span class="tag" @click="showSectionDetail(index)">
+                    {{ $t("knowledgeManage.section") }}#{{ index + 1 }}
+                  </span>
                   <span
                     v-if="
                       ['graph', 'community_report'].includes(item.contentType)
@@ -93,10 +93,10 @@
                     </span>
                   </span>
                 </span>
-                <span class="score"
-                  >{{ $t("knowledgeManage.hitScore") }}:
-                  {{ formatScore(score[index]) }}</span
-                >
+                <span class="score">
+                  {{ $t("knowledgeManage.hitScore") }}:
+                  {{ formatScore(score[index]) }}
+                </span>
               </div>
               <div>
                 <div class="resultContent">
@@ -116,11 +116,13 @@
                       class="segment-collapse-item"
                     >
                       <template slot="title">
-                        <span class="sub-badge">{{
-                          $t("knowledgeManage.hitChildSegments", {
-                            count: item.childContentList.length,
-                          })
-                        }}</span>
+                        <span class="sub-badge">
+                          {{
+                            $t("knowledgeManage.hitChildSegments", {
+                              count: item.childContentList.length,
+                            })
+                          }}
+                        </span>
                       </template>
                       <div class="segment-content">
                         <div
@@ -133,17 +135,15 @@
                               <span class="segment-badge"
                                 >C-{{ childIndex + 1 }}</span
                               >
-                              <span class="segment-content">{{
-                                child.childSnippet
-                              }}</span>
+                              <span class="segment-content">
+                                {{ child.childSnippet }}
+                              </span>
                             </span>
                             <span class="segment-score">
-                              <span class="score-value"
-                                >{{ $t("knowledgeManage.hitScore") }}:
-                                {{
-                                  formatScore(item.childScore[childIndex])
-                                }}</span
-                              >
+                              <span class="score-value">
+                                {{ $t("knowledgeManage.hitScore") }}:
+                                {{ formatScore(item.childScore[childIndex]) }}
+                              </span>
                             </span>
                           </div>
                         </div>
