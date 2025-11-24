@@ -46,12 +46,12 @@ func (c *Client) CreateSensitiveWordTable(ctx context.Context, userId, orgId, ta
 	return util.Int2Str(table.ID), nil
 }
 
-func (c *Client) UpdateSensitiveWordTable(ctx context.Context, tableId, tableName, remark string) *errs.Status {
+func (c *Client) UpdateSensitiveWordTable(ctx context.Context, tableId uint32, tableName, remark string) *errs.Status {
 	var existingTable model.SensitiveWordTable
 	err := sqlopt.SQLOptions(
 		sqlopt.WithName(tableName),
 	).Apply(c.db.WithContext(ctx)).First(&existingTable).Error
-	if err == nil && util.Int2Str(existingTable.ID) != tableId {
+	if err == nil && existingTable.ID != tableId {
 		return toErrStatus("app_safety_sensitive_table_exist")
 	}
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,24 +67,24 @@ func (c *Client) UpdateSensitiveWordTable(ctx context.Context, tableId, tableNam
 		Updates(updates).Error
 
 	if updateErr != nil {
-		return toErrStatus("app_safety_sensitive_table_update", tableId, updateErr.Error())
+		return toErrStatus("app_safety_sensitive_table_update", util.Int2Str(tableId), updateErr.Error())
 	}
 	return nil
 }
 
-func (c *Client) UpdateSensitiveWordTableReply(ctx context.Context, tableId, reply string) *errs.Status {
+func (c *Client) UpdateSensitiveWordTableReply(ctx context.Context, tableId uint32, reply string) *errs.Status {
 	var table model.SensitiveWordTable
 	if err := sqlopt.WithID(tableId).Apply(c.db.WithContext(ctx)).Model(&table).
 		Updates(map[string]interface{}{
 			"reply":   reply,
 			"version": getSensitiveTableVersion(),
-		}).Update("reply", reply).Error; err != nil {
-		return toErrStatus("app_safety_sensitive_table_reply_update", tableId, err.Error())
+		}).Error; err != nil {
+		return toErrStatus("app_safety_sensitive_table_reply_update", util.Int2Str(tableId), err.Error())
 	}
 	return nil
 }
 
-func (c *Client) DeleteSensitiveWordTable(ctx context.Context, tableId string) *errs.Status {
+func (c *Client) DeleteSensitiveWordTable(ctx context.Context, tableId uint32) *errs.Status {
 	err := c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := sqlopt.SQLOptions(
 			sqlopt.WithTableID(tableId),
@@ -99,7 +99,7 @@ func (c *Client) DeleteSensitiveWordTable(ctx context.Context, tableId string) *
 		return nil
 	})
 	if err != nil {
-		return toErrStatus("app_safety_sensitive_table_delete", tableId, err.Error())
+		return toErrStatus("app_safety_sensitive_table_delete", util.Int2Str(tableId), err.Error())
 	}
 	return nil
 }
@@ -109,13 +109,13 @@ func (c *Client) GetSensitiveWordTableList(ctx context.Context, userId, orgId st
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(orgId),
 		sqlopt.WithUserID(userId),
-	).Apply(c.db.WithContext(ctx)).Find(&tables).Error; err != nil {
+	).Apply(c.db.WithContext(ctx)).Order("updated_at DESC").Find(&tables).Error; err != nil {
 		return nil, toErrStatus("app_safety_sensitive_table_list_get", err.Error())
 	}
 	return tables, nil
 }
 
-func (c *Client) GetSensitiveVocabularyList(ctx context.Context, tableId string, offset, limit int32) ([]*model.SensitiveWordVocabulary, int64, *errs.Status) {
+func (c *Client) GetSensitiveVocabularyList(ctx context.Context, tableId uint32, offset, limit int32) ([]*model.SensitiveWordVocabulary, int64, *errs.Status) {
 	var vocabularies []*model.SensitiveWordVocabulary
 	var count int64
 	// 查询分页数据
@@ -123,15 +123,15 @@ func (c *Client) GetSensitiveVocabularyList(ctx context.Context, tableId string,
 		sqlopt.WithTableID(tableId),
 	).Apply(c.db.WithContext(ctx)).Offset(int(offset)).Limit(int(limit)).Order("id DESC").Find(&vocabularies).
 		Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, toErrStatus("app_safety_sensitive_vocabulary_list_get", tableId, err.Error())
+		return nil, 0, toErrStatus("app_safety_sensitive_vocabulary_list_get", util.Int2Str(tableId), err.Error())
 	}
 	return vocabularies, count, nil
 }
 
-func (c *Client) UploadSensitiveVocabulary(ctx context.Context, userId, orgId, tableId, importType, word, sensitiveType, filePath string) *errs.Status {
+func (c *Client) UploadSensitiveVocabulary(ctx context.Context, userId, orgId, importType, word, sensitiveType, filePath string, tableId uint32) *errs.Status {
 	var words []*model.SensitiveWordVocabulary
 	if err := sqlopt.WithTableID(tableId).Apply(c.db.WithContext(ctx)).Find(&words).Error; err != nil {
-		return toErrStatus("app_safety_sensitive_vocabulary_list_get", tableId, err.Error())
+		return toErrStatus("app_safety_sensitive_vocabulary_list_get", util.Int2Str(tableId), err.Error())
 	}
 	if len(words) >= MaxSensitiveUploadSize {
 		return toErrStatus("app_safety_sensitive_table_full", util.Int2Str(MaxSensitiveUploadSize))
@@ -152,7 +152,7 @@ func (c *Client) UploadSensitiveVocabulary(ctx context.Context, userId, orgId, t
 				UserID:        userId,
 				Content:       word,
 				SensitiveType: sensitiveType,
-				TableID:       tableId,
+				TableID:       util.Int2Str(tableId),
 			}
 			err = c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 				if err := tx.Create(newRecord).Error; err != nil {
@@ -194,7 +194,7 @@ func (c *Client) UploadSensitiveVocabulary(ctx context.Context, userId, orgId, t
 			continue
 		}
 		filteredWords = append(filteredWords, &model.SensitiveWordVocabulary{
-			TableID:       tableId,
+			TableID:       util.Int2Str(tableId),
 			SensitiveType: raw.SensitiveType,
 			Content:       raw.Content,
 			UserID:        userId,
@@ -222,12 +222,12 @@ func (c *Client) UploadSensitiveVocabulary(ctx context.Context, userId, orgId, t
 		return nil
 	})
 	if err != nil {
-		return toErrStatus("app_safety_sensitive_word_file_create_err", tableId, err.Error())
+		return toErrStatus("app_safety_sensitive_word_file_create_err", util.Int2Str(tableId), err.Error())
 	}
 	return nil
 }
 
-func (c *Client) DeleteSensitiveVocabulary(ctx context.Context, tableId, wordId string) *errs.Status {
+func (c *Client) DeleteSensitiveVocabulary(ctx context.Context, tableId, wordId uint32) *errs.Status {
 	err := c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := sqlopt.SQLOptions(
 			sqlopt.WithID(tableId),
@@ -244,7 +244,7 @@ func (c *Client) DeleteSensitiveVocabulary(ctx context.Context, tableId, wordId 
 		return nil
 	})
 	if err != nil {
-		return toErrStatus("app_safety_sensitive_vocabulary_delete", wordId, err.Error())
+		return toErrStatus("app_safety_sensitive_vocabulary_delete", util.Int2Str(wordId), err.Error())
 	}
 	return nil
 }
@@ -288,15 +288,15 @@ func (c *Client) GetSensitiveWordTableListByIDs(ctx context.Context, tableIds []
 	return tables, nil
 }
 
-func (c *Client) GetSensitiveWordTableByID(ctx context.Context, tableId string) (*model.SensitiveWordTable, *errs.Status) {
+func (c *Client) GetSensitiveWordTableByID(ctx context.Context, tableId uint32) (*model.SensitiveWordTable, *errs.Status) {
 	var table model.SensitiveWordTable
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithID(tableId),
 	).Apply(c.db.WithContext(ctx)).First(&table).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, toErrStatus("app_safety_sensitive_table_not_found", tableId)
+			return nil, toErrStatus("app_safety_sensitive_table_not_found", util.Int2Str(tableId))
 		}
-		return nil, toErrStatus("app_safety_sensitive_table_get", tableId, err.Error())
+		return nil, toErrStatus("app_safety_sensitive_table_get", util.Int2Str(tableId), err.Error())
 	}
 	return &table, nil
 }

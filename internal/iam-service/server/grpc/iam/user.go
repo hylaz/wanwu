@@ -68,7 +68,6 @@ func (s *Service) CreateUser(ctx context.Context, req *iam_service.CreateUserReq
 		Nick:      req.NickName,
 		Gender:    req.Gender,
 		Phone:     req.Phone,
-		Email:     req.Email,
 		Company:   req.Company,
 		Remark:    req.Remark,
 		Password:  req.Password,
@@ -90,7 +89,6 @@ func (s *Service) UpdateUser(ctx context.Context, req *iam_service.UpdateUserReq
 		Nick:    req.NickName,
 		Gender:  req.Gender,
 		Phone:   req.Phone,
-		Email:   req.Email,
 		Company: req.Company,
 		Remark:  req.Remark,
 	}, util.MustU32(req.OrgId), roleIDs); err != nil {
@@ -107,7 +105,7 @@ func (s *Service) DeleteUser(ctx context.Context, req *iam_service.DeleteUserReq
 }
 
 func (s *Service) ChangeUserStatus(ctx context.Context, req *iam_service.ChangeUserStatusReq) (*emptypb.Empty, error) {
-	if err := s.cli.ChangeUserStatus(ctx, util.MustU32(req.UserId), req.Status); err != nil {
+	if err := s.cli.ChangeUserStatus(ctx, util.MustU32(req.UserId), util.MustU32(req.OrgId), req.Status); err != nil {
 		return nil, errStatus(errs.Code_IAMUser, err)
 	}
 	return &emptypb.Empty{}, nil
@@ -142,26 +140,34 @@ func (s *Service) ChangeUserLanguage(ctx context.Context, req *iam_service.Chang
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) UpdateUserAvatar(ctx context.Context, req *iam_service.UpdateUserAvatarReq) (*emptypb.Empty, error) {
+	if err := s.cli.UpdateUserAvatar(ctx, util.MustU32(req.UserId), req.AvatarPath); err != nil {
+		return nil, errStatus(errs.Code_IAMUser, err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // --- internal function ---
 
 func toUserInfo(user *orm.UserInfo) *iam_service.UserInfo {
 	ret := &iam_service.UserInfo{
-		UserId:    strconv.Itoa(int(user.ID)),
-		Status:    user.Status,
-		UserName:  user.Name,
-		NickName:  user.Nick,
-		Gender:    user.Gender,
-		Phone:     user.Phone,
-		Email:     user.Email,
-		Company:   user.Company,
-		Remark:    user.Remark,
-		CreatedAt: user.CreatedAt,
-		Creator:   toIDName(user.Creator),
-		Language:  user.Language,
+		UserId:     strconv.Itoa(int(user.ID)),
+		Status:     user.Status,
+		UserName:   user.Name,
+		NickName:   user.Nick,
+		Gender:     user.Gender,
+		Phone:      user.Phone,
+		Email:      user.Email,
+		Company:    user.Company,
+		Remark:     user.Remark,
+		CreatedAt:  user.CreatedAt,
+		Creator:    toIDName(user.Creator),
+		Language:   user.Language,
+		AvatarPath: user.AvatarPath,
 	}
 	for _, userOrg := range user.Orgs {
 		ret.Orgs = append(ret.Orgs, &iam_service.UserOrg{
-			Org:   toIDName(userOrg.Org),
+			Org:   toIDName(userOrg.Org.IDName),
 			Roles: toRoleIDNames(userOrg.Roles),
 		})
 	}

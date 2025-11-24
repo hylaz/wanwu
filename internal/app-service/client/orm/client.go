@@ -13,12 +13,14 @@ type Client struct {
 func NewClient(db *gorm.DB) (*Client, error) {
 	// auto migrate
 	if err := db.AutoMigrate(
+		model.AppConversation{},
 		model.ApiKey{},
 		model.AppHistory{},
 		model.App{},
 		model.AppFavorite{},
 		model.SensitiveWordTable{},
 		model.SensitiveWordVocabulary{},
+		model.AppUrl{},
 	); err != nil {
 		return nil, err
 	}
@@ -47,6 +49,7 @@ type ExplorationAppInfo struct {
 	UpdatedAt   int64
 	IsFavorite  bool
 	PublishType string
+	UserID      string
 }
 
 type SensitiveWordTableWithWord struct {

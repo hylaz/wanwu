@@ -1,7 +1,7 @@
 package model
 
 type SensitiveWordTable struct {
-	ID        int64  `gorm:"primary_key;autoIncrement"`
+	ID        uint32 `gorm:"primary_key;autoIncrement"`
 	CreatedAt int64  `gorm:"autoCreateTime:milli;index:idx_swt_created_at"`
 	UpdatedAt int64  `gorm:"autoUpdateTime:milli"`
 	UserID    string `gorm:"index:idx_swt_user_id"`
@@ -13,7 +13,7 @@ type SensitiveWordTable struct {
 }
 
 type SensitiveWordVocabulary struct {
-	ID            int64  `gorm:"primary_key;autoIncrement"`
+	ID            uint32 `gorm:"primary_key;autoIncrement"`
 	CreatedAt     int64  `gorm:"autoCreateTime:milli;index:idx_swv_created_at"`
 	UpdatedAt     int64  `gorm:"autoUpdateTime:milli"`
 	UserID        string `gorm:"index:idx_swv_user_id"`

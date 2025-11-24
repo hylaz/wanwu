@@ -9,7 +9,7 @@ import (
 
 // CheckFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件校验
 //	@Description	校验分片文件
 //	@Security		JWT
@@ -29,7 +29,7 @@ func CheckFile(ctx *gin.Context) {
 
 // CheckFileList
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件列表校验
 //	@Description	校验分片文件列表
 //	@Security		JWT
@@ -49,7 +49,7 @@ func CheckFileList(ctx *gin.Context) {
 
 // UploadFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件上传
 //	@Description	分片文件上传
 //	@Security		JWT
@@ -72,7 +72,7 @@ func UploadFile(ctx *gin.Context) {
 
 // MergeFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件合并
 //	@Description	合并分片文件，并上传minio
 //	@Security		JWT
@@ -92,7 +92,7 @@ func MergeFile(ctx *gin.Context) {
 
 // CleanFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件清除
 //	@Description	清除已上传的分片文件
 //	@Security		JWT
@@ -112,7 +112,7 @@ func CleanFile(ctx *gin.Context) {
 
 // DeleteFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		文件删除
 //	@Description	删除已上传的文件
 //	@Security		JWT
@@ -132,7 +132,7 @@ func DeleteFile(ctx *gin.Context) {
 
 // ProxyUploadFile
 //
-//	@Tags			common
+//	@Tags			common.file
 //	@Summary		代理文件上传
 //	@Description	代理文件上传
 //	@Security		JWT

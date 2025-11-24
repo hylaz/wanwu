@@ -12,6 +12,14 @@ type Ocr struct {
 	EndpointUrl string `json:"endpointUrl"` // 推理url
 }
 
+func (cfg *Ocr) Tags() []mp_common.Tag {
+	tags := []mp_common.Tag{
+		{
+			Text: mp_common.TagOcr,
+		},
+	}
+	return tags
+}
 func (cfg *Ocr) NewReq(req *mp_common.OcrReq) (mp_common.IOcrReq, error) {
 	return mp_common.NewOcrReq(req), nil
 }

@@ -18,6 +18,7 @@ message CheckUserEnableReq {
 
 message CheckUserEnableResp {
   string language = 1;
+  int64 lastUpdatePasswordAt = 2;
 }
 
 message CheckUserPermReq {
@@ -31,4 +32,5 @@ message CheckUserPermResp {
   bool isAdmin = 1;
   bool isSystem = 2;
   string language = 3;
+  int64 lastUpdatePasswordAt = 4;
 }

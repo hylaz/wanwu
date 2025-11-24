@@ -6,7 +6,7 @@ type KnowledgeTagSelectReq struct {
 	CommonCheck
 }
 
-type TagBindCountReq struct {
+type KnowledgeTagBindCountReq struct {
 	TagId string `json:"tagId" form:"tagId" validate:"required"`
 	CommonCheck
 }

@@ -41,7 +41,7 @@ func main() {
 	ctx := context.Background()
 
 	flag.Parse()
-	if err := config.LoadConfig(configFile); err != nil {
+	if err := config.LoadConfig(ctx, configFile); err != nil {
 		log.Fatalf("init cfg err: %v", err)
 	}
 

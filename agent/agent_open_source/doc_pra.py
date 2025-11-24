@@ -12,6 +12,7 @@ import concurrent.futures
 
 from utils.build_prompt import build_docqa_prompt_from_search_list
 
+URL_RAG = os.getenv("URL_RAG")
 
 config = configparser.ConfigParser()
 config.read('config.ini',encoding='utf-8')
@@ -39,7 +40,8 @@ def parse_doc(file_url, sentence_size, overlap_size):
     list: 解析后的文档片段列表
     """
 
-    url = config["MODELS"]["default_doc_parser_url"]
+    #url = config["MODELS"]["default_doc_parser_url"]
+    url = URL_RAG+':8681/rag/doc_parser'
     payload = json.dumps({
         "url": file_url,
         "sentence_size": sentence_size,

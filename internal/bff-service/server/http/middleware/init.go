@@ -1,22 +1,22 @@
 package middleware
 
 import (
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	mid "github.com/UnicomAI/wanwu/pkg/gin-util/mid-wrap"
 	"github.com/UnicomAI/wanwu/pkg/gin-util/route"
-	jwt_util "github.com/UnicomAI/wanwu/pkg/jwt-util"
 )
 
 func Init() {
-	jwt_util.InitUserJWT(config.Cfg().JWT.SigningKey)
 
-	mid.InitWrapper(Record)
+	mid.InitWrapper(Record, StaticFSHeader)
 
 	// --- openapi ---
 	mid.NewSub("openapi", "对外提供原子能力", route.PermNone, false, false)
 
 	// --- callback ---
 	mid.NewSub("callback", "系统内部调用", route.PermNone, false, false)
+
+	// --- openurl ---
+	mid.NewSub("openurl", "智能体Url", route.PermNone, false, false)
 
 	// --- guest ---
 	mid.NewSub("guest", "", route.PermNone, false, false)
@@ -32,6 +32,9 @@ func Init() {
 
 	// --- mcp ---
 	mid.NewSub("mcp", "MCP广场", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- tool ---
+	mid.NewSub("tool", "资源库", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
 	// --- safety ---
 	mid.NewSub("safety", "安全护栏", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
@@ -62,4 +65,10 @@ func Init() {
 
 	// --- setting ---
 	mid.NewSub("setting", "平台配置", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- statistic_client ---
+	mid.NewSub("statistic_client", "统计分析", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- oauth ---
+	mid.NewSub("oauth", "OAuth密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 }

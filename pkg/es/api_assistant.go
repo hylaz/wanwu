@@ -128,6 +128,26 @@ func InitESIndexTemplate(ctx context.Context) error {
 						"type": "keyword",
 						"index": false
 					},
+					"fileInfo": {
+						"type": "object",
+						"properties": {
+							"fileName": {
+								"type": "text",
+								"fields": {
+									"keyword": {
+										"type": "keyword"
+									}
+								}
+							},
+							"fileSize": {
+								"type": "long"
+							},
+							"fileUrl": {
+								"type": "text",
+								"index": false
+							}
+						}
+					},
 					"createdBy": {
 						"type": "keyword",
 						"index": true

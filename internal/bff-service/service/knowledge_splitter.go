@@ -8,7 +8,7 @@ import (
 )
 
 // SelectKnowledgeSplitterList 查询知识库分隔符列表
-func SelectKnowledgeSplitterList(ctx *gin.Context, userId, orgId string, req *request.KnowledgeSplitterSelectReq) (*response.KnowledgeSplitterListResp, error) {
+func SelectKnowledgeSplitterList(ctx *gin.Context, userId, orgId string, req *request.GetKnowledgeSplitterReq) (*response.KnowledgeSplitterListResp, error) {
 	resp, err := knowledgeBaseSplitter.SelectKnowledgeSplitterList(ctx.Request.Context(), &knowledgebase_splitter_service.KnowledgeSplitterSelectReq{
 		UserId:       userId,
 		OrgId:        orgId,
@@ -66,6 +66,7 @@ func buildKnowledgeSplitterList(knowledgeSplitterListResp *knowledgebase_splitte
 			SplitterId:    knowledgeSplitter.SplitterId,
 			SplitterName:  knowledgeSplitter.SplitterName,
 			SplitterValue: knowledgeSplitter.SplitterValue,
+			Type:          knowledgeSplitter.Type,
 		})
 	}
 	return &response.KnowledgeSplitterListResp{

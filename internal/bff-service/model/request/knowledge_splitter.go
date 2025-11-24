@@ -1,10 +1,5 @@
 package request
 
-type KnowledgeSplitterSelectReq struct {
-	SplitterName string `json:"splitterName" form:"splitterName" `
-	CommonCheck
-}
-
 type CreateKnowledgeSplitterReq struct {
 	SplitterName  string `json:"splitterName" form:"splitterName" validate:"required"`
 	SplitterValue string `json:"splitterValue" form:"splitterValue" validate:"required"`
@@ -20,5 +15,10 @@ type UpdateKnowledgeSplitterReq struct {
 
 type DeleteKnowledgeSplitterReq struct {
 	SplitterId string `json:"splitterId"  form:"splitterId" validate:"required"`
+	CommonCheck
+}
+
+type GetKnowledgeSplitterReq struct {
+	SplitterName string `json:"splitterName"  form:"splitterName"`
 	CommonCheck
 }

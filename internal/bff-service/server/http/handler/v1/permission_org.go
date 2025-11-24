@@ -1,9 +1,11 @@
 package v1
 
 import (
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +23,10 @@ import (
 func CreateOrg(ctx *gin.Context) {
 	var req request.OrgCreate
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_org_cannot_create"))
 		return
 	}
 	resp, err := service.CreateOrg(ctx, getUserID(ctx), getOrgID(ctx), &req)
@@ -42,6 +48,10 @@ func ChangeOrg(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_org_cannot_change"))
+		return
+	}
 	err := service.ChangeOrg(ctx, getOrgID(ctx), &req)
 	gin_util.Response(ctx, nil, err)
 }
@@ -59,6 +69,10 @@ func ChangeOrg(ctx *gin.Context) {
 func DeleteOrg(ctx *gin.Context) {
 	var req request.OrgID
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_org_cannot_delete"))
 		return
 	}
 	err := service.DeleteOrg(ctx, getOrgID(ctx), req.OrgID)
@@ -111,6 +125,10 @@ func GetOrgList(ctx *gin.Context) {
 func ChangeOrgStatus(ctx *gin.Context) {
 	var req request.OrgStatus
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_org_cannot_change_status"))
 		return
 	}
 	err := service.ChangeOrgStatus(ctx, getOrgID(ctx), req.OrgID.OrgID, req.Status)

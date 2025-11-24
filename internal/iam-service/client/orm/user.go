@@ -35,12 +35,19 @@ func (c *Client) GetUser(ctx context.Context, userID, orgID uint32) (*UserInfo, 
 			ret = toUserInfo(user)
 			return nil
 		}
-		// check org user
-		if err = sqlopt.SQLOptions(
+		// check org user 用户在组织中的状态校验
+		orgUser := &model.OrgUser{}
+		if err := sqlopt.SQLOptions(
+			sqlopt.WithUserID(user.ID),
 			sqlopt.WithOrgID(orgID),
-			sqlopt.WithUserID(userID),
-		).Apply(tx).First(&model.OrgUser{}).Error; err != nil {
-			return toErrStatus("iam_user_org_check", util.Int2Str(userID), util.Int2Str(orgID), err.Error())
+		).Apply(tx).First(orgUser).Error; err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return toErrStatus("iam_user_org_check", util.Int2Str(user.ID),
+					util.Int2Str(orgID), err.Error())
+			}
+		} else if orgUser.Status == sqlopt.OrgUserStatusDisabled {
+			return toErrStatus("iam_user_org_check", util.Int2Str(user.ID),
+				util.Int2Str(orgID), "user disabled")
 		}
 		// org tree
 		orgTree, err := getOrgTree(tx)
@@ -119,119 +126,113 @@ func (c *Client) CreateUser(ctx context.Context, user *model.User, orgID uint32,
 		return 0, toErrStatus("iam_user_create", "create user but id not 0")
 	}
 	return user.ID, c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
-		// check org
-		var adminRoles, nonAdminRoles []uint32
-		if err := sqlopt.WithID(orgID).Apply(tx).First(&model.Org{}).Error; err != nil {
+		return createUserTx(tx, user, orgID, roleIDs)
+	})
+}
+
+func createUserTx(tx *gorm.DB, user *model.User, orgID uint32, roleIDs []uint32) *errs.Status {
+	// check org
+	var adminRoles, nonAdminRoles []uint32
+	if err := sqlopt.WithID(orgID).Apply(tx).First(&model.Org{}).Error; err != nil {
+		return toErrStatus("iam_user_create", err.Error())
+	} else if len(roleIDs) > 0 {
+		// check org role
+		for _, roleID := range roleIDs {
+			orgRole := &model.OrgRole{}
+			if err := sqlopt.SQLOptions(
+				sqlopt.WithOrgID(orgID),
+				sqlopt.WithRoleID(roleID),
+			).Apply(tx).First(orgRole).Error; err != nil {
+				return toErrStatus("iam_user_create", err.Error())
+			}
+			if orgRole.IsAdmin {
+				adminRoles = append(adminRoles, roleID)
+			} else {
+				nonAdminRoles = append(nonAdminRoles, roleID)
+			}
+		}
+	}
+	// check creator
+	if user.CreatorID != 0 {
+		// 正常创建用户
+		if user.IsAdmin {
+			return toErrStatus("iam_user_create", "cannot create admin user")
+		}
+		if err := sqlopt.WithID(user.CreatorID).Apply(tx).First(&model.User{}).Error; err != nil {
 			return toErrStatus("iam_user_create", err.Error())
-		} else if len(roleIDs) > 0 {
-			// check org role
-			for _, roleID := range roleIDs {
-				orgRole := &model.OrgRole{}
-				if err := sqlopt.SQLOptions(
-					sqlopt.WithOrgID(orgID),
-					sqlopt.WithRoleID(roleID),
-				).Apply(tx).First(orgRole).Error; err != nil {
-					return toErrStatus("iam_user_create", err.Error())
-				}
-				if orgRole.IsAdmin {
-					adminRoles = append(adminRoles, roleID)
-				} else {
-					nonAdminRoles = append(nonAdminRoles, roleID)
-				}
-			}
 		}
-		// check creator
-		if user.CreatorID != 0 {
-			// 正常创建用户
-			if user.IsAdmin {
-				return toErrStatus("iam_user_create", "cannot create admin user")
-			}
-			if err := sqlopt.WithID(user.CreatorID).Apply(tx).First(&model.User{}).Error; err != nil {
-				return toErrStatus("iam_user_create", err.Error())
-			}
-		} else {
-			// 创建系统内管理员，此时系统内不能存在任何用户
-			if !user.IsAdmin {
-				return toErrStatus("iam_user_create", "create admin user but is not admin")
-			}
-			if err := tx.First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
-				if err == nil {
-					err = errors.New("already exist")
-				}
-				return toErrStatus("iam_user_create", err.Error())
-			}
+	} else {
+		// 创建系统内管理员，此时系统内不能存在任何用户
+		if !user.IsAdmin {
+			return toErrStatus("iam_user_create", "create admin user but is not admin")
 		}
-		// check name
-		if err := sqlopt.WithName(user.Name).Apply(tx).First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
+		if err := tx.First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
 			if err == nil {
-				return toErrStatus("iam_user_create_name")
+				err = errors.New("already exist")
 			}
-			return toErrStatus("iam_user_create_name_err", user.Name, err.Error())
-		}
-		// check email
-		if user.Email != "" {
-			if err := tx.Where("email = ?", user.Email).First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
-				if err == nil {
-					return toErrStatus("iam_user_create_email")
-				}
-				return toErrStatus("iam_user_create_email_err", user.Email, err.Error())
-			}
-		}
-		// check phone
-		if user.Phone != "" {
-			if err := tx.Where("phone = ?", user.Phone).First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
-				if err == nil {
-					return toErrStatus("iam_user_create_phone")
-				}
-				return toErrStatus("iam_user_create_phone_err", user.Phone, err.Error())
-			}
-		}
-		//password encode
-		user.Password = util.SHA256(user.Password)
-		// create user
-		if err := tx.Create(user).Error; err != nil {
 			return toErrStatus("iam_user_create", err.Error())
 		}
-		// create org user
-		var orgUsers []*model.OrgUser
+	}
+	// check name
+	if err := sqlopt.WithName(user.Name).Apply(tx).First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
+		if err == nil {
+			return toErrStatus("iam_user_create_name")
+		}
+		return toErrStatus("iam_user_create_name_err", user.Name, err.Error())
+	}
+	// check phone
+	if user.Phone != "" {
+		if err := sqlopt.WithPhone(user.Phone).Apply(tx).First(&model.User{}).Error; err != gorm.ErrRecordNotFound {
+			if err == nil {
+				return toErrStatus("iam_user_create_phone")
+			}
+			return toErrStatus("iam_user_create_phone_err", user.Phone, err.Error())
+		}
+	}
+	// password encode
+	user.Password = util.SHA256(user.Password)
+	// create user
+	if err := tx.Create(user).Error; err != nil {
+		return toErrStatus("iam_user_create", err.Error())
+	}
+	// create org user
+	var orgUsers []*model.OrgUser
+	orgUsers = append(orgUsers, &model.OrgUser{
+		OrgID:  orgID,
+		UserID: user.ID,
+	})
+	if orgID != config.TopOrgID() { // 默认也加入顶级组织
 		orgUsers = append(orgUsers, &model.OrgUser{
-			OrgID:  orgID,
+			OrgID:  config.TopOrgID(),
 			UserID: user.ID,
 		})
-		if orgID != config.TopOrgID() { // 默认也加入顶级组织
-			orgUsers = append(orgUsers, &model.OrgUser{
-				OrgID:  config.TopOrgID(),
-				UserID: user.ID,
+	}
+	if err := tx.Create(orgUsers).Error; err != nil {
+		return toErrStatus("iam_user_create", err.Error())
+	}
+	// create user role
+	if len(roleIDs) > 0 {
+		var userRoles []*model.UserRole
+		for _, roleID := range adminRoles {
+			userRoles = append(userRoles, &model.UserRole{
+				OrgID:   orgID,
+				UserID:  user.ID,
+				RoleID:  roleID,
+				IsAdmin: true,
 			})
 		}
-		if err := tx.Create(orgUsers).Error; err != nil {
+		for _, roleID := range nonAdminRoles {
+			userRoles = append(userRoles, &model.UserRole{
+				OrgID:  orgID,
+				UserID: user.ID,
+				RoleID: roleID,
+			})
+		}
+		if err := tx.Create(userRoles).Error; err != nil {
 			return toErrStatus("iam_user_create", err.Error())
 		}
-		// create user role
-		if len(roleIDs) > 0 {
-			var userRoles []*model.UserRole
-			for _, roleID := range adminRoles {
-				userRoles = append(userRoles, &model.UserRole{
-					OrgID:   orgID,
-					UserID:  user.ID,
-					RoleID:  roleID,
-					IsAdmin: true,
-				})
-			}
-			for _, roleID := range nonAdminRoles {
-				userRoles = append(userRoles, &model.UserRole{
-					OrgID:  orgID,
-					UserID: user.ID,
-					RoleID: roleID,
-				})
-			}
-			if err := tx.Create(userRoles).Error; err != nil {
-				return toErrStatus("iam_user_create", err.Error())
-			}
-		}
-		return nil
-	})
-
+	}
+	return nil
 }
 
 func (c *Client) UpdateUser(ctx context.Context, user *model.User, orgID uint32, roleIDs []uint32) *errs.Status {
@@ -239,14 +240,18 @@ func (c *Client) UpdateUser(ctx context.Context, user *model.User, orgID uint32,
 		return toErrStatus("iam_user_update", "update user but id 0")
 	}
 	return c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
-		// check org user
+		// check org user 用户在组织中的状态校验
+		orgUser := &model.OrgUser{}
 		if err := sqlopt.SQLOptions(
-			sqlopt.WithOrgID(orgID),
 			sqlopt.WithUserID(user.ID),
-		).Apply(tx).First(&model.OrgUser{}).Error; err != nil {
-			return toErrStatus("iam_user_update", err.Error())
+			sqlopt.WithOrgID(orgID),
+		).Apply(tx).First(orgUser).Error; err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return toErrStatus("iam_user_update", err.Error())
+			}
+		} else if orgUser.Status == sqlopt.OrgUserStatusDisabled {
+			return toErrStatus("iam_user_update", fmt.Sprintf("org %v user %v disable", orgID, user.ID))
 		}
-		// check org role
 		if user.ID == config.AdminUserID() && orgID == config.TopOrgID() {
 			var exist bool
 			for _, roleID := range roleIDs {
@@ -277,22 +282,9 @@ func (c *Client) UpdateUser(ctx context.Context, user *model.User, orgID uint32,
 			}
 		}
 		var users []*model.User
-		// check email
-		if user.Email != "" {
-			if err := tx.Where("email = ?", user.Email).Find(&users).Error; err != nil {
-				return toErrStatus("iam_user_update_email", util.Int2Str(user.ID), user.Email, err.Error())
-			}
-			if len(users) > 0 {
-				for _, u := range users {
-					if u.ID != user.ID {
-						return toErrStatus("iam_user_update_email", util.Int2Str(user.ID), user.Email, "already exist")
-					}
-				}
-			}
-		}
 		// check phone
 		if user.Phone != "" {
-			if err := tx.Where("phone = ?", user.Phone).Find(&users).Error; err != nil {
+			if err := sqlopt.WithPhone(user.Phone).Apply(tx).Find(&users).Error; err != nil {
 				return toErrStatus("iam_user_update_phone", util.Int2Str(user.ID), user.Phone, err.Error())
 			}
 			if len(users) > 0 {
@@ -308,7 +300,6 @@ func (c *Client) UpdateUser(ctx context.Context, user *model.User, orgID uint32,
 			"nick":    user.Nick,
 			"gender":  user.Gender,
 			"phone":   user.Phone,
-			"email":   user.Email,
 			"company": user.Company,
 			"remark":  user.Remark,
 		}).Error; err != nil {
@@ -398,16 +389,39 @@ func (c *Client) DeleteUser(ctx context.Context, userID uint32) *errs.Status {
 	})
 
 }
+func (c *Client) UpdateUserAvatar(ctx context.Context, userID uint32, avatarPath string) *errs.Status {
+	if err := sqlopt.WithID(userID).Apply(c.db.WithContext(ctx)).Model(&model.User{}).Updates(map[string]interface{}{
+		"avatar_path": avatarPath,
+	}).Error; err != nil {
+		return toErrStatus("iam_user_avatar_upload", util.Int2Str(userID), err.Error())
+	}
+	return nil
+}
 
-func (c *Client) ChangeUserStatus(ctx context.Context, userID uint32, status bool) *errs.Status {
+func (c *Client) ChangeUserStatus(ctx context.Context, userID, orgID uint32, status bool) *errs.Status {
 	return c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
 		// check user
 		if userID == config.AdminUserID() {
 			return toErrStatus("iam_user_change_status", util.Int2Str(userID), "cannot change admin user status")
 		}
 		// change status
-		if err := sqlopt.WithID(userID).Apply(tx).Model(&model.User{}).Updates(map[string]interface{}{
-			"status": status,
+		if orgID == config.TopOrgID() {
+			if err := sqlopt.WithID(userID).Apply(tx).Model(&model.User{}).Updates(map[string]interface{}{
+				"status": status,
+			}).Error; err != nil {
+				return toErrStatus("iam_user_change_status", util.Int2Str(userID), err.Error())
+			}
+			return nil
+		}
+		var orgUserStatus string
+		if !status {
+			orgUserStatus = sqlopt.OrgUserStatusDisabled
+		}
+		if err := sqlopt.SQLOptions(
+			sqlopt.WithUserID(userID),
+			sqlopt.WithOrgID(orgID),
+		).Apply(tx).Model(&model.OrgUser{}).Updates(map[string]interface{}{
+			"status": orgUserStatus,
 		}).Error; err != nil {
 			return toErrStatus("iam_user_change_status", util.Int2Str(userID), err.Error())
 		}
@@ -491,32 +505,34 @@ func (c *Client) ChangeUserLanguage(ctx context.Context, userID uint32, language
 
 func toUserInfo(user *model.User) *UserInfo {
 	return &UserInfo{
-		ID:        user.ID,
-		Status:    user.Status,
-		Name:      user.Name,
-		Nick:      user.Nick,
-		Gender:    user.Gender,
-		Phone:     user.Phone,
-		Email:     user.Email,
-		Company:   user.Company,
-		Remark:    user.Remark,
-		CreatedAt: user.CreatedAt,
-		Language:  user.Language,
+		ID:         user.ID,
+		Status:     user.Status,
+		Name:       user.Name,
+		Nick:       user.Nick,
+		Gender:     user.Gender,
+		Phone:      user.Phone,
+		Email:      user.Email,
+		Company:    user.Company,
+		Remark:     user.Remark,
+		CreatedAt:  user.CreatedAt,
+		Language:   user.Language,
+		AvatarPath: user.AvatarPath,
 	}
 }
 
 func toUserInfoTx(tx *gorm.DB, user *model.User, orgTree *model.OrgNode, allOrg bool, orgID ...uint32) (*UserInfo, error) {
 	ret := &UserInfo{
-		ID:        user.ID,
-		Status:    user.Status,
-		Name:      user.Name,
-		Nick:      user.Nick,
-		Gender:    user.Gender,
-		Phone:     user.Phone,
-		Email:     user.Email,
-		Company:   user.Company,
-		Remark:    user.Remark,
-		CreatedAt: user.CreatedAt,
+		ID:         user.ID,
+		Name:       user.Name,
+		Nick:       user.Nick,
+		Gender:     user.Gender,
+		Phone:      user.Phone,
+		Email:      user.Email,
+		Company:    user.Company,
+		Remark:     user.Remark,
+		CreatedAt:  user.CreatedAt,
+		Language:   user.Language,
+		AvatarPath: user.AvatarPath,
 	}
 	// user org
 	orgs, err := getUserOrgsTx(tx, user.ID, orgTree)
@@ -524,8 +540,12 @@ func toUserInfoTx(tx *gorm.DB, user *model.User, orgTree *model.OrgNode, allOrg 
 		return nil, err
 	}
 	for _, org := range orgs {
-		if allOrg || util.Exist(orgID, org.ID) {
+		if allOrg {
 			ret.Orgs = append(ret.Orgs, &UserOrg{Org: org})
+			ret.Status = user.Status
+		} else if util.Exist(orgID, org.ID) {
+			ret.Orgs = append(ret.Orgs, &UserOrg{Org: org})
+			ret.Status = org.Status
 		}
 	}
 	// creator
@@ -600,18 +620,23 @@ func toUserInfoTx(tx *gorm.DB, user *model.User, orgTree *model.OrgNode, allOrg 
 	return ret, nil
 }
 
-func getUserOrgsTx(tx *gorm.DB, userID uint32, orgTree *model.OrgNode) ([]IDName, error) {
-	var ret []IDName
+func getUserOrgsTx(tx *gorm.DB, userID uint32, orgTree *model.OrgNode) ([]OrgUserIDName, error) {
+	var ret []OrgUserIDName
 	var userOrgs []*model.OrgUser
 	if err := sqlopt.WithUserID(userID).Apply(tx).Find(&userOrgs).Error; err != nil {
 		return nil, fmt.Errorf("get user %v orgs err: %v", userID, err)
 	}
 	for _, orgUser := range userOrgs {
-		ret = append(ret, IDName{ID: orgUser.OrgID, Name: orgTree.GetFullName(orgUser.OrgID)})
+		var status bool
+		if orgUser.Status != sqlopt.OrgUserStatusDisabled {
+			status = true
+		}
+		ret = append(ret, OrgUserIDName{IDName: IDName{ID: orgUser.OrgID, Name: orgTree.GetFullName(orgUser.OrgID)}, Status: status})
 	}
 	return ret, nil
 }
 
+// ID: orgUser.OrgID, Name: orgTree.GetFullName(orgUser.OrgID),Status: orgUser.Status
 func getCreatorTx(tx *gorm.DB, creatorID uint32) (IDName, error) {
 	ret := IDName{ID: creatorID}
 	creator := &model.User{}
@@ -669,6 +694,18 @@ func getUserPermission(tx *gorm.DB, userID, orgID uint32) (*Permission, error) {
 	if err := sqlopt.WithID(orgID).Apply(tx).First(org).Error; err != nil {
 		return nil, fmt.Errorf("get org %v err: %v", orgID, err)
 	}
+	// check org user 用户在组织中的状态校验
+	orgUser := &model.OrgUser{}
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithUserID(userID),
+		sqlopt.WithOrgID(orgID),
+	).Apply(tx).First(orgUser).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("get org %v user %v err: %v", orgID, userID, err.Error())
+		}
+	} else if orgUser.Status == sqlopt.OrgUserStatusDisabled {
+		return nil, fmt.Errorf("org %v user %v disable", orgID, userID)
+	}
 	// user role
 	var userRoles []*model.UserRole
 	if err := sqlopt.SQLOptions(
@@ -720,13 +757,6 @@ func getUserPermission(tx *gorm.DB, userID, orgID uint32) (*Permission, error) {
 	}
 	if isAdmin {
 		return ret, nil
-	}
-	// check org user
-	if err := sqlopt.SQLOptions(
-		sqlopt.WithOrgID(orgID),
-		sqlopt.WithUserID(userID),
-	).Apply(tx).First(&model.OrgUser{}).Error; err != nil {
-		return nil, fmt.Errorf("check org %v user %v err: %v", orgID, userID, err)
 	}
 	// perms
 	for _, userRole := range validUserRoles {

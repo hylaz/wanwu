@@ -70,7 +70,7 @@ check:
 	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v1.64.8 bash -c 'golangci-lint run -v --timeout 3m'
 
 doc:
-	docker run --name golang-swag --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.22.12-bookworm-swag1.16.4 bash -c 'make doc-swag'
+	docker run --name golang-swag --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.6-bookworm-swag1.16.6 bash -c 'make doc-swag'
 
 doc-swag:
 	# swag version v1.16.4
@@ -83,12 +83,24 @@ doc-swag:
 	# callback
 	swag fmt  -g callback.go -d internal/bff-service/server/http/handler/callback
 	swag init -g callback.go -d internal/bff-service/server/http/handler/callback -o docs/callback --pd
+	# openurl
+	swag fmt  -g openurl.go -d internal/bff-service/server/http/handler/openurl
+	swag init -g openurl.go -d internal/bff-service/server/http/handler/openurl -o docs/openurl --pd
 
 docker-image-backend:
-	docker build -f Dockerfile.backend --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/backend:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+	docker build -f Dockerfile.backend --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/wanwu-backend:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
 
 docker-image-frontend:
-	docker build -f Dockerfile.frontend --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/frontend:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+	docker build -f Dockerfile.frontend --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/wanwu-frontend:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
+docker-image-rag:
+	docker build -f Dockerfile.rag --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/rag:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
+docker-image-agent:
+	docker build -f Dockerfile.agent --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/agent:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
+docker-image-agent-base:
+	docker build -f Dockerfile.agent-base --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/agent-base:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
 
 grpc-protoc:
 	protoc --proto_path=. --go_out=paths=source_relative:api --go-grpc_out=paths=source_relative:api proto/*/*.proto
@@ -101,7 +113,7 @@ init:
 	go mod vendor
 
 pb:
-	docker run --name golang-grpc --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.22.12-bookworm-protoc29.4-gengo1.34.1-gengrpc1.5.1-gengw2.20.0-genapi2.20.0 bash -c 'make grpc-protoc'
+	docker run --name golang-grpc --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.6-bookworm-protoc29.4-gengo1.34.1-gengrpc1.5.1-gengw2.20.0-genapi2.20.0 bash -c 'make grpc-protoc'
 
 # --- mysql ---
 run-mysql:
@@ -116,18 +128,18 @@ stop-mysql:
 		--env-file .env \
 		down mysql
 
-# --- mysql-worker ---
-run-mysql-worker:
+# --- mysql-setup ---
+run-mysql-setup:
 	docker-compose -f docker-compose.yaml \
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
-		up mysql-worker
+		up mysql-setup
 
-stop-mysql-worker:
+stop-mysql-setup:
 	docker-compose -f docker-compose.yaml \
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
-		down mysql-worker
+		down mysql-setup
 
 # --- redis ---
 run-redis:

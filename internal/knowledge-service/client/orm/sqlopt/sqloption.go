@@ -42,6 +42,27 @@ func WithKnowledgeID(id string) SQLOption {
 	})
 }
 
+func WithOverKnowledgePermission(id int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("permission_type >= ?", id)
+	})
+}
+
+func WithPermissionId(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("permission_id = ?", id)
+	})
+}
+
+func WithoutKnowledgeID(knowledgeId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(knowledgeId) == 0 {
+			return db
+		}
+		return db.Where("knowledge_id != ?", knowledgeId)
+	})
+}
+
 func WithKnowledgeIDList(idList []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if len(idList) > 0 {
@@ -69,6 +90,12 @@ func WithImportID(id string) SQLOption {
 	})
 }
 
+func WithImportIDs(idList []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("import_id in ?", idList)
+	})
+}
+
 func WithDocIDs(ids []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("doc_id in ?", ids)
@@ -81,9 +108,33 @@ func WithDocID(id string) SQLOption {
 	})
 }
 
+func WithKey(key string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("`key` = ?", key)
+	})
+}
+
+func WithType(metaValueType string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("`type` = ?", metaValueType)
+	})
+}
+
 func WithIDs(ids []uint32) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("id IN ?", ids)
+	})
+}
+
+func WithMetaId(metaId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("meta_id = ?", metaId)
+	})
+}
+
+func WithMetaIds(metaIds []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("meta_id IN ?", metaIds)
 	})
 }
 
@@ -103,10 +154,10 @@ func WithUserID(userID string) SQLOption {
 func WithPermit(orgID, userID string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if len(orgID) > 0 {
-			return db.Where("org_id = ?", orgID)
+			db = db.Where("org_id = ?", orgID)
 		}
 		if len(userID) > 0 {
-			return db.Where("user_id = ?", userID)
+			db = db.Where("user_id = ?", userID)
 		}
 		return db
 	})
@@ -133,6 +184,39 @@ func WithName(name string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if len(name) > 0 {
 			return db.Where("name = ?", name)
+		}
+		return db
+	})
+}
+
+func WithoutID(id uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if id != 0 {
+			return db.Where("id != ?", id)
+		}
+		return db
+	})
+}
+
+func WithValue(value string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(value) > 0 {
+			return db.Where("value = ?", value)
+		}
+		return db
+	})
+}
+
+func WithNonEmptyValue() SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("value != ''")
+	})
+}
+
+func WithNameOrValue(name, value string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(name) > 0 || len(value) > 0 {
+			return db.Where("name = ? OR value = ?", name, value)
 		}
 		return db
 	})

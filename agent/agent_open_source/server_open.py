@@ -23,9 +23,14 @@ from bing_plus import *
 import configparser
 from langchain.requests import RequestsWrapper
 from mcp_client import *
+from urllib.parse import urlparse
 
 
 import logging
+
+URL_RAG_STREAM = os.getenv("URL_RAG_STREAM")
+URL_MODEL = os.getenv("URL_MODEL")
+URL_RAG = os.getenv("URL_RAG")
 
 
 log_dir = "./logs"
@@ -49,6 +54,15 @@ CORS(app, supports_credentials=True)
 
 
 
+def img2base64(img_path):
+    img_format = img_path.split('.')[-1]
+    with open(img_path, "rb") as f:
+        encoded_image = base64.b64encode(f.read())
+        encoded_image_text = encoded_image.decode("utf-8")
+        img_base64_str = f"data:image/{img_format};base64,{encoded_image_text}"
+        return img_base64_str
+
+
 os.environ["ARK_API_KEY"] = "eyJh"
 
 
@@ -67,12 +81,12 @@ def agent_start():
             stream = data.get("stream",True)
             history = data.get("history",[])
             userId = request.headers.get('X-Uid')
-            function_call = data.get("function_call",False)
+            #function_call = data.get("function_call",False)
             logger.info('user_id是:'+userId)
 
 
             mcp_tools = data.get("mcp_tools", {})
-            
+            tools_name = data.get("tools_name",[]) 
 
 
             #大模型参数
@@ -104,7 +118,7 @@ def agent_start():
             #代码解释器参数
             use_code = data.get("use_code",False)
             file_name = data.get("file_name")
-            upload_file_url = data.get("upload_file_url",'')
+            upload_file_url = data.get("upload_file_url",[])
 
 
             #rag参数
@@ -116,16 +130,29 @@ def agent_start():
             plugin_list = data.get("plugin_list",[])
             
             
-            url = f"http://bff-service:6668/callback/v1/model/{model_id}"
+            #url = f"http://bff-service:6668/callback/v1/model/{model_id}"
+            url = URL_MODEL+f":6668/callback/v1/model/{model_id}"
             response = requests.get(url)
             function_call = False
+            is_vision = False
             if response.status_code == 200:
                 data = response.json()
                 result = data.get("data", {}).get("config").get("functionCalling")
-                logger.info(f"functioncall result{result}")
-                if result != "noSupport":
-                    function_call = True
-                    logger.info(f"func_is {function_call}")
+                is_visionSupport = data.get("data", {}).get("config").get("visionSupport")
+                logger.info(f"function_call support result{result}")
+                logger.info(f"vision support result{is_visionSupport}")
+                if result == "noSupport":
+                    function_call = False
+                    logger.info(f"不支持function_call {function_call}")
+                else:
+                    function_call = False
+                    logger.info(f"支持function_call {function_call}")
+
+                if is_visionSupport == "support":
+                    is_vision = True
+
+
+
 
 
 
@@ -189,7 +216,7 @@ def agent_start():
         },
         "servers": [
             {
-                "url": "http://172.17.0.1:1991"
+                "url": "http://localhost:1991"
             }
         ]
     }
@@ -209,12 +236,94 @@ def agent_start():
                 weights = kn_params.get('weights',None)
                 max_history = kn_params.get('max_history')
                 rewrite_query = kn_params.get('rewrite_query')
+                term_weight_coefficient = kn_params.get('term_weight_coefficient',1.0)
+                metadata_filtering = kn_params.get('metadata_filtering',True)
+                knowledgeIdList = kn_params.get('knowledgeIdList',[])
+                metadata_filtering_conditions = kn_params.get('metadata_filtering_conditions',[])
+                use_graph = kn_params.get('use_graph',False)
 
 
+#如果是多模态模型，则进入多模态模式
+            if is_vision:
+                logger.info(f"to_vision model answer")
+                client = OpenAI(api_key='aaaaa',
+                         base_url = model_url,
+                )
+                if upload_file_url:
+                    urls = upload_file_url if isinstance(upload_file_url, list) else [upload_file_url]
+                    image_contents = []
+                    for url in urls:
+                        logger.info(f"minio_file_is {upload_file_url}")
+                        #把图片文件下载到本地
+                        path = urlparse(url).path  # "/bucket/yourfile.jpg"
+                        filename = os.path.basename(path)  # "yourfile.jpg"
+                        local_path = "/agent/agent_open_source/file/"+filename
+                        logger.info(f"minio_file_path {local_path}")
 
+                        with requests.get(url, stream=True) as r:
+                            r.raise_for_status()
+                            with open(local_path, "wb") as f:
+                                for chunk in r.iter_content(chunk_size=8192):
+                                    if chunk:
+                                        f.write(chunk)
+
+                        print(f"jpg_file save: {local_path}")
+                        image_contents.append({
+                            "type": "image_url",
+                            "image_url": {"url": img2base64(local_path)}
+                        })
+
+                    messages = [{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": question},
+                            *image_contents
+                        ]
+                    }]
+                else:
+                    messages = [{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": question}
+                        ]
+                    }]
+
+                completion = client.chat.completions.create(
+                    model="YuanjingVL",
+                    messages=messages,
+                    stream=True,
+                    extra_body={  # 模型其他参数，非必传
+                        "api_option": "general",  # general:通用；ocr：多模态ocr；math：拍照答题
+                    }
+                )
+                answer = {
+                    "code": 0,
+                    "message": "success",
+                    "response": "",
+                    "gen_file_url_list": [],
+                    "history": [],
+                    "finish": 0,
+                    "usage": {
+                        "prompt_tokens": 0,
+                        "completion_tokens": 0,
+                        "total_tokens": 0
+                    },
+                    "search_list": [],
+                    "qa_type": 0
+                }
+                for event in completion:
+                    logger.info(f"event_is {event}")
+                    if event.choices:
+                       answer['response'] = event.choices[0].delta.content
+                       logger.info(f"finish_reason_receive_is:{event.choices[0].finish_reason}")
+                       if event.choices[0].finish_reason == 'stop':
+                           logger.info(f"finish_stop")
+                           answer['finish'] = 1
+                    yield f"data:{json.dumps(answer, ensure_ascii=False)}\n"
+                return
 
             if mcp_tools:
-                mcp_server_response = mcp_server_client(question, mcp_tools, temperature=temperature,model_name=model,model_url=model_url,
+                mcp_server_response = mcp_server_client(question, mcp_tools,tools_name, temperature=temperature,model_name=model,model_url=model_url,
                                                         stream=True,
                                                         history=history)
                 if mcp_server_response:
@@ -281,10 +390,6 @@ def agent_start():
                     llm = ChatOpenAI(
                         model_name=model,
                         streaming=True,
-                        top_p=top_p,
-                        temperature=temperature,
-                        frequency_penalty=frequency_penalty,
-                        presence_penalty=presence_penalty,
                         base_url=model_url,
                         openai_api_key=os.environ["ARK_API_KEY"],
                     )
@@ -306,7 +411,8 @@ def agent_start():
 
                     assistant_reply = ""
                     messages.append({"role": "user", "content": question})
-                    messages.append({"role": "system", "content": system_role})
+                    if system_role:
+                        messages.append({"role": "system", "content": system_role})
                     for chunk in llm.stream(messages):
                         if hasattr(chunk, "content"):
                             print('大模型输出是:', chunk)
@@ -338,14 +444,20 @@ def agent_start():
             used_rag = False
             #如果传参有知识库 则先走rag
             if use_know:
-                print('-----------先走知识库回答')
-                url = "http://172.17.0.1:10891/rag/knowledge/stream/search" 
+                print('进入rag问题是:',question)
+                
+                #url = "http://172.17.0.1:10891/rag/knowledge/stream/search"
+                url = URL_RAG_STREAM
+                logger.info(f"rag_url是:{url}")
 
                 payload = {
                     "knowledgeBase": knowledgebase_name,
                     "question": question,
                     "threshold": threshold,
                     "topK": topk,
+                    "temperature":temperature,
+                    "do_sample":do_sample,
+                    "repetition_penalty":repetition_penalty,
                     "stream": True,
                     "chitchat": False,
                     "history": history,
@@ -356,7 +468,13 @@ def agent_start():
                     "retrieve_method":retrieve_method,
                     "weights":weights,
                     "max_history":max_history,
-                    "rewrite_query":rewrite_query
+                    "rewrite_query":rewrite_query,
+                    "term_weight_coefficient":term_weight_coefficient,
+                    "metadata_filtering":metadata_filtering,
+                    "metadata_filtering_conditions":metadata_filtering_conditions,
+                    "knowledgeIdList":knowledgeIdList,
+                    "use_graph":use_graph
+
                 }
 
 
@@ -379,9 +497,10 @@ def agent_start():
                                 if not first_line_checked:
                                     first_line_checked = True
                                     if data["data"]["searchList"]:
-                                        print('知识库可回答')
+                                        logger.info(f"知识库有召回")
                                         used_rag = True
-                                    print('知识库无法回答')
+                                    else:
+                                        logger.info(f"知识库无召回")
                                 if used_rag:
                                     answer = {
                 "code": 0,
@@ -410,10 +529,9 @@ def agent_start():
                                     yield f"data: {json.dumps(answer, ensure_ascii=False)}\n\n"
                             except Exception as e:
                                 yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
-            if not used_rag:
-                print('------------走搜索search')               
+            if not used_rag:               
                 if use_search == True:
-                    print('------------走搜索search')
+                    logger.info(f"走搜索")
                     #调用网络搜索 透传搜索出来的search_list和回答 结果直接返回                
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
@@ -482,11 +600,8 @@ def agent_start():
                                 print('大模型输出是:',chunk)
                                 answer['response'] = chunk.content
                                 assistant_reply += chunk.content
-                                if first_chunk:
-                                    answer["search_list"] = bing_search_list  # 仅第一条输出
-                                    first_chunk = False
-                                else:
-                                    answer["search_list"] = []  # 后续为空
+                                answer["search_list"] = bing_search_list  # 仅第一条输出
+
 
                                 if hasattr(chunk, "response_metadata"):
                                     if 'finish_reason' in chunk.response_metadata and chunk.response_metadata['finish_reason']=='stop':
@@ -530,14 +645,15 @@ def agent_start():
 
                 #如果配置工具则action直接回答
                 if plugin_list:
-                    action_url = "http://172.17.0.1:1992/agent/action"
+                    action_url = "http://localhost:1992/agent/action"
                     headers = {
                         "Content-Type": "application/json"
                     }
-
-                    question = '问题是:'+question+'\n'+'以下是chatdoc工具可能用到的参数：'+'upload_file_url:'+upload_file_url
-
-                    print('送入action问题是:',question)
+                    if upload_file_url:
+                        question = '问题是:'+question+'\n'+'以下是调用工具可能用到的参数：'+'upload_file_url:'+upload_file_url[0]
+                    else:
+                        question = '问题是:' + question
+                    logger.info("送入action问题是:{question}")
                     print('plugin_list是什么:',plugin_list)
                     if function_call:
                         payload = {
@@ -582,7 +698,7 @@ def agent_start():
                         assistant_reply = ""
 
                         for line in response.iter_lines(decode_unicode=True):
-                            print('action输出是什么:',line)
+                            logger.info(f"action输出是什么:{line}")
                             if line.startswith("data:"):
                                 line = line[5:]
                                 datajson = json.loads(line)
@@ -633,10 +749,6 @@ def agent_start():
                         llm = ChatOpenAI(
                             model_name=model,
                             streaming=True,
-                            top_p = top_p,
-                            temperature = temperature,
-                            frequency_penalty = frequency_penalty,
-                            presence_penalty = presence_penalty,
                             base_url=model_url,
                             openai_api_key=os.environ["ARK_API_KEY"],
                         )
@@ -657,7 +769,8 @@ def agent_start():
 }
                         assistant_reply = ""
                         messages.append({"role": "user", "content": question})
-                        messages.append({"role": "system", "content": system_role})
+                        if system_role:
+                            messages.append({"role": "system", "content": system_role})
                         for chunk in llm.stream(messages):
                             if hasattr(chunk, "content"):
                                 print('大模型输出是:',chunk)
@@ -686,10 +799,6 @@ def agent_start():
                     llm = ChatOpenAI(
                         model_name=model,
                         streaming=True,
-                        top_p = top_p,
-                        temperature = temperature,
-                        frequency_penalty = frequency_penalty,
-                        presence_penalty = presence_penalty,
                         base_url=model_url,
                         openai_api_key=os.environ["ARK_API_KEY"],
                     )
@@ -712,7 +821,9 @@ def agent_start():
                     
                     assistant_reply = ""
                     messages.append({"role": "user", "content": question})
-                    messages.append({"role": "system", "content": system_role})
+                    if system_role:
+                        messages.append({"role": "system", "content": system_role})
+                    print('送给大模型的输入:messages')
                     for chunk in llm.stream(messages):
                         if hasattr(chunk, "content"):
                             print('大模型输出是:',chunk)

@@ -39,6 +39,12 @@ func (s *Server) Start(ctx context.Context) error {
 		return nil
 	}
 
+	// 初始化微服务
+	if err := mcp.StartService(); err != nil {
+		log.Fatalf("init service err: %v", err)
+	}
+	log.Infof("init service success")
+
 	// init
 	opts := []grpc_recovery.Option{
 		grpc_recovery.WithRecoveryHandler(func(p interface{}) error {

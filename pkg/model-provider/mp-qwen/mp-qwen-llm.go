@@ -2,21 +2,44 @@ package mp_qwen
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"strings"
 
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 )
 
 type LLM struct {
-	ApiKey          string `json:"apiKey"`                                                           // ApiKey
-	EndpointUrl     string `json:"endpointUrl"`                                                      // 推理url
-	FunctionCalling string `json:"functionCalling" validate:"oneof=noSupport toolCall functionCall"` // 函数调用是否支持
+	ApiKey          string `json:"apiKey"`                                              // ApiKey
+	EndpointUrl     string `json:"endpointUrl"`                                         // 推理url
+	FunctionCalling string `json:"functionCalling" validate:"oneof=noSupport toolCall"` // 函数调用是否支持
+	VisionSupport   string `json:"visionSupport" validate:"oneof=noSupport support"`    // 视觉支持
+	MaxTokens       *int   `json:"maxTokens"`                                           // 模型回答最大tokens
+	ContextSize     *int   `json:"contextSize"`                                         // 上下文长度
+}
+
+func (cfg *LLM) Tags() []mp_common.Tag {
+	tags := []mp_common.Tag{
+		{
+			Text: mp_common.TagChat,
+		},
+	}
+	tags = append(tags, mp_common.GetTagsByFunctionCall(cfg.FunctionCalling)...)
+	tags = append(tags, mp_common.GetTagsByContentSize(cfg.ContextSize)...)
+	return tags
 }
 
 func (cfg *LLM) NewReq(req *mp_common.LLMReq) (mp_common.ILLMReq, error) {
+	if req.MaxTokens != nil && cfg.ContextSize != nil && *req.MaxTokens > *cfg.ContextSize {
+		return nil, fmt.Errorf("max_tokens too large (max allowed: %d)", *cfg.ContextSize)
+	}
 	m, err := req.Data()
 	if err != nil {
 		return nil, err
+	}
+	// Qwen3 开源模型仅在非思考模式下支持非流式输出方式, 不支持qwq系列模型
+	if req.Stream != nil && !*req.Stream && strings.HasPrefix(req.Model, "qwen3") {
+		m["enable_thinking"] = false
 	}
 	return mp_common.NewLLMReq(m), nil
 }

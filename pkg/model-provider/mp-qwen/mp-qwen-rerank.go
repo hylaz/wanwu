@@ -13,6 +13,17 @@ import (
 type Rerank struct {
 	ApiKey      string `json:"apiKey"`      // ApiKey
 	EndpointUrl string `json:"endpointUrl"` // 推理url
+	ContextSize *int   `json:"contextSize"` // 上下文长度
+}
+
+func (cfg *Rerank) Tags() []mp_common.Tag {
+	tags := []mp_common.Tag{
+		{
+			Text: mp_common.TagRerank,
+		},
+	}
+	tags = append(tags, mp_common.GetTagsByContentSize(cfg.ContextSize)...)
+	return tags
 }
 
 func (cfg *Rerank) NewReq(req *mp_common.RerankReq) (mp_common.IRerankReq, error) {

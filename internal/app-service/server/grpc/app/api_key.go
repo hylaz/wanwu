@@ -33,7 +33,7 @@ func (s *Service) GetApiKeyList(ctx context.Context, req *app_service.GetApiKeyL
 }
 
 func (s *Service) DelApiKey(ctx context.Context, req *app_service.DelApiKeyReq) (*emptypb.Empty, error) {
-	err := s.cli.DelApiKey(ctx, req.ApiId)
+	err := s.cli.DelApiKey(ctx, util.MustU32(req.ApiId))
 	if err != nil {
 		return nil, errStatus(errs.Code_AppApikey, err)
 	}

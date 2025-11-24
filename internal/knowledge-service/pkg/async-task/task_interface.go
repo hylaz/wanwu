@@ -5,13 +5,19 @@ import (
 )
 
 const (
-	KnowledgeDeleteTaskType = 1 //知识库删除
-	DocDeleteTaskType       = 2 // 文档列表删除
-	DocImportTaskType       = 3 // 文档导入
+	KnowledgeDeleteTaskType  = 1 //知识库删除
+	DocDeleteTaskType        = 2 // 文档列表删除
+	DocImportTaskType        = 3 // 文档导入
+	DocSegmentImportTaskType = 4 // 文档分片导入
+	KnowledgeReportTaskType  = 5 // 知识库社区报告批量导入
 )
 
 type KnowledgeDeleteParams struct {
 	KnowledgeId string `json:"knowledgeId"`
+}
+
+type KnowledgeReportImportTaskParams struct {
+	TaskId string `json:"taskId"`
 }
 
 type DocDeleteParams struct {
@@ -19,6 +25,10 @@ type DocDeleteParams struct {
 }
 
 type DocImportTaskParams struct {
+	TaskId string `json:"taskId"`
+}
+
+type DocSegmentImportTaskParams struct {
 	TaskId string `json:"taskId"`
 }
 

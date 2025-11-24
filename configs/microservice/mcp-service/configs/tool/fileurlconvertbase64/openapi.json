@@ -1,0 +1,85 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "文件URL转Base64",
+    "description": "将文件URL转换为base64格式数据",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/callback/v1/file/url/base64": {
+      "post": {
+        "summary": "文件URL转换为base64",
+        "operationId": "file_url_convert_base64",
+        "deprecated": false,
+        "description": "将文件URL转换为base64格式的数据",
+        "tags": ["callback"],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileUrl": {
+                    "type": "string",
+                    "description": "文件URL"
+                  }
+                },
+                "required": ["fileUrl"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "转换成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "description": "返回结果code",
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "description": "返回结果错误信息",
+                      "type": "string"
+                    },
+                    "data": {
+                      "description": "文件base64数据",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://bff-service:6668",
+      "description": "文件转换服务URL"
+    }
+  ]
+}

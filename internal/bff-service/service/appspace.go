@@ -36,7 +36,26 @@ func DeleteAppSpaceApp(ctx *gin.Context, userId, orgId, appId, appType string) e
 			AssistantId: appId,
 		})
 	case constant.AppTypeWorkflow:
-		err = DeleteWorkFlow(ctx, userId, orgId, appId)
+		_, err = assistant.AssistantWorkFlowDeleteByWorkflowId(ctx.Request.Context(), &assistant_service.AssistantWorkFlowDeleteByWorkflowIdReq{
+			WorkflowId: appId,
+		})
+		if err != nil {
+			return err
+		}
+		// AgentScope Workflow
+		// err = DeleteAgentScopeWorkFlow(ctx, userId, orgId, appId)
+
+		// Coze Workflow
+		err = DeleteWorkflow(ctx, orgId, appId)
+	case constant.AppTypeChatflow:
+		_, err = assistant.AssistantWorkFlowDeleteByWorkflowId(ctx.Request.Context(), &assistant_service.AssistantWorkFlowDeleteByWorkflowIdReq{
+			WorkflowId: appId,
+		})
+		if err != nil {
+			return err
+		}
+		// Coze Chatflow 复用工作流的删除接口
+		err = DeleteWorkflow(ctx, orgId, appId)
 	}
 	return err
 }
@@ -74,12 +93,31 @@ func GetAppSpaceAppList(ctx *gin.Context, userId, orgId, name, appType string) (
 		}
 	}
 	if appType == "" || appType == constant.AppTypeWorkflow {
-		resp, err := ListWorkFlow(ctx, userId, orgId, name)
+		// AgentScope Workflow
+		// resp, err := ListAgentScopeWorkFlow(ctx, userId, orgId, name)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// for _, workflowInfo := range resp.List {
+		// 	ret = append(ret, agentscopeWorkflowInfo2Model(workflowInfo))
+		// }
+
+		// Coze Workflow
+		resp, err := ListWorkflow(ctx, orgId, name, constant.AppTypeWorkflow)
 		if err != nil {
 			return nil, err
 		}
-		for _, workflowInfo := range resp.List {
-			ret = append(ret, workflowInfo2Model(workflowInfo))
+		for _, workflowInfo := range resp.Workflows {
+			ret = append(ret, cozeWorkflowInfo2Model(workflowInfo))
+		}
+	}
+	if appType == "" || appType == constant.AppTypeChatflow {
+		resp, err := ListWorkflow(ctx, orgId, name, constant.AppTypeChatflow)
+		if err != nil {
+			return nil, err
+		}
+		for _, chatflowInfo := range resp.Workflows {
+			ret = append(ret, cozeChatflowInfo2Model(chatflowInfo))
 		}
 	}
 	var appIds []string
@@ -111,12 +149,12 @@ func GetAppSpaceAppList(ctx *gin.Context, userId, orgId, name, appType string) (
 }
 
 func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRequest) error {
-	// 特殊处理工作流的发布
-	if req.AppType == constant.AppTypeWorkflow {
-		if err := PublishWorkFlow(ctx, userId, orgId, req.AppId); err != nil {
-			return err
-		}
-	}
+	// 特殊处理AgentScope工作流的发布
+	// if req.AppType == constant.AppTypeWorkflow {
+	// 	if err := PublishAgentScopeWorkFlow(ctx, userId, orgId, req.AppId); err != nil {
+	// 		return err
+	// 	}
+	// }
 	_, err := app.PublishApp(ctx.Request.Context(), &app_service.PublishAppReq{
 		AppId:       req.AppId,
 		AppType:     req.AppType,
@@ -128,14 +166,9 @@ func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRe
 }
 
 func UnPublishApp(ctx *gin.Context, userId, orgId string, req request.UnPublishAppRequest) error {
-	// 删除智能体对话聊天记录
-	if req.AppType == constant.AppTypeAgent {
-		_, err := assistant.ConversationDeleteByAssistantId(ctx, &assistant_service.ConversationDeleteByAssistantIdReq{
-			AssistantId: req.AppId,
-			Identity: &assistant_service.Identity{
-				UserId: "",
-				OrgId:  "",
-			},
+	if req.AppType == constant.AppTypeWorkflow {
+		_, err := assistant.AssistantWorkFlowDeleteByWorkflowId(ctx.Request.Context(), &assistant_service.AssistantWorkFlowDeleteByWorkflowIdReq{
+			WorkflowId: req.AppId,
 		})
 		if err != nil {
 			return err
@@ -149,11 +182,27 @@ func UnPublishApp(ctx *gin.Context, userId, orgId string, req request.UnPublishA
 	if err != nil {
 		return err
 	}
-	if req.AppType == constant.AppTypeWorkflow {
-		err = UnPublishWorkFlow(ctx, userId, orgId, req.AppId)
-		if err != nil {
-			return err
-		}
-	}
+	// 特殊处理AgentScope工作流的取消发布
+	// if req.AppType == constant.AppTypeWorkflow {
+	// 	err = UnPublishAgentScopeWorkFlow(ctx, userId, orgId, req.AppId)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 	return nil
+}
+
+func GetAppList(ctx *gin.Context, userId, orgId, appType string) (*response.ListResult, error) {
+	resp, err := app.GetAppList(ctx.Request.Context(), &app_service.GetAppListReq{
+		OrgId:   orgId,
+		AppType: appType,
+		UserId:  userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &response.ListResult{
+		List:  resp.Infos,
+		Total: int64(len(resp.Infos)),
+	}, nil
 }

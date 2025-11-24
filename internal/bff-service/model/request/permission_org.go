@@ -43,3 +43,11 @@ type OrgUserAdd struct {
 func (o *OrgUserAdd) Check() error {
 	return nil
 }
+
+type UserAvatarUpdate struct {
+	Avatar Avatar `json:"avatar"`
+}
+
+func (u *UserAvatarUpdate) Check() error {
+	return nil
+}

@@ -10,7 +10,9 @@ import (
 	"github.com/UnicomAI/wanwu/api/proto/common"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
+	"github.com/UnicomAI/wanwu/internal/assistant-service/config"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -85,7 +87,7 @@ func (s *Service) AssistantUpdate(ctx context.Context, req *assistant_service.As
 	}
 
 	// 获取现有智能体信息
-	existingAssistant, status := s.cli.GetAssistant(ctx, uint32(assistantID))
+	existingAssistant, status := s.cli.GetAssistant(ctx, uint32(assistantID), "", "")
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
@@ -132,7 +134,7 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 	}
 
 	// 先获取现有智能体信息
-	existingAssistant, status := s.cli.GetAssistant(ctx, uint32(assistantID))
+	existingAssistant, status := s.cli.GetAssistant(ctx, uint32(assistantID), "", "")
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
@@ -179,18 +181,6 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 		log.Debugf("knowConfig = %s", existingAssistant.KnowledgebaseConfig)
 	}
 
-	// 处理onlineSearchConfig，转换成json字符串之后再更新
-	if req.OnlineSearchConfig != nil {
-		onlineSearchConfigBytes, err := json.Marshal(req.OnlineSearchConfig)
-		if err != nil {
-			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
-				TextKey: "assistant_onlineSearchConfig_marshal",
-				Args:    []string{err.Error()},
-			})
-		}
-		existingAssistant.OnlineSearchConfig = string(onlineSearchConfigBytes)
-	}
-
 	// 处理safetyConfig，转换成json字符串之后再更新
 	if req.SafetyConfig != nil {
 		safetyConfigBytes, err := json.Marshal(req.SafetyConfig)
@@ -201,6 +191,18 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 			})
 		}
 		existingAssistant.SafetyConfig = string(safetyConfigBytes)
+	}
+
+	// 处理visionConfig，转换成json字符串之后再更新
+	if req.VisionConfig != nil {
+		visionConfigBytes, err := json.Marshal(req.VisionConfig)
+		if err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_visionConfig_marshal",
+				Args:    []string{err.Error()},
+			})
+		}
+		existingAssistant.VisionConfig = string(visionConfigBytes)
 	}
 
 	// 调用client方法更新智能体
@@ -243,39 +245,62 @@ func (s *Service) GetAssistantListMyAll(ctx context.Context, req *assistant_serv
 // GetAssistantInfo 查看智能体详情
 func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.GetAssistantInfoReq) (*assistant_service.AssistantInfo, error) {
 	// 转换ID
-	assistantID, err := strconv.ParseUint(req.AssistantId, 10, 32)
+	assistantId, err := util.U32(req.AssistantId)
 	if err != nil {
 		return nil, err
 	}
 
-	// 调用client方法获取智能体详情
-	assistant, status := s.cli.GetAssistant(ctx, uint32(assistantID))
+	// 判空处理，根据Identity是否为空使用不同参数
+	var assistant *model.Assistant
+	var status *errs.Status
+	if req.Identity == nil {
+		assistant, status = s.cli.GetAssistant(ctx, assistantId, "", "")
+	} else {
+		assistant, status = s.cli.GetAssistant(ctx, assistantId, req.Identity.UserId, req.Identity.OrgId)
+	}
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
 
-	// 获取关联的Actions和WorkFlows
-	actions, _ := s.cli.GetAssistantActionsByAssistantID(ctx, req.AssistantId)
-	workflows, _ := s.cli.GetAssistantWorkflowsByAssistantID(ctx, req.AssistantId)
+	// 获取关联的WorkFlows
+	workflows, _ := s.cli.GetAssistantWorkflowsByAssistantID(ctx, assistantId)
 
-	// 转换Actions
-	var actionInfos []*assistant_service.ActionInfos
-	for _, action := range actions {
-		actionInfos = append(actionInfos, &assistant_service.ActionInfos{
-			ActionId: strconv.FormatUint(uint64(action.ID), 10),
-			ApiName:  action.ActionName,
-			Enable:   action.Enable,
+	// 转换WorkFlows
+	var workFlowInfos []*assistant_service.AssistantWorkFlowInfos
+	for _, workflow := range workflows {
+		workFlowInfos = append(workFlowInfos, &assistant_service.AssistantWorkFlowInfos{
+			Id:         strconv.FormatUint(uint64(workflow.ID), 10),
+			WorkFlowId: workflow.WorkflowId,
+			Enable:     workflow.Enable,
 		})
 	}
 
-	// 转换WorkFlows
-	var workFlowInfos []*assistant_service.WorkFlowInfos
-	for _, workflow := range workflows {
-		workFlowInfos = append(workFlowInfos, &assistant_service.WorkFlowInfos{
-			Id:         strconv.FormatUint(uint64(workflow.ID), 10),
-			WorkFlowId: workflow.WorkflowId,
-			ApiName:    workflow.Name,
-			Enable:     workflow.Enable,
+	// 获取关联的 MCP
+	mcps, _ := s.cli.GetAssistantMCPList(ctx, assistantId)
+	// 转换MCP
+	var mcpInfos []*assistant_service.AssistantMCPInfos
+	for _, mcp := range mcps {
+		mcpInfos = append(mcpInfos, &assistant_service.AssistantMCPInfos{
+			Id:         strconv.FormatUint(uint64(mcp.ID), 10),
+			McpId:      mcp.MCPId,
+			McpType:    mcp.MCPType,
+			ActionName: mcp.ActionName,
+			Enable:     mcp.Enable,
+		})
+	}
+
+	// 获取关联的 Tool
+	tools, _ := s.cli.GetAssistantToolList(ctx, assistantId)
+	// 转换 Tool
+	var toolInfos []*assistant_service.AssistantToolInfos
+	for _, tool := range tools {
+		toolInfos = append(toolInfos, &assistant_service.AssistantToolInfos{
+			Id:         strconv.FormatUint(uint64(tool.ID), 10),
+			ToolId:     tool.ToolId,
+			ToolType:   tool.ToolType,
+			ActionName: tool.ActionName,
+			Enable:     tool.Enable,
+			ToolConfig: tool.ToolConfig,
 		})
 	}
 
@@ -315,18 +340,6 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		}
 	}
 
-	// 处理assistant.OnlineSearchConfig，转换成AssistantOnlineSearchConfig
-	var onlineSearchConfig *assistant_service.AssistantOnlineSearchConfig
-	if assistant.OnlineSearchConfig != "" {
-		onlineSearchConfig = &assistant_service.AssistantOnlineSearchConfig{}
-		if err := json.Unmarshal([]byte(assistant.OnlineSearchConfig), onlineSearchConfig); err != nil {
-			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
-				TextKey: "assistant_onlineSearchConfig_unmarshal",
-				Args:    []string{err.Error()},
-			})
-		}
-	}
-
 	// 处理assistant.SafetyConfig，转换成AssistantSafetyConfig
 	var safetyConfig *assistant_service.AssistantSafetyConfig
 	if assistant.SafetyConfig != "" {
@@ -339,8 +352,25 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		}
 	}
 
+	// 处理assistant.VisionConfig，转换成AssistantVisionConfig
+	var visionConfig *assistant_service.AssistantVisionConfig
+	if assistant.VisionConfig != "" {
+		visionConfig = &assistant_service.AssistantVisionConfig{}
+		if err := json.Unmarshal([]byte(assistant.VisionConfig), visionConfig); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_visionConfig_unmarshal",
+				Args:    []string{err.Error()},
+			})
+		}
+		visionConfig.MaxPicNum = config.Cfg().Assistant.MaxPicNum
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: strconv.FormatUint(uint64(assistant.ID), 10),
+		Identity: &assistant_service.Identity{
+			UserId: assistant.UserId,
+			OrgId:  assistant.OrgId,
+		},
 		AssistantBrief: &common.AppBriefConfig{
 			Name:       assistant.Name,
 			AvatarPath: assistant.AvatarPath,
@@ -352,12 +382,53 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		ModelConfig:         modelConfig,
 		KnowledgeBaseConfig: knowledgeBaseConfig,
 		RerankConfig:        rerankConfig,
-		OnlineSearchConfig:  onlineSearchConfig,
 		SafetyConfig:        safetyConfig,
+		VisionConfig:        visionConfig,
 		Scope:               int32(assistant.Scope),
 		WorkFlowInfos:       workFlowInfos,
-		ActionInfos:         actionInfos,
+		McpInfos:            mcpInfos,
+		ToolInfos:           toolInfos,
 		CreatTime:           assistant.CreatedAt,
 		UpdateTime:          assistant.UpdatedAt,
+	}, nil
+}
+
+func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.AssistantCopyReq) (*assistant_service.AssistantCreateResp, error) {
+	assistantId, err := util.U32(req.AssistantId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取父智能体信息
+	parentAssistant, status := s.cli.GetAssistant(ctx, assistantId, "", "")
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 workflow
+	workflows, status := s.cli.GetAssistantWorkflowsByAssistantID(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 mcp
+	mcps, status := s.cli.GetAssistantMCPList(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 获取关联的 tool
+	tools, status := s.cli.GetAssistantToolList(ctx, assistantId)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 复制智能体
+	assistantID, status := s.cli.CopyAssistant(ctx, parentAssistant, workflows, mcps, tools)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+	return &assistant_service.AssistantCreateResp{
+		AssistantId: util.Int2Str(assistantID),
 	}, nil
 }

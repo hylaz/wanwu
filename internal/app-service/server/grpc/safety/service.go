@@ -37,7 +37,7 @@ func (s *Service) CreateSensitiveWordTable(ctx context.Context, req *safety_serv
 }
 
 func (s *Service) UpdateSensitiveWordTable(ctx context.Context, req *safety_service.UpdateSensitiveWordTableReq) (*emptypb.Empty, error) {
-	err := s.cli.UpdateSensitiveWordTable(ctx, req.TableId, req.TableName, req.Remark)
+	err := s.cli.UpdateSensitiveWordTable(ctx, util.MustU32(req.TableId), req.TableName, req.Remark)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -45,7 +45,7 @@ func (s *Service) UpdateSensitiveWordTable(ctx context.Context, req *safety_serv
 }
 
 func (s *Service) UpdateSensitiveWordTableReply(ctx context.Context, req *safety_service.UpdateSensitiveWordTableReplyReq) (*emptypb.Empty, error) {
-	err := s.cli.UpdateSensitiveWordTableReply(ctx, req.TableId, req.Reply)
+	err := s.cli.UpdateSensitiveWordTableReply(ctx, util.MustU32(req.TableId), req.Reply)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -53,7 +53,7 @@ func (s *Service) UpdateSensitiveWordTableReply(ctx context.Context, req *safety
 }
 
 func (s *Service) DeleteSensitiveWordTable(ctx context.Context, req *safety_service.DeleteSensitiveWordTableReq) (*emptypb.Empty, error) {
-	err := s.cli.DeleteSensitiveWordTable(ctx, req.TableId)
+	err := s.cli.DeleteSensitiveWordTable(ctx, util.MustU32(req.TableId))
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -75,7 +75,7 @@ func (s *Service) GetSensitiveWordTableList(ctx context.Context, req *safety_ser
 }
 
 func (s *Service) GetSensitiveVocabularyList(ctx context.Context, req *safety_service.GetSensitiveVocabularyListReq) (*safety_service.SensitiveWordVocabularyResp, error) {
-	words, count, err := s.cli.GetSensitiveVocabularyList(ctx, req.TableId, toOffset(req), req.PageSize)
+	words, count, err := s.cli.GetSensitiveVocabularyList(ctx, util.MustU32(req.TableId), toOffset(req), req.PageSize)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -91,7 +91,7 @@ func (s *Service) GetSensitiveVocabularyList(ctx context.Context, req *safety_se
 }
 
 func (s *Service) UploadSensitiveVocabulary(ctx context.Context, req *safety_service.UploadSensitiveVocabularyReq) (*emptypb.Empty, error) {
-	err := s.cli.UploadSensitiveVocabulary(ctx, req.UserId, req.OrgId, req.TableId, req.ImportType, req.Word, req.SensitiveType, req.FilePath)
+	err := s.cli.UploadSensitiveVocabulary(ctx, req.UserId, req.OrgId, req.ImportType, req.Word, req.SensitiveType, req.FilePath, util.MustU32(req.TableId))
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -99,7 +99,7 @@ func (s *Service) UploadSensitiveVocabulary(ctx context.Context, req *safety_ser
 }
 
 func (s *Service) DeleteSensitiveVocabulary(ctx context.Context, req *safety_service.DeleteSensitiveVocabularyReq) (*emptypb.Empty, error) {
-	err := s.cli.DeleteSensitiveVocabulary(ctx, req.TableId, req.WordId)
+	err := s.cli.DeleteSensitiveVocabulary(ctx, util.MustU32(req.TableId), util.MustU32(req.WordId))
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -133,7 +133,7 @@ func (s *Service) GetSensitiveWordTableListByIDs(ctx context.Context, req *safet
 }
 
 func (s *Service) GetSensitiveWordTableByID(ctx context.Context, req *safety_service.GetSensitiveWordTableByIDReq) (*safety_service.SensitiveWordTable, error) {
-	table, err := s.cli.GetSensitiveWordTableByID(ctx, req.TableId)
+	table, err := s.cli.GetSensitiveWordTableByID(ctx, util.MustU32(req.TableId))
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}

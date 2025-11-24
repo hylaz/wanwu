@@ -9,12 +9,16 @@ option go_package = "gitlab.ai-yuanjing.cn/ai-platform-private/backend-used-bff/
 service KnowledgeBaseDocService {
   // 获取文档列表
   rpc GetDocList(GetDocListReq) returns (GetDocListResp) {}
+  // 获取文档详情
+  rpc GetDocDetail(GetDocDetailReq) returns (DocInfo) {}
   // 上传文档
   rpc ImportDoc(ImportDocReq) returns (google.protobuf.Empty) {}
   // 更新文档状态
   rpc UpdateDocStatus(UpdateDocStatusReq) returns (google.protobuf.Empty) {}
   // 更新文档元数据
   rpc UpdateDocMetaData(UpdateDocMetaDataReq) returns (google.protobuf.Empty) {}
+  // 批量更新文档元数据
+  rpc BatchUpdateDocMetaData(BatchUpdateDocMetaDataReq) returns (google.protobuf.Empty) {}
   // 初始化文档状态
   rpc InitDocStatus(InitDocStatusReq) returns (google.protobuf.Empty) {}
   // 删除文档
@@ -24,11 +28,28 @@ service KnowledgeBaseDocService {
   // 获取知识库文档切分结果
   rpc GetDocSegmentList(DocSegmentListReq) returns (DocSegmentListResp) {}
   // 更新文档切片状态
-  rpc UpdateDocSegmentStatus(UpdateDocSegmentReq) returns (google.protobuf.Empty) {}
+  rpc UpdateDocSegmentStatus(UpdateDocSegmentStatusReq) returns (google.protobuf.Empty) {}
   // url上传功能-解析url
   rpc AnalysisDocUrl(AnalysisUrlDocReq) returns (AnalysisUrlDocResp) {}
+  // 更新文档元数据标签
+  rpc UpdateDocSegmentLabels(DocSegmentLabelsReq) returns (google.protobuf.Empty) {}
+  // 新增文档分片
+  rpc CreateDocSegment(CreateDocSegmentReq) returns (google.protobuf.Empty) {}
+  // 批量新增文档分片
+  rpc BatchCreateDocSegment(BatchCreateDocSegmentReq) returns (google.protobuf.Empty) {}
+  // 删除文档分片
+  rpc DeleteDocSegment(DeleteDocSegmentReq) returns (google.protobuf.Empty) {}
+  // 更新文档分片
+  rpc UpdateDocSegment(UpdateDocSegmentReq) returns (google.protobuf.Empty) {}
+  // 获取文档子分段列表
+  rpc GetDocChildSegmentList(GetDocChildSegmentListReq) returns (GetDocChildSegmentListResp){}
+  // 新增文档子分片
+  rpc CreateDocChildSegment(CreateDocChildSegmentReq) returns (google.protobuf.Empty) {}
+  // 删除文档子分片
+  rpc DeleteDocChildSegment(DeleteDocChildSegmentReq) returns (google.protobuf.Empty) {}
+  // 更新文档子分片
+  rpc UpdateDocChildSegment(UpdateDocChildSegmentReq) returns (google.protobuf.Empty) {}
 }
-
 
 message GetDocListReq{
   string knowledgeId = 1;
@@ -41,11 +62,25 @@ message GetDocListReq{
   string docTag = 8; //文档标签
 }
 
+message GetDocDetailReq{
+  string docId = 1;
+  string userId = 2;
+  string orgId = 3;
+}
+
 message GetDocListResp {
   repeated DocInfo docs = 1;
   int64 total = 2;
   int32 pageNum = 3;
   int32 pageSize = 4;
+  KnowledgeInfo knowledgeInfo = 5;
+}
+
+message KnowledgeInfo {
+  string knowledgeId = 1;//知识库id
+  string knowledgeName = 2;//知识库名称
+  int32 graphSwitch = 3; //知识库图谱开关
+  bool showGraphReport = 4; //是否展示知识图谱和社区报告
 }
 
 message ImportDocReq {
@@ -57,6 +92,15 @@ message ImportDocReq {
   DocSegment docSegment = 6; //分段信息配置
   repeated string docAnalyzer = 7;//文档解析类型
   string ocrModelId = 8; //ocr模型id
+  repeated string docPreprocess = 9;//文本预处理规则
+  repeated DocMetaData docMetaDataList = 10; // 元数据列表
+}
+
+message DocMetaData{
+  string key = 1; //key
+  string value = 2; //常量
+  string valueType = 3; //常量类型
+  string rule = 4; //正则表达式
 }
 
 message UpdateDocStatusReq {
@@ -70,14 +114,25 @@ message UpdateDocMetaDataReq {
   string userId = 2;
   string docId = 3; //文档id
   repeated MetaData metaDataList = 4;//文档元数据信息
+  string knowledgeId = 5;//知识库id
+}
+
+message BatchUpdateDocMetaDataReq {
+  string orgId = 1;
+  string userId = 2;
+  string docId = 3; //文档id
+  repeated MetaData metaDataList = 4;//文档元数据信息
+  string knowledgeId = 5;//知识库id
+  bool createMeta = 6;//文档没设置过对应key则创建元数据
 }
 
 message MetaData {
-  string dataId = 1;
-  string key = 2;
-  string value = 3;
-  string valueType = 4; //String, Number,Date
-  string option = 5; //option:add(新增)、update(更新)、delete(删除),update 和delete 的时候dataId 不能为空
+  string metaId = 1; // 元数据id
+  string key = 2; // key
+  string value = 3; // 确定值
+  string valueType = 4; // string, number, time
+  string option = 5; // option:add(新增)、update(更新)、delete(删除),update 和delete 的时候metaId 不能为空
+  string rule = 6; // 正则表达式
 }
 
 message InitDocStatusReq {
@@ -105,6 +160,9 @@ message DocSegment {
   repeated string Splitter = 2;     // 分隔符（只有自定义分段必填）
   int32 MaxSplitter = 3;   // 可分隔最大值（只有自定义分段必填）
   float Overlap = 4;       // 可重叠值（只有自定义分段必填）
+  string segmentMethod = 5;  //分段方法 0：通用分段；1：父子分段
+  repeated string subSplitter = 6;     // 分隔符（只有父子分段必填）
+  int32 subMaxSplitter = 7;   // 可分隔最大值（只有父子分段必填）
 }
 
 message DocImportTipReq {
@@ -130,6 +188,8 @@ message DocSegmentListResp{
   string segType = 7;
   string splitter = 8;
   repeated MetaData metaDataList = 9;//文档元数据信息
+  string segmentImportStatus = 10;//文档分段导入状态
+  string segmentMethod = 11;
 }
 
 message SegmentContent{
@@ -138,6 +198,9 @@ message SegmentContent{
   bool available = 3;
   string contentId = 4;
   int32 contentNum = 5;
+  repeated string labels = 6;
+  bool isParent = 7; // 父子分段/通用分段
+  int32 childNum = 8; // 子分段数量
 }
 
 message DocInfo{
@@ -149,6 +212,10 @@ message DocInfo{
   string uploadTime = 6;
   int32 status = 7;
   string errorMsg = 8;
+  string segmentMethod = 9;//分段方式 0：通用分段，1：父子分段
+  string userId = 10;
+  int32 graphStatus = 11;//0:待处理，1.解析中，2.解析成功，3.解析失败
+  string graphErrMsg = 12;//错误信息
 }
 
 message DocSegmentListReq{
@@ -159,7 +226,7 @@ message DocSegmentListReq{
   int32 pageNo = 5;
 }
 
-message UpdateDocSegmentReq{
+message UpdateDocSegmentStatusReq{
   string userId = 1;
   string orgId = 2;
   string docId = 3;
@@ -185,3 +252,89 @@ message UrlInfo{
   double fileSize = 3;
 }
 
+message DocSegmentLabelsReq{
+  string orgId = 1;
+  string contentId = 2;
+  string docId = 3;
+  repeated string labels = 4;
+  string userId = 5;
+}
+
+message CreateDocSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string content = 4;
+  repeated string labels = 5;
+}
+
+message BatchCreateDocSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string fileUrl = 4;
+}
+
+message DeleteDocSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string contentId = 4;
+}
+
+message UpdateDocSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string contentId = 4;
+  string content = 5;
+}
+
+message GetDocChildSegmentListReq{
+  string userId = 1;
+  string orgId = 2;
+  string contentId = 3;
+  string docId = 4;
+}
+
+message GetDocChildSegmentListResp{
+  repeated ChildSegmentInfo contentList = 1;
+}
+
+message ChildSegmentInfo{
+  string content = 1;
+  string childId = 2;
+  int32 childNum = 3;
+  string parentId = 4;
+}
+
+message CreateDocChildSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string parentChunkId = 4;
+  repeated string content = 5;
+}
+
+message DeleteDocChildSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string parentChunkId = 4;//父分段id
+  int32 parentChunkNo = 5;//父分段编号
+  repeated int32 childChunkNo = 6; //子分段编号列表
+}
+
+message UpdateDocChildSegmentReq{
+  string userId = 1;
+  string orgId = 2;
+  string docId = 3;
+  string parentChunkId = 4;//父分段id
+  int32 parentChunkNo = 5;//父分段编号
+  ChildChunk childChunk = 6; //子分段编号
+}
+
+message ChildChunk{
+  string content = 1;
+  int32 chunkNo = 2;
+}

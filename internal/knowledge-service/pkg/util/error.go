@@ -11,6 +11,12 @@ const (
 	KnowledgeImportSameNameErr      = "know_same_name_validation_fail"
 	KnowledgeDocLastFailureErr      = "know_doc_last_failure_info"
 	KnowledgeDocParsingServiceErr   = "know_doc_parsing_service_error"
+	KnowledgeDocVectorDuplicateErr  = "know_doc_vector_duplicate_error"
+	KnowledgeDocDuplicateErr        = "know_doc_duplicate_error"
+	KnowledgeDocDownloadErr         = "know_doc_download_error"
+	KnowledgeDocSplitErr            = "know_doc_split_error"
+	KnowledgeDocEmbeddingErr        = "know_doc_embedding_error"
+	KnowledgeDocTextErr             = "know_doc_text_error"
 	KnowledgeDocEmptyFileContentErr = "know_doc_empty_file_content"
 	KnowledgeDocFileUnUsableErr     = "know_doc_file_unusable"
 )

@@ -95,11 +95,7 @@ func (s *Service) DeleteKnowledgeTag(ctx context.Context, req *knowledgebase_tag
 }
 
 func (s *Service) BindKnowledgeTag(ctx context.Context, req *knowledgebase_tag_service.BindKnowledgeTagReq) (*emptypb.Empty, error) {
-	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, req.UserId, req.OrgId)
-	if err != nil {
-		return nil, err
-	}
-	err = orm.BindKnowledgeTag(ctx, buildKnowledgeTagRelationModelList(req), knowledge.KnowledgeId)
+	err := orm.BindKnowledgeTag(ctx, buildKnowledgeTagRelationModelList(req), req.KnowledgeId)
 	if err != nil {
 		log.Errorf("BindKnowledgeTag error %v params %v", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeTagBindFailed)

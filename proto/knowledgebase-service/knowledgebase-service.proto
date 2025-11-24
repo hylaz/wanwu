@@ -9,6 +9,8 @@ option go_package = "gitlab.ai-yuanjing.cn/ai-platform-private/backend-used-bff/
 service KnowledgeBaseService {
   // 获取知识库列表
   rpc SelectKnowledgeList(KnowledgeSelectReq) returns (KnowledgeSelectListResp) {}
+  // 获取知识库列表
+  rpc SelectKnowledgeListByIdList(BatchKnowledgeSelectReq) returns (KnowledgeSelectListResp) {}
   // 获取知识库详情
   rpc SelectKnowledgeDetailById(KnowledgeDetailSelectReq) returns (KnowledgeInfo) {}
   // 获取知识库详情列表
@@ -23,6 +25,16 @@ service KnowledgeBaseService {
   rpc DeleteKnowledge(DeleteKnowledgeReq) returns (google.protobuf.Empty) {}
   // 知识库命中测试
   rpc KnowledgeHit(KnowledgeHitReq) returns (KnowledgeHitResp) {}
+  // 获取知识库元数据（key + type）
+  rpc GetKnowledgeMetaSelect(SelectKnowledgeMetaReq) returns (SelectKnowledgeMetaResp) {}
+  // 获取知识库元数据值列表 (合并过的value)
+  rpc GetKnowledgeMetaValueList(KnowledgeMetaValueListReq) returns (KnowledgeMetaValueListResp) {}
+  // 更新知识库元数据值列表
+  rpc UpdateKnowledgeMetaValue(UpdateKnowledgeMetaValueReq) returns (google.protobuf.Empty) {}
+  // 修改知识库状态
+  rpc UpdateKnowledgeStatus(UpdateKnowledgeStatusReq) returns (google.protobuf.Empty) {}
+  // 获取知识图谱详情
+  rpc GetKnowledgeGraph(KnowledgeGraphReq) returns (KnowledgeGraphResp){}
 }
 
 message DeleteKnowledgeReq{
@@ -39,11 +51,16 @@ message UpdateKnowledgeReq{
   string orgId = 5;
 }
 
+message UpdateKnowledgeStatusReq{
+  string knowledgeId = 1;
+  int32 reportStatus = 2;
+}
+
 message KnowledgeHitReq{
   string orgId = 1;
   string userId = 2;
   string question = 3; //问题
-  repeated string knowledgeIdList = 4;//知识库id 列表
+  repeated KnowledgeParams knowledgeList = 4;//知识库参数列表
   KnowledgeMatchParams knowledgeMatchParams = 5; //模型匹配方式
 }
 
@@ -56,6 +73,27 @@ message KnowledgeMatchParams{
   float keywordPriority = 5;// 关键词权重
   int32 topK = 6;//topK 获取最高的几行
   float score = 7;//score 过滤分数阈值
+  float termWeight = 8; // 关键词系数
+  bool termWeightEnable = 9; // 关键词系数开关
+  bool useGraph = 10; // 是否使用知识图谱
+}
+
+message KnowledgeParams{
+  string knowledgeId = 1; // 知识库id
+  MetaDataFilterParams metaDataFilterParams = 2; // 元数据过滤参数
+}
+
+message MetaDataFilterParams{
+  bool filterEnable = 1; // 元数据过滤开关
+  string filterLogicType = 2; // 元数据过滤逻辑类型
+  repeated MetaFilterParams metaFilterParams = 3; // 元数据过滤参数
+}
+
+message MetaFilterParams{
+  string key = 1; // 元数据key
+  string type = 2; // 元数据类型
+  string value = 3; // 元数据值
+  string condition = 4; // 元数据过滤条件
 }
 
 message CreateKnowledgeReq{
@@ -64,10 +102,17 @@ message CreateKnowledgeReq{
   string name = 3;
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
+  KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
 }
 
 message EmbeddingModelInfo{
   string modelId = 1;
+}
+
+message KnowledgeGraph {
+  bool switch = 1; //知识图谱开关
+  string llmModelId = 2;//大模型id
+  string schemaUrl = 3; //知识图谱schema文件地址
 }
 
 message CreateKnowledgeResp{
@@ -79,6 +124,12 @@ message KnowledgeSelectReq {
   string orgId = 2;
   string name = 3; //知识库名称，支持模糊搜索
   repeated string tagIdList = 4; //知识库id 列表
+}
+
+message BatchKnowledgeSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  repeated string knowledgeIdList = 3; //知识库id列表
 }
 
 message KnowledgeSelectListResp {
@@ -103,7 +154,7 @@ message KnowledgeDetailSelectListResp{
   int32 total = 2;
 }
 
-//知识库信息
+// 知识库信息
 message KnowledgeInfo {
   string knowledgeId = 1; //知识库id
   string name = 2; //知识库名称
@@ -111,6 +162,13 @@ message KnowledgeInfo {
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
   repeated KnowledgeTagInfo knowledgeTagInfoList = 6;
+  string createdAt = 7;
+  int32 permissionType = 8; // 权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限
+  string createUserId = 9;//创建者id
+  string createOrgId = 10;//创建者组织id
+  int32 shareCount = 11;//共享数量
+  string ragName = 12;//传给rag的知识库名称
+  int32 graphSwitch = 13; //知识图谱开关
 }
 
 message KnowledgeTagInfo {
@@ -118,14 +176,85 @@ message KnowledgeTagInfo {
   string tagName = 2; //知识库标签名称
 }
 
+message KnowledgeMetaData{
+  string metaId = 1;
+  string key = 2;// key
+  string type = 3; // type(time, string, number)
+  string value = 4;
+}
+
 message KnowledgeHitResp{
   string prompt = 1;
   repeated double score = 2;
   repeated KnowledgeSearchInfo searchList = 3;
+  bool useGraph = 4;
 }
 
 message KnowledgeSearchInfo{
   string title = 1;
   string snippet = 2;
   string knowledgeName = 3;
+  repeated ChildContent childContentList = 4;
+  repeated float childScore = 5;
+  string contentType = 6; // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
 }
+
+message ChildContent{
+  string childSnippet = 1;
+  float score = 2;
+}
+
+message SelectKnowledgeMetaReq{
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message SelectKnowledgeMetaResp{
+  repeated KnowledgeMetaData metaList = 1;
+}
+
+message KnowledgeMetaValueListReq{
+  string userId = 1;
+  string orgId = 2;
+  repeated string docIdList = 3;
+}
+
+message KnowledgeMetaValueListResp{
+  repeated KnowledgeMetaValues metaList = 1;
+}
+
+message KnowledgeMetaValues{
+  string metaId = 1;
+  string key = 2;// key
+  string type = 3; // type(time, string, number)
+  repeated string valueList = 4;
+}
+
+message UpdateKnowledgeMetaValueReq{
+  string userId = 1;
+  string orgId = 2;
+  bool applyToSelected = 3;
+  repeated string docIdList = 4;
+  repeated MetaValueOperation metaList = 5;
+}
+
+message MetaValueOperation{
+  KnowledgeMetaData metaInfo = 1;
+  string option = 2; // add, delete, update
+}
+
+message KnowledgeGraphReq{
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message KnowledgeGraphResp{
+  int32 processingCount = 1;
+  int32 successCount = 2;
+  int32 failedCount = 3;
+  int32 total = 4;
+  string schema = 5;
+}
+

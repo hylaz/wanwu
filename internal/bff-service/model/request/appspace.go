@@ -17,7 +17,7 @@ type GetAppSpaceAppListRequest struct {
 type PublishAppRequest struct {
 	AppId       string `json:"appId"`       // 应用ID
 	AppType     string `json:"appType"`     // 应用类型
-	PublishType string `json:"publishType"` // 发布类型(public:公开发布,private:私密发布)
+	PublishType string `json:"publishType"` // 发布类型(public:系统公开发布,organization:组织公开发布,private:私密发布)
 }
 
 func (req PublishAppRequest) Check() error {
@@ -43,29 +43,5 @@ func (req GetApiBaseUrlRequest) Check() error {
 }
 
 func (o *GetAppSpaceAppListRequest) Check() error {
-	return nil
-}
-
-type DeleteWorkFlowRequest struct {
-	AppId string `form:"workflowID" json:"workflowID" validate:"required"` // 应用ID
-}
-
-func (o *DeleteWorkFlowRequest) Check() error {
-	return nil
-}
-
-type PublishWorkFlowRequest struct {
-	AppId string `form:"workflowID" json:"workflowID" validate:"required"` // 应用ID
-}
-
-func (p *PublishWorkFlowRequest) Check() error {
-	return nil
-}
-
-type UnPublishWorkFlowRequest struct {
-	AppId string `form:"workflowID" json:"workflowID" validate:"required"` // 应用ID
-}
-
-func (p *UnPublishWorkFlowRequest) Check() error {
 	return nil
 }

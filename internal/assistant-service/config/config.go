@@ -22,6 +22,7 @@ type Config struct {
 	Minio     *MinioConfig `mapstructure:"minio" json:"minio"`
 	Knowledge Knowledge    `mapstructure:"knowledge" json:"knowledge" yaml:"knowledge"`
 	MCP       Mcp          `mapstructure:"mcp" json:"mcp"`
+	Workflow  Workflow     `mapstructure:"workflow" json:"workflow"`
 }
 
 type Knowledge struct {
@@ -30,6 +31,11 @@ type Knowledge struct {
 
 type Mcp struct {
 	Host string `mapstructure:"host" json:"host" yaml:"host"`
+}
+
+type Workflow struct {
+	Endpoint      string `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	ListSchemaUri string `mapstructure:"list_schema_uri" json:"list_schema_uri" yaml:"list_schema_uri"`
 }
 
 type ServerConfig struct {
@@ -49,7 +55,8 @@ type DBConfig struct {
 }
 
 type Assistant struct {
-	SseUrl string `mapstructure:"sse-url" json:"sse-url" yaml:"sse-url"`
+	SseUrl    string `mapstructure:"sse-url" json:"sse-url" yaml:"sse-url"`
+	MaxPicNum int32  `mapstructure:"max_pic_num" json:"max_pic_num" yaml:"max_pic_num"`
 }
 
 type MinioConfig struct {

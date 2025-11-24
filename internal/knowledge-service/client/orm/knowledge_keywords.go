@@ -52,23 +52,23 @@ func GetKeywordsById(ctx context.Context, id uint32) (*model.KnowledgeKeywords, 
 }
 
 // CheckRepeatedKeywords 查询用户是否存在同名关键词设置
-func CheckRepeatedKeywords(ctx context.Context, req *knowledgebase_keywords_service.CreateKnowledgeKeywordsReq) error {
+func CheckRepeatedKeywords(ctx context.Context, req *knowledgebase_keywords_service.UpdateKnowledgeKeywordsReq) error {
 	var keywordsList []*model.KnowledgeKeywords
 	// 查找同名关键词列表
-	err := sqlopt.SQLOptions(sqlopt.WithPermit(req.Identity.OrgId, req.Identity.UserId), sqlopt.WithName(req.Name)).
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(req.Detail.Identity.OrgId, req.Detail.Identity.UserId), sqlopt.WithName(req.Detail.Name), sqlopt.WithoutID(req.Id)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeKeywords{}).Find(&keywordsList).Error
 
 	if err != nil {
 		return err
 	}
 	// 已有关键词，检查同名知识库
-	if len(keywordsList) != 0 {
+	if len(keywordsList) > 0 {
 		for _, kw := range keywordsList {
 			dbKnowledgeIds, err := jsonToList(kw.KnowledgeBaseIds)
 			if err != nil {
 				return err
 			}
-			if util.HasIntersection(dbKnowledgeIds, req.KnowledgeBaseIds) {
+			if util.HasIntersection(dbKnowledgeIds, req.Detail.KnowledgeBaseIds) {
 				log.Errorf("有同名关键词")
 				return gorm.ErrDuplicatedKey
 			}
@@ -85,7 +85,7 @@ func CreateKeywords(ctx context.Context, keywords *model.KnowledgeKeywords) erro
 		if err != nil {
 			return err
 		}
-		keywordsParams, err := buildOperateKeywordsParams(keywords, KeywordsAdd)
+		keywordsParams, err := buildOperateKeywordsParams(ctx, keywords, KeywordsAdd)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ func DeleteKeywords(ctx context.Context, id uint32) error {
 			return err
 		}
 		// 同步RAG
-		keywordsParams, err := buildOperateKeywordsParams(keywords, KeywordsDelete)
+		keywordsParams, err := buildOperateKeywordsParams(ctx, keywords, KeywordsDelete)
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func UpdateKeywords(ctx context.Context, keywords *model.KnowledgeKeywords) erro
 			return err
 		}
 		// 同步RAG
-		keywordsParams, err := buildOperateKeywordsParams(keywords, KeywordsUpdate)
+		keywordsParams, err := buildOperateKeywordsParams(ctx, keywords, KeywordsUpdate)
 		if err != nil {
 			return err
 		}
@@ -135,7 +135,7 @@ func UpdateKeywords(ctx context.Context, keywords *model.KnowledgeKeywords) erro
 	})
 }
 
-func buildOperateKeywordsParams(keywords *model.KnowledgeKeywords, action string) (*service.RagOperateKeywordsParams, error) {
+func buildOperateKeywordsParams(ctx context.Context, keywords *model.KnowledgeKeywords, action string) (*service.RagOperateKeywordsParams, error) {
 	// 反序列化id列表
 	knowledgeIds, err := jsonToList(keywords.KnowledgeBaseIds)
 	if err != nil {
@@ -144,6 +144,12 @@ func buildOperateKeywordsParams(keywords *model.KnowledgeKeywords, action string
 	if len(knowledgeIds) == 0 {
 		return nil, errors.New("knowledgeIds length can not be zero")
 	}
+
+	list, _, err := SelectKnowledgeByIdList(ctx, knowledgeIds, keywords.UserId, keywords.OrgId)
+	if err != nil || len(list) == 0 {
+		return nil, errors.New("knowledgeId permission error")
+	}
+	knowledgeUserInfo := buildUserKnowledgeList(list)
 	return &service.RagOperateKeywordsParams{
 		Id:               keywords.Id,
 		UserId:           keywords.UserId,
@@ -151,6 +157,7 @@ func buildOperateKeywordsParams(keywords *model.KnowledgeKeywords, action string
 		Name:             keywords.Name,
 		Alias:            []string{keywords.Alias},
 		KnowledgeBaseIds: knowledgeIds,
+		RagKnowledgeInfo: knowledgeUserInfo,
 	}, nil
 }
 
@@ -162,4 +169,20 @@ func jsonToList(knowledgeBaseIdStr string) ([]string, error) {
 		return nil, err
 	}
 	return knowledgeIds, nil
+}
+
+func buildUserKnowledgeList(knowledgeList []*model.KnowledgeBase) map[string][]*service.RagKnowledgeInfo {
+	retMap := make(map[string][]*service.RagKnowledgeInfo)
+	for _, knowledge := range knowledgeList {
+		knowledgeInfos, exist := retMap[knowledge.UserId]
+		if !exist {
+			knowledgeInfos = make([]*service.RagKnowledgeInfo, 0)
+		}
+		knowledgeInfos = append(knowledgeInfos, &service.RagKnowledgeInfo{
+			KnowledgeId:   knowledge.KnowledgeId,
+			KnowledgeName: knowledge.RagName,
+		})
+		retMap[knowledge.UserId] = knowledgeInfos
+	}
+	return retMap
 }

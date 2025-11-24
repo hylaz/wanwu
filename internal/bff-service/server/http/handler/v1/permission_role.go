@@ -1,9 +1,11 @@
 package v1
 
 import (
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,6 +40,10 @@ func CreateRole(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_role_cannot_create"))
+		return
+	}
 	resp, err := service.CreateRole(ctx, getUserID(ctx), getOrgID(ctx), &req)
 	gin_util.Response(ctx, resp, err)
 }
@@ -58,6 +64,10 @@ func ChangeRole(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_role_cannot_change"))
+		return
+	}
 	err := service.ChangeRole(ctx, getUserID(ctx), getOrgID(ctx), &req)
 	gin_util.Response(ctx, nil, err)
 }
@@ -76,6 +86,10 @@ func ChangeRole(ctx *gin.Context) {
 func DeleteRole(ctx *gin.Context) {
 	var req request.RoleID
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_role_cannot_delete"))
 		return
 	}
 	err := service.DeleteRole(ctx, getOrgID(ctx), req.RoleID)
@@ -130,6 +144,10 @@ func GetRoleList(ctx *gin.Context) {
 func ChangeRoleStatus(ctx *gin.Context) {
 	var req request.RoleStatus
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_role_cannot_change_status"))
 		return
 	}
 	err := service.ChangeRoleStatus(ctx, getOrgID(ctx), req.RoleID.RoleID, req.Status)

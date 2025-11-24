@@ -3,30 +3,57 @@ package knowledge_splitter
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_splitter_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-splitter-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/generator"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+const (
+	SplitterPreset = "preset"
+	SplitterCustom = "custom"
+)
+
 func (s *Service) SelectKnowledgeSplitterList(ctx context.Context, req *knowledgebase_splitter_service.KnowledgeSplitterSelectReq) (*knowledgebase_splitter_service.KnowledgeSplitterSelectListResp, error) {
-	tagList, err := orm.SelectKnowledgeSplitterList(ctx, req.UserId, req.OrgId, req.SplitterName)
+	customSplitterList, err := orm.SelectKnowledgeSplitterList(ctx, req.UserId, req.OrgId, req.SplitterName)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库分隔符列表失败(%v)  参数(%v)", err, req))
 		return nil, util.ErrCode(errs.Code_KnowledgeSplitterSelectFailed)
 	}
-	return buildKnowledgeSplitterListResp(tagList), nil
+
+	configSplitterList := config.GetConfig().SplitterList
+	var presetSplitterList []*model.KnowledgeSplitter
+	for _, v := range configSplitterList {
+		// 搜索条件
+		if req.SplitterName != "" {
+			if strings.Contains(v.Name, req.SplitterName) {
+				presetSplitterList = append(presetSplitterList, &model.KnowledgeSplitter{
+					Name:  v.Name,
+					Value: v.Value,
+				})
+			}
+		} else {
+			presetSplitterList = append(presetSplitterList, &model.KnowledgeSplitter{
+				Name:  v.Name,
+				Value: v.Value,
+			})
+		}
+
+	}
+	return buildKnowledgeSplitterListResp(customSplitterList, presetSplitterList), nil
 }
 
 func (s *Service) CreateKnowledgeSplitter(ctx context.Context, req *knowledgebase_splitter_service.CreateKnowledgeSplitterReq) (*emptypb.Empty, error) {
 	//1.重名校验
-	err := orm.CheckSameKnowledgeSplitterName(ctx, req.UserId, req.OrgId, req.SplitterName)
+	err := orm.CheckSameKnowledgeSplitterNameOrValue(ctx, req.UserId, req.OrgId, req.SplitterName, req.SplitterValue)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +80,7 @@ func (s *Service) UpdateKnowledgeSplitter(ctx context.Context, req *knowledgebas
 		//如何修改得名称和原名称一样无需修改
 		return &emptypb.Empty{}, nil
 	}
-	err = orm.CheckSameKnowledgeSplitterName(ctx, req.UserId, req.OrgId, req.SplitterName)
+	err = orm.CheckSameKnowledgeSplitterNameOrValue(ctx, req.UserId, req.OrgId, req.SplitterName, req.SplitterValue)
 	if err != nil {
 		return nil, err
 	}
@@ -83,13 +110,13 @@ func (s *Service) DeleteKnowledgeSplitter(ctx context.Context, req *knowledgebas
 }
 
 // buildKnowledgeSplitterListResp 构造知识库分隔符列表返回结果
-func buildKnowledgeSplitterListResp(knowledgeTagList []*model.KnowledgeSplitter) *knowledgebase_splitter_service.KnowledgeSplitterSelectListResp {
-	if len(knowledgeTagList) == 0 {
-		return &knowledgebase_splitter_service.KnowledgeSplitterSelectListResp{}
-	}
+func buildKnowledgeSplitterListResp(customSplitters, presetSplitters []*model.KnowledgeSplitter) *knowledgebase_splitter_service.KnowledgeSplitterSelectListResp {
 	var retList []*knowledgebase_splitter_service.KnowledgeSplitterInfo
-	for _, knowledgeTag := range knowledgeTagList {
-		retList = append(retList, buildKnowledgeSplitter(knowledgeTag))
+	for _, splitter := range customSplitters {
+		retList = append(retList, buildKnowledgeSplitter(splitter, SplitterCustom))
+	}
+	for _, splitter := range presetSplitters {
+		retList = append(retList, buildKnowledgeSplitter(splitter, SplitterPreset))
 	}
 	return &knowledgebase_splitter_service.KnowledgeSplitterSelectListResp{
 		KnowledgeSplitterList: retList,
@@ -97,11 +124,12 @@ func buildKnowledgeSplitterListResp(knowledgeTagList []*model.KnowledgeSplitter)
 }
 
 // buildKnowledgeSplitter 构造知识库tag
-func buildKnowledgeSplitter(knowledgeSplitter *model.KnowledgeSplitter) *knowledgebase_splitter_service.KnowledgeSplitterInfo {
+func buildKnowledgeSplitter(knowledgeSplitter *model.KnowledgeSplitter, splitterType string) *knowledgebase_splitter_service.KnowledgeSplitterInfo {
 	return &knowledgebase_splitter_service.KnowledgeSplitterInfo{
 		SplitterId:    knowledgeSplitter.SplitterId,
 		SplitterName:  knowledgeSplitter.Name,
 		SplitterValue: knowledgeSplitter.Value,
+		Type:          splitterType,
 	}
 }
 

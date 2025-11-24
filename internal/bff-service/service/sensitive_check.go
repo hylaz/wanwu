@@ -61,7 +61,6 @@ func BuildSensitiveDict(ctx *gin.Context, tableIds []string) ([]ahocorasick.Dict
 				Version: dict.DictCfg.Version,
 			})
 		}
-
 	}
 	// 访问safey 更新词表信息
 	tableWithWords, err := safety.GetSensitiveWordTableListWithWordsByIDs(ctx.Request.Context(), &safety_service.GetSensitiveWordTableListByIDsReq{

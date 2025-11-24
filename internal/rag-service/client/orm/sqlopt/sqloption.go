@@ -54,6 +54,15 @@ func WithRagID(ragID string) SQLOption {
 	})
 }
 
+func WithName(name string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if name != "" {
+			return db.Where("brief_name = ?", name)
+		}
+		return db
+	})
+}
+
 func LikeBriefName(briefName string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if briefName != "" {

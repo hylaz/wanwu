@@ -13,8 +13,8 @@ type IClient interface {
 	DeleteModel(ctx context.Context, req *model.ModelImported) *errs.Status
 	ChangeModelStatus(ctx context.Context, req *model.ModelImported) *errs.Status
 	GetModel(ctx context.Context, req *model.ModelImported) (*model.ModelImported, *errs.Status)
-	ListModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, int64, *errs.Status)
-	ListTypeModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, int64, *errs.Status)
+	ListModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, *errs.Status)
+	ListTypeModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, *errs.Status)
 
 	GetModelById(ctx context.Context, modelId uint32) (*model.ModelImported, *errs.Status)
 	GetModelByIds(ctx context.Context, modelIds []uint32) ([]*model.ModelImported, *errs.Status)

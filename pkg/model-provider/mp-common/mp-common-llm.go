@@ -23,6 +23,43 @@ const (
 	MsgRoleFunction  MsgRole = "tool"
 )
 
+const (
+	TagChat          string = "CHAT"
+	TagEmbedding     string = "Embedding"
+	TagRerank        string = "Rerank"
+	TagGui           string = "GUI"
+	TagOcr           string = "OCR"
+	TagPdfParser     string = "文档解析"
+	TagVisionSupport string = "图文问答"
+	TagToolCall      string = "工具调用"
+)
+
+type Tag struct {
+	Text string `json:"text"`
+}
+
+func GetTagsByFunctionCall(fcType string) []Tag {
+	var tags []Tag
+	if FCType(fcType) == FCTypeToolCall {
+		tags = append(tags, Tag{
+			Text: TagToolCall,
+		})
+	}
+	return tags
+}
+
+func GetTagsByContentSize(size *int) []Tag {
+	var tags []Tag
+	if size != nil && *size > 0 {
+		kValue := *size / 1024
+		// 格式化为"XK"字符串并添加到tags列表
+		tags = append(tags, Tag{
+			Text: fmt.Sprintf("%dK", kValue),
+		})
+	}
+	return tags
+}
+
 type ToolType string
 
 const (
@@ -37,6 +74,13 @@ const (
 	FCTypeToolCall     FCType = "toolCall"
 )
 
+type VSType string
+
+const (
+	VSTypeSupport   VSType = "support"
+	VSTypeNoSupport VSType = "noSupport"
+)
+
 type Header struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -47,7 +91,7 @@ type Header struct {
 type LLMReq struct {
 	// general
 	Model          string                `json:"model" validate:"required"`
-	Messages       []OpenAIMsg           `json:"messages" validate:"required"`
+	Messages       []OpenAIReqMsg        `json:"messages" validate:"required"`
 	Stream         *bool                 `json:"stream,omitempty"`
 	MaxTokens      *int                  `json:"max_tokens,omitempty"`
 	Stop           *string               `json:"stop,omitempty"`
@@ -67,11 +111,11 @@ type LLMReq struct {
 	ParallelToolCalls   *bool          `json:"parallel_tool_calls,omitempty"` // 是否开启并行工具调用
 	StreamOptions       *StreamOptions `json:"stream_options,omitempty"`      //当启用流式输出时，可通过将本参数设置为{"include_usage": true}，在输出的最后一行显示所使用的Token数。
 
-	PresencePenalty   *float64 `json:"presence_penalty,omitempty"`  // 控制模型生成文本时的内容重复度
-	FrequencyPenalty  *float64 `json:"frequency_penalty,omitempty"` // 频率惩罚系数
-	RepetitionPenalty *float64 `json:"repetition_penalty,omitempty"`
+	PresencePenalty   *float64 `json:"presence_penalty,omitempty"`   // 控制模型生成文本时的内容重复度
+	FrequencyPenalty  *float64 `json:"frequency_penalty,omitempty"`  // 频率惩罚系数
+	RepetitionPenalty *float64 `json:"repetition_penalty,omitempty"` // 模型生成时连续序列中的重复度
 
-	Seed           *int  `json:"seed,omitempty"`
+	Seed           *int  `json:"seed,omitempty"`         // 种子
 	Logprobs       *bool `json:"logprobs,omitempty"`     // 是否返回输出 Token 的对数概率
 	TopLogprobs    *int  `json:"top_logprobs,omitempty"` // 指定在每一步生成时，返回模型最大概率的候选 Token 个数
 	N              *int  `json:"n,omitempty"`
@@ -80,7 +124,22 @@ type LLMReq struct {
 	WebSearch *WebSearch `json:"web_search,omitempty"` //搜索增强
 	User      *string    `json:"user,omitempty"`
 	// Yuanjing
-	DoSample *bool `json:"do_sample,omitempty"`
+	DoSample  *bool      `json:"do_sample,omitempty"`
+	ExtraBody *ExtraBody `json:"extra_body,omitempty"` // 扩展参数
+}
+
+type OpenAIReqMsg struct {
+	Role             MsgRole       `json:"role"` // "system" | "user" | "assistant" | "function(已弃用)"
+	Content          interface{}   `json:"content"`
+	ToolCallId       *string       `json:"tool_call_id,omitempty"`
+	ReasoningContent *string       `json:"reasoning_content,omitempty"`
+	Name             *string       `json:"name,omitempty"`
+	FunctionCall     *FunctionCall `json:"function_call,omitempty"`
+	ToolCalls        []*ToolCall   `json:"tool_calls,omitempty"`
+}
+
+type ExtraBody struct {
+	ApiOption string `json:"api_option"` // 选择指定功能。 1）math：拍照答题；2）ocr：多模态OCR；3）general：通用场景。   默认会根据prompt进行意图判断
 }
 
 func (req *LLMReq) Data() (map[string]interface{}, error) {
@@ -108,7 +167,7 @@ type WebSearch struct {
 }
 
 type OpenAIMsg struct {
-	Role             MsgRole       `json:"role" validate:"required"` // "system" | "user" | "assistant" | "function(已弃用)"
+	Role             MsgRole       `json:"role"` // "system" | "user" | "assistant" | "function(已弃用)"
 	Content          string        `json:"content"`
 	ToolCallId       *string       `json:"tool_call_id,omitempty"`
 	ReasoningContent *string       `json:"reasoning_content,omitempty"`
@@ -170,6 +229,8 @@ type LLMResp struct {
 	Usage             OpenAIRespUsage    `json:"usage"`                            // token 使用统计
 	ServiceTier       *string            `json:"service_tier"`                     // （火山）指定是否使用TPM保障包。生效对象为购买了保障包推理接入点
 	SystemFingerprint *string            `json:"system_fingerprint"`
+	Code              *int               `json:"code,omitempty"`
+	ImgId             *string            `json:"img_id,omitempty"` // 视觉模型返回图片id
 }
 
 // OpenAIRespUsage 结构体表示 token 消耗

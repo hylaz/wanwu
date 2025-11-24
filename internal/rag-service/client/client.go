@@ -17,4 +17,6 @@ type IClient interface {
 	UpdateRag(ctx context.Context, rag *model.RagInfo) *err_code.Status
 	UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_code.Status
 	FetchRagFirst(ctx context.Context, ragId string) (*model.RagInfo, *err_code.Status)
+	FetchRagCopyIndex(ctx context.Context, name, userId, orgId string) (int, *err_code.Status)
+	FetchRagFirstByName(ctx context.Context, name, userId, orgId string) (*model.RagInfo, *err_code.Status)
 }

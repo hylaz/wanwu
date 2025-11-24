@@ -44,13 +44,13 @@ type ModelServiceClient interface {
 	// ‌查询单个模型‌
 	GetModel(ctx context.Context, in *GetModelReq, opts ...grpc.CallOption) (*ModelInfo, error)
 	// 导入模型列表展示
-	ListModels(ctx context.Context, in *ListModelsReq, opts ...grpc.CallOption) (*ListModelsResp, error)
+	ListModels(ctx context.Context, in *ListModelsReq, opts ...grpc.CallOption) (*ModelInfos, error)
 	// 模型启用/关闭
 	ChangeModelStatus(ctx context.Context, in *ModelStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 根据模型ID查询
 	GetModelById(ctx context.Context, in *GetModelByIdReq, opts ...grpc.CallOption) (*ModelInfo, error)
 	// llm/rerank/embedding模型列表展示
-	ListTypeModels(ctx context.Context, in *ListTypeModelsReq, opts ...grpc.CallOption) (*ListModelsResp, error)
+	ListTypeModels(ctx context.Context, in *ListTypeModelsReq, opts ...grpc.CallOption) (*ModelInfos, error)
 	// 根据模型ID列表查询
 	GetModelByIds(ctx context.Context, in *GetModelByIdsReq, opts ...grpc.CallOption) (*ModelInfos, error)
 }
@@ -103,9 +103,9 @@ func (c *modelServiceClient) GetModel(ctx context.Context, in *GetModelReq, opts
 	return out, nil
 }
 
-func (c *modelServiceClient) ListModels(ctx context.Context, in *ListModelsReq, opts ...grpc.CallOption) (*ListModelsResp, error) {
+func (c *modelServiceClient) ListModels(ctx context.Context, in *ListModelsReq, opts ...grpc.CallOption) (*ModelInfos, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListModelsResp)
+	out := new(ModelInfos)
 	err := c.cc.Invoke(ctx, ModelService_ListModels_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -133,9 +133,9 @@ func (c *modelServiceClient) GetModelById(ctx context.Context, in *GetModelByIdR
 	return out, nil
 }
 
-func (c *modelServiceClient) ListTypeModels(ctx context.Context, in *ListTypeModelsReq, opts ...grpc.CallOption) (*ListModelsResp, error) {
+func (c *modelServiceClient) ListTypeModels(ctx context.Context, in *ListTypeModelsReq, opts ...grpc.CallOption) (*ModelInfos, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListModelsResp)
+	out := new(ModelInfos)
 	err := c.cc.Invoke(ctx, ModelService_ListTypeModels_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -166,13 +166,13 @@ type ModelServiceServer interface {
 	// ‌查询单个模型‌
 	GetModel(context.Context, *GetModelReq) (*ModelInfo, error)
 	// 导入模型列表展示
-	ListModels(context.Context, *ListModelsReq) (*ListModelsResp, error)
+	ListModels(context.Context, *ListModelsReq) (*ModelInfos, error)
 	// 模型启用/关闭
 	ChangeModelStatus(context.Context, *ModelStatusReq) (*emptypb.Empty, error)
 	// 根据模型ID查询
 	GetModelById(context.Context, *GetModelByIdReq) (*ModelInfo, error)
 	// llm/rerank/embedding模型列表展示
-	ListTypeModels(context.Context, *ListTypeModelsReq) (*ListModelsResp, error)
+	ListTypeModels(context.Context, *ListTypeModelsReq) (*ModelInfos, error)
 	// 根据模型ID列表查询
 	GetModelByIds(context.Context, *GetModelByIdsReq) (*ModelInfos, error)
 	mustEmbedUnimplementedModelServiceServer()
@@ -197,7 +197,7 @@ func (UnimplementedModelServiceServer) DeleteModel(context.Context, *DeleteModel
 func (UnimplementedModelServiceServer) GetModel(context.Context, *GetModelReq) (*ModelInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModel not implemented")
 }
-func (UnimplementedModelServiceServer) ListModels(context.Context, *ListModelsReq) (*ListModelsResp, error) {
+func (UnimplementedModelServiceServer) ListModels(context.Context, *ListModelsReq) (*ModelInfos, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListModels not implemented")
 }
 func (UnimplementedModelServiceServer) ChangeModelStatus(context.Context, *ModelStatusReq) (*emptypb.Empty, error) {
@@ -206,7 +206,7 @@ func (UnimplementedModelServiceServer) ChangeModelStatus(context.Context, *Model
 func (UnimplementedModelServiceServer) GetModelById(context.Context, *GetModelByIdReq) (*ModelInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModelById not implemented")
 }
-func (UnimplementedModelServiceServer) ListTypeModels(context.Context, *ListTypeModelsReq) (*ListModelsResp, error) {
+func (UnimplementedModelServiceServer) ListTypeModels(context.Context, *ListTypeModelsReq) (*ModelInfos, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTypeModels not implemented")
 }
 func (UnimplementedModelServiceServer) GetModelByIds(context.Context, *GetModelByIdsReq) (*ModelInfos, error) {

@@ -14,6 +14,10 @@ enum Code {
   BFFJWT = 110002; // JWT错误
   BFFAuth = 110003; // Auth错误
   BFFSensitiveWordCheck = 110005; // 敏感词校验错误
+  BFFRegisterDisable = 110006; // 用户注册禁用
+  BFFResetPasswordDisable = 110007; // 用户忘记密码禁用
+  BFFLoginDisable = 110008; // 邮箱登录禁用
+  BFFSingleLoginDisable = 110009; // 单因子登录禁用
 
   // --- iam-service ---
   // [120000, 129999]
@@ -21,9 +25,11 @@ enum Code {
   IAMInternal = 120001; // 内部错误
   IAMCaptcha = 120002; // 验证码错误
   IAMLogin = 120003; // 登录相关错误
+  IAMRegister = 120004; // 注册相关错误
   IAMOrg = 120011; // 组织相关错误
   IAMRole = 120021; // 角色相关错误
   IAMUser = 120031; // 用户相关错误
+  IAMOauth = 120041; // OAuth相关错误
 
   // --- perm-service ---
   // [130000, 139999]
@@ -44,6 +50,7 @@ enum Code {
   KnowledgeBaseDuplicateName = 141008; // 已存在同名知识库
   KnowledgeBaseSelectFailed = 141009; // 查询知识库列表失败，请稍后重试
   KnowledgeBaseHitFailed = 141010; // 命中测试失败，请稍后重试
+  KnowledgeBaseGraphFailed = 141011; // 查询知识图谱失败，请稍后重试
   KnowledgeDocDeleteDuringParse = 142001; // 文档正在解析文档，不可删除
   KnowledgeDocDeleteFailed = 142002; // 文档删除失败，请稍后重试
   KnowledgeDocSegmentStatusUpdateFail = 142003; // 修改文档分段状态失败，请稍后重试
@@ -53,6 +60,8 @@ enum Code {
   KnowledgeDocImportUrlFailed = 142007; // 获取上传文档失败，请稍后重试
   KnowledgeDocUpdateMetaFailed = 142008; // 更新文档元数据失败，请稍后重试
   KnowledgeDocUpdateMetaStatusFailed = 142009; // 非处理完成文档无法更新元数据，请稍后重试
+  KnowledgeDocSegmentFileCSVTypeFail = 142010; // 上传文档必须是csv，请修改后重试
+  KnowledgeDocUpdateMetaSameKeyFailed = 142011; // 更新文档元数据失败，已存在重复key，请稍后重试
   KnowledgeTagCreateFailed = 143001; // 新建知识库标签失败，请稍后重试
   KnowledgeTagDeleteFailed = 143002; // 删除知识库标签失败，请稍后重试
   KnowledgeTagUpdateFailed = 143003; // 修改知识库标签失败，请稍后重试
@@ -73,6 +82,31 @@ enum Code {
   KnowledgeSplitterDuplicateName = 145004; // 已存在同名知识库分隔符
   KnowledgeSplitterSelectFailed = 145005; // 查询知识库标分隔符表失败，请稍后重试
   KnowledgeSplitterAccessDenied = 145008; // 没有操作该知识库分隔符的权限
+  KnowledgeDocSegmentUpdateLabelsFailed = 145009;  // 更新文档切片标签失败，请稍后重试
+  KnowledgeDocSegmentCreateFailed = 145010; // 新增文档分段失败，请稍后重试
+  KnowledgeDocSegmentExceedMaxSize = 145011; // 分段长度超过最大值
+  KnowledgeDocSegmentUpdateFailed = 145012; // 更新文档分段失败，请稍后重试
+  KnowledgeDocSegmentDeleteFailed = 145013; // 删除文档分段失败，请稍后重试
+  KnowledgeMetaFetchFailed = 145014; // 查询知识库元数据失败，请稍后重试
+  KnowledgeMetaCreateFailed = 145015; // 新增知识库元数据失败，请稍后重试
+  KnowledgeMetaUpdateFailed = 145016; // 更新知识库元数据失败，请稍后重试
+  KnowledgeMetaDeleteFailed = 145017; // 删除知识库元数据失败，请稍后重试
+  KnowledgeMetaDuplicateKey = 145018; // 已存在同名元数据key
+  KnowledgeInvalidArguments = 145019; // 非法参数
+  KnowledgeDocSegmentEmpty = 145020; // 文档分段内容为空
+  KnowledgeMetaUpdatePartialSuccess = 145021; // 部分元数据更新成功
+  KnowledgePermissionSelectedFailed = 146001;// 获取知识库权限列表失败，请稍后重试
+  KnowledgePermissionDeny = 146002;// 知识库操作权限不足，请联系管理员添加后重试
+  KnowledgeAddPermissionFailed = 146003;// 知识库添加权限失败，请稍后重试
+  KnowledgeEditPermissionFailed = 146004;// 知识库修改权限失败，请稍后重试
+  KnowledgeDeletePermissionFailed = 146005;// 知识库删除权限失败，请稍后重试
+  KnowledgeDeleteGrantPermissionFailed = 146006;// 知识库的授权权限只有用户本人才能删除
+  KnowledgeTransferPermissionFailed = 146007;// 知识库转让失败
+  KnowledgeGetReportFailed = 147001; // 获取社区报告失败，请稍后重试
+  KnowledgeAddReportFailed = 147002; // 新增社区报告失败，请稍后重试
+  KnowledgeDeleteReportFailed = 147003; // 删除社区报告失败，请稍后重试
+  KnowledgeUpdateReportFailed = 147004; // 更新社区报告失败，请稍后重试
+  KnowledgeGenerateReportFailed = 147005; // 生成社区报告失败，请稍后重试
 
   // --- rag-service ---
   // [150000, 159999]
@@ -85,6 +119,8 @@ enum Code {
   RagCreateErr = 150006; // rag创建错误
   RagUpdateErr = 150007; // rag更新错误
   RagChatErr = 150008; // rag流式传输问答错误
+  RagListByIdsErr = 150009; // id列表为空
+  RagDuplicateName = 150010; // 已存在同名文本问答
 
   // --- assistant-service ---
   // [160000, 169999]
@@ -94,6 +130,9 @@ enum Code {
   AssistantWorkflowErr = 160003; // 智能体workflow相关错误
   AssistantConversationErr = 160004; // 智能体对话相关错误
   AssistantMCPErr = 160005; // 智能体MCP相关错误
+  AssistantToolErr = 160006; // 智能体工具相关错误
+  AssistantCustomPromptErr = 160007; // 智能体自定义提示错误
+
 
   // --- workflow-service ---
   // [210000, 219999]
@@ -123,6 +162,10 @@ enum Code {
   AppSensitiveSameWordError = 300006; // 此词表内存在相同的敏感词，请修改后重试
   AppSensitiveExistSensitiveError = 300007; // 存在敏感词：%v
   AppSafetyImportUrlFailed = 300008; // 获取上传文档失败，请稍后重试
+  AppUrl = 300009; // App WebUrl错误
+  AppUrlStatus = 300010; // App WebUrl状态错误
+  AppUrlExpired = 300011; // App WebUrl过期错误
+  AppConversation = 300012; // 对话流相关错误
 
   // --- mcp-service ---
   // [310000, 319999]
@@ -133,10 +176,29 @@ enum Code {
   MCPDeleteCustomMCPErr = 310004; // 删除自定义MCP错误
   MCPGetCustomMCPListErr = 310005; // 获取自定义MCP列表错误
   MCPGetMCPAvatarErr = 310006; // 获取MCP头像错误
+  MCPCreateCustomToolErr = 310007; // 创建自定义工具错误
+  MCPGetCustomToolInfoErr = 310008; // 获取自定义工具详情错误
+  MCPGetCustomToolListErr = 310009; // 获取自定义工具列表错误
+  MCPUpdateCustomToolErr = 310010; // 更新自定义工具错误
+  MCPDeleteCustomToolErr = 310011; // 删除自定义工具错误
+  MCPGetSquareToolErr = 310012; // 获取内置工具详情错误
+  MCPCreateMCPServerErr = 310013; // 创建MCP服务错误
+  MCPDeleteMCPServerErr = 310014; // 删除MCP服务错误
+  MCPUpdateMCPServerErr = 310015; // 更新MCP服务错误
+  MCPGetMCPServerInfoErr = 310016; // 获取MCP服务详情错误
+  MCPGetMCPServerListErr = 310017; // 获取MCP服务列表错误
+  MCPCreateMCPServerToolErr = 310018; // 创建MCP服务工具错误
+  MCPUpdateMCPServerToolErr = 310019; // 更新MCP服务工具错误
+  MCPDeleteMCPServerToolErr = 310020; // 删除MCP服务工具错误
+  MCPGetMCPServerToolInfoErr = 310021; // 获取MCP服务工具详情错误
+  MCPGetMCPServerToolListErr = 310022; // 获取MCP服务工具列表错误
+  MCPUpdateCustomMCPErr = 310023; // 更新自定义MCP错误
+  MCPUpdateBuiltinToolErr = 310024; // 更新内置工具错误
 
   // --- operate-service ---
   // [320000, 329999]
   OperateGeneral = 320000; // 通用错误
   OperateCustom = 320001; // 自定义配置相关错误
+  OperateRecord = 320002; // 客户端统计错误
 }
 

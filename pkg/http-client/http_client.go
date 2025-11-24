@@ -19,6 +19,8 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 )
 
+var _default *HttpClient = CreateDefault()
+
 const (
 	timeout        = 120 * time.Second
 	connectTimeout = 60 * time.Second
@@ -61,6 +63,10 @@ func Create(client *http.Client) *HttpClient {
 
 func CreateDefault() *HttpClient {
 	return &HttpClient{newHttpClient()}
+}
+
+func Default() *HttpClient {
+	return _default
 }
 
 // newHttpClient 初始化httpclient,httpclient 是一个比较重的资源，
@@ -297,6 +303,33 @@ func SendRequestOriResp(ctx context.Context, client *http.Client, httpRequestPar
 	// 6.打印日志
 	logRequest(ctx, httpRequestParams, requestType, start, resp.StatusCode, nil, err)
 	return resp, err
+}
+
+func ReadHttpResp(result *http.Response) (body []byte, err error) {
+	defer func(Body io.ReadCloser) {
+		err1 := Body.Close()
+		if err1 != nil {
+			//todo 通用日志文件
+			err = err1
+		}
+	}(result.Body) // 确保关闭响应体
+
+	if result.Header.Get("Content-Encoding") == "gzip" {
+		reader, err := gzip.NewReader(result.Body)
+		if err != nil {
+			return nil, err
+		}
+		defer func() {
+			err1 := reader.Close()
+			if err1 != nil {
+				err = err1
+			}
+		}()
+		body, err = io.ReadAll(reader)
+	} else {
+		body, err = io.ReadAll(result.Body)
+	}
+	return body, err
 }
 
 // setHeader 设置请求头

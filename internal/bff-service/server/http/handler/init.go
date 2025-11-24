@@ -9,6 +9,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler/router/callback"
 	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler/router/openapi"
+	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler/router/openurl"
 	v1 "github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler/router/v1"
 	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/middleware"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
@@ -43,10 +44,22 @@ func Start(ctx context.Context) {
 	openapi.Register(r.Group("/openapi/v1"))
 	// callback v1
 	callback.Register(r.Group("/callback/v1"))
+	// openurl v1
+	openurl.Register(r.Group("/openurl/v1"))
 
 	// service
 	if err := service.Init(); err != nil {
 		log.Fatalf("init service err: %v", err)
+	}
+
+	// doc-center
+	if err := service.InitDocCenter(); err != nil {
+		log.Fatalf("init doc-center err: %v", err)
+	}
+
+	// start mcp server
+	if err := service.StartMCPServer(ctx); err != nil {
+		log.Fatalf("start mcp server err: %v", err)
 	}
 
 	// start http server

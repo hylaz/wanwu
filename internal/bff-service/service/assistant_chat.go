@@ -6,7 +6,6 @@ import (
 	"io"
 	"strings"
 
-	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
@@ -39,6 +38,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	if err != nil {
 		return nil, err
 	}
+
 	var matchDicts []ahocorasick.DictConfig
 	// 如果Enable为true,则处理敏感词
 	if agentInfo.SafetyConfig.GetEnable() {
@@ -61,27 +61,13 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
 		}
 	}
-	appList, err := app.GetAppListByIds(ctx.Request.Context(), &app_service.GetAppListByIdsReq{
-		AppIdsList: []string{req.AssistantId},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var publishType string
-	if len(appList.Infos) > 0 {
-		publishType = appList.Infos[0].PublishType
-	}
 	stream, err := assistant.AssistantConversionStream(ctx.Request.Context(), &assistant_service.AssistantConversionStreamReq{
 		AssistantId:    req.AssistantId,
 		ConversationId: req.ConversationId,
-		FileInfo: &assistant_service.ConversionStreamFile{
-			FileName: req.FileInfo.FileName,
-			FileSize: req.FileInfo.FileSize,
-			FileUrl:  req.FileInfo.FileUrl,
-		},
+		FileInfo:       transFileInfo(req.FileInfo),
 		Trial:          req.Trial,
 		Prompt:         req.Prompt,
-		AppPublishType: publishType,
+		SystemPrompt:   req.SystemPrompt,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -117,11 +103,27 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	return outputCh, nil
 }
 
+// transFileInfo 转换文件信息从请求模型到protobuf模型
+func transFileInfo(fileInfo []request.ConversionStreamFile) []*assistant_service.ConversionStreamFile {
+	if len(fileInfo) == 0 {
+		return nil
+	}
+	result := make([]*assistant_service.ConversionStreamFile, 0, len(fileInfo))
+	for _, file := range fileInfo {
+		result = append(result, &assistant_service.ConversionStreamFile{
+			FileName: file.FileName,
+			FileSize: file.FileSize,
+			FileUrl:  file.FileUrl,
+		})
+	}
+	return result
+}
+
 // buildAgentChatRespLineProcessor 构造agent对话结果行处理器
 func buildAgentChatRespLineProcessor() func(*gin.Context, string, interface{}) (string, bool, error) {
 	return func(c *gin.Context, lineText string, params interface{}) (string, bool, error) {
 		if strings.HasPrefix(lineText, "error:") {
-			errorText := fmt.Sprintf("data: {\"code\": \"-1\", \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
+			errorText := fmt.Sprintf("data: {\"code\": -1, \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
 			return errorText, false, nil
 		}
 		if strings.HasPrefix(lineText, "data:") {

@@ -1,0 +1,97 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "文生图",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/openapi/metaview_t2i_intention_removal": {
+      "post": {
+        "summary": "文生图",
+        "operationId": "yuanjing_text2img_12b",
+        "deprecated": false,
+        "description": "元景-文生图-12B文生图大模型基于扩散模型机制训练，支持中英双语输入，能够根据输入内容生成符合描述的图像内容，并增加意图去除和提示词润色。",
+        "tags": [],
+        "parameters": [{
+          "name": "Authorization",
+          "in": "header",
+          "description": "Bearer token",
+          "required": true,
+          "example": "",
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "description": "用户提出的问题",
+                    "type": "string"
+                  },
+                  "response_format": {
+                    "description": "输出格式'url'或'b64_json'，默认值为url",
+                    "type": "string"
+                  }
+                },
+                "required": ["prompt", "response_format"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_patches": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["total_patches"]
+                    }
+                  },
+                  "required": ["code", "message", "result", "usage"]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "servers": [{
+    "url": "https://maas-api.ai-yuanjing.com",
+    "description": "maas"
+  }],
+  "security": []
+}

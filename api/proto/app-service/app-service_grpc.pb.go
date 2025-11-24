@@ -32,6 +32,14 @@ const (
 	AppService_GetAppList_FullMethodName                   = "/app_service.AppService/GetAppList"
 	AppService_GetAppListByIds_FullMethodName              = "/app_service.AppService/GetAppListByIds"
 	AppService_DeleteApp_FullMethodName                    = "/app_service.AppService/DeleteApp"
+	AppService_AppUrlCreate_FullMethodName                 = "/app_service.AppService/AppUrlCreate"
+	AppService_AppUrlDelete_FullMethodName                 = "/app_service.AppService/AppUrlDelete"
+	AppService_AppUrlUpdate_FullMethodName                 = "/app_service.AppService/AppUrlUpdate"
+	AppService_GetAppUrlList_FullMethodName                = "/app_service.AppService/GetAppUrlList"
+	AppService_GetAppUrlInfoBySuffix_FullMethodName        = "/app_service.AppService/GetAppUrlInfoBySuffix"
+	AppService_AppUrlStatusSwitch_FullMethodName           = "/app_service.AppService/AppUrlStatusSwitch"
+	AppService_GetConversationByID_FullMethodName          = "/app_service.AppService/GetConversationByID"
+	AppService_CreateConversation_FullMethodName           = "/app_service.AppService/CreateConversation"
 )
 
 // AppServiceClient is the client API for AppService service.
@@ -53,6 +61,16 @@ type AppServiceClient interface {
 	GetAppList(ctx context.Context, in *GetAppListReq, opts ...grpc.CallOption) (*AppList, error)
 	GetAppListByIds(ctx context.Context, in *GetAppListByIdsReq, opts ...grpc.CallOption) (*AppList, error)
 	DeleteApp(ctx context.Context, in *DeleteAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- url ---
+	AppUrlCreate(ctx context.Context, in *AppUrlCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AppUrlDelete(ctx context.Context, in *AppUrlDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AppUrlUpdate(ctx context.Context, in *AppUrlUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetAppUrlList(ctx context.Context, in *GetAppUrlListReq, opts ...grpc.CallOption) (*GetAppUrlListResp, error)
+	GetAppUrlInfoBySuffix(ctx context.Context, in *GetAppUrlInfoBySuffixReq, opts ...grpc.CallOption) (*AppUrlInfo, error)
+	AppUrlStatusSwitch(ctx context.Context, in *AppUrlStatusSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- conversation ---
+	GetConversationByID(ctx context.Context, in *GetConversationByIDReq, opts ...grpc.CallOption) (*ConversationInfo, error)
+	CreateConversation(ctx context.Context, in *CreateConversationReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type appServiceClient struct {
@@ -183,6 +201,86 @@ func (c *appServiceClient) DeleteApp(ctx context.Context, in *DeleteAppReq, opts
 	return out, nil
 }
 
+func (c *appServiceClient) AppUrlCreate(ctx context.Context, in *AppUrlCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_AppUrlCreate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) AppUrlDelete(ctx context.Context, in *AppUrlDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_AppUrlDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) AppUrlUpdate(ctx context.Context, in *AppUrlUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_AppUrlUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) GetAppUrlList(ctx context.Context, in *GetAppUrlListReq, opts ...grpc.CallOption) (*GetAppUrlListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAppUrlListResp)
+	err := c.cc.Invoke(ctx, AppService_GetAppUrlList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) GetAppUrlInfoBySuffix(ctx context.Context, in *GetAppUrlInfoBySuffixReq, opts ...grpc.CallOption) (*AppUrlInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AppUrlInfo)
+	err := c.cc.Invoke(ctx, AppService_GetAppUrlInfoBySuffix_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) AppUrlStatusSwitch(ctx context.Context, in *AppUrlStatusSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_AppUrlStatusSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) GetConversationByID(ctx context.Context, in *GetConversationByIDReq, opts ...grpc.CallOption) (*ConversationInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConversationInfo)
+	err := c.cc.Invoke(ctx, AppService_GetConversationByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) CreateConversation(ctx context.Context, in *CreateConversationReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_CreateConversation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServiceServer is the server API for AppService service.
 // All implementations must embed UnimplementedAppServiceServer
 // for forward compatibility.
@@ -202,6 +300,16 @@ type AppServiceServer interface {
 	GetAppList(context.Context, *GetAppListReq) (*AppList, error)
 	GetAppListByIds(context.Context, *GetAppListByIdsReq) (*AppList, error)
 	DeleteApp(context.Context, *DeleteAppReq) (*emptypb.Empty, error)
+	// --- url ---
+	AppUrlCreate(context.Context, *AppUrlCreateReq) (*emptypb.Empty, error)
+	AppUrlDelete(context.Context, *AppUrlDeleteReq) (*emptypb.Empty, error)
+	AppUrlUpdate(context.Context, *AppUrlUpdateReq) (*emptypb.Empty, error)
+	GetAppUrlList(context.Context, *GetAppUrlListReq) (*GetAppUrlListResp, error)
+	GetAppUrlInfoBySuffix(context.Context, *GetAppUrlInfoBySuffixReq) (*AppUrlInfo, error)
+	AppUrlStatusSwitch(context.Context, *AppUrlStatusSwitchReq) (*emptypb.Empty, error)
+	// --- conversation ---
+	GetConversationByID(context.Context, *GetConversationByIDReq) (*ConversationInfo, error)
+	CreateConversation(context.Context, *CreateConversationReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAppServiceServer()
 }
 
@@ -247,6 +355,30 @@ func (UnimplementedAppServiceServer) GetAppListByIds(context.Context, *GetAppLis
 }
 func (UnimplementedAppServiceServer) DeleteApp(context.Context, *DeleteAppReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteApp not implemented")
+}
+func (UnimplementedAppServiceServer) AppUrlCreate(context.Context, *AppUrlCreateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppUrlCreate not implemented")
+}
+func (UnimplementedAppServiceServer) AppUrlDelete(context.Context, *AppUrlDeleteReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppUrlDelete not implemented")
+}
+func (UnimplementedAppServiceServer) AppUrlUpdate(context.Context, *AppUrlUpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppUrlUpdate not implemented")
+}
+func (UnimplementedAppServiceServer) GetAppUrlList(context.Context, *GetAppUrlListReq) (*GetAppUrlListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAppUrlList not implemented")
+}
+func (UnimplementedAppServiceServer) GetAppUrlInfoBySuffix(context.Context, *GetAppUrlInfoBySuffixReq) (*AppUrlInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAppUrlInfoBySuffix not implemented")
+}
+func (UnimplementedAppServiceServer) AppUrlStatusSwitch(context.Context, *AppUrlStatusSwitchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppUrlStatusSwitch not implemented")
+}
+func (UnimplementedAppServiceServer) GetConversationByID(context.Context, *GetConversationByIDReq) (*ConversationInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConversationByID not implemented")
+}
+func (UnimplementedAppServiceServer) CreateConversation(context.Context, *CreateConversationReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateConversation not implemented")
 }
 func (UnimplementedAppServiceServer) mustEmbedUnimplementedAppServiceServer() {}
 func (UnimplementedAppServiceServer) testEmbeddedByValue()                    {}
@@ -485,6 +617,150 @@ func _AppService_DeleteApp_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AppService_AppUrlCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppUrlCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).AppUrlCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_AppUrlCreate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).AppUrlCreate(ctx, req.(*AppUrlCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_AppUrlDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppUrlDeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).AppUrlDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_AppUrlDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).AppUrlDelete(ctx, req.(*AppUrlDeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_AppUrlUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppUrlUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).AppUrlUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_AppUrlUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).AppUrlUpdate(ctx, req.(*AppUrlUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_GetAppUrlList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAppUrlListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).GetAppUrlList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_GetAppUrlList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).GetAppUrlList(ctx, req.(*GetAppUrlListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_GetAppUrlInfoBySuffix_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAppUrlInfoBySuffixReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).GetAppUrlInfoBySuffix(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_GetAppUrlInfoBySuffix_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).GetAppUrlInfoBySuffix(ctx, req.(*GetAppUrlInfoBySuffixReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_AppUrlStatusSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppUrlStatusSwitchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).AppUrlStatusSwitch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_AppUrlStatusSwitch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).AppUrlStatusSwitch(ctx, req.(*AppUrlStatusSwitchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_GetConversationByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConversationByIDReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).GetConversationByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_GetConversationByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).GetConversationByID(ctx, req.(*GetConversationByIDReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_CreateConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateConversationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).CreateConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_CreateConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).CreateConversation(ctx, req.(*CreateConversationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AppService_ServiceDesc is the grpc.ServiceDesc for AppService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -539,6 +815,38 @@ var AppService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteApp",
 			Handler:    _AppService_DeleteApp_Handler,
+		},
+		{
+			MethodName: "AppUrlCreate",
+			Handler:    _AppService_AppUrlCreate_Handler,
+		},
+		{
+			MethodName: "AppUrlDelete",
+			Handler:    _AppService_AppUrlDelete_Handler,
+		},
+		{
+			MethodName: "AppUrlUpdate",
+			Handler:    _AppService_AppUrlUpdate_Handler,
+		},
+		{
+			MethodName: "GetAppUrlList",
+			Handler:    _AppService_GetAppUrlList_Handler,
+		},
+		{
+			MethodName: "GetAppUrlInfoBySuffix",
+			Handler:    _AppService_GetAppUrlInfoBySuffix_Handler,
+		},
+		{
+			MethodName: "AppUrlStatusSwitch",
+			Handler:    _AppService_AppUrlStatusSwitch_Handler,
+		},
+		{
+			MethodName: "GetConversationByID",
+			Handler:    _AppService_GetConversationByID_Handler,
+		},
+		{
+			MethodName: "CreateConversation",
+			Handler:    _AppService_CreateConversation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -28,6 +28,7 @@ const (
 	RagService_GetRagDetail_FullMethodName    = "/rag_service.RagService/GetRagDetail"
 	RagService_ListRag_FullMethodName         = "/rag_service.RagService/ListRag"
 	RagService_GetRagByIds_FullMethodName     = "/rag_service.RagService/GetRagByIds"
+	RagService_CopyRag_FullMethodName         = "/rag_service.RagService/CopyRag"
 )
 
 // RagServiceClient is the client API for RagService service.
@@ -42,7 +43,7 @@ type RagServiceClient interface {
 	UpdateRag(ctx context.Context, in *UpdateRagReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新 rag 配置信息
 	UpdateRagConfig(ctx context.Context, in *UpdateRagConfigReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//  删除 rag
+	// 删除 rag
 	DeleteRag(ctx context.Context, in *RagDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 获取 rag
 	GetRagDetail(ctx context.Context, in *RagDetailReq, opts ...grpc.CallOption) (*RagInfo, error)
@@ -50,6 +51,8 @@ type RagServiceClient interface {
 	ListRag(ctx context.Context, in *RagListReq, opts ...grpc.CallOption) (*RagListResp, error)
 	// 根据 ragIds 获取 rag 列表
 	GetRagByIds(ctx context.Context, in *GetRagByIdsReq, opts ...grpc.CallOption) (*AppBriefList, error)
+	// 复制 rag
+	CopyRag(ctx context.Context, in *CopyRagReq, opts ...grpc.CallOption) (*CreateRagResp, error)
 }
 
 type ragServiceClient struct {
@@ -149,6 +152,16 @@ func (c *ragServiceClient) GetRagByIds(ctx context.Context, in *GetRagByIdsReq, 
 	return out, nil
 }
 
+func (c *ragServiceClient) CopyRag(ctx context.Context, in *CopyRagReq, opts ...grpc.CallOption) (*CreateRagResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateRagResp)
+	err := c.cc.Invoke(ctx, RagService_CopyRag_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RagServiceServer is the server API for RagService service.
 // All implementations must embed UnimplementedRagServiceServer
 // for forward compatibility.
@@ -161,7 +174,7 @@ type RagServiceServer interface {
 	UpdateRag(context.Context, *UpdateRagReq) (*emptypb.Empty, error)
 	// 更新 rag 配置信息
 	UpdateRagConfig(context.Context, *UpdateRagConfigReq) (*emptypb.Empty, error)
-	//  删除 rag
+	// 删除 rag
 	DeleteRag(context.Context, *RagDeleteReq) (*emptypb.Empty, error)
 	// 获取 rag
 	GetRagDetail(context.Context, *RagDetailReq) (*RagInfo, error)
@@ -169,6 +182,8 @@ type RagServiceServer interface {
 	ListRag(context.Context, *RagListReq) (*RagListResp, error)
 	// 根据 ragIds 获取 rag 列表
 	GetRagByIds(context.Context, *GetRagByIdsReq) (*AppBriefList, error)
+	// 复制 rag
+	CopyRag(context.Context, *CopyRagReq) (*CreateRagResp, error)
 	mustEmbedUnimplementedRagServiceServer()
 }
 
@@ -202,6 +217,9 @@ func (UnimplementedRagServiceServer) ListRag(context.Context, *RagListReq) (*Rag
 }
 func (UnimplementedRagServiceServer) GetRagByIds(context.Context, *GetRagByIdsReq) (*AppBriefList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRagByIds not implemented")
+}
+func (UnimplementedRagServiceServer) CopyRag(context.Context, *CopyRagReq) (*CreateRagResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CopyRag not implemented")
 }
 func (UnimplementedRagServiceServer) mustEmbedUnimplementedRagServiceServer() {}
 func (UnimplementedRagServiceServer) testEmbeddedByValue()                    {}
@@ -361,6 +379,24 @@ func _RagService_GetRagByIds_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RagService_CopyRag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CopyRagReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RagServiceServer).CopyRag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RagService_CopyRag_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RagServiceServer).CopyRag(ctx, req.(*CopyRagReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RagService_ServiceDesc is the grpc.ServiceDesc for RagService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -395,6 +431,10 @@ var RagService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRagByIds",
 			Handler:    _RagService_GetRagByIds_Handler,
+		},
+		{
+			MethodName: "CopyRag",
+			Handler:    _RagService_CopyRag_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

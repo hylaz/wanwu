@@ -3,19 +3,16 @@ package service
 import (
 	"fmt"
 
-	"github.com/UnicomAI/wanwu/pkg/constant"
-
 	"github.com/UnicomAI/wanwu/api/proto/common"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
-
-const PublishedStatus = "published"
 
 // --- app breif ---
 
@@ -23,7 +20,8 @@ func appBriefProto2Model(ctx *gin.Context, appBrief *common.AppBrief) response.A
 	return response.AppBriefInfo{
 		AppId:     appBrief.AppId,
 		AppType:   appBrief.AppType,
-		Avatar:    CacheAvatar(ctx, appBrief.AvatarPath),
+		UniqueId:  bff_util.ConcatAssistantToolUniqueId(appBrief.AppType, appBrief.AppId),
+		Avatar:    cacheAppAvatar(ctx, appBrief.AvatarPath, appBrief.AppType),
 		Name:      appBrief.Name,
 		Desc:      appBrief.Desc,
 		CreatedAt: util.Time2Str(appBrief.CreatedAt),
@@ -33,9 +31,9 @@ func appBriefProto2Model(ctx *gin.Context, appBrief *common.AppBrief) response.A
 
 // --- app brief config ---
 
-func appBriefConfigProto2Model(ctx *gin.Context, appBrief *common.AppBriefConfig) request.AppBriefConfig {
+func appBriefConfigProto2Model(ctx *gin.Context, appBrief *common.AppBriefConfig, appType string) request.AppBriefConfig {
 	return request.AppBriefConfig{
-		Avatar: CacheAvatar(ctx, appBrief.AvatarPath),
+		Avatar: cacheAppAvatar(ctx, appBrief.AvatarPath, appType),
 		Name:   appBrief.Name,
 		Desc:   appBrief.Desc,
 	}
@@ -79,16 +77,4 @@ func appModelConfigModel2Proto(appModel request.AppModelConfig) (*common.AppMode
 		ModelType: appModel.ModelType,
 		Config:    configStr,
 	}, nil
-}
-
-func workflowInfo2Model(workflowInfo response.WorkFlowInfo) response.AppBriefInfo {
-	return response.AppBriefInfo{
-		AppId:   workflowInfo.Id,
-		AppType: constant.AppTypeWorkflow,
-		//Avatar:    CacheAvatar(ctx, workflowInfo.AvatarPath),
-		Name:      workflowInfo.ConfigName,
-		Desc:      workflowInfo.ConfigDesc,
-		CreatedAt: workflowInfo.UpdatedTime,
-		UpdatedAt: workflowInfo.UpdatedTime,
-	}
 }

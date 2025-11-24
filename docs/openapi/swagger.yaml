@@ -1,5 +1,42 @@
 basePath: /openapi/v1
 definitions:
+  oauth2_util.JWK:
+    properties:
+      alg:
+        type: string
+      e:
+        type: string
+      kid:
+        type: string
+      kty:
+        type: string
+      "n":
+        type: string
+      use:
+        type: string
+    type: object
+  request.History:
+    properties:
+      needHistory:
+        type: boolean
+      query:
+        type: string
+      response:
+        type: string
+    type: object
+  request.OAuthRefreshRequest:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      grant_type:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - grant_type
+    type: object
   request.OpenAPIAgentChatRequest:
     properties:
       conversation_id:
@@ -17,14 +54,126 @@ definitions:
       title:
         type: string
     type: object
+  request.OpenAPIChatflowChatRequest:
+    properties:
+      conversation_id:
+        type: string
+      query:
+        type: string
+    type: object
+  request.OpenAPIChatflowCreateConversationRequest:
+    properties:
+      conversation_name:
+        type: string
+    type: object
   request.OpenAPIRagChatRequest:
     properties:
+      history:
+        items:
+          $ref: '#/definitions/request.History'
+        type: array
       query:
         type: string
       stream:
         type: boolean
     required:
     - query
+    type: object
+  response.OAuthConfig:
+    properties:
+      authorization_endpoint:
+        description: 获取授权码接口
+        type: string
+      id_token_signing_alg_values_supported:
+        description: jwt签名算法
+        items:
+          type: string
+        type: array
+      issuer:
+        description: auth的base url
+        type: string
+      jwks_uri:
+        description: 获取jwt公钥
+        type: string
+      response_types_supported:
+        description: 授权模式，默认code
+        items:
+          type: string
+        type: array
+      subject_types_supported:
+        description: 用户标识类型，即 ID Token中的sub是如何生成的。
+        items:
+          type: string
+        type: array
+      token_endpoint:
+        description: 获取token接口
+        type: string
+      userinfo_endpoint:
+        description: 获取用户信息接口
+        type: string
+    type: object
+  response.OAuthGetUserInfo:
+    properties:
+      avatar:
+        type: string
+      company:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      userId:
+        type: string
+      username:
+        type: string
+    type: object
+  response.OAuthJWKS:
+    properties:
+      keys:
+        items:
+          $ref: '#/definitions/oauth2_util.JWK'
+        type: array
+    type: object
+  response.OAuthRefreshTokenResponse:
+    properties:
+      access_token:
+        description: 访问令牌
+        type: string
+      expires_at:
+        description: token过期时间(毫秒时间戳)
+        type: string
+      refresh_token:
+        description: 刷新令牌(可选)
+        type: string
+    type: object
+  response.OAuthTokenResponse:
+    properties:
+      access_token:
+        description: 访问令牌
+        type: string
+      expires_in:
+        description: token过期时间(毫秒时间戳)
+        type: integer
+      id_token:
+        description: ID令牌
+        type: string
+      refresh_token:
+        description: 刷新令牌
+        type: string
+      scope:
+        description: 权限范围
+        items:
+          type: string
+        type: array
+      token_type:
+        description: 令牌类型(bearer)
+        type: string
     type: object
   response.OpenAIChatHistory:
     properties:
@@ -86,6 +235,11 @@ definitions:
       conversation_id:
         type: string
     type: object
+  response.OpenAPIChatflowCreateConversationResponse:
+    properties:
+      conversation_id:
+        type: string
+    type: object
   response.OpenAPIRagChatData:
     properties:
       output:
@@ -125,6 +279,19 @@ info:
   title: AI Agent Productivity Platform - Open API
   version: v0.0.1
 paths:
+  /.well-known/openid-configuration:
+    get:
+      description: 自动获取 OP 的配置信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthConfig'
+      summary: 动态客户端发现配置
+      tags:
+      - openapi.OIDC
   /agent/chat:
     post:
       consumes:
@@ -178,6 +345,247 @@ paths:
       summary: 智能体创建对话OpenAPI
       tags:
       - openapi
+  /chatflow/chat:
+    post:
+      consumes:
+      - application/json
+      description: 对话流OpenAPI
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.OpenAPIChatflowChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 对话流OpenAPI
+      tags:
+      - openapi
+  /chatflow/conversation:
+    post:
+      consumes:
+      - application/json
+      description: 对话流创建对话OpenAPI
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.OpenAPIChatflowCreateConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.OpenAPIChatflowCreateConversationResponse'
+              type: object
+      summary: 对话流创建对话OpenAPI
+      tags:
+      - openapi
+  /mcp/server/message:
+    post:
+      consumes:
+      - application/json
+      description: 获取MCPServer Message
+      parameters:
+      - description: mcpServerId
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer Message
+      tags:
+      - openapi
+  /mcp/server/sse:
+    get:
+      consumes:
+      - application/json
+      description: 获取MCPServer SSE
+      parameters:
+      - description: key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer SSE
+      tags:
+      - openapi
+  /mcp/server/streamable:
+    post:
+      consumes:
+      - application/json
+      description: 获取MCPServer streamable 类型消息
+      parameters:
+      - description: key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer streamable 类型消息
+      tags:
+      - openapi
+  /oauth/code/token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 授权码方式-获取Token
+      parameters:
+      - description: 授权类型
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      - description: 授权码
+        in: formData
+        name: code
+        required: true
+        type: string
+      - description: Client ID
+        in: formData
+        name: client_id
+        required: true
+        type: string
+      - description: 回调地址
+        in: formData
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 备案密钥
+        in: formData
+        name: client_secret
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthTokenResponse'
+      summary: 授权码方式
+      tags:
+      - openapi.OIDC
+  /oauth/code/token/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 刷新令牌
+      parameters:
+      - description: RefreshToken
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.OAuthRefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthRefreshTokenResponse'
+      summary: 刷新令牌
+      tags:
+      - openapi.OIDC
+  /oauth/jwks:
+    get:
+      description: 自动获取OAuthJWKS
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthJWKS'
+      summary: 公钥获取链接
+      tags:
+      - openapi.OIDC
+  /oauth/login:
+    get:
+      consumes:
+      - application/json
+      description: 返回OAuth登录页面
+      parameters:
+      - description: 备案ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: 重定向URI
+        in: query
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 响应类型
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: 权限范围
+        in: query
+        name: scope
+        type: string
+      - description: 状态参数
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: 重定向到指定URI
+          schema:
+            type: string
+      summary: OAuth登录授权
+      tags:
+      - openapi.OIDC
+  /oauth/userinfo:
+    get:
+      description: 通过access token获取用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OAuthGetUserInfo'
+      summary: OAuth获取用户信息
+      tags:
+      - openapi.OIDC
   /rag/chat:
     post:
       consumes:
@@ -202,6 +610,46 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 文本问答OpenAPI
+      tags:
+      - openapi
+  /workflow/file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 工作流OpenAPI文件上传
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 工作流OpenAPI文件上传
+      tags:
+      - openapi
+  /workflow/run:
+    post:
+      consumes:
+      - application/json
+      description: 工作流OpenAPI
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 工作流OpenAPI
       tags:
       - openapi
 swagger: "2.0"

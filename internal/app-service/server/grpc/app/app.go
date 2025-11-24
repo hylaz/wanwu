@@ -11,7 +11,7 @@ import (
 )
 
 func (s *Service) GetExplorationAppList(ctx context.Context, req *app_service.GetExplorationAppListReq) (*app_service.ExplorationAppList, error) {
-	appList, err := s.cli.GetExplorationAppList(ctx, req.UserId, req.Name, req.AppType, req.SearchType)
+	appList, err := s.cli.GetExplorationAppList(ctx, req.UserId, req.OrgId, req.Name, req.AppType, req.SearchType)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppExploration, err)
 	}
@@ -95,6 +95,7 @@ func (s *Service) RecordAppHistory(ctx context.Context, req *app_service.RecordA
 // --- internal ---
 func toProtoExpApp(record *orm.ExplorationAppInfo) *app_service.ExplorationAppInfo {
 	return &app_service.ExplorationAppInfo{
+		UserId:      record.UserID,
 		AppId:       record.AppId,
 		AppType:     record.AppType,
 		CreatedAt:   record.CreatedAt,

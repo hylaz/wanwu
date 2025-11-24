@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/http"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/mq"
@@ -16,8 +17,12 @@ import (
 )
 
 const (
-	SplitByDesign  string = "split_by_design"
-	SplitByDefault string = "split_by_default"
+	SplitByDesign   string = "split_by_design"
+	SplitByDefault  string = "split_by_default"
+	SplitTypeCommon string = "common"
+	SplitTypeParent string = "parent_child"
+
+	RagCommunityReport string = "community_report"
 )
 
 type RagOperationParams struct {
@@ -26,41 +31,59 @@ type RagOperationParams struct {
 	Doc       *RagImportDocParams `json:"doc"`
 }
 
-type RagGetDocSegmentParams struct {
-	UserId            string `json:"userId"`
-	KnowledgeBaseName string `json:"knowledgeBase"`
-	FileName          string `json:"fileName"`
-	PageSize          int32  `json:"page_size"`
-	SearchAfter       int32  `json:"search_after"`
+type RagMetaDataParams struct {
+	MetaId    string      `json:"meta_id"`    // 元数据id
+	Key       string      `json:"key"`        // key
+	Value     interface{} `json:"value"`      // 常量
+	ValueType string      `json:"value_type"` // 常量类型
+	Rule      string      `json:"rule"`       // 正则表达式
+}
+
+type RagChunkConfig struct {
+	SegmentSize int      `json:"chunk_size"`
+	Separators  []string `json:"separators"`
 }
 
 type RagImportDocParams struct {
-	DocId         string   `json:"id"`         //文档id
-	KnowledgeName string   `json:"categoryId"` //知识库名称
-	CategoryId    string   `json:"kb_id"`      //知识库id
-	IsEnhanced    string   `json:"is_enhanced"`
-	UserId        string   `json:"userId"`
-	Overlap       float32  `json:"overlap" `
-	ObjectName    string   `json:"objectName"`
-	SegmentSize   int      `json:"chunk_size"`
-	OriginalName  string   `json:"originalName"`
-	SegmentType   string   `json:"chunk_type"`
-	Separators    []string `json:"separators"`
-	ParserChoices []string `json:"parser_choices"`
-	OcrModelId    string   `json:"ocr_model_id"`
+	DocId                 string               `json:"id"`         //文档id
+	KnowledgeName         string               `json:"categoryId"` //知识库名称
+	CategoryId            string               `json:"kb_id"`      //知识库id
+	IsEnhanced            string               `json:"is_enhanced"`
+	UserId                string               `json:"userId"`
+	Overlap               float32              `json:"overlap" `
+	ObjectName            string               `json:"objectName"`
+	SegmentSize           int                  `json:"chunk_size"`
+	OriginalName          string               `json:"originalName"`
+	SegmentType           string               `json:"chunk_type"`
+	SplitType             string               `json:"split_type"` //parent_child|common
+	Separators            []string             `json:"separators"`
+	ParserChoices         []string             `json:"parser_choices"`
+	OcrModelId            string               `json:"ocr_model_id"`
+	PreProcess            []string             `json:"pre_process"`
+	RagMetaDataParams     []*RagMetaDataParams `json:"meta_data"`
+	RagChildChunkConfig   *RagChunkConfig      `json:"child_chunk_config"`
+	KnowledgeGraphSwitch  bool                 `json:"enable_knowledge_graph"`
+	GraphModelId          string               `json:"graph_model_id"`
+	GraphSchemaObjectName string               `json:"graph_schema_objectname"`
+	GraphSchemaFileName   string               `json:"graph_schema_filename"`
+	MessageType           string               `json:"message_type,omitempty"`
 }
 
 type RagImportUrlDocParams struct {
-	Url               string   `json:"url"`
-	FileName          string   `json:"file_name"`
-	Overlap           float32  `json:"overlap_size" `
-	SegmentSize       int      `json:"sentence_size"`
-	SegmentType       string   `json:"chunk_type"`
-	UserId            string   `json:"userId"`
-	KnowledgeBaseName string   `json:"knowledgeBase"`
-	IsEnhanced        bool     `json:"is_enhanced"`
-	Separators        []string `json:"separators"`
-	TaskId            string   `json:"task_id"`
+	Url               string               `json:"url"`
+	FileName          string               `json:"file_name"`
+	Overlap           float32              `json:"overlap_size" `
+	SegmentSize       int                  `json:"sentence_size"`
+	SegmentType       string               `json:"chunk_type"`
+	SplitType         string               `json:"split_type"` //parent_child|common
+	UserId            string               `json:"userId"`
+	KnowledgeBaseName string               `json:"knowledgeBase"`
+	IsEnhanced        bool                 `json:"is_enhanced"`
+	Separators        []string             `json:"separators"`
+	TaskId            string               `json:"task_id"`
+	OcrModelId        string               `json:"ocr_model_id"`
+	PreProcess        []string             `json:"pre_process"`
+	RagMetaDataParams []*RagMetaDataParams `json:"meta_data"`
 }
 
 type RagDeleteDocParams struct {
@@ -70,50 +93,54 @@ type RagDeleteDocParams struct {
 }
 
 type RagDocMetaParams struct {
-	UserId        string                 `json:"userId"`
-	KnowledgeBase string                 `json:"knowledgeBase"`
-	FileName      string                 `json:"fileName"`
-	MetaList      map[string]interface{} `json:"tags"`
+	UserId        string      `json:"userId"`
+	KnowledgeBase string      `json:"knowledgeBase"`
+	FileName      string      `json:"fileName"`
+	MetaList      []*MetaData `json:"tags"`
 }
 
-type RagGetDocSegmentResp struct {
-	RagCommonResp
-	Data *ContentListResp `json:"data"`
+type BatchRagDocMetaParams struct {
+	UserId        string         `json:"userId"`
+	KnowledgeBase string         `json:"knowledgeBase"`
+	KnowledgeId   string         `json:"kb_id"`
+	MetaList      []*DocMetaInfo `json:"metas"`
 }
 
-type ContentListResp struct {
-	List []FileSplitContent `json:"content_list"`
+type DocMetaInfo struct {
+	FileName     string      `json:"file_name"`
+	MetaDataList []*MetaData `json:"metadata_list"`
 }
 
-type FileSplitContent struct {
-	Content   string          `json:"content"`
-	Order     int             `json:"order"`
-	Status    bool            `json:"status"`
-	MetaData  ContentMetaData `json:"meta_data"`
-	ContentId string          `json:"content_id"`
-	UserId    string          `json:"userId"`
-	KbName    string          `json:"kb_name"`
-	FileName  string          `json:"file_name"`
+type MetaData struct {
+	Key       string      `json:"key"`
+	Value     interface{} `json:"value"`
+	ValueType string      `json:"value_type"`
 }
 
-type ContentMetaData struct {
-	FileName        string `json:"file_name"`
-	ChunkLen        int    `json:"chunk_len"`
-	ChunkCurrentNum int    `json:"chunk_current_num"`
-	ChunkTotalNum   int    `json:"chunk_total_num"`
+type RagDocSegmentLabelsParams struct {
+	UserId        string   `json:"userId"`        // 发起请求的用户ID
+	KnowledgeBase string   `json:"knowledgeBase"` // 知识库的名称
+	KnowledgeId   string   `json:"kb_id"`         // 知识库的唯一ID
+	FileName      string   `json:"fileName"`      // 与chunk关联的文件名
+	ContentId     string   `json:"chunk_id"`      // 要更新标签的chunk的唯一ID
+	Labels        []string `json:"labels"`        // 需要为该chunk关联的标签列表
 }
 
-type DocSegmentStatusUpdateParams struct {
-	UserId        string `json:"userId"`
-	KnowledgeName string `json:"knowledgeBase"`
-	FileName      string `json:"fileName"`
-	ContentId     string `json:"content_id"`
-	Status        bool   `json:"status"`
+type UpdateChunkItem struct {
+	ChunkId string   `json:"chunk_id"`
+	Content string   `json:"content"`
+	Labels  []string `json:"labels"`
 }
 
-type DocSegmentStatusUpdateAllParams struct {
-	DocSegmentStatusUpdateParams
-	All bool `json:"on_off_switch"`
+type NewChunkItem struct {
+	Content string   `json:"content"`
+	Labels  []string `json:"labels"`
+}
+
+type DocMetaData struct {
+	ValueType   string `json:"value_type"`
+	StringValue string `json:"string_value"`
+	Key         string `json:"key"`
 }
 
 type DocUrlParams struct {
@@ -161,6 +188,15 @@ func RagImportDoc(ctx context.Context, ragImportDocParams *RagImportDocParams) e
 		Type:      "doc",
 		Doc:       ragImportDocParams,
 	}, config.GetConfig().Kafka.Topic)
+}
+
+// RagBuildKnowledgeGraph 构建知识库图谱
+func RagBuildKnowledgeGraph(ctx context.Context, ragImportDocParams *RagImportDocParams) error {
+	return mq.SendMessage(&RagOperationParams{
+		Operation: "add",
+		Type:      "doc",
+		Doc:       ragImportDocParams,
+	}, config.GetConfig().Kafka.KnowledgeGraphTopic)
 }
 
 // RagImportUrlDoc 导入url文档
@@ -227,11 +263,11 @@ func RagDeleteDoc(ctx context.Context, ragDeleteDocParams *RagDeleteDocParams) e
 	return nil
 }
 
-// RagDocMeta 给文档打标签
-func RagDocMeta(ctx context.Context, ragDocTagParams *RagDocMetaParams) error {
+// BatchRagDocMeta 更新文档元数据
+func BatchRagDocMeta(ctx context.Context, batchRagDocTagParams *BatchRagDocMetaParams) error {
 	ragServer := config.GetConfig().RagServer
-	url := ragServer.Endpoint + ragServer.DocTagUri
-	paramsByte, err := json.Marshal(ragDocTagParams)
+	url := ragServer.Endpoint + ragServer.UpdateFileMetasUri
+	paramsByte, err := json.Marshal(batchRagDocTagParams)
 	if err != nil {
 		return err
 	}
@@ -239,68 +275,7 @@ func RagDocMeta(ctx context.Context, ragDocTagParams *RagDocMetaParams) error {
 		Url:        url,
 		Body:       paramsByte,
 		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
-		MonitorKey: "rag_doc_tag",
-		LogLevel:   http_client.LogAll,
-	})
-	if err != nil {
-		return err
-	}
-	var resp RagCommonResp
-	if err := json.Unmarshal(result, &resp); err != nil {
-		log.Errorf(err.Error())
-		return err
-	}
-	if resp.Code != successCode {
-		return errors.New(resp.Message)
-	}
-	return nil
-}
-
-// RagGetDocSegmentList rag获取知识库文档分片
-func RagGetDocSegmentList(ctx context.Context, ragGetDocSegmentParams *RagGetDocSegmentParams) (*ContentListResp, error) {
-	ragServer := config.GetConfig().RagServer
-	url := ragServer.Endpoint + ragServer.GetDocSegmentUri
-	paramsByte, err := json.Marshal(ragGetDocSegmentParams)
-	if err != nil {
-		return nil, err
-	}
-	result, err := http.GetClient().PostJson(ctx, &http_client.HttpRequestParams{
-		Url:        url,
-		Body:       paramsByte,
-		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
-		MonitorKey: "rag_get_doc_segment",
-		LogLevel:   http_client.LogAll,
-	})
-	if err != nil {
-		return nil, err
-	}
-	var resp RagGetDocSegmentResp
-	if err := json.Unmarshal(result, &resp); err != nil {
-		log.Errorf(err.Error())
-		return nil, err
-	}
-	if resp.Code != successCode {
-		return nil, errors.New(resp.Message)
-	}
-	if resp.Data == nil || len(resp.Data.List) == 0 {
-		return nil, errors.New("doc segment response is empty")
-	}
-	return resp.Data, nil
-}
-
-// RagDocUpdateDocSegmentStatus 更新文档切片状态
-func RagDocUpdateDocSegmentStatus(ctx context.Context, docSegmentStatusUpdateParams interface{}) error {
-	ragServer := config.GetConfig().RagServer
-	url := ragServer.Endpoint + ragServer.DocSegmentUpdateStatusUri
-	paramsByte, err := json.Marshal(docSegmentStatusUpdateParams)
-	if err != nil {
-		return err
-	}
-	result, err := http.GetClient().PostJson(ctx, &http_client.HttpRequestParams{
-		Url:        url,
-		Body:       paramsByte,
-		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
-		MonitorKey: "rag_doc_segment_update_status",
+		MonitorKey: "batch_rag_doc_meta",
 		LogLevel:   http_client.LogAll,
 	})
 	if err != nil {
@@ -361,7 +336,7 @@ func RagDocUrlAnalysis(ctx context.Context, docUrlParams *DocUrlParams) (*DocUrl
 	}
 	var resp = &DocUrlResp{}
 	if err := json.Unmarshal(result, resp); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("rag doc analysis unmarshal err: %v", err.Error())
 		return nil, err
 	}
 	if resp.ResponseInfo.Code != successCode {
@@ -374,8 +349,58 @@ func RagDocUrlAnalysis(ctx context.Context, docUrlParams *DocUrlParams) (*DocUrl
 	return resp, nil
 }
 
+// RagDocSegmentLabels 更新文档切片标签
+func RagDocSegmentLabels(ctx context.Context, ragDocSegLabelsParams *RagDocSegmentLabelsParams) error {
+	ragServer := config.GetConfig().RagServer
+	url := ragServer.Endpoint + ragServer.DocSegmentUpdateLabelsUri
+	paramsByte, err := json.Marshal(ragDocSegLabelsParams)
+	if err != nil {
+		return err
+	}
+	result, err := http.GetClient().PostJson(ctx, &http_client.HttpRequestParams{
+		Url:        url,
+		Body:       paramsByte,
+		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
+		MonitorKey: "rag_doc_segment_tag",
+		LogLevel:   http_client.LogAll,
+	})
+	if err != nil {
+		return err
+	}
+	var resp RagCommonResp
+	if err := json.Unmarshal(result, &resp); err != nil {
+		log.Errorf("rag update doc segment labels unmarshal err: %v", err.Error())
+		return err
+	}
+	if resp.Code != successCode {
+		return errors.New(resp.Message)
+	}
+	return nil
+}
+
+// RebuildSplitType 转换分段方法
+func RebuildSplitType(segmentMethod string) string {
+	if segmentMethod == model.ParentSegmentMethod {
+		return SplitTypeParent
+	}
+	return SplitTypeCommon
+}
+
+func RebuildChildChunkConfig(segmentMethod string, subMaxSplitter int, subSplitter []string) *ChildChunkConfig {
+	if segmentMethod == model.CommonSegmentMethod || len(segmentMethod) == 0 {
+		return nil
+	}
+	return &ChildChunkConfig{
+		ChunkSize:  int32(subMaxSplitter),
+		Separators: subSplitter,
+	}
+}
+
 // RebuildSegmentType 转换分段类型
-func RebuildSegmentType(segmentType string) string {
+func RebuildSegmentType(segmentType string, segmentMethod string) string {
+	if segmentMethod == model.ParentSegmentMethod {
+		return SplitByDesign
+	}
 	if segmentType == "0" {
 		return SplitByDefault
 	}

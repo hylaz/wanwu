@@ -16,31 +16,32 @@ service ModelService {
     // ‌查询单个模型‌
     rpc GetModel(GetModelReq) returns (ModelInfo) {}
     // 导入模型列表展示
-    rpc ListModels(ListModelsReq) returns (ListModelsResp) {}
+    rpc ListModels(ListModelsReq) returns (ModelInfos) {}
     // 模型启用/关闭
     rpc ChangeModelStatus(ModelStatusReq) returns (google.protobuf.Empty) {}
     // 根据模型ID查询
     rpc GetModelById(GetModelByIdReq) returns (ModelInfo) {}
     // llm/rerank/embedding模型列表展示
-    rpc ListTypeModels(ListTypeModelsReq) returns (ListModelsResp) {}
+    rpc ListTypeModels(ListTypeModelsReq) returns (ModelInfos) {}
     // 根据模型ID列表查询
     rpc GetModelByIds(GetModelByIdsReq) returns (ModelInfos) {}
 }
 
 message ModelInfo {
-    string provider = 1;        // 模型供应商
-    string modelType = 2;       // 模型类型
-    string model = 3;           // 模型名称
-    string displayName = 4;     // 模型显示名称
-    string modelIconPath = 5;   // 模型图标路径
-    string publishDate = 6;     // 模型发布时间
-    string userId = 7;
-    string orgId = 8;
-    bool isActive = 9;          // 启用状态（true: 启用，false: 禁用）
-    string providerConfig = 10;
-    string modelId = 11;
+    string userId = 1;
+    string orgId = 2;
+    string modelId = 3;
+    string provider = 4;        // 模型供应商
+    string modelType = 5;       // 模型类型
+    string model = 6;           // 模型名称
+    string displayName = 7;     // 模型显示名称
+    string modelIconPath = 8;   // 模型图标路径
+    string publishDate = 9;     // 模型发布时间
+    bool isActive = 10;         // 启用状态（true: 启用，false: 禁用）
+    string providerConfig = 11;
     int64 createdAt = 12;
     int64 updatedAt = 13;
+    string modelDesc = 14;
 }
 
 message ModelInfos {
@@ -48,32 +49,16 @@ message ModelInfos {
     int64 total = 2;
 }
 
-message ModelBrief {
-    string modelId = 1;
-    string provider = 2;        // 模型供应商
-    string modelType = 3;       // 模型类型
-    string model = 4;           // 模型名称
-    string displayName = 5;     // 模型显示名称
-    string modelIconPath = 6;   // 模型图标路径
-    string publishDate = 7;     // 模型发布时间
-    string userId = 8;
-    string orgId = 9;
-    bool isActive = 10;         // 启用状态（true: 启用，false
-}
 message DeleteModelReq {
     string userId = 1;
     string orgId = 2;
-    string provider = 3;        // 模型供应商
-    string modelType = 4;       // 模型类型
-    string model = 5;           // 模型名称
+    string modelId = 3;
 }
 
 message GetModelReq{
     string userId = 1;
     string orgId = 2;
-    string provider = 3;        // 模型供应商
-    string modelType = 4;       // 模型类型
-    string model = 5;           // 模型名称
+    string modelId = 3;
 }
 
 message ListModelsReq{
@@ -86,12 +71,10 @@ message ListModelsReq{
 }
 
 message ModelStatusReq {
-    string modelType = 1;       // 模型类型
-    string provider = 2;        // 模型供应商
-    bool isActive = 3;          // 启用状态（true: 启用，false: 禁用）
-    string userId = 4;
-    string orgId = 5;
-    string model = 6;           // 模型名称
+    string modelId = 1;
+    bool isActive = 2;          // 启用状态（true: 启用，false: 禁用）
+    string userId = 3;
+    string orgId = 4;
 }
 
 message GetModelByIdReq{
@@ -110,10 +93,4 @@ message ListTypeModelsReq {
     string userId = 1;
     string orgId = 2;
     string modelType = 3;       // 模型类型
-}
-
-// response
-message ListModelsResp {
-    repeated ModelBrief models = 1;
-    int64 total = 2;
 }

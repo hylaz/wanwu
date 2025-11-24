@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	mp_huoshan "github.com/UnicomAI/wanwu/pkg/model-provider/mp-huoshan"
+	mp_infini "github.com/UnicomAI/wanwu/pkg/model-provider/mp-infini"
 	mp_ollama "github.com/UnicomAI/wanwu/pkg/model-provider/mp-ollama"
 	mp_openai_compatible "github.com/UnicomAI/wanwu/pkg/model-provider/mp-openai-compatible"
 	mp_qwen "github.com/UnicomAI/wanwu/pkg/model-provider/mp-qwen"
@@ -60,6 +61,9 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 			}
 		case ModelTypeRerank:
 		case ModelTypeEmbedding:
+		case ModelTypeGui:
+		case ModelTypeOcr:
+		case ModelTypePdfParser:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -102,6 +106,19 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
+	case ProviderInfini:
+		switch modelType {
+		case ModelTypeLLM:
+			llm := &mp_infini.LLMParams{}
+			if err = json.Unmarshal([]byte(cfg), llm); err == nil {
+				ret = llm
+				params = llm.GetParams()
+			}
+		case ModelTypeRerank:
+		case ModelTypeEmbedding:
+		default:
+			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
+		}
 	default:
 		return nil, nil, fmt.Errorf("invalid provider: %v", modelType)
 	}
@@ -114,6 +131,10 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 type AppModelParams struct {
 	ProviderOpenAICompatible AppModelParamsOpenAICompatible `json:"providerOpenAICompatible"` // OpenAI-API-compatible模型配置
 	ProviderYuanJing         AppModelParamsYuanjing         `json:"providerYuanjing"`         // YuanJing模型配置
+	ProviderHuoshan          AppModelParamsHuoshan          `json:"providerHuoshan"`
+	ProviderQwen             AppModelParamsQwen             `json:"providerQwen"`
+	ProviderOllama           AppModelParamsOllama           `json:"providerOllama"`
+	ProviderInfini           AppModelParamsInfini           `json:"providerModelByInfini"`
 }
 
 type AppModelParamsOpenAICompatible struct {
@@ -122,4 +143,20 @@ type AppModelParamsOpenAICompatible struct {
 
 type AppModelParamsYuanjing struct {
 	LLM mp_yuanjing.LLMParams `json:"llm"` // 大语言模型配置
+}
+
+type AppModelParamsHuoshan struct {
+	LLM mp_huoshan.LLMParams `json:"llm"` // 大语言模型配置
+}
+
+type AppModelParamsQwen struct {
+	LLM mp_qwen.LLMParams `json:"llm"` // 大语言模型配置
+}
+
+type AppModelParamsOllama struct {
+	LLM mp_ollama.LLMParams `json:"llm"` // 大语言模型配置
+}
+
+type AppModelParamsInfini struct {
+	LLM mp_infini.LLMParams `json:"llm"` // 大语言模型配置
 }

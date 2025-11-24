@@ -20,14 +20,20 @@ func Register(apiV1 *gin.RouterGroup) {
 	// knowledge
 	registerKnowledge(apiV1)
 
-	// mcp
-	registerMCP(apiV1)
+	// mcp square
+	registerMCPSquare(apiV1)
+
+	// tool
+	registerTool(apiV1)
 
 	// safety
 	registerSafety(apiV1)
 
 	// rag
 	registerRag(apiV1)
+
+	// workflow
+	registerWorkflow(apiV1)
 
 	// assistant
 	registerAssistant(apiV1)
@@ -40,4 +46,10 @@ func Register(apiV1 *gin.RouterGroup) {
 
 	// setting
 	registerSetting(apiV1)
+
+	// statistic_client
+	registerStatisticClient(apiV1)
+
+	// oauth
+	registerOauth(apiV1)
 }

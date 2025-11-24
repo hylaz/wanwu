@@ -4,16 +4,16 @@ import (
 	"errors"
 	"time"
 
-	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/dgrijalva/jwt-go"
 )
 
 const (
 	// jwt subject
-	USER = "user"
+	SUBJECT_USER = "user"
 
-	UserTokenTimeout = int64(60 * 60 * 24) // 1天
-	BufferTime       = int64(60 * 60 * 2)
+	UserTokenTimeout      = int64(60 * 60 * 24) // 1天
+	BufferTime            = int64(60 * 60 * 2)
+	UserLoginTokenTimeout = int64(60 * 5) // 5 min
 )
 
 var (
@@ -33,11 +33,15 @@ type CustomClaims struct {
 	jwt.StandardClaims
 }
 
-func InitUserJWT(key string) {
+func InitUserJWT(key string) error {
 	if userSecretKey != "" {
-		log.Panicf("jwt already init")
+		return errors.New("already init")
+	}
+	if key == "" {
+		return errors.New("secret key empty")
 	}
 	userSecretKey = key
+	return nil
 }
 
 func GenerateToken(userID string, timeout int64) (*CustomClaims, string, error) {
@@ -58,7 +62,7 @@ func generateToken(id string, timeout int64, secretKey string) (*CustomClaims, s
 		BufferTime: nowTime + BufferTime, // 缓冲时间，当nowTime大于等于BufferTime and nowTime小于ExpiresAt是获得新的token
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    "wanwu",
-			Subject:   USER,              // 用途，目前固定user
+			Subject:   SUBJECT_USER,      // 用途，目前固定user
 			NotBefore: nowTime,           // 生效时间
 			ExpiresAt: nowTime + timeout, // 过期时间
 		},

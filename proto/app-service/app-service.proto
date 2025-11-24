@@ -22,6 +22,18 @@ service AppService {
   rpc GetAppList(GetAppListReq) returns (AppList){}
   rpc GetAppListByIds(GetAppListByIdsReq) returns (AppList){}
   rpc DeleteApp(DeleteAppReq) returns (google.protobuf.Empty) {}
+
+  // --- url ---
+  rpc AppUrlCreate(AppUrlCreateReq) returns (google.protobuf.Empty) {}
+  rpc AppUrlDelete(AppUrlDeleteReq) returns (google.protobuf.Empty) {}
+  rpc AppUrlUpdate(AppUrlUpdateReq) returns (google.protobuf.Empty) {}
+  rpc GetAppUrlList(GetAppUrlListReq) returns (GetAppUrlListResp) {}
+  rpc GetAppUrlInfoBySuffix(GetAppUrlInfoBySuffixReq) returns (AppUrlInfo) {}
+  rpc AppUrlStatusSwitch(AppUrlStatusSwitchReq) returns (google.protobuf.Empty) {}
+
+   // --- conversation ---
+  rpc GetConversationByID(GetConversationByIDReq) returns (ConversationInfo) {}
+  rpc CreateConversation(CreateConversationReq) returns (google.protobuf.Empty) {}
 }
 
 message GenApiKeyReq {
@@ -66,6 +78,7 @@ message GetExplorationAppListReq{
   string appType = 2;
   string searchType = 3;
   string userId = 4;
+  string orgId = 5;
 }
 
 message ExplorationAppList{
@@ -80,6 +93,7 @@ message ExplorationAppInfo{
   int64 updatedAt = 4;
   bool isFavorite = 5;
   string publishType = 6;
+  string userId = 7;
 }
 
 message AppInfo{
@@ -137,4 +151,77 @@ message DeleteAppReq {
   string appType = 2;
 }
 
+message AppUrlInfo {
+  string urlId = 1;
+  string appId = 2;
+  string appType = 3;
+  string name = 4;
+  int64 createdAt = 5;
+  int64 expiredAt = 6;
+  string copyright = 7;
+  bool copyrightEnable = 8;
+  string privacyPolicy = 9;
+  bool privacyPolicyEnable = 10;
+  string disclaimer = 11;
+  bool disclaimerEnable = 12;
+  string suffix = 13;
+  bool status = 14;
+  string userId = 15;
+  string orgId = 16;
+  string description =17;
+}
 
+message AppUrlCreateReq {
+  AppUrlInfo appUrlInfo = 1;
+}
+
+message AppUrlUpdateReq {
+  AppUrlInfo appUrlInfo = 1;
+}
+
+message AppUrlDeleteReq {
+  string urlId = 1;
+}
+
+message GetAppUrlListReq {
+  string appId = 1;
+  string appType = 2;
+}
+
+message GetAppUrlListResp {
+  repeated AppUrlInfo appUrlInfos = 1;
+  int64 total = 2;
+}
+
+message GetAppUrlInfoBySuffixReq {
+  string suffix = 1;
+}
+
+message AppUrlStatusSwitchReq {
+  string urlId = 1;
+  bool status = 2;
+}
+
+message GetConversationByIDReq {
+  string conversionId = 1;
+}
+
+message ConversationInfo {
+  string conversationId = 1;
+  string appId = 2;
+  string appType = 3;
+  string userId = 4;
+  string orgId = 5;
+  string conversationName = 6;
+  int64 createdAt = 7;
+  int64 updatedAt = 8;
+}
+
+message CreateConversationReq {
+  string appId = 1;
+  string appType = 2;
+  string userId = 3;
+  string orgId = 4;
+  string conversationName = 5;
+  string conversationId = 6;
+}

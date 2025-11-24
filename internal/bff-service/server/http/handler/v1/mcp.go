@@ -7,53 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetMCPSquareDetail
-//
-//	@Tags			mcp.square
-//	@Summary		获取广场MCP详情
-//	@Description	获取广场MCP详情
-//	@Accept			json
-//	@Produce		json
-//	@Param			mcpSquareId	query		string	true	"mcpSquareId"
-//	@Success		200			{object}	response.Response{data=response.MCPSquareDetail}
-//	@Router			/mcp/square [get]
-func GetMCPSquareDetail(ctx *gin.Context) {
-	resp, err := service.GetMCPSquareDetail(ctx, getUserID(ctx), getOrgID(ctx), ctx.Query("mcpSquareId"))
-	gin_util.Response(ctx, resp, err)
-}
-
-// GetMCPSquareList
-//
-//	@Tags			mcp.square
-//	@Summary		获取广场MCP列表
-//	@Description	获取广场MCP列表
-//	@Accept			json
-//	@Produce		json
-//	@Param			category	query		string	false	"mcp类型"	Enums(all,data,create,search)
-//	@Param			name		query		string	false	"mcp名称"
-//	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.MCPSquareInfo}}
-//	@Router			/mcp/square/list [get]
-func GetMCPSquareList(ctx *gin.Context) {
-	resp, err := service.GetMCPSquareList(ctx, getUserID(ctx), getOrgID(ctx), ctx.Query("category"), ctx.Query("name"))
-	gin_util.Response(ctx, resp, err)
-}
-
-// GetMCPSquareRecommends
-//
-//	@Tags			mcp.square
-//	@Summary		获取广场MCP推荐列表
-//	@Description	获取广场MCP推荐列表
-//	@Accept			json
-//	@Produce		json
-//	@Param			mcpId		query		string	false	"mcpId"
-//	@Param			mcpSquareId	query		string	false	"mcpSquareId"
-//	@Success		200			{object}	response.Response{data=response.ListResult{list=[]response.MCPSquareInfo}}
-//	@Router			/mcp/square/recommend [get]
-func GetMCPSquareRecommends(ctx *gin.Context) {
-	resp, err := service.GetMCPSquareList(ctx, getUserID(ctx), getOrgID(ctx), "", "")
-	gin_util.Response(ctx, resp, err)
-}
-
 // CreateMCP
 //
 //	@Tags			mcp
@@ -70,6 +23,24 @@ func CreateMCP(ctx *gin.Context) {
 		return
 	}
 	gin_util.Response(ctx, nil, service.CreateMCP(ctx, getUserID(ctx), getOrgID(ctx), req))
+}
+
+// UpdateMCP
+//
+//	@Tags			mcp
+//	@Summary		修改自定义MCP
+//	@Description	修改自定义MCP
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MCPUpdate	true	"自定义MCP信息"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/mcp [put]
+func UpdateMCP(ctx *gin.Context) {
+	var req request.MCPUpdate
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.UpdateMCP(ctx, getUserID(ctx), getOrgID(ctx), req))
 }
 
 // GetMCP
@@ -120,6 +91,22 @@ func GetMCPList(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
+// GetMCPTools
+//
+//	@Tags			mcp
+//	@Summary		获取MCP Tool列表
+//	@Description	获取MCP Tool列表
+//	@Accept			json
+//	@Produce		json
+//	@Param			mcpId		query		string	false	"mcpId(和serverUrl传一个)"
+//	@Param			serverUrl	query		string	false	"serverUrl,就是sseUrl(和mcpId传一个)"
+//	@Success		200			{object}	response.Response{data=response.MCPToolList}
+//	@Router			/mcp/tool/list [get]
+func GetMCPTools(ctx *gin.Context) {
+	resp, err := service.GetMCPToolList(ctx, ctx.Query("mcpId"), ctx.Query("serverUrl"))
+	gin_util.Response(ctx, resp, err)
+}
+
 // GetMCPSelect
 //
 //	@Tags			mcp
@@ -135,18 +122,21 @@ func GetMCPSelect(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
-// GetMCPTools
+// GetMCPActionList
 //
 //	@Tags			mcp
-//	@Summary		获取MCP Tool列表
-//	@Description	获取MCP Tool列表
+//	@Summary		获取MCP Action列表
+//	@Description	获取MCP Action列表
 //	@Accept			json
 //	@Produce		json
-//	@Param			mcpId		query		string	false	"mcpId(和serverUrl传一个)"
-//	@Param			serverUrl	query		string	false	"serverUrl,就是sseUrl(和mcpId传一个)"
-//	@Success		200			{object}	response.Response{data=response.MCPToolList}
-//	@Router			/mcp/tool/list [get]
-func GetMCPTools(ctx *gin.Context) {
-	resp, err := service.GetMCPToolList(ctx, ctx.Query("mcpId"), ctx.Query("serverUrl"))
+//	@Param			data	query		request.MCPActionListReq	true	"mcp信息"
+//	@Success		200		{object}	response.Response{data=response.MCPActionList}
+//	@Router			/mcp/action/list [get]
+func GetMCPActionList(ctx *gin.Context) {
+	var req request.MCPActionListReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetMCPActionList(ctx, getUserID(ctx), getOrgID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }

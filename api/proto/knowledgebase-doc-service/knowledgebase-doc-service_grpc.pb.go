@@ -21,15 +21,26 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	KnowledgeBaseDocService_GetDocList_FullMethodName              = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocList"
+	KnowledgeBaseDocService_GetDocDetail_FullMethodName            = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocDetail"
 	KnowledgeBaseDocService_ImportDoc_FullMethodName               = "/knowledgebase_doc_service.KnowledgeBaseDocService/ImportDoc"
 	KnowledgeBaseDocService_UpdateDocStatus_FullMethodName         = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocStatus"
 	KnowledgeBaseDocService_UpdateDocMetaData_FullMethodName       = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocMetaData"
+	KnowledgeBaseDocService_BatchUpdateDocMetaData_FullMethodName  = "/knowledgebase_doc_service.KnowledgeBaseDocService/BatchUpdateDocMetaData"
 	KnowledgeBaseDocService_InitDocStatus_FullMethodName           = "/knowledgebase_doc_service.KnowledgeBaseDocService/InitDocStatus"
 	KnowledgeBaseDocService_DeleteDoc_FullMethodName               = "/knowledgebase_doc_service.KnowledgeBaseDocService/DeleteDoc"
 	KnowledgeBaseDocService_GetDocCategoryUploadTip_FullMethodName = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocCategoryUploadTip"
 	KnowledgeBaseDocService_GetDocSegmentList_FullMethodName       = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocSegmentList"
 	KnowledgeBaseDocService_UpdateDocSegmentStatus_FullMethodName  = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocSegmentStatus"
 	KnowledgeBaseDocService_AnalysisDocUrl_FullMethodName          = "/knowledgebase_doc_service.KnowledgeBaseDocService/AnalysisDocUrl"
+	KnowledgeBaseDocService_UpdateDocSegmentLabels_FullMethodName  = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocSegmentLabels"
+	KnowledgeBaseDocService_CreateDocSegment_FullMethodName        = "/knowledgebase_doc_service.KnowledgeBaseDocService/CreateDocSegment"
+	KnowledgeBaseDocService_BatchCreateDocSegment_FullMethodName   = "/knowledgebase_doc_service.KnowledgeBaseDocService/BatchCreateDocSegment"
+	KnowledgeBaseDocService_DeleteDocSegment_FullMethodName        = "/knowledgebase_doc_service.KnowledgeBaseDocService/DeleteDocSegment"
+	KnowledgeBaseDocService_UpdateDocSegment_FullMethodName        = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocSegment"
+	KnowledgeBaseDocService_GetDocChildSegmentList_FullMethodName  = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocChildSegmentList"
+	KnowledgeBaseDocService_CreateDocChildSegment_FullMethodName   = "/knowledgebase_doc_service.KnowledgeBaseDocService/CreateDocChildSegment"
+	KnowledgeBaseDocService_DeleteDocChildSegment_FullMethodName   = "/knowledgebase_doc_service.KnowledgeBaseDocService/DeleteDocChildSegment"
+	KnowledgeBaseDocService_UpdateDocChildSegment_FullMethodName   = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocChildSegment"
 )
 
 // KnowledgeBaseDocServiceClient is the client API for KnowledgeBaseDocService service.
@@ -38,12 +49,16 @@ const (
 type KnowledgeBaseDocServiceClient interface {
 	// 获取文档列表
 	GetDocList(ctx context.Context, in *GetDocListReq, opts ...grpc.CallOption) (*GetDocListResp, error)
+	// 获取文档详情
+	GetDocDetail(ctx context.Context, in *GetDocDetailReq, opts ...grpc.CallOption) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(ctx context.Context, in *ImportDocReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新文档状态
 	UpdateDocStatus(ctx context.Context, in *UpdateDocStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新文档元数据
 	UpdateDocMetaData(ctx context.Context, in *UpdateDocMetaDataReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 批量更新文档元数据
+	BatchUpdateDocMetaData(ctx context.Context, in *BatchUpdateDocMetaDataReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 初始化文档状态
 	InitDocStatus(ctx context.Context, in *InitDocStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除文档
@@ -53,9 +68,27 @@ type KnowledgeBaseDocServiceClient interface {
 	// 获取知识库文档切分结果
 	GetDocSegmentList(ctx context.Context, in *DocSegmentListReq, opts ...grpc.CallOption) (*DocSegmentListResp, error)
 	// 更新文档切片状态
-	UpdateDocSegmentStatus(ctx context.Context, in *UpdateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateDocSegmentStatus(ctx context.Context, in *UpdateDocSegmentStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// url上传功能-解析url
 	AnalysisDocUrl(ctx context.Context, in *AnalysisUrlDocReq, opts ...grpc.CallOption) (*AnalysisUrlDocResp, error)
+	// 更新文档元数据标签
+	UpdateDocSegmentLabels(ctx context.Context, in *DocSegmentLabelsReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 新增文档分片
+	CreateDocSegment(ctx context.Context, in *CreateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 批量新增文档分片
+	BatchCreateDocSegment(ctx context.Context, in *BatchCreateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除文档分片
+	DeleteDocSegment(ctx context.Context, in *DeleteDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新文档分片
+	UpdateDocSegment(ctx context.Context, in *UpdateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取文档子分段列表
+	GetDocChildSegmentList(ctx context.Context, in *GetDocChildSegmentListReq, opts ...grpc.CallOption) (*GetDocChildSegmentListResp, error)
+	// 新增文档子分片
+	CreateDocChildSegment(ctx context.Context, in *CreateDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除文档子分片
+	DeleteDocChildSegment(ctx context.Context, in *DeleteDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新文档子分片
+	UpdateDocChildSegment(ctx context.Context, in *UpdateDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type knowledgeBaseDocServiceClient struct {
@@ -70,6 +103,16 @@ func (c *knowledgeBaseDocServiceClient) GetDocList(ctx context.Context, in *GetD
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetDocListResp)
 	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_GetDocList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) GetDocDetail(ctx context.Context, in *GetDocDetailReq, opts ...grpc.CallOption) (*DocInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DocInfo)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_GetDocDetail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +143,16 @@ func (c *knowledgeBaseDocServiceClient) UpdateDocMetaData(ctx context.Context, i
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_UpdateDocMetaData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) BatchUpdateDocMetaData(ctx context.Context, in *BatchUpdateDocMetaDataReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_BatchUpdateDocMetaData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +199,7 @@ func (c *knowledgeBaseDocServiceClient) GetDocSegmentList(ctx context.Context, i
 	return out, nil
 }
 
-func (c *knowledgeBaseDocServiceClient) UpdateDocSegmentStatus(ctx context.Context, in *UpdateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *knowledgeBaseDocServiceClient) UpdateDocSegmentStatus(ctx context.Context, in *UpdateDocSegmentStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_UpdateDocSegmentStatus_FullMethodName, in, out, cOpts...)
@@ -166,18 +219,112 @@ func (c *knowledgeBaseDocServiceClient) AnalysisDocUrl(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *knowledgeBaseDocServiceClient) UpdateDocSegmentLabels(ctx context.Context, in *DocSegmentLabelsReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_UpdateDocSegmentLabels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) CreateDocSegment(ctx context.Context, in *CreateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_CreateDocSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) BatchCreateDocSegment(ctx context.Context, in *BatchCreateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_BatchCreateDocSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) DeleteDocSegment(ctx context.Context, in *DeleteDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_DeleteDocSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) UpdateDocSegment(ctx context.Context, in *UpdateDocSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_UpdateDocSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) GetDocChildSegmentList(ctx context.Context, in *GetDocChildSegmentListReq, opts ...grpc.CallOption) (*GetDocChildSegmentListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDocChildSegmentListResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_GetDocChildSegmentList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) CreateDocChildSegment(ctx context.Context, in *CreateDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_CreateDocChildSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) DeleteDocChildSegment(ctx context.Context, in *DeleteDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_DeleteDocChildSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) UpdateDocChildSegment(ctx context.Context, in *UpdateDocChildSegmentReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_UpdateDocChildSegment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseDocServiceServer is the server API for KnowledgeBaseDocService service.
 // All implementations must embed UnimplementedKnowledgeBaseDocServiceServer
 // for forward compatibility.
 type KnowledgeBaseDocServiceServer interface {
 	// 获取文档列表
 	GetDocList(context.Context, *GetDocListReq) (*GetDocListResp, error)
+	// 获取文档详情
+	GetDocDetail(context.Context, *GetDocDetailReq) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error)
 	// 更新文档状态
 	UpdateDocStatus(context.Context, *UpdateDocStatusReq) (*emptypb.Empty, error)
 	// 更新文档元数据
 	UpdateDocMetaData(context.Context, *UpdateDocMetaDataReq) (*emptypb.Empty, error)
+	// 批量更新文档元数据
+	BatchUpdateDocMetaData(context.Context, *BatchUpdateDocMetaDataReq) (*emptypb.Empty, error)
 	// 初始化文档状态
 	InitDocStatus(context.Context, *InitDocStatusReq) (*emptypb.Empty, error)
 	// 删除文档
@@ -187,9 +334,27 @@ type KnowledgeBaseDocServiceServer interface {
 	// 获取知识库文档切分结果
 	GetDocSegmentList(context.Context, *DocSegmentListReq) (*DocSegmentListResp, error)
 	// 更新文档切片状态
-	UpdateDocSegmentStatus(context.Context, *UpdateDocSegmentReq) (*emptypb.Empty, error)
+	UpdateDocSegmentStatus(context.Context, *UpdateDocSegmentStatusReq) (*emptypb.Empty, error)
 	// url上传功能-解析url
 	AnalysisDocUrl(context.Context, *AnalysisUrlDocReq) (*AnalysisUrlDocResp, error)
+	// 更新文档元数据标签
+	UpdateDocSegmentLabels(context.Context, *DocSegmentLabelsReq) (*emptypb.Empty, error)
+	// 新增文档分片
+	CreateDocSegment(context.Context, *CreateDocSegmentReq) (*emptypb.Empty, error)
+	// 批量新增文档分片
+	BatchCreateDocSegment(context.Context, *BatchCreateDocSegmentReq) (*emptypb.Empty, error)
+	// 删除文档分片
+	DeleteDocSegment(context.Context, *DeleteDocSegmentReq) (*emptypb.Empty, error)
+	// 更新文档分片
+	UpdateDocSegment(context.Context, *UpdateDocSegmentReq) (*emptypb.Empty, error)
+	// 获取文档子分段列表
+	GetDocChildSegmentList(context.Context, *GetDocChildSegmentListReq) (*GetDocChildSegmentListResp, error)
+	// 新增文档子分片
+	CreateDocChildSegment(context.Context, *CreateDocChildSegmentReq) (*emptypb.Empty, error)
+	// 删除文档子分片
+	DeleteDocChildSegment(context.Context, *DeleteDocChildSegmentReq) (*emptypb.Empty, error)
+	// 更新文档子分片
+	UpdateDocChildSegment(context.Context, *UpdateDocChildSegmentReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedKnowledgeBaseDocServiceServer()
 }
 
@@ -203,6 +368,9 @@ type UnimplementedKnowledgeBaseDocServiceServer struct{}
 func (UnimplementedKnowledgeBaseDocServiceServer) GetDocList(context.Context, *GetDocListReq) (*GetDocListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDocList not implemented")
 }
+func (UnimplementedKnowledgeBaseDocServiceServer) GetDocDetail(context.Context, *GetDocDetailReq) (*DocInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDocDetail not implemented")
+}
 func (UnimplementedKnowledgeBaseDocServiceServer) ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportDoc not implemented")
 }
@@ -211,6 +379,9 @@ func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocStatus(context.Contex
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocMetaData(context.Context, *UpdateDocMetaDataReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocMetaData not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) BatchUpdateDocMetaData(context.Context, *BatchUpdateDocMetaDataReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchUpdateDocMetaData not implemented")
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) InitDocStatus(context.Context, *InitDocStatusReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitDocStatus not implemented")
@@ -224,11 +395,38 @@ func (UnimplementedKnowledgeBaseDocServiceServer) GetDocCategoryUploadTip(contex
 func (UnimplementedKnowledgeBaseDocServiceServer) GetDocSegmentList(context.Context, *DocSegmentListReq) (*DocSegmentListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDocSegmentList not implemented")
 }
-func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocSegmentStatus(context.Context, *UpdateDocSegmentReq) (*emptypb.Empty, error) {
+func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocSegmentStatus(context.Context, *UpdateDocSegmentStatusReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocSegmentStatus not implemented")
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) AnalysisDocUrl(context.Context, *AnalysisUrlDocReq) (*AnalysisUrlDocResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AnalysisDocUrl not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocSegmentLabels(context.Context, *DocSegmentLabelsReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocSegmentLabels not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) CreateDocSegment(context.Context, *CreateDocSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDocSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) BatchCreateDocSegment(context.Context, *BatchCreateDocSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchCreateDocSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) DeleteDocSegment(context.Context, *DeleteDocSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocSegment(context.Context, *UpdateDocSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) GetDocChildSegmentList(context.Context, *GetDocChildSegmentListReq) (*GetDocChildSegmentListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDocChildSegmentList not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) CreateDocChildSegment(context.Context, *CreateDocChildSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDocChildSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) DeleteDocChildSegment(context.Context, *DeleteDocChildSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocChildSegment not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocChildSegment(context.Context, *UpdateDocChildSegmentReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocChildSegment not implemented")
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) mustEmbedUnimplementedKnowledgeBaseDocServiceServer() {
 }
@@ -266,6 +464,24 @@ func _KnowledgeBaseDocService_GetDocList_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KnowledgeBaseDocServiceServer).GetDocList(ctx, req.(*GetDocListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_GetDocDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDocDetailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_GetDocDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocDetail(ctx, req.(*GetDocDetailReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -320,6 +536,24 @@ func _KnowledgeBaseDocService_UpdateDocMetaData_Handler(srv interface{}, ctx con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KnowledgeBaseDocServiceServer).UpdateDocMetaData(ctx, req.(*UpdateDocMetaDataReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_BatchUpdateDocMetaData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchUpdateDocMetaDataReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).BatchUpdateDocMetaData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_BatchUpdateDocMetaData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).BatchUpdateDocMetaData(ctx, req.(*BatchUpdateDocMetaDataReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -397,7 +631,7 @@ func _KnowledgeBaseDocService_GetDocSegmentList_Handler(srv interface{}, ctx con
 }
 
 func _KnowledgeBaseDocService_UpdateDocSegmentStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateDocSegmentReq)
+	in := new(UpdateDocSegmentStatusReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -409,7 +643,7 @@ func _KnowledgeBaseDocService_UpdateDocSegmentStatus_Handler(srv interface{}, ct
 		FullMethod: KnowledgeBaseDocService_UpdateDocSegmentStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegmentStatus(ctx, req.(*UpdateDocSegmentReq))
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegmentStatus(ctx, req.(*UpdateDocSegmentStatusReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -432,6 +666,168 @@ func _KnowledgeBaseDocService_AnalysisDocUrl_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseDocService_UpdateDocSegmentLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocSegmentLabelsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegmentLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_UpdateDocSegmentLabels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegmentLabels(ctx, req.(*DocSegmentLabelsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_CreateDocSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDocSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).CreateDocSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_CreateDocSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).CreateDocSegment(ctx, req.(*CreateDocSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_BatchCreateDocSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCreateDocSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).BatchCreateDocSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_BatchCreateDocSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).BatchCreateDocSegment(ctx, req.(*BatchCreateDocSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_DeleteDocSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDocSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).DeleteDocSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_DeleteDocSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).DeleteDocSegment(ctx, req.(*DeleteDocSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_UpdateDocSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDocSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_UpdateDocSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocSegment(ctx, req.(*UpdateDocSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_GetDocChildSegmentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDocChildSegmentListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocChildSegmentList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_GetDocChildSegmentList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).GetDocChildSegmentList(ctx, req.(*GetDocChildSegmentListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_CreateDocChildSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDocChildSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).CreateDocChildSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_CreateDocChildSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).CreateDocChildSegment(ctx, req.(*CreateDocChildSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_DeleteDocChildSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDocChildSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).DeleteDocChildSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_DeleteDocChildSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).DeleteDocChildSegment(ctx, req.(*DeleteDocChildSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_UpdateDocChildSegment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDocChildSegmentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocChildSegment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_UpdateDocChildSegment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).UpdateDocChildSegment(ctx, req.(*UpdateDocChildSegmentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseDocService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseDocService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -444,6 +840,10 @@ var KnowledgeBaseDocService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _KnowledgeBaseDocService_GetDocList_Handler,
 		},
 		{
+			MethodName: "GetDocDetail",
+			Handler:    _KnowledgeBaseDocService_GetDocDetail_Handler,
+		},
+		{
 			MethodName: "ImportDoc",
 			Handler:    _KnowledgeBaseDocService_ImportDoc_Handler,
 		},
@@ -454,6 +854,10 @@ var KnowledgeBaseDocService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateDocMetaData",
 			Handler:    _KnowledgeBaseDocService_UpdateDocMetaData_Handler,
+		},
+		{
+			MethodName: "BatchUpdateDocMetaData",
+			Handler:    _KnowledgeBaseDocService_BatchUpdateDocMetaData_Handler,
 		},
 		{
 			MethodName: "InitDocStatus",
@@ -478,6 +882,42 @@ var KnowledgeBaseDocService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AnalysisDocUrl",
 			Handler:    _KnowledgeBaseDocService_AnalysisDocUrl_Handler,
+		},
+		{
+			MethodName: "UpdateDocSegmentLabels",
+			Handler:    _KnowledgeBaseDocService_UpdateDocSegmentLabels_Handler,
+		},
+		{
+			MethodName: "CreateDocSegment",
+			Handler:    _KnowledgeBaseDocService_CreateDocSegment_Handler,
+		},
+		{
+			MethodName: "BatchCreateDocSegment",
+			Handler:    _KnowledgeBaseDocService_BatchCreateDocSegment_Handler,
+		},
+		{
+			MethodName: "DeleteDocSegment",
+			Handler:    _KnowledgeBaseDocService_DeleteDocSegment_Handler,
+		},
+		{
+			MethodName: "UpdateDocSegment",
+			Handler:    _KnowledgeBaseDocService_UpdateDocSegment_Handler,
+		},
+		{
+			MethodName: "GetDocChildSegmentList",
+			Handler:    _KnowledgeBaseDocService_GetDocChildSegmentList_Handler,
+		},
+		{
+			MethodName: "CreateDocChildSegment",
+			Handler:    _KnowledgeBaseDocService_CreateDocChildSegment_Handler,
+		},
+		{
+			MethodName: "DeleteDocChildSegment",
+			Handler:    _KnowledgeBaseDocService_DeleteDocChildSegment_Handler,
+		},
+		{
+			MethodName: "UpdateDocChildSegment",
+			Handler:    _KnowledgeBaseDocService_UpdateDocChildSegment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

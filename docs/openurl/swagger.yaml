@@ -1,0 +1,947 @@
+basePath: /openurl/v1
+definitions:
+  mp.AppModelParams:
+    properties:
+      providerHuoshan:
+        $ref: '#/definitions/mp.AppModelParamsHuoshan'
+      providerModelByInfini:
+        $ref: '#/definitions/mp.AppModelParamsInfini'
+      providerOllama:
+        $ref: '#/definitions/mp.AppModelParamsOllama'
+      providerOpenAICompatible:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParamsOpenAICompatible'
+        description: OpenAI-API-compatible模型配置
+      providerQwen:
+        $ref: '#/definitions/mp.AppModelParamsQwen'
+      providerYuanjing:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParamsYuanjing'
+        description: YuanJing模型配置
+    type: object
+  mp.AppModelParamsHuoshan:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_huoshan.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsInfini:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_infini.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsOllama:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_ollama.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsOpenAICompatible:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_openai_compatible.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsQwen:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_qwen.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsYuanjing:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_yuanjing.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp_huoshan.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_infini.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_ollama.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_openai_compatible.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_qwen.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_yuanjing.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  request.AppKnowledgeBase:
+    properties:
+      graphSwitch:
+        description: 知识图谱开关
+        type: integer
+      id:
+        description: 知识库id
+        type: string
+      metaDataFilterParams:
+        $ref: '#/definitions/request.MetaDataFilterParams'
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  request.AppKnowledgebaseConfig:
+    properties:
+      config:
+        allOf:
+        - $ref: '#/definitions/request.AppKnowledgebaseParams'
+        description: 知识库参数
+      knowledgebases:
+        description: 知识库id、名字
+        items:
+          $ref: '#/definitions/request.AppKnowledgeBase'
+        type: array
+    type: object
+  request.AppKnowledgebaseParams:
+    properties:
+      keywordPriority:
+        description: 关键词权重
+        type: number
+      matchType:
+        description: matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+        type: string
+      maxHistory:
+        description: 最长上下文
+        type: integer
+      priorityMatch:
+        description: 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+        type: integer
+      semanticsPriority:
+        description: 语义权重
+        type: number
+      termWeight:
+        description: 关键词系数，默认为1
+        type: number
+      termWeightEnable:
+        description: 关键词系数开关
+        type: boolean
+      threshold:
+        description: 过滤阈值
+        type: number
+      topK:
+        description: 知识条数
+        type: integer
+      useGraph:
+        description: 知识图谱开关
+        type: boolean
+    type: object
+  request.AppModelConfig:
+    properties:
+      config:
+        description: 模型配置
+      displayName:
+        description: 模型展示名称(请求非必填)
+        type: string
+      examples:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParams'
+        description: 仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数
+      model:
+        description: 模型名称
+        type: string
+      modelId:
+        description: 模型ID
+        type: string
+      modelType:
+        description: 模型类型(llm/embedding/rerank)
+        type: string
+      provider:
+        description: 模型供应商
+        type: string
+    type: object
+  request.AppSafetyConfig:
+    properties:
+      enable:
+        description: 安全护栏(开关)
+        type: boolean
+      tables:
+        items:
+          $ref: '#/definitions/request.SensitiveTable'
+        type: array
+    type: object
+  request.AssistantToolConfig:
+    properties:
+      rerankId:
+        type: string
+    type: object
+  request.Avatar:
+    properties:
+      key:
+        description: 前端透传给后端用于保存avatar，例如：custom-upload/avatar/abc/def.png
+        type: string
+      path:
+        description: 前端请求地址，例如：/v1/static/avatar/abc/def.png (请求非必填)
+        type: string
+    type: object
+  request.ConversationIdRequest:
+    properties:
+      conversationId:
+        type: string
+    required:
+    - conversationId
+    type: object
+  request.MetaDataFilterParams:
+    properties:
+      filterEnable:
+        description: 元数据过滤开关
+        type: boolean
+      filterLogicType:
+        description: 元数据逻辑条件：and/or
+        type: string
+      metaFilterParams:
+        description: 元数据过滤参数列表
+        items:
+          $ref: '#/definitions/request.MetaFilterParams'
+        type: array
+    type: object
+  request.MetaFilterParams:
+    properties:
+      condition:
+        description: 条件
+        type: string
+      key:
+        description: Key
+        type: string
+      type:
+        description: 类型（Time, String, Number）
+        type: string
+      value:
+        description: value
+        type: string
+    type: object
+  request.SensitiveTable:
+    properties:
+      tableId:
+        description: 敏感词表id
+        type: string
+      tableName:
+        description: 敏感词表名称(请求非必填)
+        type: string
+    required:
+    - tableId
+    type: object
+  request.UrlConversationCreateRequest:
+    properties:
+      prompt:
+        type: string
+    required:
+    - prompt
+    type: object
+  request.UrlConversionStreamRequest:
+    properties:
+      conversationId:
+        type: string
+      prompt:
+        type: string
+    required:
+    - prompt
+    type: object
+  response.AppUrlConfig:
+    properties:
+      appUrlInfo:
+        allOf:
+        - $ref: '#/definitions/response.AppUrlInfo'
+        description: 应用Url信息
+      assistant:
+        allOf:
+        - $ref: '#/definitions/response.Assistant'
+        description: 基本信息
+    type: object
+  response.AppUrlInfo:
+    properties:
+      appId:
+        description: 应用ID
+        type: string
+      appType:
+        description: 应用类型
+        type: string
+      copyright:
+        description: 知识产权
+        type: string
+      copyrightEnable:
+        description: 知识产权开关
+        type: boolean
+      createdAt:
+        description: 创建时间
+        type: string
+      description:
+        description: 应用描述
+        type: string
+      disclaimer:
+        description: 免责声明
+        type: string
+      disclaimerEnable:
+        description: 免责声明开关
+        type: boolean
+      expiredAt:
+        description: 过期时间
+        type: string
+      name:
+        description: Url名称
+        type: string
+      orgId:
+        description: 组织ID
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      privacyPolicyEnable:
+        description: 隐私政策开关
+        type: boolean
+      status:
+        description: 应用Url开关
+        type: boolean
+      suffix:
+        description: 生成Url后缀
+        type: string
+      urlId:
+        description: UrlID
+        type: string
+      userId:
+        description: 用户ID
+        type: string
+    type: object
+  response.Assistant:
+    properties:
+      assistantId:
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      createdAt:
+        description: 创建时间
+        type: string
+      desc:
+        description: 描述
+        type: string
+      instructions:
+        description: 系统提示词
+        type: string
+      knowledgeBaseConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppKnowledgebaseConfig'
+        description: 知识库
+      mcpInfos:
+        description: MCP信息
+        items:
+          $ref: '#/definitions/response.AssistantMCPInfo'
+        type: array
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型
+      name:
+        description: 名称
+        type: string
+      prologue:
+        description: 开场白
+        type: string
+      recommendQuestion:
+        description: 推荐问题
+        items:
+          type: string
+        type: array
+      rerankConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: Rerank模型
+      safetyConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppSafetyConfig'
+        description: 敏感词表配置
+      scope:
+        description: 作用域
+        type: integer
+      toolInfos:
+        description: 自定义工具、内置工具
+        items:
+          $ref: '#/definitions/response.AssistantToolInfo'
+        type: array
+      updatedAt:
+        description: 更新时间
+        type: string
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/response.VisionConfig'
+        description: 视觉配置
+      workFlowInfos:
+        description: 工作流信息
+        items:
+          $ref: '#/definitions/response.AssistantWorkFlowInfo'
+        type: array
+    required:
+    - assistantId
+    - name
+    type: object
+  response.AssistantMCPInfo:
+    properties:
+      actionName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      mcpId:
+        type: string
+      mcpName:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - mcpType
+    type: object
+  response.AssistantRequestFile:
+    properties:
+      fileUrl:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
+    type: object
+  response.AssistantToolInfo:
+    properties:
+      actionName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      toolConfig:
+        $ref: '#/definitions/request.AssistantToolConfig'
+      toolId:
+        type: string
+      toolName:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - toolType
+    type: object
+  response.AssistantWorkFlowInfo:
+    properties:
+      apiName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      name:
+        type: string
+      uniqueId:
+        type: string
+      workFlowDesc:
+        type: string
+      workFlowId:
+        type: string
+    type: object
+  response.ConversationCreateResp:
+    properties:
+      conversationId:
+        type: string
+    type: object
+  response.ConversationDetailInfo:
+    properties:
+      assistantId:
+        type: string
+      conversationId:
+        type: string
+      createdAt:
+        type: integer
+      createdBy:
+        type: string
+      fileName:
+        type: string
+      fileSize:
+        type: integer
+      id:
+        type: string
+      prompt:
+        type: string
+      qa_type:
+        type: integer
+      requestFiles:
+        items:
+          $ref: '#/definitions/response.AssistantRequestFile'
+        type: array
+      response:
+        type: string
+      searchList: {}
+      sysPrompt:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+  response.ConversationInfo:
+    properties:
+      assistantId:
+        type: string
+      conversationId:
+        type: string
+      createdAt:
+        type: string
+      title:
+        type: string
+    type: object
+  response.ListResult:
+    properties:
+      list: {}
+      total:
+        type: integer
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+  response.VisionConfig:
+    properties:
+      maxPicNum:
+        description: 最大图片数量
+        type: integer
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: AI Agent Productivity Platform - OpenUrl
+  version: v0.0.1
+paths:
+  /agent/{suffix}:
+    get:
+      consumes:
+      - application/json
+      description: 获取智能体url信息
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.AppUrlConfig'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取智能体url信息
+      tags:
+      - openurl
+  /agent/{suffix}/conversation:
+    delete:
+      consumes:
+      - application/json
+      description: 删除智能体对话
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      - description: 智能体对话的id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ConversationIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除智能体对话
+      tags:
+      - openurl
+    post:
+      consumes:
+      - application/json
+      description: 创建智能体对话
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      - description: 智能体对话创建参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UrlConversationCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ConversationCreateResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建智能体对话
+      tags:
+      - openurl
+  /agent/{suffix}/conversation/detail:
+    get:
+      consumes:
+      - application/json
+      description: 智能体对话详情历史列表
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      - description: 智能体对话id
+        in: query
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ConversationDetailInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 智能体对话详情历史列表
+      tags:
+      - openurl
+  /agent/{suffix}/conversation/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取智能体对话列表
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ConversationInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取智能体对话列表
+      tags:
+      - openurl
+  /agent/{suffix}/stream:
+    post:
+      consumes:
+      - application/json
+      description: 智能体流式问答
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      - description: 智能体流式问答参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UrlConversionStreamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 智能体流式问答
+      tags:
+      - openurl
+swagger: "2.0"

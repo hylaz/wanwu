@@ -49,7 +49,7 @@ type OcrResp struct {
 type OcrData struct {
 	PageNum []int  `json:"page_num" validate:"required,min=1"`
 	Type    string `json:"type" validate:"required"`
-	Text    string `json:"text" validate:"required"`
+	Text    string `json:"text"`
 	Length  int    `json:"length"`
 }
 

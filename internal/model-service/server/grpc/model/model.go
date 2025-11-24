@@ -24,6 +24,7 @@ func (s *Service) ImportModel(ctx context.Context, req *model_service.ModelInfo)
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
 		},
+		ModelDesc: req.ModelDesc,
 	}); err != nil {
 		return nil, errStatus(errs.Code_ModelImportedModel, err)
 	}
@@ -40,6 +41,7 @@ func (s *Service) UpdateModel(ctx context.Context, req *model_service.ModelInfo)
 		ModelIconPath:  req.ModelIconPath,
 		PublishDate:    req.PublishDate,
 		ProviderConfig: req.ProviderConfig,
+		ModelDesc:      req.ModelDesc,
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
@@ -52,9 +54,7 @@ func (s *Service) UpdateModel(ctx context.Context, req *model_service.ModelInfo)
 
 func (s *Service) DeleteModel(ctx context.Context, req *model_service.DeleteModelReq) (*emptypb.Empty, error) {
 	if err := s.cli.DeleteModel(ctx, &model.ModelImported{
-		Provider:  req.Provider,
-		ModelType: req.ModelType,
-		Model:     req.Model,
+		ID: util.MustU32(req.ModelId),
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
@@ -67,10 +67,8 @@ func (s *Service) DeleteModel(ctx context.Context, req *model_service.DeleteMode
 
 func (s *Service) ChangeModelStatus(ctx context.Context, req *model_service.ModelStatusReq) (*emptypb.Empty, error) {
 	if err := s.cli.ChangeModelStatus(ctx, &model.ModelImported{
-		Provider:  req.Provider,
-		ModelType: req.ModelType,
-		Model:     req.Model,
-		IsActive:  req.IsActive,
+		ID:       util.MustU32(req.ModelId),
+		IsActive: req.IsActive,
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
@@ -104,6 +102,7 @@ func toModelInfo(modelInfo *model.ModelImported) *model_service.ModelInfo {
 		OrgId:          modelInfo.OrgID,
 		CreatedAt:      modelInfo.CreatedAt,
 		UpdatedAt:      modelInfo.UpdatedAt,
+		ModelDesc:      modelInfo.ModelDesc,
 	}
 }
 
@@ -131,10 +130,8 @@ func toModelInfos(modelInfos []*model.ModelImported) *model_service.ModelInfos {
 }
 
 func (s *Service) GetModel(ctx context.Context, req *model_service.GetModelReq) (*model_service.ModelInfo, error) {
-	modelInfo, err := s.cli.GetModel(ctx, &model.ModelImported{
-		Provider:  req.Provider,
-		ModelType: req.ModelType,
-		Model:     req.Model,
+	modelInfos, err := s.cli.GetModel(ctx, &model.ModelImported{
+		ID: util.MustU32(req.ModelId),
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
@@ -143,11 +140,11 @@ func (s *Service) GetModel(ctx context.Context, req *model_service.GetModelReq) 
 	if err != nil {
 		return nil, errStatus(errs.Code_ModelGetModel, err)
 	}
-	return toModelInfo(modelInfo), nil
+	return toModelInfo(modelInfos), nil
 }
 
-func (s *Service) ListModels(ctx context.Context, req *model_service.ListModelsReq) (*model_service.ListModelsResp, error) {
-	modelInfo, total, err := s.cli.ListModels(ctx, &model.ModelImported{
+func (s *Service) ListModels(ctx context.Context, req *model_service.ListModelsReq) (*model_service.ModelInfos, error) {
+	modelInfos, err := s.cli.ListModels(ctx, &model.ModelImported{
 		Provider:    req.Provider,
 		ModelType:   req.ModelType,
 		IsActive:    req.IsActive,
@@ -160,11 +157,11 @@ func (s *Service) ListModels(ctx context.Context, req *model_service.ListModelsR
 	if err != nil {
 		return nil, errStatus(errs.Code_ModelListModels, err)
 	}
-	return toListModelsResp(modelInfo, total), nil
+	return toModelInfos(modelInfos), nil
 }
 
-func (s *Service) ListTypeModels(ctx context.Context, req *model_service.ListTypeModelsReq) (*model_service.ListModelsResp, error) {
-	modelInfo, total, err := s.cli.ListTypeModels(ctx, &model.ModelImported{
+func (s *Service) ListTypeModels(ctx context.Context, req *model_service.ListTypeModelsReq) (*model_service.ModelInfos, error) {
+	modelInfos, err := s.cli.ListTypeModels(ctx, &model.ModelImported{
 		ModelType: req.ModelType,
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
@@ -174,28 +171,5 @@ func (s *Service) ListTypeModels(ctx context.Context, req *model_service.ListTyp
 	if err != nil {
 		return nil, errStatus(errs.Code_ModelListTypeModels, err)
 	}
-	return toListModelsResp(modelInfo, total), nil
-}
-
-func toListModelsResp(modelInfo []*model.ModelImported, total int64) *model_service.ListModelsResp {
-	modelsResp := []*model_service.ModelBrief{}
-	for _, m := range modelInfo {
-		modelResp := &model_service.ModelBrief{
-			ModelId:       util.Int2Str(m.ID),
-			Provider:      m.Provider,
-			ModelType:     m.ModelType,
-			Model:         m.Model,
-			DisplayName:   m.DisplayName,
-			ModelIconPath: m.ModelIconPath,
-			IsActive:      m.IsActive,
-			PublishDate:   m.PublishDate,
-			UserId:        m.UserID,
-			OrgId:         m.OrgID,
-		}
-		modelsResp = append(modelsResp, modelResp)
-	}
-	return &model_service.ListModelsResp{
-		Models: modelsResp,
-		Total:  total,
-	}
+	return toModelInfos(modelInfos), nil
 }

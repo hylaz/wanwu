@@ -41,8 +41,18 @@ func BuildDocErrMessage(status int) string {
 	//判断：如果是status属于(51,52,53,54,55,56)，说明是RAG本身导致的解析异常，此时给errMsg写入一个默认值“文件解析服务异常”
 	//判断：如果是status属于(61,62)，说明是用户责任导致的异常，此时分别写入errMsg，提示用户修改文档
 	switch status {
-	case 51, 52, 53, 54, 55, 56:
-		return KnowledgeDocParsingServiceErr
+	case 51:
+		return KnowledgeDocVectorDuplicateErr
+	case 52:
+		return KnowledgeDocDuplicateErr
+	case 53:
+		return KnowledgeDocDownloadErr
+	case 54:
+		return KnowledgeDocSplitErr
+	case 55:
+		return KnowledgeDocEmbeddingErr
+	case 56:
+		return KnowledgeDocTextErr
 	case 61:
 		return KnowledgeDocEmptyFileContentErr
 	case 62:

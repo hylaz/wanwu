@@ -1,5 +1,7 @@
 package response
 
+import "github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+
 type Response struct {
 	Code int64       `json:"code"`
 	Data interface{} `json:"data"`
@@ -27,6 +29,7 @@ type UserPermission struct {
 	OrgPermission    UserOrgPermission `json:"orgPermission"`    // 用户所在组织权限
 	Language         Language          `json:"language"`         // 语言
 	IsUpdatePassword bool              `json:"isUpdatePassword"` // 是否已更新密码
+	Avatar           request.Avatar    `json:"avatar"`           // 用户头像信息
 }
 
 type UserOrgPermission struct {
@@ -44,29 +47,4 @@ type Permission struct {
 
 type Select struct {
 	Select []IDName `json:"select"`
-}
-
-type DocMenu struct {
-	Name     string     `json:"name"`     // 目录名称
-	Index    string     `json:"index"`    // 目录索引
-	Path     string     `json:"path"`     // 目录路径（转码后）
-	PathRaw  string     `json:"pathRaw"`  // 目录路径
-	Children []*DocMenu `json:"children"` // 目录
-
-	content string
-}
-
-func (dm *DocMenu) SetContent(content string) {
-	dm.content = content
-}
-
-type DocSearchResp struct {
-	Title       string             `json:"title"` // 文档名
-	ContentList []DocSearchContent `json:"list"`  // 内容列表
-}
-
-type DocSearchContent struct {
-	Title   string `json:"title"`   // 文档中的子标题
-	Content string `json:"content"` // 内容
-	Url     string `json:"url"`     // 文档链接
 }

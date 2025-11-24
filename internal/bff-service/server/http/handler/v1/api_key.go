@@ -9,7 +9,7 @@ import (
 
 // GetApiBaseUrl
 //
-//	@Tags			app
+//	@Tags			app.key
 //	@Summary		获取Api根地址
 //	@Description	获取Api根地址
 //	@Security		JWT
@@ -29,7 +29,7 @@ func GetApiBaseUrl(ctx *gin.Context) {
 
 // GenApiKey
 //
-//	@Tags			app
+//	@Tags			app.key
 //	@Summary		生成ApiKey
 //	@Description	生成ApiKey
 //	@Accept			json
@@ -48,7 +48,7 @@ func GenApiKey(ctx *gin.Context) {
 
 // DelApiKey
 //
-//	@Tags			app
+//	@Tags			app.key
 //	@Summary		删除ApiKey
 //	@Description	删除ApiKey
 //	@Accept			json
@@ -67,7 +67,7 @@ func DelApiKey(ctx *gin.Context) {
 
 // GetApiKeyList
 //
-//	@Tags			app
+//	@Tags			app.key
 //	@Summary		获取ApiKey
 //	@Description	获取ApiKey
 //	@Accept			json

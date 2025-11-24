@@ -1,16 +1,18 @@
 package service
 
 import (
-	"os"
-	"path/filepath"
-
+	"github.com/ThinkInAIXYZ/go-mcp/protocol"
+	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
+	"github.com/UnicomAI/wanwu/api/proto/common"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	mcp_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/mcp-util"
+	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
-	"github.com/UnicomAI/wanwu/pkg/log"
+	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +40,7 @@ func GetMCPSquareList(ctx *gin.Context, userID, orgID, category, name string) (*
 	}
 	var list []response.MCPSquareInfo
 	for _, mcpSquare := range resp.Infos {
-		list = append(list, toMCPSquareInfo(ctx, mcpSquare))
+		list = append(list, toMCPSquareInfo(ctx, mcpSquare, ""))
 	}
 	return &response.ListResult{
 		List:  list,
@@ -55,6 +57,21 @@ func CreateMCP(ctx *gin.Context, userID, orgID string, req request.MCPCreate) er
 		Desc:        req.Desc,
 		From:        req.From,
 		SseUrl:      req.SSEURL,
+		AvatarPath:  req.Avatar.Key,
+	})
+	return err
+}
+
+func UpdateMCP(ctx *gin.Context, userID, orgID string, req request.MCPUpdate) error {
+	_, err := mcp.UpdateCustomMCP(ctx.Request.Context(), &mcp_service.UpdateCustomMCPReq{
+		OrgId:      orgID,
+		UserId:     userID,
+		McpId:      req.MCPID,
+		Name:       req.Name,
+		Desc:       req.Desc,
+		From:       req.From,
+		SseUrl:     req.SSEURL,
+		AvatarPath: req.Avatar.Key,
 	})
 	return err
 }
@@ -70,7 +87,16 @@ func GetMCP(ctx *gin.Context, mcpID string) (*response.MCPDetail, error) {
 }
 
 func DeleteMCP(ctx *gin.Context, mcpID string) error {
-	_, err := mcp.DeleteCustomMCP(ctx.Request.Context(), &mcp_service.DeleteCustomMCPReq{
+	// 删除智能体表AssistantMCP相关记录
+	_, err := assistant.AssistantMCPDeleteByMCPId(ctx.Request.Context(), &assistant_service.AssistantMCPDeleteByMCPIdReq{
+		McpId:   mcpID,
+		McpType: constant.MCPTypeMCP,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = mcp.DeleteCustomMCP(ctx.Request.Context(), &mcp_service.DeleteCustomMCPReq{
 		McpId: mcpID,
 	})
 	return err
@@ -96,6 +122,7 @@ func GetMCPList(ctx *gin.Context, userID, orgID, name string) (*response.ListRes
 }
 
 func GetMCPSelect(ctx *gin.Context, userID, orgID string, name string) (*response.ListResult, error) {
+	// 获取自定义mcp列表
 	resp, err := mcp.GetCustomMCPList(ctx.Request.Context(), &mcp_service.GetCustomMCPListReq{
 		OrgId:  orgID,
 		UserId: userID,
@@ -107,12 +134,50 @@ func GetMCPSelect(ctx *gin.Context, userID, orgID string, name string) (*respons
 	var list []response.MCPSelect
 	for _, mcpInfo := range resp.Infos {
 		list = append(list, response.MCPSelect{
+			UniqueId: bff_util.ConcatAssistantToolUniqueId("mcp", mcpInfo.McpId),
+			// 兼容旧版
 			MCPID:       mcpInfo.McpId,
 			MCPSquareID: mcpInfo.Info.McpSquareId,
 			Name:        mcpInfo.Info.Name,
+			// 适用于智能体mcp下拉
+			ToolId:   mcpInfo.McpId,
+			ToolName: mcpInfo.Info.Name,
+			ToolType: constant.MCPTypeMCP,
+			// 共有字段
 			Description: mcpInfo.Info.Desc,
 			ServerFrom:  mcpInfo.Info.From,
 			ServerURL:   mcpInfo.SseUrl,
+			Type:        constant.MCPTypeMCP,
+			Avatar:      cacheMCPAvatar(ctx, mcpInfo.Info.AvatarPath, mcpInfo.AvatarPath),
+		})
+	}
+
+	// 获取mcp server列表
+	mcpServerList, err := mcp.GetMCPServerList(ctx.Request.Context(), &mcp_service.GetMCPServerListReq{
+		Name: name,
+		Identity: &mcp_service.Identity{
+			OrgId:  orgID,
+			UserId: userID,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, mcpServerInfo := range mcpServerList.List {
+		list = append(list, response.MCPSelect{
+			MCPID:       mcpServerInfo.McpServerId,
+			MCPSquareID: "",
+			UniqueId:    bff_util.ConcatAssistantToolUniqueId(constant.AppTypeMCPServer, mcpServerInfo.McpServerId),
+			Name:        mcpServerInfo.Name,
+			Description: mcpServerInfo.Desc,
+			ServerFrom:  "mcp server",
+			ServerURL:   mcpServerInfo.SseUrl,
+			Type:        constant.MCPTypeMCPServer,
+			// 适用于智能体mcp下拉
+			ToolId:   mcpServerInfo.McpServerId,
+			ToolName: mcpServerInfo.Name,
+			ToolType: constant.MCPTypeMCPServer,
+			Avatar:   cacheMCPServerAvatar(ctx, mcpServerInfo.AvatarPath),
 		})
 	}
 	return &response.ListResult{
@@ -144,56 +209,45 @@ func GetMCPToolList(ctx *gin.Context, mcpID, sseUrl string) (*response.MCPToolLi
 	return &response.MCPToolList{Tools: tools}, nil
 }
 
-// --- internal ---
-
-func cacheMCPAvatar(ctx *gin.Context, avatarPath string) request.Avatar {
-	avatar := request.Avatar{}
-	if avatarPath == "" {
-		return avatar
+func GetMCPActionList(ctx *gin.Context, userID, orgID string, req request.MCPActionListReq) (*response.MCPActionList, error) {
+	var actions []*protocol.Tool
+	switch req.ToolType {
+	case constant.MCPTypeMCPServer:
+		mcpServerList, err := mcp.GetMCPServerToolList(ctx.Request.Context(), &mcp_service.GetMCPServerToolListReq{
+			McpServerId: req.ToolId,
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, tool := range mcpServerList.List {
+			toolActions, err := openapi3_util.Schema2ProtocolTools(ctx.Request.Context(), []byte(tool.Schema))
+			if err != nil {
+				return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
+			}
+			actions = append(actions, toolActions...)
+		}
+	case constant.MCPTypeMCP:
+		tools, err := GetMCPToolList(ctx, req.ToolId, "")
+		if err != nil {
+			return nil, err
+		}
+		actions = tools.Tools
+	default:
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "invalid toolType")
 	}
-	avatarCacheMu.Lock()
-	defer avatarCacheMu.Unlock()
-
-	filePath := filepath.Join(mcpAvatarCacheLocalDir, avatarPath)
-
-	_, err := os.Stat(filePath)
-	// 1 文件存在
-	if err == nil {
-		avatar.Path = filepath.Join("/v1", filePath)
-		return avatar
-	}
-	// 2 系统错误
-	if !os.IsNotExist(err) {
-		log.Errorf("cache mcp avatar %v check %v exist err: %v", avatarPath, filePath, err)
-		return avatar
-	}
-	// 3. 文件不存在
-	// 3.1 创建目录
-	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
-		log.Errorf("cache mcp avatar %v mkdir %v err: %v", avatarPath, filepath.Dir(filePath))
-		return avatar
-	}
-	// 3.2 下载文件
-	resp, err := mcp.GetMCPAvatar(ctx.Request.Context(), &mcp_service.GetMCPAvatarReq{AvatarPath: avatarPath})
-	if err != nil {
-		log.Errorf("cache mcp avatar %v download err: %v", avatarPath, err)
-		return avatar
-	}
-	// 3.3 写入文件
-	if err := os.WriteFile(filePath, resp.Data, 0644); err != nil {
-		log.Errorf("cache mcp avatar %v write file %v err: %v", avatarPath, filePath, err)
-		return avatar
-	}
-	avatar.Path = filepath.Join("/v1", filePath)
-	return avatar
+	return &response.MCPActionList{
+		Actions: actions,
+	}, nil
 }
+
+// --- internal ---
 
 func toMCPCustomDetail(ctx *gin.Context, mcpDetail *mcp_service.CustomMCPDetail) *response.MCPDetail {
 	return &response.MCPDetail{
 		MCPInfo: response.MCPInfo{
 			MCPID:         mcpDetail.McpId,
 			SSEURL:        mcpDetail.SseUrl,
-			MCPSquareInfo: toMCPSquareInfo(ctx, mcpDetail.Info),
+			MCPSquareInfo: toMCPSquareInfo(ctx, mcpDetail.Info, mcpDetail.AvatarPath),
 		},
 		MCPSquareIntro: toMCPSquareIntro(mcpDetail.Intro),
 	}
@@ -203,29 +257,29 @@ func toMCPCustomInfo(ctx *gin.Context, mcpInfo *mcp_service.CustomMCPInfo) respo
 	return response.MCPInfo{
 		MCPID:         mcpInfo.McpId,
 		SSEURL:        mcpInfo.SseUrl,
-		MCPSquareInfo: toMCPSquareInfo(ctx, mcpInfo.Info),
+		MCPSquareInfo: toMCPSquareInfo(ctx, mcpInfo.Info, mcpInfo.AvatarPath),
 	}
 }
 
 func toMCPSquareDetail(ctx *gin.Context, mcpSquare *mcp_service.SquareMCPDetail) *response.MCPSquareDetail {
 	ret := &response.MCPSquareDetail{
-		MCPSquareInfo:  toMCPSquareInfo(ctx, mcpSquare.Info),
+		MCPSquareInfo:  toMCPSquareInfo(ctx, mcpSquare.Info, ""),
 		MCPSquareIntro: toMCPSquareIntro(mcpSquare.Intro),
-		MCPTools: response.MCPTools{
+		MCPActions: response.MCPActions{
 			SSEURL:    mcpSquare.Tool.SseUrl,
 			HasCustom: mcpSquare.Tool.HasCustom,
 		},
 	}
 	for _, tool := range mcpSquare.Tool.Tools {
-		ret.MCPTools.Tools = append(ret.MCPTools.Tools, toMCPTool(tool))
+		ret.MCPActions.Tools = append(ret.MCPActions.Tools, toToolAction(tool))
 	}
 	return ret
 }
 
-func toMCPSquareInfo(ctx *gin.Context, mcpSquareInfo *mcp_service.SquareMCPInfo) response.MCPSquareInfo {
+func toMCPSquareInfo(ctx *gin.Context, mcpSquareInfo *mcp_service.SquareMCPInfo, customAvatarPath string) response.MCPSquareInfo {
 	return response.MCPSquareInfo{
 		MCPSquareID: mcpSquareInfo.McpSquareId,
-		Avatar:      cacheMCPAvatar(ctx, mcpSquareInfo.AvatarPath),
+		Avatar:      cacheMCPAvatar(ctx, mcpSquareInfo.AvatarPath, customAvatarPath),
 		Name:        mcpSquareInfo.Name,
 		Desc:        mcpSquareInfo.Desc,
 		From:        mcpSquareInfo.From,
@@ -246,19 +300,19 @@ func toMCPSquareIntro(mcpSquareIntro *mcp_service.SquareMCPIntro) response.MCPSq
 	}
 }
 
-func toMCPTool(tool *mcp_service.MCPTool) response.MCPTool {
-	ret := response.MCPTool{
+func toToolAction(tool *common.ToolAction) *protocol.Tool {
+	ret := &protocol.Tool{
 		Name:        tool.Name,
 		Description: tool.Description,
-		InputSchema: response.MCPToolInputSchema{
-			Type:       tool.InputSchema.GetType(),
+		InputSchema: protocol.InputSchema{
+			Type:       protocol.InputSchemaType(tool.InputSchema.GetType()),
 			Required:   tool.InputSchema.GetRequired(),
-			Properties: make(map[string]response.MCPToolInputSchemaValue),
+			Properties: make(map[string]*protocol.Property),
 		},
 	}
 	for k, v := range tool.InputSchema.GetProperties() {
-		ret.InputSchema.Properties[k] = response.MCPToolInputSchemaValue{
-			Type:        v.Type,
+		ret.InputSchema.Properties[k] = &protocol.Property{
+			Type:        protocol.DataType(v.Type),
 			Description: v.Description,
 		}
 	}

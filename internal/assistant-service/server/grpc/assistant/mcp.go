@@ -2,25 +2,18 @@ package assistant
 
 import (
 	"context"
-	"strconv"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
-	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // AssistantMCPCreate 添加mcp
 func (s *Service) AssistantMCPCreate(ctx context.Context, req *assistant_service.AssistantMCPCreateReq) (*emptypb.Empty, error) {
-	assistantId, err := strconv.ParseUint(req.AssistantId, 10, 32)
-	if err != nil {
-		return nil, err
-	}
+	assistantId := util.MustU32(req.AssistantId)
 
-	if status := s.cli.CreateAssistantMCP(ctx, &model.AssistantMCP{
-		AssistantId: uint32(assistantId),
-		MCPId:       req.McpId,
-	}); status != nil {
+	if status := s.cli.CreateAssistantMCP(ctx, assistantId, req.McpId, req.McpType, req.ActionName, req.Identity.UserId, req.Identity.OrgId); status != nil {
 		return nil, errStatus(errs.Code_AssistantMCPErr, status)
 	}
 
@@ -29,13 +22,17 @@ func (s *Service) AssistantMCPCreate(ctx context.Context, req *assistant_service
 
 // AssistantMCPDelete 删除mcp
 func (s *Service) AssistantMCPDelete(ctx context.Context, req *assistant_service.AssistantMCPDeleteReq) (*emptypb.Empty, error) {
-	// 这里的 MCPID 实为 ID
-	id, err := strconv.ParseUint(req.McpId, 10, 32)
-	if err != nil {
-		return nil, err
-	}
+	assistantId := util.MustU32(req.AssistantId)
 
-	if status := s.cli.DeleteAssistantMCP(ctx, uint32(id)); status != nil {
+	if status := s.cli.DeleteAssistantMCP(ctx, assistantId, req.McpId, req.McpType, req.ActionName); status != nil {
+		return nil, errStatus(errs.Code_AssistantMCPErr, status)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// AssistantMCPDeleteByMCPId 删除mcp
+func (s *Service) AssistantMCPDeleteByMCPId(ctx context.Context, req *assistant_service.AssistantMCPDeleteByMCPIdReq) (*emptypb.Empty, error) {
+	if status := s.cli.DeleteAssistantMCPByMCPId(ctx, req.McpId, req.McpType); status != nil {
 		return nil, errStatus(errs.Code_AssistantMCPErr, status)
 	}
 	return &emptypb.Empty{}, nil
@@ -43,40 +40,24 @@ func (s *Service) AssistantMCPDelete(ctx context.Context, req *assistant_service
 
 // AssistantMCPEnableSwitch mcp开关
 func (s *Service) AssistantMCPEnableSwitch(ctx context.Context, req *assistant_service.AssistantMCPEnableSwitchReq) (*emptypb.Empty, error) {
-	// 这里的 MCPID 实为 ID
-	id, err := strconv.ParseUint(req.McpId, 10, 32)
-	if err != nil {
-		return nil, err
-	}
+	assistantId := util.MustU32(req.AssistantId)
 
-	// 先获取现有MCP信息
-	query := map[string]interface{}{
-		"id": id,
-	}
-
-	existingMCP, status := s.cli.GetAssistantMCP(ctx, query)
+	existingMCP, status := s.cli.GetAssistantMCP(ctx, assistantId, req.McpId, req.McpType, req.ActionName)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantMCPErr, status)
 	}
 
-	existingMCP.Enable = !existingMCP.Enable
-	if status := s.cli.UpdateAssistantMCP(ctx, existingMCP); status != nil {
+	existingMCP.Enable = req.Enable
+	if status = s.cli.UpdateAssistantMCP(ctx, existingMCP); status != nil {
 		return nil, errStatus(errs.Code_AssistantMCPErr, status)
 	}
 
 	return &emptypb.Empty{}, nil
 }
 func (s *Service) AssistantMCPGetList(ctx context.Context, req *assistant_service.AssistantMCPGetListReq) (*assistant_service.AssistantMCPList, error) {
-	assistantID, err := strconv.ParseUint(req.AssistantId, 10, 32)
-	if err != nil {
-		return nil, err
-	}
+	assistantId := util.MustU32(req.AssistantId)
 
-	query := map[string]interface{}{
-		"assistant_id": assistantID,
-	}
-
-	mcpList, status := s.cli.GetAssistantMCPList(ctx, query)
+	mcpList, status := s.cli.GetAssistantMCPList(ctx, assistantId)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantMCPErr, status)
 	}

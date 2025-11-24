@@ -26,6 +26,7 @@ func UploadCustomLogin(ctx *gin.Context, userId, orgId, mode string, req *reques
 		Mode:   mode,
 		Login: &operate_service.Login{
 			LoginBgPath:      req.LoginBg.Key,
+			LoginLogo:        req.LoginLogo.Key,
 			LoginButtonColor: req.LoginButtonColor,
 			LoginWelcomeText: req.LoginWelcomeText},
 	})

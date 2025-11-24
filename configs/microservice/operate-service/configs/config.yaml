@@ -13,7 +13,7 @@ log:
       max_backups: 10
       max_age: 30
     - enable: true
-      filename: log/err-err.log
+      filename: log/operate-err.log
       level: error
       max_size: 10
       max_backups: 10

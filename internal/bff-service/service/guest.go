@@ -2,8 +2,8 @@ package service
 
 import (
 	"fmt"
-	"strconv"
 
+	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	operate_service "github.com/UnicomAI/wanwu/api/proto/operate-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
@@ -11,7 +11,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	mid "github.com/UnicomAI/wanwu/pkg/gin-util/mid-wrap"
-	jwt_util "github.com/UnicomAI/wanwu/pkg/jwt-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,7 +33,6 @@ func GetLanguageSelect() *response.LanguageSelect {
 }
 
 func GetLogoCustomInfo(ctx *gin.Context, mode string) (response.LogoCustomInfo, error) {
-	cfg := config.Cfg().CustomInfo
 	ret := response.LogoCustomInfo{}
 	var theme string
 	switch mode {
@@ -42,15 +41,16 @@ func GetLogoCustomInfo(ctx *gin.Context, mode string) (response.LogoCustomInfo, 
 	case customModeDark:
 		theme = customModeDark
 	default:
-		theme = cfg.DefaultMode
+		theme = config.Cfg().CustomInfo.DefaultMode
 	}
-	for _, mode := range cfg.Modes {
+	for _, mode := range config.Cfg().CustomInfo.Modes {
 		if theme != mode.Mode {
 			continue
 		}
 		ret = response.LogoCustomInfo{
 			Login: response.CustomLogin{
 				Background:       request.Avatar{Path: mode.Login.BackgroundPath},
+				Logo:             request.Avatar{Path: mode.Login.LogoPath},
 				LoginButtonColor: mode.Login.LoginButtonColor,
 				WelcomeText:      gin_util.I18nKey(ctx, mode.Login.WelcomeText),
 			},
@@ -65,10 +65,20 @@ func GetLogoCustomInfo(ctx *gin.Context, mode string) (response.LogoCustomInfo, 
 			},
 			About: response.CustomAbout{
 				LogoPath:  mode.About.LogoPath,
-				Version:   mode.About.Version,
+				Version:   config.Cfg().CustomInfo.Version,
 				Copyright: gin_util.I18nKey(ctx, mode.About.Copyright),
 			},
-			LinkList: config.Cfg().DocCenter.GetDocs(),
+			LinkList:      config.Cfg().DocCenter.GetDocs(),
+			Register:      response.CustomRegister{Email: response.CustomEmail{Status: config.Cfg().CustomInfo.RegisterByEmail != 0}},
+			ResetPassword: response.CustomResetPassword{Email: response.CustomEmail{Status: config.Cfg().CustomInfo.ResetPasswordByEmail != 0}},
+			LoginEmail:    response.CustomLoginEmail{Email: response.CustomEmail{Status: config.Cfg().CustomInfo.LoginByEmail != 0}},
+			DefaultIcon: response.CustomDefaultIcon{
+				RagIcon:      config.Cfg().DefaultIcon.RagIcon,
+				AgentIcon:    config.Cfg().DefaultIcon.AgentIcon,
+				WorkflowIcon: config.Cfg().DefaultIcon.WorkflowIcon,
+				PromptIcon:   config.Cfg().DefaultIcon.PromptIcon,
+				ChatflowIcon: config.Cfg().DefaultIcon.ChatflowIcon,
+			},
 		}
 		break
 	}
@@ -77,13 +87,16 @@ func GetLogoCustomInfo(ctx *gin.Context, mode string) (response.LogoCustomInfo, 
 		return ret, err
 	}
 	if custom.Tab.TabLogoPath != "" {
-		ret.Tab.Logo = CacheAvatar(ctx, custom.Tab.TabLogoPath)
+		ret.Tab.Logo = CacheAvatar(ctx, custom.Tab.TabLogoPath, false)
 	}
 	if custom.Tab.TabTitle != "" {
 		ret.Tab.Title = custom.Tab.TabTitle
 	}
 	if custom.Login.LoginBgPath != "" {
-		ret.Login.Background = CacheAvatar(ctx, custom.Login.LoginBgPath)
+		ret.Login.Background = CacheAvatar(ctx, custom.Login.LoginBgPath, false)
+	}
+	if custom.Login.LoginLogo != "" {
+		ret.Login.Logo = CacheAvatar(ctx, custom.Login.LoginLogo, false)
 	}
 	if custom.Login.LoginButtonColor != "" {
 		ret.Login.LoginButtonColor = custom.Login.LoginButtonColor
@@ -95,7 +108,7 @@ func GetLogoCustomInfo(ctx *gin.Context, mode string) (response.LogoCustomInfo, 
 		ret.Home.Title = custom.Home.HomeName
 	}
 	if custom.Home.HomeLogoPath != "" {
-		ret.Home.Logo = CacheAvatar(ctx, custom.Home.HomeLogoPath)
+		ret.Home.Logo = CacheAvatar(ctx, custom.Home.HomeLogoPath, false)
 	}
 	if custom.Home.HomeBgColor != "" {
 		ret.Home.BackgroundColor = custom.Home.HomeBgColor
@@ -116,48 +129,54 @@ func GetCaptcha(ctx *gin.Context, key string) (*response.Captcha, error) {
 	}, nil
 }
 
-func Login(ctx *gin.Context, login *request.Login, language string) (*response.Login, error) {
-	password, err := decryptPD(login.Password)
-	if err != nil {
-		return nil, fmt.Errorf("decrypt password err: %v", err)
+func RegisterByEmail(ctx *gin.Context, register *request.RegisterByEmail) error {
+	if config.Cfg().CustomInfo.RegisterByEmail == 0 {
+		return grpc_util.ErrorStatus(errs.Code_BFFRegisterDisable)
 	}
-	resp, err := iam.Login(ctx.Request.Context(), &iam_service.LoginReq{
-		UserName: login.Username,
-		Password: password,
-		Key:      login.Key,
-		Code:     login.Code,
-		Language: language,
+	_, err := iam.RegisterByEmail(ctx.Request.Context(), &iam_service.RegisterByEmailReq{
+		UserName: register.Username,
+		Email:    register.Email,
+		Code:     register.Code,
 	})
-	if err != nil {
-		return nil, err
+	return err
+}
+
+func RegisterSendEmailCode(ctx *gin.Context, username, email string) error {
+	if config.Cfg().CustomInfo.RegisterByEmail == 0 {
+		return grpc_util.ErrorStatus(errs.Code_BFFRegisterDisable)
 	}
-	// orgs
-	orgs, err := iam.GetOrgSelect(ctx.Request.Context(), &iam_service.GetOrgSelectReq{UserId: resp.User.GetUserId()})
-	if err != nil {
-		return nil, err
+	_, err := iam.RegisterSendEmailCode(ctx.Request.Context(), &iam_service.RegisterSendEmailCodeReq{
+		Email:    email,
+		UserName: username,
+	})
+	return err
+}
+
+// --- reset password---
+func ResetPasswordSendEmailCode(ctx *gin.Context, email string) error {
+	if config.Cfg().CustomInfo.ResetPasswordByEmail == 0 {
+		return grpc_util.ErrorStatus(errs.Code_BFFResetPasswordDisable)
 	}
-	// jwt token
-	claims, token, err := jwt_util.GenerateToken(
-		resp.User.GetUserId(),
-		jwt_util.UserTokenTimeout,
-	)
-	if err != nil {
-		return nil, err
+	_, err := iam.ResetPasswordSendEmailCode(ctx.Request.Context(), &iam_service.ResetPasswordSendEmailCodeReq{
+		Email: email,
+	})
+	return err
+}
+
+func ResetPasswordByEmail(ctx *gin.Context, reset *request.ResetPasswordByEmail) error {
+	if config.Cfg().CustomInfo.ResetPasswordByEmail == 0 {
+		return grpc_util.ErrorStatus(errs.Code_BFFResetPasswordDisable)
 	}
-	ctx.Set(gin_util.CLAIMS, &claims)
-	// resp
-	return &response.Login{
-		UID:              resp.User.GetUserId(),
-		Username:         resp.User.GetUserName(),
-		Nickname:         resp.User.GetNickName(),
-		Token:            token,
-		ExpiresAt:        claims.StandardClaims.ExpiresAt * 1000, // 超时事件戳毫秒
-		ExpireIn:         strconv.FormatInt(jwt_util.UserTokenTimeout, 10),
-		Orgs:             toOrgIDNames(ctx, orgs.Selects, resp.User.GetUserId() == config.SystemAdminUserID),
-		OrgPermission:    toOrgPermission(ctx, resp.Permission),
-		Language:         getLanguageByCode(resp.User.Language),
-		IsUpdatePassword: resp.Permission.LastUpdatePasswordAt != 0,
-	}, nil
+	password, err := decryptPD(reset.Password)
+	if err != nil {
+		return fmt.Errorf("decrypt password err: %v", err)
+	}
+	_, err = iam.ResetPasswordByEmail(ctx.Request.Context(), &iam_service.ResetPasswordByEmailReq{
+		Email:    reset.Email,
+		Password: password,
+		Code:     reset.Code,
+	})
+	return err
 }
 
 // --- internal ---
@@ -194,6 +213,12 @@ func toPermissions(isAdmin, isSystem bool, perms []*iam_service.Perm) []response
 			if !isSystem && r.Tag == "setting" {
 				continue
 			}
+			if !isSystem && r.Tag == "statistic_client" || config.Cfg().WorkflowTemplate.ServerMode == "remote" {
+				continue
+			}
+			if !isSystem && r.Tag == "oauth" {
+				continue
+			}
 			ret = append(ret, response.Permission{
 				Perm: r.Tag,
 				Name: r.Name,
@@ -203,6 +228,12 @@ func toPermissions(isAdmin, isSystem bool, perms []*iam_service.Perm) []response
 	}
 	for _, r := range routes {
 		if r.Tag == "setting" {
+			continue
+		}
+		if r.Tag == "statistic_client" {
+			continue
+		}
+		if r.Tag == "oauth" {
 			continue
 		}
 		for _, perm := range perms {

@@ -36,11 +36,13 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: %v", modelInfo.ModelId, err)))
 		return
 	}
+
 	iLLM, ok := llm.(mp.ILLM)
 	if !ok {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: invalid provider", modelInfo.ModelId)))
 		return
 	}
+
 	// chat completions
 	llmReq, err := iLLM.NewReq(req)
 	if err != nil {
@@ -69,6 +71,10 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
 	ctx.Header("Content-Type", "text/event-stream; charset=utf-8")
+	var (
+		firstFlag = false // 思维链起始标识符，默认思维链未开始
+		endFlag   = false // 思维链结束标识符，默认思维链未结束
+	)
 	var data *mp_common.LLMResp
 	for sseResp := range sseCh {
 		data, ok = sseResp.ConvertResp()
@@ -76,13 +82,27 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 		if ok && data != nil {
 			if len(data.Choices) > 0 && data.Choices[0].Delta != nil {
 				answer = answer + data.Choices[0].Delta.Content
+				delta := data.Choices[0].Delta
+				if firstFlag && !endFlag && delta.ReasoningContent != nil {
+					delta.Content = delta.Content + *delta.ReasoningContent
+				}
+				if !endFlag && delta.Content != "" && ((delta.ReasoningContent != nil &&
+					*delta.ReasoningContent == "") || delta.ReasoningContent == nil) && firstFlag {
+					delta.Content = "\n</think>\n" + delta.Content
+					endFlag = true
+				}
+				if !firstFlag && delta.ReasoningContent != nil && *delta.ReasoningContent != "" && delta.Content == "" {
+					delta.Content = "<think>\n" +
+						delta.Content + *delta.ReasoningContent
+					firstFlag = true
+				}
 			}
 			dataByte, _ := json.Marshal(data)
 			dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
 		} else {
 			dataStr = fmt.Sprintf("%v\n", sseResp.String())
 		}
-
+		//log.Infof("model %v chat completions sse: %v", modelInfo.ModelId, dataStr)
 		if _, err = ctx.Writer.Write([]byte(dataStr)); err != nil {
 			log.Errorf("model %v chat completions sse err: %v", modelInfo.ModelId, err)
 		}

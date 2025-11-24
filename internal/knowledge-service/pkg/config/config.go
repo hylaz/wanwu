@@ -65,6 +65,12 @@ type Config struct {
 	UsageLimit         *UsageLimitConfig   `mapstructure:"usage-limit" json:"usageLimit"`
 	RagServer          *RagServerConfig    `mapstructure:"rag-server" json:"ragServer"`
 	KnowledgeDocConfig *KnowledgeDocConfig `json:"knowledge-doc-config" mapstructure:"knowledge-doc-config"`
+	SplitterList       []*Splitter         `mapstructure:"splitters" json:"splitters" yaml:"splitters"`
+}
+
+type Splitter struct {
+	Name  string `mapstructure:"name" json:"name" yaml:"name"`
+	Value string `mapstructure:"value" json:"value" yaml:"value"`
 }
 
 type Server struct {
@@ -94,6 +100,7 @@ type KafkaConfig struct {
 	UrlAnalysisTopic    string `mapstructure:"url-analysis-topic" json:"url-analysis-topic"`
 	UrlImportTopic      string `mapstructure:"url-import-topic" json:"url-import-topic"`
 	Topic               string `mapstructure:"topic" json:"topic"`
+	KnowledgeGraphTopic string `mapstructure:"knowledge-graph-topic" json:"knowledge-graph-topic"`
 	DefaultPartitionNum int32  `mapstructure:"default-partition-num" json:"defaultPartitionNum"`
 }
 
@@ -121,6 +128,7 @@ type KnowledgeDocConfig struct {
 
 type RagServerConfig struct {
 	Endpoint                  string `mapstructure:"endpoint" json:"endpoint"`
+	ProxyPoint                string `mapstructure:"proxy-point" json:"proxy-point"`
 	UrlImportEndpoint         string `mapstructure:"url-import-endpoint" json:"url-import-endpoint"`
 	UrlAnalysisEndpoint       string `mapstructure:"url-analysis-endpoint" json:"url-analysis-endpoint"`
 	InitKnowledgeUri          string `mapstructure:"init-knowledge-uri" json:"init-knowledge-uri"`
@@ -128,11 +136,26 @@ type RagServerConfig struct {
 	DeleteKnowledgeUri        string `mapstructure:"delete-knowledge-uri" json:"delete-knowledge-uri"`
 	KnowledgeHitUri           string `mapstructure:"knowledge-hit-uri" json:"knowledge-hit-uri"`
 	GetDocSegmentUri          string `mapstructure:"get-doc-segment-uri" json:"get-doc-segment-uri"`
+	GetDocChildSegmentUri     string `mapstructure:"get-child-content-uri" json:"get-child-content-uri"`
 	DocSegmentUpdateStatusUri string `mapstructure:"doc-segment-update-status-uri" json:"doc-segment-update-status-uri"`
 	DocDeleteUri              string `mapstructure:"doc-delete-uri" json:"doc-delete-uri"`
-	DocTagUri                 string `mapstructure:"doc-tag-uri" json:"doc-tag-uri"`
+	UpdateFileMetasUri        string `mapstructure:"update-file-metas-uri" json:"update-file-metas-uri"`
 	DocUrlImportUri           string `mapstructure:"doc-url-import-uri" json:"doc-url-import-uri"`
 	DocUrlAnalysisUri         string `mapstructure:"doc-url-analysis-uri" json:"doc-url-analysis-uri"`
 	KeywordsUri               string `mapstructure:"keywords-uri" json:"keywords-uri"`
+	DocSegmentUpdateLabelsUri string `mapstructure:"doc-segment-update-labels-uri" json:"doc-segment-update-labels-uri"`
+	DocSegmentCreateUri       string `mapstructure:"doc-segment-create-uri" json:"doc-segment-create-uri"`
+	DocSegmentUpdateUri       string `mapstructure:"doc-segment-update-uri" json:"doc-segment-update-uri"`
+	DocSegmentDeleteUri       string `mapstructure:"doc-segment-delete-uri" json:"doc-segment-delete-uri"`
+	DocChildSegmentCreateUri  string `mapstructure:"doc-child-segment-create-uri" json:"doc-child-segment-create-uri"`
+	DocChildSegmentDeleteUri  string `mapstructure:"doc-child-segment-delete-uri" json:"doc-child-segment-delete-uri"`
+	DocChildSegmentUpdateUri  string `mapstructure:"doc-child-segment-update-uri" json:"doc-child-segment-update-uri"`
+	BatchDeleteMetaKeyUri     string `mapstructure:"batch-delete-meta-key-uri" json:"batch-delete-meta-key-uri"`
+	BatchRenameMetakeyUri     string `mapstructure:"batch-rename-meta-key-uri" json:"batch-rename-meta-key-uri"`
+	GetCommunityReportListUri string `mapstructure:"get-community-report-list-uri" json:"get-community-report-list-uri"`
+	BatchAddReportsUri        string `mapstructure:"batch-add-reports-uri" json:"batch-add-reports-uri"`
+	UpdateReportUri           string `mapstructure:"update-report-uri" json:"update-report-uri"`
+	BatchDeleteReportsUri     string `mapstructure:"batch-delete-reports-uri" json:"batch-delete-reports-uri"`
+	KnowledgeGraphUri         string `mapstructure:"knowledge-graph-uri" json:"knowledge-graph-uri"`
 	Timeout                   int64  `mapstructure:"timeout" json:"timeout"`
 }

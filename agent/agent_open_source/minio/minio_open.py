@@ -14,6 +14,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(mes
 MINIO_ADDRESS = os.getenv("MINIO_ADDRESS")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+URL_MINIO = os.getenv("URL_MINIO")
+
+
 if MINIO_ADDRESS is None or MINIO_ACCESS_KEY is None or MINIO_SECRET_KEY is None:
     MINIO_ADDRESS = "172.17.0.1:9000"
     MINIO_ACCESS_KEY = "root"
@@ -27,7 +30,9 @@ minio_client = Minio(
     secure=False
 )
 default_bucket_name = "agent-prod"
-response = requests.get('http://172.17.0.1:6668/v1/api/deploy/info')
+
+url = URL_MINIO+':6668/v1/api/deploy/info'
+response = requests.get(url)
 response_data = response.json()
 base_url = response_data['data']['webBaseUrl']
 #port = response_data['data']['massAccessPort']

@@ -22,8 +22,9 @@ const (
 	RESULT = "RESULT"
 
 	// http header
-	X_LANGUAGE = "X-Language" // 当前语言
-	X_ORG_ID   = "X-Org-Id"   // 当前组织
+	X_LANGUAGE  = "X-Language" // 当前语言
+	X_ORG_ID    = "X-Org-Id"   // 当前组织
+	X_CLIENT_ID = "X-Client-Id"
 
 	// gin.Context
 	USER_ID   = "USER_ID"   // 当前用户
@@ -35,6 +36,10 @@ const (
 	APP_TYPE = "APP_TYPE"
 
 	ANSWER = "ANSWER"
+
+	// OAuth相关
+	OAUTH_SCOPE     = "SCOPE"
+	OAUTH_CLIENT_ID = "OAuth_Client_ID"
 )
 
 // http common query key
@@ -185,6 +190,13 @@ func ResponseDetail(ctx *gin.Context, httpStatus int, code codes.Code, data inte
 	ctx.Set(STATUS, httpStatus)
 	ctx.Set(RESULT, string(b))
 	ctx.JSON(httpStatus, resp)
+}
+
+// ResponseRawByte 直接返回[]byte数据
+func ResponseRawByte(ctx *gin.Context, httpStatus int, data []byte) {
+	ctx.Set(STATUS, httpStatus)
+	ctx.Set(RESULT, string(data))
+	ctx.Data(httpStatus, "application/json; charset=utf-8", data)
 }
 
 // response 与model/response中Response一致，后者只用于swagger生成

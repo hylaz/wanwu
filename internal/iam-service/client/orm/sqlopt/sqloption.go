@@ -6,6 +6,10 @@ import (
 
 type sqlOptions []SQLOption
 
+const (
+	OrgUserStatusDisabled = "disable"
+)
+
 func SQLOptions(opts ...SQLOption) sqlOptions {
 	return opts
 }
@@ -99,5 +103,29 @@ func LikeName(name string) SQLOption {
 			return db.Where("name LIKE ?", "%"+name+"%")
 		}
 		return db
+	})
+}
+
+func WithEmail(email string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("email = ?", email)
+	})
+}
+
+func WithPhone(phone string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("phone = ?", phone)
+	})
+}
+
+func WithOrgUserEnable() SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("status != ? OR status IS NULL", OrgUserStatusDisabled)
+	})
+}
+
+func WithClientID(clientID string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("client_id = ?", clientID)
 	})
 }

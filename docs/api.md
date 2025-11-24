@@ -4,6 +4,7 @@
 | Authorization | JWT token |
 | X-Language    | 语言Code  |
 | X-Org-Id      | 组织ID    |
+| X-Client-Id   | 客户端标识|
 
 ## HTTP Status
 | HTTP Status             | 说明                   |

@@ -15,7 +15,7 @@ import (
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.ListKeywordsReq	true	"关键词列表查询请求参数"
+//	@Param			data	query		request.ListKeywordsReq	true	"关键词列表查询请求参数"
 //	@Success		200		{object}	response.GetKnowledgeKeywordListResp
 //	@Router			/knowledge/keywords [get]
 func GetKnowledgeKeywordsList(ctx *gin.Context) {
@@ -57,7 +57,7 @@ func CreateKnowledgeKeywords(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.GetKeywordsDetailReq	true	"关键词列表查询请求参数"
+//	@Param			data	query		request.GetKeywordsDetailReq	true	"关键词列表查询请求参数"
 //	@Success		200		{object}	response.KeywordsInfo
 //	@Router			/knowledge/keywords/detail [get]
 func GetKnowledgeKeywordsDetail(ctx *gin.Context) {

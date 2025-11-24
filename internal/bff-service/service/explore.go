@@ -1,30 +1,29 @@
 package service
 
 import (
-	"errors"
 	"sort"
-	"strconv"
 	"strings"
-
-	"gorm.io/gorm"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/api/proto/common"
+	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/constant"
+	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
-func GetExplorationAppList(ctx *gin.Context, userId string, req request.GetExplorationAppListRequest) (*response.ListResult, error) {
+func GetExplorationAppList(ctx *gin.Context, userId, orgId string, req request.GetExplorationAppListRequest) (*response.ListResult, error) {
 	explorationApp, err := app.GetExplorationAppList(ctx.Request.Context(), &app_service.GetExplorationAppListReq{
 		Name:       req.Name,
 		AppType:    req.AppType,
 		SearchType: req.SearchType,
 		UserId:     userId,
+		OrgId:      orgId,
 	})
 	if err != nil {
 		return nil, err
@@ -37,6 +36,9 @@ func GetExplorationAppList(ctx *gin.Context, userId string, req request.GetExplo
 	if err != nil {
 		return nil, err
 	}
+	// AgentScope Workflow
+	// workFlows, err := explorerationFilterAgentScopeWorkFlow(ctx, explorationApp.Infos, req.Name)
+	// Coze Workflow
 	workFlows, err := explorerationFilterWorkFlow(ctx, explorationApp.Infos, req.Name)
 	if err != nil {
 		return nil, err
@@ -45,9 +47,28 @@ func GetExplorationAppList(ctx *gin.Context, userId string, req request.GetExplo
 	sort.SliceStable(apps, func(i, j int) bool {
 		return apps[i].CreatedAt > apps[j].CreatedAt
 	})
+	// 填充作者信息
+	var userIds []string
+	for _, app := range apps {
+		userIds = append(userIds, app.User.UserId)
+	}
+	ret, err := iam.GetUserSelectByUserIDs(ctx, &iam_service.GetUserSelectByUserIDsReq{
+		UserIds: userIds,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, app := range apps {
+		app.User.UserName = gin_util.I18nKey(ctx, "iam_user_deleted")
+		for _, user := range ret.Selects {
+			if app.User.UserId == user.Id {
+				app.User.UserName = user.Name
+			}
+		}
+	}
 	return &response.ListResult{
 		List:  apps,
-		Total: explorationApp.Total,
+		Total: int64(len(apps)),
 	}, nil
 }
 
@@ -113,6 +134,7 @@ func explorerationFilterRag(ctx *gin.Context, explorationApp []*app_service.Expl
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
 				appInfo.PublishType = expApp.PublishType
 				appInfo.IsFavorite = expApp.IsFavorite
+				appInfo.User.UserId = expApp.UserId
 				retAppList = append(retAppList, appInfo)
 				break
 			}
@@ -168,6 +190,7 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
 				appInfo.PublishType = expApp.PublishType
 				appInfo.IsFavorite = expApp.IsFavorite
+				appInfo.User.UserId = expApp.UserId
 				retAppList = append(retAppList, appInfo)
 				break
 			}
@@ -187,86 +210,89 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 }
 
 func explorerationFilterWorkFlow(ctx *gin.Context, apps []*app_service.ExplorationAppInfo, name string) ([]*response.ExplorationAppInfo, error) {
+	// 首先收集所有agent类型的appId
+	var ids []string
+	for _, info := range apps {
+		if info.AppType == constant.AppTypeWorkflow {
+			ids = append(ids, info.AppId)
+		}
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	// 获取工作流详情
-	workFlowList, err := ListWorkFlowInternal(ctx)
+	workFlowList, err := ListWorkflowByIDs(ctx, name, ids)
 	if err != nil {
 		return nil, err
 	}
 	var retAppList []*response.ExplorationAppInfo
-	for _, expApp := range apps {
-		for _, workFlow := range workFlowList.List {
-			if expApp.AppId == workFlow.Id {
+	for _, id := range ids {
+		var foundWorkflow *response.CozeWorkflowListDataWorkflow
+		for _, workflow := range workFlowList.Workflows {
+			if workflow.WorkflowId == id {
+				foundWorkflow = workflow
+				break
+			}
+		}
+		if foundWorkflow == nil {
+			continue
+		}
+		for _, expApp := range apps {
+			if expApp.AppId == id {
 				appInfo := &response.ExplorationAppInfo{
-					AppBriefInfo: response.AppBriefInfo{
-						AppId:   workFlow.Id,
-						AppType: constant.AppTypeWorkflow,
-						Avatar:  request.Avatar{},
-						Name:    workFlow.ConfigName,
-						Desc:    workFlow.ConfigDesc,
-					},
+					AppBriefInfo: cozeWorkflowInfo2Model(foundWorkflow),
 				}
 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
 				appInfo.PublishType = expApp.PublishType
 				appInfo.IsFavorite = expApp.IsFavorite
+				appInfo.Avatar = cacheWorkflowAvatar(foundWorkflow.URL, constant.AppTypeWorkflow)
 				retAppList = append(retAppList, appInfo)
+				appInfo.User.UserId = expApp.UserId
 				break
 			}
 		}
-
-	}
-	// 如果name不为空，过滤结果
-	if name != "" {
-		var filteredList []*response.ExplorationAppInfo
-		for _, ret := range retAppList {
-			if strings.Contains(strings.ToLower(ret.AppBriefInfo.Name), strings.ToLower(name)) {
-				filteredList = append(filteredList, ret)
-			}
-		}
-		return filteredList, nil
 	}
 	return retAppList, nil
 }
 
-func GetUserMCPList(ctx *gin.Context, assistantId, userId, orgId string) ([]*response.MCPInfos, error) {
-	// 获取该用户的所有 MCP 列表
-	resp, err := assistant.AssistantMCPGetList(ctx.Request.Context(), &assistant_service.AssistantMCPGetListReq{
-		AssistantId: assistantId,
-		Identity: &assistant_service.Identity{
-			UserId: userId,
-			OrgId:  orgId,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// 获取MCP 详情
-	valid := true
-	var retMCPInfos []*response.MCPInfos
-	for _, m := range resp.AssistantMCPInfos {
-		mcpInfo, err := GetMCP(ctx, m.McpId)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				valid = false
-			} else {
-				return nil, err
-			}
-		}
-
-		// 组装为 MCPInfos
-		retMCPInfos = append(retMCPInfos, &response.MCPInfos{
-			Id:            strconv.Itoa(int(m.Id)),
-			MCPId:         m.McpId,
-			MCPSquareId:   mcpInfo.MCPSquareID,
-			Enable:        m.Enable,
-			MCPName:       mcpInfo.MCPInfo.Name,
-			MCPDesc:       mcpInfo.MCPInfo.Desc,
-			MCPServerFrom: mcpInfo.MCPInfo.From,
-			MCPServerUrl:  mcpInfo.MCPInfo.SSEURL,
-			Valid:         valid,
-		})
-	}
-
-	return retMCPInfos, nil
-}
+// func explorerationFilterAgentScopeWorkFlow(ctx *gin.Context, apps []*app_service.ExplorationAppInfo, name string) ([]*response.ExplorationAppInfo, error) {
+// 	// 获取工作流详情
+// 	workFlowList, err := ListAgentScopeWorkFlowInternal(ctx)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	var retAppList []*response.ExplorationAppInfo
+// 	for _, expApp := range apps {
+// 		for _, workFlow := range workFlowList.List {
+// 			if expApp.AppId == workFlow.Id {
+// 				appInfo := &response.ExplorationAppInfo{
+// 					AppBriefInfo: response.AppBriefInfo{
+// 						AppId:   workFlow.Id,
+// 						AppType: constant.AppTypeWorkflow,
+// 						Avatar:  request.Avatar{},
+// 						Name:    workFlow.ConfigName,
+// 						Desc:    workFlow.ConfigDesc,
+// 					},
+// 				}
+// 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
+// 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
+// 				appInfo.PublishType = expApp.PublishType
+// 				appInfo.IsFavorite = expApp.IsFavorite
+// 				retAppList = append(retAppList, appInfo)
+// 				break
+// 			}
+// 		}
+// 	}
+// 	// 如果name不为空，过滤结果
+// 	if name != "" {
+// 		var filteredList []*response.ExplorationAppInfo
+// 		for _, ret := range retAppList {
+// 			if strings.Contains(strings.ToLower(ret.AppBriefInfo.Name), strings.ToLower(name)) {
+// 				filteredList = append(filteredList, ret)
+// 			}
+// 		}
+// 		return filteredList, nil
+// 	}
+// 	return retAppList, nil
+// }

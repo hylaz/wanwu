@@ -11,4 +11,5 @@ type MCPClient struct {
 	From        string `gorm:"index:idx_mcp_from"`
 	Desc        string
 	SseUrl      string
+	AvatarPath  string `gorm:"column:avatar_path;comment:'自定义工具头像'"`
 }

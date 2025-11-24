@@ -29,3 +29,50 @@ message AppModelConfig {
     string modelType = 4;
     string config = 5;
 }
+
+message ToolAction {
+    string name = 1;
+    string description = 2;
+    ToolActionInputSchema inputSchema = 3;
+}
+
+message ToolActionInputSchema {
+    string type = 1; // 固定 object
+    map<string, ToolActionInputSchemaValue> properties = 2;
+    repeated string required = 3;
+}
+
+message ToolActionInputSchemaValue {
+    string type = 1;
+    string description = 2;
+}
+
+message StatisticChart {
+    string tableName = 1;
+    repeated StatisticChartLine chartLines = 2;
+}
+
+message StatisticChartLine {
+    string lineName = 1;
+    repeated StatisticChartLineItem items = 2;
+}
+
+message StatisticChartLineItem {
+    string key = 1;
+    float value = 2;
+}
+
+message ApiAuthWebRequest{
+    string authType = 1;
+    string apiKeyHeaderPrefix = 2;
+    string apiKeyHeader = 3;
+    string apiKeyQueryParam = 4;
+    string apiKeyValue = 5;
+}
+
+message ApiAuth {
+  string authType = 1;
+  string authIn = 2;
+  string authName = 3;
+  string authValue = 4;
+}

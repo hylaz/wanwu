@@ -104,11 +104,20 @@ class OpenAPIPluginTool(BaseTool):
                 logger.info(f"------headers：{self.header}--------")
                 try:
                     logger.info(f"------开始请求服务--------")
-                    response = requests.request(
-                        'POST',
-                        url=self.url,
-                        headers=self.header,
-                        data=json.dumps(full_params),timeout=600)
+                    if self.header['Content-Type']=='multipart/form-data':
+                        self.header.pop('Content-Type', None)
+                        logger.info(f"------Content-Type 为 multipart/form-data 的headers更改：{self.header}--------")
+                        response = requests.request(
+                            'POST',
+                            url=self.url,
+                            headers=self.header,
+                            data=full_params,timeout=600)
+                    else:
+                        response = requests.request(
+                            'POST',
+                            url=self.url,
+                            headers=self.header,
+                            data=json.dumps(full_params),timeout=600)
                     logger.info(f"response.status_code：{response.status_code}")
                     logger.info(f"response类型：{type(response)}")
                     # logger.info(f"response：{response.text}")

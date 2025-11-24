@@ -21,8 +21,8 @@ func SelectKnowledgeTagList(ctx *gin.Context, userId, orgId string, req *request
 	return buildKnowledgeTagList(resp), nil
 }
 
-// SelectTagBindCount 查询标签绑定数量
-func SelectTagBindCount(ctx *gin.Context, userId, orgId string, req *request.TagBindCountReq) (*response.TagBindResp, error) {
+// SelectKnowledgeTagBindCount 查询标签绑定数量
+func SelectKnowledgeTagBindCount(ctx *gin.Context, userId, orgId string, req *request.KnowledgeTagBindCountReq) (*response.TagBindResp, error) {
 	resp, err := knowledgeBaseTag.TagBindCount(ctx.Request.Context(), &knowledgebase_tag_service.TagBindCountReq{
 		UserId: userId,
 		OrgId:  orgId,

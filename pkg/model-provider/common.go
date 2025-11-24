@@ -6,6 +6,8 @@ const (
 	ModelTypeEmbedding = "embedding"
 	ModelTypeRerank    = "rerank"
 	ModelTypeOcr       = "ocr"
+	ModelTypeGui       = "gui"
+	ModelTypePdfParser = "pdf-parser"
 )
 
 // model provider
@@ -15,6 +17,7 @@ const (
 	ProviderHuoshan          = "Huoshan"
 	ProviderOllama           = "Ollama"
 	ProviderQwen             = "Qwen"
+	ProviderInfini           = "Infini"
 )
 
 var (

@@ -9,7 +9,6 @@ import (
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/app-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/app-service/client/orm/sqlopt"
-	"github.com/UnicomAI/wanwu/pkg/constant"
 	"gorm.io/gorm"
 )
 
@@ -37,31 +36,7 @@ func (c *Client) PublishApp(ctx context.Context, userId, orgId, appId, appType, 
 		}
 		return toErrStatus("app_publish_app_query", appId, err.Error())
 	}
-	err = c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if existingApp.PublishType == constant.AppPublishPublic && publishType == constant.AppPublishPrivate {
-			if err := sqlopt.SQLOptions(
-				sqlopt.WithAppID(appId),
-				sqlopt.WithExcludeUserID(userId),
-			).Apply(tx).Delete(&model.AppHistory{}).Error; err != nil {
-				return fmt.Errorf("failed to delete app history: %v", err)
-			}
-			if err := sqlopt.SQLOptions(
-				sqlopt.WithAppID(appId),
-				sqlopt.WithExcludeUserID(userId),
-			).Apply(tx).Delete(&model.AppFavorite{}).Error; err != nil {
-				return fmt.Errorf("failed to delete app favorite: %v", err)
-			}
-		}
-		if err := c.db.WithContext(ctx).Model(&existingApp).
-			Update("publish_type", publishType).Error; err != nil {
-			return fmt.Errorf("update app: %v publish type err: %v", appId, err.Error())
-		}
-		return nil
-	})
-	if err != nil {
-		return toErrStatus("app_publish_app_delete", appId, err.Error())
-	}
-	return nil
+	return toErrStatus("app_publish_app_exist", appId)
 }
 
 func (c *Client) UnPublishApp(ctx context.Context, appId, appType, userId string) *errs.Status {
@@ -109,6 +84,12 @@ func (c *Client) DeleteApp(ctx context.Context, appId, appType string) *errs.Sta
 		}
 		if err := deleteAppRelatedDataByUnPublish(tx, appId, appType); err != nil {
 			return err
+		}
+		if err := sqlopt.SQLOptions(
+			sqlopt.WithAppID(appId),
+			sqlopt.WithAppType(appType),
+		).Apply(tx).Delete(&model.AppUrl{}).Error; err != nil {
+			return fmt.Errorf("failed to delete app open url: %v", err)
 		}
 		return nil
 	})

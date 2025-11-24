@@ -21,6 +21,7 @@ func NewService(cli client.IClient) *Service {
 func errStatus(code errs.Code, status *errs.Status) error {
 	return grpc_util.ErrorStatusWithKey(code, status.TextKey, status.Args...)
 }
+
 func toErrStatus(key string, args ...string) *errs.Status {
 	return &errs.Status{
 		TextKey: key,

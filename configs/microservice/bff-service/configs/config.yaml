@@ -1,11 +1,10 @@
 server:
   host: bff-service
   port: 6668
-  external_ip: localhost
-  external_port: 6668
   web_base_url: http://localhost:8081
   api_base_url: http://localhost:6668
-  callback_url: http://172.17.0.1:6668
+  app_open_base_url: http://localhost:6668
+  callback_url: http://bff-service:6668
 
 log:
   std: true
@@ -25,7 +24,13 @@ log:
       max_age: 30
 
 jwt:
-  signing-key: "zhYZAr7Q7JstuEXQBx5p2MdUtfsC7CY5"
+  signing-key:
+
+oauth:
+  switch:
+  rsa:
+    private_key_path: /app/tmp/oauth_rsa_private.pem
+    public_key_path: /app/tmp/oauth_rsa_public.pem
 
 decrypt-passwd:
   iv: "sdf4ddfsFD86Vdf2"
@@ -44,6 +49,7 @@ i18n:
     - rag-service
     - assistant-service
     - app-service
+    - operate-service
   jsonlPath: configs/microservice/bff-service/configs/wanwu-i18n.jsonl
   langs:
     - code: zh
@@ -60,7 +66,8 @@ custom-info:
   modes:
     - mode: light
       login:
-        background_path: "/v1/static/logo/login_bg.png"
+        background_path: "/v1/static/logo/login_bg.jpg"
+        logo_path: "/v1/static/logo/login_logo.png"
         login_button_color: "#384BF7"
         welcome_text: bff_custom_login_welcome_text
         platform_desc: bff_custom_login_platform_desc
@@ -73,13 +80,33 @@ custom-info:
         logo_path: "/v1/static/logo/tab_logo.png"
       about:
         logo_path: "/v1/static/logo/about_logo.png"
-        version: v0.1.0
         copyright: bff_custom_about_copyright
     - mode: dark
+  version: v0.1.0
+  register_by_email: 0
+  reset_password_by_email: 0
+  login_by_email: 0
+
+default-icon:
+  user: "/v1/static/icon/user-default-icon.png"
+  rag: "/v1/static/icon/rag-default-icon.png"
+  agent: "/v1/static/icon/agent-default-icon.png"
+  workflow: "/v1/static/icon/workflow-default-icon.png"
+  chatflow: "/v1/static/icon/chatflow-default-icon.png"
+  mcpCustom: "/v1/static/icon/mcp-custom-default-icon.png"
+  mcpServer: "/v1/static/icon/mcp-server-default-icon.png"
+  tool: "/v1/static/icon/custom-tool-default-icon.png"
+  prompt: "/v1/static/icon/prompt-default-icon.png"
 
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
   links:
+    - key: api-rag
+      val: wanwu-openapi/1.文本问答API.md
+    - key: api-agent
+      val: wanwu-openapi/2.智能体API.md
+    - key: api-workflow
+      val: wanwu-openapi/3.工作流API.md
     - key: model
       val: 模型导入方式-详细版.md
     - key: knowledge
@@ -89,46 +116,84 @@ doc-center:
     - key: knowledge-keywords
       val: 2.知识库/关键词管理.md
     - key: mcp
-      val: 3.MCP广场.md
+      val: 3.资源库.md
     - key: safety
       val: 4.安全护栏.md
     - key: rag
       val: 5.文本问答.md
     - key: agent
       val: 7.智能体.md
-    - key: workflow-MCPClientNode
-      val: 6.工作流/MCP.md
-    - key: workflow-IntentionNode
-      val: 6.工作流/意图识别.md
-    - key: workflow-ApiNode
-      val: 6.工作流/API.md
-    - key: workflow-PythonNode
-      val: 6.工作流/代码.md
-    - key: workflow-LLMNode
-      val: 6.工作流/大模型.md
-    - key: workflow-SwitchNode
-      val: 6.工作流/分支器.md
-    - key: workflow-RAGNode
-      val: 6.工作流/知识库.md
-    - key: workflow-FileGenerateNode
-      val: 6.工作流/文档生成.md
-    - key: workflow-FileParseNode
-      val: 6.工作流/文档解析.md
-    - key: workflow-TemplateTransformNode
-      val: 6.工作流/模板转换.md
-    - key: workflow-EndNode
-      val: 6.工作流/结束.md
-    - key: workflow-StartNode
+    - key: workflow-1
       val: 6.工作流/开始.md
+    - key: workflow-2
+      val: 6.工作流/结束.md
+    - key: workflow-3
+      val: 6.工作流/大模型.md
+    - key: workflow-5
+      val: 6.工作流/代码.md
+    - key: workflow-8
+      val: 6.工作流/选择器.md
+    - key: workflow-9
+      val: 6.工作流/工作流.md
+    - key: workflow-13
+      val: 6.工作流/输出.md
+    - key: workflow-15
+      val: 6.工作流/文本处理.md
+    - key: workflow-21
+      val: 6.工作流/循环.md
+    - key: workflow-28
+      val: 6.工作流/批处理.md
+    - key: workflow-30
+      val: 6.工作流/输入.md
+    - key: workflow-32
+      val: 6.工作流/变量聚合.md
+    - key: workflow-45
+      val: 6.工作流/HTTP请求.md
+    - key: workflow-58
+      val: 6.工作流/JSON序列化.md
+    - key: workflow-1004
+      val: 6.工作流/工具.md
+    - key: workflow-1006
+      val: 6.工作流/知识库.md
+    - key: workflow-1007
+      val: 6.工作流/文档生成.md
+    - key: workflow-1008
+      val: 6.工作流/文档解析.md
+    - key: workflow-1009
+      val: 6.工作流/MCP.md
+    - key: workflow-1010
+      val: 6.工作流/GUI.md
+    - key: workflow-1022
+      val: 6.工作流/意图识别.md
+    - key: workflow-1059
+      val: 6.工作流/JSON反序列化.md
 
+workflow-template:
+  server_mode: local
+  configPath: configs/microservice/bff-service/configs/workflow_template_config.yaml
+  global_web_list_url:
+  list_url:
+  download_url:
+  detail_url:
+  recommend_url:
 
-
+prompt-template:
+  configPath: configs/microservice/bff-service/configs/prompt_template_config.yaml
+  
 # --- middleware ---
 
 minio:
   endpoint: localhost:9000
   user: root
   password: Wanwu123456
+
+redis:
+  host: localhost
+  port: 6379
+  username:
+  password: Wanwu123456
+  standalone: true
+  master_name: mymaster
 
 # --- microservice ---
 
@@ -140,7 +205,8 @@ app:
 
 model:
   host: model-service:8989
-  ocr_test_file_path: "configs/microservice/bff-service/static/model/ocr.png"
+  png_test_file_path: "configs/microservice/bff-service/static/model/test.png"
+  pdf_test_file_path: "configs/microservice/bff-service/static/model/test.pdf"
 
 mcp:
   host: mcp-service:9898
@@ -154,19 +220,114 @@ assistant:
 knowledge:
   host: knowledge-service:8889
 
+operate:
+  host: operate-service:9797
+
+agent:
+  host: agent-wanwu
+  upload_minio:
+    port: 15001
+    uri: /upload
+
+rag-knowledge:
+  endpoint: 'http://rag-wanwu:8681'
+  chat-endpoint: 'http://rag-wanwu:10891'
+  search-knowledge-base-uri: '/rag/search-knowledge-base'
+  knowledge-chat-uri: '/rag/knowledge/stream/search'
+
 workflow:
-  host: http://agentscope-wanwu:6672
+  endpoint: http://workflow-wanwu:8999
+  minio_proxy_endpoint: http://workflow-wanwu:8998
+  minio_proxy_prefix: /workflow/minio/presign
+  list_uri: /api/workflow_api/workflow_list_by_wanwu
+  create_uri: /api/workflow_api/create
+  delete_uri: /api/workflow_api/delete
+  copy_uri: /api/workflow_api/copy
+  export_uri: /api/workflow_api/export
+  import_uri: /api/workflow_api/import
+  test_run_uri: /v1/workflow/%v/run_by_wanwu
+  create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
+  chatflow_run_uri: /v1/workflow/chat_by_wanwu
+  upload_action_uri: /api/common/upload/apply_upload_action
+  upload_common_uri: /api/common/upload
+  upload_file_uri: /api/bot/upload_file_by_wanwu
+  sign_img_uri: /api/workflow_api/sign_image_url
+
+  model_params:
+    - name: temperature
+      desc: "- **temperature**: 调高温度会使得模型的输出更多样性和创新性，反之，降低温度会使输出内容更加遵循指令要求但减少多样性。建议不要与“Top p”同时调整。"
+      label: "生成随机性"
+      type: 1
+      precision: 2
+      min: "0"
+      max: "2"
+      param_class:
+        class_id: 1
+        label: "生成多样性"
+      default_val:
+        precise: "0.3"
+        balance: "0.8"
+        creative: "1"
+        default_val: "1"
+    - name: top_p
+      desc: "- **Top p 为累计概率**: 模型在生成输出时会从概率最高的词汇开始选择，直到这些词汇的总概率累积达到Top p 值。这样可以限制模型只选择这些高概率的词汇，从而控制输出内容的多样性。建议不要与“生成随机性”同时调整。"
+      label: "Top P"
+      type: 1
+      precision: 2
+      min: "0"
+      max: "1"
+      param_class:
+        class_id: 1
+        label: "生成多样性"
+      default_val:
+        precise: "1"
+        balance: "1"
+        creative: "1"
+        default_val: "0.7"
+    - name: frequency_penalty
+      desc: "- **frequency penalty**: 当该值为正时，会阻止模型频繁使用相同的词汇和短语，从而增加输出内容的多样性。"
+      label: "重复语句惩罚"
+      type: 1
+      precision: 2
+      min: "-2"
+      max: "2"
+      param_class:
+        class_id: 1
+        label: "生成多样性"
+      default_val:
+        precise: "2"
+        balance: "0"
+        creative: "0"
+        default_val: "0"
+    - name: max_tokens
+      desc: "控制模型输出的Tokens 长度上限。通常 100 Tokens 约等于 150 个中文汉字。"
+      label: "最大回复长度"
+      type: 2
+      precision: 0
+      min: "0"
+      max: "16384"
+      param_class:
+        class_id: 2
+        label: "输入及输出设置"
+      default_val:
+        default_val: "4096"
+    - name: response_format
+      desc: "- **文本**: 使用普通文本格式回复\n- **Markdown**: 将引导模型使用Markdown格式输出回复\n- **JSON**: 将引导模型使用JSON格式输出"
+      label: "输出格式"
+      type: 2
+      precision: 0
+      min: ""
+      max: ""
+      param_class:
+        class_id: 2
+        label: "输入及输出设置"
+      default_val:
+        default_val: "0"
+
+agentscope-workflow:
+  endpoint: http://agentscope-wanwu:6672
   workflow_list_uri: "/workflow/list"
   workflow_list_uri_internal: "/workflow/list_internal"
   delete_workflow_uri: "/workflow/delete"
   publish_workflow_uri: "/plugin/api/publish"
   unpublish_workflow_uri: "/plugin/api/unpublish"
-
-agent:
-  host: agent-wanwu
-  upload_minio:
-      port: 15001
-      uri: /upload
-
-operate:
-  host: operate-service:9797

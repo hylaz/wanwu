@@ -86,7 +86,7 @@ func GetKnowledgeInfo(ctx context.Context, k *model.KnowledgeKeywords) ([]string
 		return nil, nil, err
 	}
 	// 根据id获取知识库列表
-	knowledgeList, errk := orm.SelectKnowledgeByIdList(ctx, knowledgeIds, k.UserId, k.OrgId)
+	knowledgeList, _, errk := orm.SelectKnowledgeByIdList(ctx, knowledgeIds, k.UserId, k.OrgId)
 	if errk != nil {
 		log.Errorf("查询知识库名称失败")
 		return nil, nil, errk
@@ -141,7 +141,10 @@ func buildKeywordsModel(req *knowledgebase_keywords_service.CreateKnowledgeKeywo
 // CreateKnowledgeKeywords 新增关键词
 func (s *Service) CreateKnowledgeKeywords(ctx context.Context, req *knowledgebase_keywords_service.CreateKnowledgeKeywordsReq) (*emptypb.Empty, error) {
 	// 检查有无同名关键词
-	err := orm.CheckRepeatedKeywords(ctx, req)
+	err := orm.CheckRepeatedKeywords(ctx, &knowledgebase_keywords_service.UpdateKnowledgeKeywordsReq{
+		Id:     0,
+		Detail: req,
+	})
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		return nil, util.ErrCode(errs.Code_KnowledgeKeywordsRepeated)
 	} else if err != nil {
@@ -173,7 +176,7 @@ func (s *Service) DeleteKnowledgeKeywords(ctx context.Context, req *knowledgebas
 // UpdateKnowledgeKeywords 更新关键词
 func (s *Service) UpdateKnowledgeKeywords(ctx context.Context, req *knowledgebase_keywords_service.UpdateKnowledgeKeywordsReq) (*emptypb.Empty, error) {
 	// 检查有无同名关键词
-	err := orm.CheckRepeatedKeywords(ctx, req.Detail)
+	err := orm.CheckRepeatedKeywords(ctx, req)
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		return nil, util.ErrCode(errs.Code_KnowledgeKeywordsRepeated)
 	} else if err != nil {

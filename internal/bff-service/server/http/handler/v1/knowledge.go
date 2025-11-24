@@ -111,3 +111,87 @@ func KnowledgeHit(ctx *gin.Context) {
 	resp, err := service.KnowledgeHit(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, resp, err)
 }
+
+// GetKnowledgeMetaKeySelect
+//
+//	@Tags			knowledge
+//	@Summary		获取知识库元数据
+//	@Description	获取知识库元数据
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		request.GetKnowledgeMetaSelectReq	true	"获取知识库元数据请求参数"
+//	@Success		200		{object}	response.Response{data=response.GetKnowledgeMetaSelectResp}
+//	@Router			/knowledge/meta/select [get]
+func GetKnowledgeMetaKeySelect(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.GetKnowledgeMetaSelectReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeMetaSelect(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// GetKnowledgeMetaValueList
+//
+//	@Tags			knowledge
+//	@Summary		获取文档元数据列表
+//	@Description	获取文档元数据列表
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.KnowledgeMetaValueListReq	true	"文档元数据列表请求参数"
+//	@Success		200		{object}	response.Response{data=response.KnowledgeMetaValueListResp}
+//	@Router			/knowledge/meta/value/list [post]
+func GetKnowledgeMetaValueList(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeMetaValueListReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeMetaValueList(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// UpdateKnowledgeMetaValue
+//
+//	@Tags			knowledge
+//	@Summary		更新知识库元数据值
+//	@Description	更新知识库元数据值
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.UpdateMetaValueReq	true	"更新知识库元数据值请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/knowledge/meta/value/update [post]
+func UpdateKnowledgeMetaValue(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.UpdateMetaValueReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.UpdateKnowledgeMetaValue(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// GetKnowledgeGraph
+//
+//	@Tags			knowledge
+//	@Summary		查询知识图谱详情
+//	@Description	查询知识图谱详情
+//	@Security		JWT
+//	@Accept			json
+//	@Param			data	body	request.KnowledgeGraphReq	true	"查询知识图谱详情"
+//	@Produce		json
+//	@Success		200	{object}	response.Response{data=response.KnowledgeGraphResp}
+//	@Router			/knowledge/graph [get]
+func GetKnowledgeGraph(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeGraphReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeGraph(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}

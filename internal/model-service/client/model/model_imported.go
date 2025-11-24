@@ -9,6 +9,7 @@ type ModelImported struct {
 	ModelIconPath  string `gorm:"column:model_icon_path;type:varchar(512);comment:模型图标路径"`
 	IsActive       bool   `gorm:"column:is_active;type:tinyint(1);default:true;comment:模型是否启用"`
 	ProviderConfig string `gorm:"column:provider_config;type:longtext;comment:某供应商下的模型配置"`
+	ModelDesc      string `gorm:"column:model_desc;type:longtext;comment:模型描述"`
 	PublishDate    string `gorm:"column:publish_date;type:varchar(100);comment:模型发布时间"`
 	PublicModel
 }

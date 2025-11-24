@@ -57,6 +57,19 @@ func SelectKnowledgeImportTaskById(ctx context.Context, importId string) (*model
 	return &importTask, nil
 }
 
+// SelectKnowledgeImportTaskByIdList 根据id 列表查询导入信息
+func SelectKnowledgeImportTaskByIdList(ctx context.Context, importId []string) ([]*model.KnowledgeImportTask, error) {
+	var importTask []*model.KnowledgeImportTask
+	err := sqlopt.SQLOptions(sqlopt.WithImportIDs(importId)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeImportTask{}).
+		Find(&importTask).Error
+	if err != nil {
+		log.Errorf("SelectKnowledgeImportTaskByIdList importId %s err: %v", importId, err)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseDeleteFailed)
+	}
+	return importTask, nil
+}
+
 // CreateKnowledgeImportTask 导入任务
 func CreateKnowledgeImportTask(ctx context.Context, importTask *model.KnowledgeImportTask) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {

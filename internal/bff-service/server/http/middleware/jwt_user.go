@@ -32,7 +32,7 @@ func jwtUserAuth(ctx *gin.Context, token string) {
 		ctx.Abort()
 		return
 	}
-	if claims.Subject != jwt_util.USER {
+	if claims.Subject != jwt_util.SUBJECT_USER {
 		gin_util.ResponseDetail(ctx, httpStatus, codes.Code(err_code.Code_BFFJWT), nil, "token subject错误")
 		ctx.Abort()
 		return

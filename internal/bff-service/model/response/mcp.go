@@ -6,12 +6,18 @@ import (
 )
 
 type MCPSelect struct {
-	MCPID       string `json:"mcpId"`       // mcpId
-	MCPSquareID string `json:"mcpSquareId"` // 广场mcpId(非空表示来源于广场)
-	Name        string `json:"name"`        // 名称
-	Description string `json:"description"` // 描述
-	ServerFrom  string `json:"serverFrom"`  // 来源
-	ServerURL   string `json:"serverUrl"`   // sseUrl
+	UniqueId    string         `json:"uniqueId"`    // 随机unique id(每次动态生成)
+	MCPID       string         `json:"mcpId"`       // mcpId
+	MCPSquareID string         `json:"mcpSquareId"` // 广场mcpId(非空表示来源于广场)
+	Name        string         `json:"name"`        // 名称
+	Type        string         `json:"type"`
+	ToolId      string         `json:"toolId"`                                           // 工具id
+	ToolName    string         `json:"toolName"`                                         // 工具名称
+	ToolType    string         `json:"toolType" validate:"required,oneof=mcp mcpserver"` // 工具类型
+	Description string         `json:"description"`                                      // 描述
+	ServerFrom  string         `json:"serverFrom"`                                       // 来源
+	ServerURL   string         `json:"serverUrl"`                                        // sseUrl
+	Avatar      request.Avatar `json:"avatar"`                                           // 图标
 }
 
 type MCPToolList struct {
@@ -35,7 +41,7 @@ type MCPInfo struct {
 type MCPSquareDetail struct {
 	MCPSquareInfo
 	MCPSquareIntro
-	MCPTools
+	MCPActions
 }
 
 // MCPSquareInfo MCP广场信息
@@ -56,25 +62,12 @@ type MCPSquareIntro struct {
 	Detail   string `json:"detail"`   // 详情
 }
 
-type MCPTools struct {
-	SSEURL    string    `json:"sseUrl"`    // SSE URL
-	Tools     []MCPTool `json:"tools"`     // 工具列表
-	HasCustom bool      `json:"hasCustom"` // 是否已经发送到自定义
+type MCPActions struct {
+	SSEURL    string           `json:"sseUrl"`    // SSE URL
+	Tools     []*protocol.Tool `json:"tools"`     // 工具列表
+	HasCustom bool             `json:"hasCustom"` // 是否已经发送到自定义
 }
 
-type MCPTool struct {
-	Name        string             `json:"name"`        // 工具名
-	Description string             `json:"description"` // 工具描述
-	InputSchema MCPToolInputSchema `json:"inputSchema"` // 工具参数
-}
-
-type MCPToolInputSchema struct {
-	Type       string                             `json:"type"`       // 固定值: object
-	Properties map[string]MCPToolInputSchemaValue `json:"properties"` // 字段名 -> 字段信息
-	Required   []string                           `json:"required"`   // 必填字段
-}
-
-type MCPToolInputSchemaValue struct {
-	Type        string `json:"type"`        // 字段类型
-	Description string `json:"description"` // 字段描述
+type MCPActionList struct {
+	Actions []*protocol.Tool `json:"actions"`
 }

@@ -8,12 +8,20 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
 func GetApiBaseUrl(ctx *gin.Context, req request.GetApiBaseUrlRequest) (string, error) {
+	if req.AppType == constant.AppTypeWorkflow {
+		apiBaseUrl, err := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1", req.AppType, "/run")
+		if err != nil {
+			return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
+		}
+		return apiBaseUrl, nil
+	}
 	apiBaseUrl, err := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1", req.AppType, "/chat")
 	if err != nil {
 		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())

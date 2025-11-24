@@ -96,6 +96,9 @@ func mergeCustomFields(key SystemCustomKey, custom model.SystemCustom, newCustom
 		if newCustom.Login.LoginBgPath != "" {
 			ret.LoginBgPath = newCustom.Login.LoginBgPath
 		}
+		if newCustom.Login.LogoPath != "" {
+			ret.LogoPath = newCustom.Login.LogoPath
+		}
 		if newCustom.Login.ButtonColor != "" {
 			ret.ButtonColor = newCustom.Login.ButtonColor
 		}

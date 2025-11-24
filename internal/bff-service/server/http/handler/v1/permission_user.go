@@ -1,12 +1,11 @@
 package v1
 
 import (
-	"errors"
-	"fmt"
-
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,6 +23,10 @@ import (
 func CreateUser(ctx *gin.Context) {
 	var req request.UserCreate
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_add_other"))
 		return
 	}
 	resp, err := service.CreateUser(ctx, getUserID(ctx), getOrgID(ctx), &req)
@@ -44,6 +47,10 @@ func CreateUser(ctx *gin.Context) {
 func ChangeUser(ctx *gin.Context) {
 	var req request.UserUpdate
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_change_other"))
 		return
 	}
 	err := service.ChangeUser(ctx, getOrgID(ctx), &req)
@@ -69,11 +76,15 @@ func DeleteUser(ctx *gin.Context) {
 	// delete
 	if isSystem(ctx) {
 		if !isAdmin(ctx) {
-			gin_util.Response(ctx, nil, errors.New("非系统管理员无法删除用户"))
+			gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_delete"))
 			return
 		}
 		err := service.DeleteUser(ctx, req.UserID)
 		gin_util.Response(ctx, nil, err)
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_delete_other"))
 		return
 	}
 	// remove from org
@@ -114,7 +125,11 @@ func ChangeUserStatus(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	err := service.ChangeUserStatus(ctx, req.UserID.UserID, req.Status)
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_change_status"))
+		return
+	}
+	err := service.ChangeUserStatus(ctx, req.UserID.UserID, getOrgID(ctx), req.Status)
 	gin_util.Response(ctx, nil, err)
 }
 
@@ -134,7 +149,7 @@ func ChangeUserPassword(ctx *gin.Context) {
 		return
 	}
 	if req.UserID.UserID != getUserID(ctx) {
-		gin_util.Response(ctx, nil, fmt.Errorf("无法修改他人密码"))
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_change_other_password"))
 		return
 	}
 	err := service.ChangeUserPassword(ctx, req.UserID.UserID, req.OldPassword, req.NewPassword)
@@ -154,6 +169,10 @@ func ChangeUserPassword(ctx *gin.Context) {
 func AdminChangeUserPassword(ctx *gin.Context) {
 	var req request.UserPasswordByAdmin
 	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if !isAdmin(ctx) {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_user_cannot_change_other_password"))
 		return
 	}
 	err := service.AdminChangeUserPassword(ctx, req.UserID.UserID, req.Password)

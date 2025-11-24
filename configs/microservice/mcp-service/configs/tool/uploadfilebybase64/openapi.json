@@ -1,0 +1,102 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "base64格式文件上传",
+    "description": "上传base64格式的文件返回链接",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/callback/v1/workflow/upload/file/base64": {
+      "post": {
+        "summary": "通过base64上传文件",
+        "operationId": "upload_file_by_base64",
+        "deprecated": false,
+        "description": "通过base64格式上传文件",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "base64格式的文件数据"
+                  },
+                  "fileName": {
+                    "type": "string",
+                    "description": "文件名"
+                  }
+                },
+                "required": ["file", "fileName"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "文件上传成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "description": "返回结果code",
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "description": "返回结果错误信息",
+                      "type": "string"
+                    },
+                    "data": {
+                      "description": "文件上传结果",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "文件访问URL"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "description": "文件URI路径"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": {
+                    "url": "https://example.com/files/abc.jpg",
+                    "uri": "/files/abc.jpg"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://bff-service:6668",
+      "description": "文件上传URL"
+    }
+  ]
+}

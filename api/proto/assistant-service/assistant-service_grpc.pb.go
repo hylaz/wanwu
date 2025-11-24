@@ -20,31 +20,40 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssistantService_GetAssistantByIds_FullMethodName               = "/assistant_service.AssistantService/GetAssistantByIds"
-	AssistantService_AssistantCreate_FullMethodName                 = "/assistant_service.AssistantService/AssistantCreate"
-	AssistantService_AssistantUpdate_FullMethodName                 = "/assistant_service.AssistantService/AssistantUpdate"
-	AssistantService_AssistantConfigUpdate_FullMethodName           = "/assistant_service.AssistantService/AssistantConfigUpdate"
-	AssistantService_AssistantDelete_FullMethodName                 = "/assistant_service.AssistantService/AssistantDelete"
-	AssistantService_GetAssistantListMyAll_FullMethodName           = "/assistant_service.AssistantService/GetAssistantListMyAll"
-	AssistantService_GetAssistantInfo_FullMethodName                = "/assistant_service.AssistantService/GetAssistantInfo"
-	AssistantService_AssistantWorkFlowCreate_FullMethodName         = "/assistant_service.AssistantService/AssistantWorkFlowCreate"
-	AssistantService_AssistantWorkFlowDelete_FullMethodName         = "/assistant_service.AssistantService/AssistantWorkFlowDelete"
-	AssistantService_AssistantWorkFlowEnableSwitch_FullMethodName   = "/assistant_service.AssistantService/AssistantWorkFlowEnableSwitch"
-	AssistantService_AssistantMCPCreate_FullMethodName              = "/assistant_service.AssistantService/AssistantMCPCreate"
-	AssistantService_AssistantMCPDelete_FullMethodName              = "/assistant_service.AssistantService/AssistantMCPDelete"
-	AssistantService_AssistantMCPEnableSwitch_FullMethodName        = "/assistant_service.AssistantService/AssistantMCPEnableSwitch"
-	AssistantService_AssistantMCPGetList_FullMethodName             = "/assistant_service.AssistantService/AssistantMCPGetList"
-	AssistantService_AssistantActionCreate_FullMethodName           = "/assistant_service.AssistantService/AssistantActionCreate"
-	AssistantService_AssistantActionDelete_FullMethodName           = "/assistant_service.AssistantService/AssistantActionDelete"
-	AssistantService_AssistantActionUpdate_FullMethodName           = "/assistant_service.AssistantService/AssistantActionUpdate"
-	AssistantService_GetAssistantActionInfo_FullMethodName          = "/assistant_service.AssistantService/GetAssistantActionInfo"
-	AssistantService_AssistantActionEnableSwitch_FullMethodName     = "/assistant_service.AssistantService/AssistantActionEnableSwitch"
-	AssistantService_ConversationCreate_FullMethodName              = "/assistant_service.AssistantService/ConversationCreate"
-	AssistantService_ConversationDelete_FullMethodName              = "/assistant_service.AssistantService/ConversationDelete"
-	AssistantService_GetConversationList_FullMethodName             = "/assistant_service.AssistantService/GetConversationList"
-	AssistantService_GetConversationDetailList_FullMethodName       = "/assistant_service.AssistantService/GetConversationDetailList"
-	AssistantService_AssistantConversionStream_FullMethodName       = "/assistant_service.AssistantService/AssistantConversionStream"
-	AssistantService_ConversationDeleteByAssistantId_FullMethodName = "/assistant_service.AssistantService/ConversationDeleteByAssistantId"
+	AssistantService_GetAssistantByIds_FullMethodName                   = "/assistant_service.AssistantService/GetAssistantByIds"
+	AssistantService_AssistantCreate_FullMethodName                     = "/assistant_service.AssistantService/AssistantCreate"
+	AssistantService_AssistantUpdate_FullMethodName                     = "/assistant_service.AssistantService/AssistantUpdate"
+	AssistantService_AssistantConfigUpdate_FullMethodName               = "/assistant_service.AssistantService/AssistantConfigUpdate"
+	AssistantService_AssistantDelete_FullMethodName                     = "/assistant_service.AssistantService/AssistantDelete"
+	AssistantService_GetAssistantListMyAll_FullMethodName               = "/assistant_service.AssistantService/GetAssistantListMyAll"
+	AssistantService_GetAssistantInfo_FullMethodName                    = "/assistant_service.AssistantService/GetAssistantInfo"
+	AssistantService_AssistantCopy_FullMethodName                       = "/assistant_service.AssistantService/AssistantCopy"
+	AssistantService_AssistantWorkFlowCreate_FullMethodName             = "/assistant_service.AssistantService/AssistantWorkFlowCreate"
+	AssistantService_AssistantWorkFlowDelete_FullMethodName             = "/assistant_service.AssistantService/AssistantWorkFlowDelete"
+	AssistantService_AssistantWorkFlowEnableSwitch_FullMethodName       = "/assistant_service.AssistantService/AssistantWorkFlowEnableSwitch"
+	AssistantService_AssistantWorkFlowDeleteByWorkflowId_FullMethodName = "/assistant_service.AssistantService/AssistantWorkFlowDeleteByWorkflowId"
+	AssistantService_AssistantMCPCreate_FullMethodName                  = "/assistant_service.AssistantService/AssistantMCPCreate"
+	AssistantService_AssistantMCPDelete_FullMethodName                  = "/assistant_service.AssistantService/AssistantMCPDelete"
+	AssistantService_AssistantMCPEnableSwitch_FullMethodName            = "/assistant_service.AssistantService/AssistantMCPEnableSwitch"
+	AssistantService_AssistantMCPGetList_FullMethodName                 = "/assistant_service.AssistantService/AssistantMCPGetList"
+	AssistantService_AssistantMCPDeleteByMCPId_FullMethodName           = "/assistant_service.AssistantService/AssistantMCPDeleteByMCPId"
+	AssistantService_AssistantToolCreate_FullMethodName                 = "/assistant_service.AssistantService/AssistantToolCreate"
+	AssistantService_AssistantToolDelete_FullMethodName                 = "/assistant_service.AssistantService/AssistantToolDelete"
+	AssistantService_AssistantToolEnableSwitch_FullMethodName           = "/assistant_service.AssistantService/AssistantToolEnableSwitch"
+	AssistantService_AssistantToolConfig_FullMethodName                 = "/assistant_service.AssistantService/AssistantToolConfig"
+	AssistantService_AssistantToolDeleteByToolId_FullMethodName         = "/assistant_service.AssistantService/AssistantToolDeleteByToolId"
+	AssistantService_ConversationCreate_FullMethodName                  = "/assistant_service.AssistantService/ConversationCreate"
+	AssistantService_ConversationDelete_FullMethodName                  = "/assistant_service.AssistantService/ConversationDelete"
+	AssistantService_GetConversationList_FullMethodName                 = "/assistant_service.AssistantService/GetConversationList"
+	AssistantService_GetConversationDetailList_FullMethodName           = "/assistant_service.AssistantService/GetConversationDetailList"
+	AssistantService_AssistantConversionStream_FullMethodName           = "/assistant_service.AssistantService/AssistantConversionStream"
+	AssistantService_ConversationDeleteByAssistantId_FullMethodName     = "/assistant_service.AssistantService/ConversationDeleteByAssistantId"
+	AssistantService_CustomPromptCreate_FullMethodName                  = "/assistant_service.AssistantService/CustomPromptCreate"
+	AssistantService_CustomPromptDelete_FullMethodName                  = "/assistant_service.AssistantService/CustomPromptDelete"
+	AssistantService_CustomPromptUpdate_FullMethodName                  = "/assistant_service.AssistantService/CustomPromptUpdate"
+	AssistantService_CustomPromptGet_FullMethodName                     = "/assistant_service.AssistantService/CustomPromptGet"
+	AssistantService_CustomPromptGetList_FullMethodName                 = "/assistant_service.AssistantService/CustomPromptGetList"
+	AssistantService_CustomPromptCopy_FullMethodName                    = "/assistant_service.AssistantService/CustomPromptCopy"
 )
 
 // AssistantServiceClient is the client API for AssistantService service.
@@ -59,21 +68,24 @@ type AssistantServiceClient interface {
 	AssistantDelete(ctx context.Context, in *AssistantDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAssistantListMyAll(ctx context.Context, in *GetAssistantListMyAllReq, opts ...grpc.CallOption) (*AppBriefList, error)
 	GetAssistantInfo(ctx context.Context, in *GetAssistantInfoReq, opts ...grpc.CallOption) (*AssistantInfo, error)
+	AssistantCopy(ctx context.Context, in *AssistantCopyReq, opts ...grpc.CallOption) (*AssistantCreateResp, error)
 	// --- workFlow ---
 	AssistantWorkFlowCreate(ctx context.Context, in *AssistantWorkFlowCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantWorkFlowDelete(ctx context.Context, in *AssistantWorkFlowDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantWorkFlowEnableSwitch(ctx context.Context, in *AssistantWorkFlowEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantWorkFlowDeleteByWorkflowId(ctx context.Context, in *AssistantWorkFlowDeleteByWorkflowIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// --- MCP ---
 	AssistantMCPCreate(ctx context.Context, in *AssistantMCPCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantMCPDelete(ctx context.Context, in *AssistantMCPDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantMCPEnableSwitch(ctx context.Context, in *AssistantMCPEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssistantMCPGetList(ctx context.Context, in *AssistantMCPGetListReq, opts ...grpc.CallOption) (*AssistantMCPList, error)
-	// --- action ---
-	AssistantActionCreate(ctx context.Context, in *AssistantActionCreateReq, opts ...grpc.CallOption) (*AssistantActionCreateResp, error)
-	AssistantActionDelete(ctx context.Context, in *AssistantActionDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AssistantActionUpdate(ctx context.Context, in *AssistantActionUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetAssistantActionInfo(ctx context.Context, in *GetAssistantActionInfoReq, opts ...grpc.CallOption) (*GetAssistantActionInfoResp, error)
-	AssistantActionEnableSwitch(ctx context.Context, in *AssistantActionEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantMCPDeleteByMCPId(ctx context.Context, in *AssistantMCPDeleteByMCPIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- custom builtin tool ---
+	AssistantToolCreate(ctx context.Context, in *AssistantToolCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantToolDelete(ctx context.Context, in *AssistantToolDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantToolEnableSwitch(ctx context.Context, in *AssistantToolEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantToolConfig(ctx context.Context, in *AssistantToolConfigReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AssistantToolDeleteByToolId(ctx context.Context, in *AssistantToolDeleteByToolIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// --- conversation ---
 	ConversationCreate(ctx context.Context, in *ConversationCreateReq, opts ...grpc.CallOption) (*ConversationCreateResp, error)
 	ConversationDelete(ctx context.Context, in *ConversationDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -81,6 +93,13 @@ type AssistantServiceClient interface {
 	GetConversationDetailList(ctx context.Context, in *GetConversationDetailListReq, opts ...grpc.CallOption) (*GetConversationDetailListResp, error)
 	AssistantConversionStream(ctx context.Context, in *AssistantConversionStreamReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AssistantConversionStreamResp], error)
 	ConversationDeleteByAssistantId(ctx context.Context, in *ConversationDeleteByAssistantIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- custom prompt ---
+	CustomPromptCreate(ctx context.Context, in *CustomPromptCreateReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error)
+	CustomPromptDelete(ctx context.Context, in *CustomPromptDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CustomPromptUpdate(ctx context.Context, in *CustomPromptUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CustomPromptGet(ctx context.Context, in *CustomPromptGetReq, opts ...grpc.CallOption) (*CustomPromptInfo, error)
+	CustomPromptGetList(ctx context.Context, in *CustomPromptGetListReq, opts ...grpc.CallOption) (*CustomPromptList, error)
+	CustomPromptCopy(ctx context.Context, in *CustomPromptCopyReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error)
 }
 
 type assistantServiceClient struct {
@@ -161,6 +180,16 @@ func (c *assistantServiceClient) GetAssistantInfo(ctx context.Context, in *GetAs
 	return out, nil
 }
 
+func (c *assistantServiceClient) AssistantCopy(ctx context.Context, in *AssistantCopyReq, opts ...grpc.CallOption) (*AssistantCreateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssistantCreateResp)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantCopy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *assistantServiceClient) AssistantWorkFlowCreate(ctx context.Context, in *AssistantWorkFlowCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -185,6 +214,16 @@ func (c *assistantServiceClient) AssistantWorkFlowEnableSwitch(ctx context.Conte
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AssistantService_AssistantWorkFlowEnableSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) AssistantWorkFlowDeleteByWorkflowId(ctx context.Context, in *AssistantWorkFlowDeleteByWorkflowIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantWorkFlowDeleteByWorkflowId_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -231,50 +270,60 @@ func (c *assistantServiceClient) AssistantMCPGetList(ctx context.Context, in *As
 	return out, nil
 }
 
-func (c *assistantServiceClient) AssistantActionCreate(ctx context.Context, in *AssistantActionCreateReq, opts ...grpc.CallOption) (*AssistantActionCreateResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AssistantActionCreateResp)
-	err := c.cc.Invoke(ctx, AssistantService_AssistantActionCreate_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *assistantServiceClient) AssistantActionDelete(ctx context.Context, in *AssistantActionDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *assistantServiceClient) AssistantMCPDeleteByMCPId(ctx context.Context, in *AssistantMCPDeleteByMCPIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AssistantService_AssistantActionDelete_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantMCPDeleteByMCPId_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *assistantServiceClient) AssistantActionUpdate(ctx context.Context, in *AssistantActionUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *assistantServiceClient) AssistantToolCreate(ctx context.Context, in *AssistantToolCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AssistantService_AssistantActionUpdate_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantToolCreate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *assistantServiceClient) GetAssistantActionInfo(ctx context.Context, in *GetAssistantActionInfoReq, opts ...grpc.CallOption) (*GetAssistantActionInfoResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAssistantActionInfoResp)
-	err := c.cc.Invoke(ctx, AssistantService_GetAssistantActionInfo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *assistantServiceClient) AssistantActionEnableSwitch(ctx context.Context, in *AssistantActionEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *assistantServiceClient) AssistantToolDelete(ctx context.Context, in *AssistantToolDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AssistantService_AssistantActionEnableSwitch_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantToolDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) AssistantToolEnableSwitch(ctx context.Context, in *AssistantToolEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantToolEnableSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) AssistantToolConfig(ctx context.Context, in *AssistantToolConfigReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantToolConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) AssistantToolDeleteByToolId(ctx context.Context, in *AssistantToolDeleteByToolIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_AssistantToolDeleteByToolId_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -350,6 +399,66 @@ func (c *assistantServiceClient) ConversationDeleteByAssistantId(ctx context.Con
 	return out, nil
 }
 
+func (c *assistantServiceClient) CustomPromptCreate(ctx context.Context, in *CustomPromptCreateReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomPromptIDResp)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptCreate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) CustomPromptDelete(ctx context.Context, in *CustomPromptDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) CustomPromptUpdate(ctx context.Context, in *CustomPromptUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) CustomPromptGet(ctx context.Context, in *CustomPromptGetReq, opts ...grpc.CallOption) (*CustomPromptInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomPromptInfo)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptGet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) CustomPromptGetList(ctx context.Context, in *CustomPromptGetListReq, opts ...grpc.CallOption) (*CustomPromptList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomPromptList)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptGetList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) CustomPromptCopy(ctx context.Context, in *CustomPromptCopyReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomPromptIDResp)
+	err := c.cc.Invoke(ctx, AssistantService_CustomPromptCopy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssistantServiceServer is the server API for AssistantService service.
 // All implementations must embed UnimplementedAssistantServiceServer
 // for forward compatibility.
@@ -362,21 +471,24 @@ type AssistantServiceServer interface {
 	AssistantDelete(context.Context, *AssistantDeleteReq) (*emptypb.Empty, error)
 	GetAssistantListMyAll(context.Context, *GetAssistantListMyAllReq) (*AppBriefList, error)
 	GetAssistantInfo(context.Context, *GetAssistantInfoReq) (*AssistantInfo, error)
+	AssistantCopy(context.Context, *AssistantCopyReq) (*AssistantCreateResp, error)
 	// --- workFlow ---
 	AssistantWorkFlowCreate(context.Context, *AssistantWorkFlowCreateReq) (*emptypb.Empty, error)
 	AssistantWorkFlowDelete(context.Context, *AssistantWorkFlowDeleteReq) (*emptypb.Empty, error)
 	AssistantWorkFlowEnableSwitch(context.Context, *AssistantWorkFlowEnableSwitchReq) (*emptypb.Empty, error)
+	AssistantWorkFlowDeleteByWorkflowId(context.Context, *AssistantWorkFlowDeleteByWorkflowIdReq) (*emptypb.Empty, error)
 	// --- MCP ---
 	AssistantMCPCreate(context.Context, *AssistantMCPCreateReq) (*emptypb.Empty, error)
 	AssistantMCPDelete(context.Context, *AssistantMCPDeleteReq) (*emptypb.Empty, error)
 	AssistantMCPEnableSwitch(context.Context, *AssistantMCPEnableSwitchReq) (*emptypb.Empty, error)
 	AssistantMCPGetList(context.Context, *AssistantMCPGetListReq) (*AssistantMCPList, error)
-	// --- action ---
-	AssistantActionCreate(context.Context, *AssistantActionCreateReq) (*AssistantActionCreateResp, error)
-	AssistantActionDelete(context.Context, *AssistantActionDeleteReq) (*emptypb.Empty, error)
-	AssistantActionUpdate(context.Context, *AssistantActionUpdateReq) (*emptypb.Empty, error)
-	GetAssistantActionInfo(context.Context, *GetAssistantActionInfoReq) (*GetAssistantActionInfoResp, error)
-	AssistantActionEnableSwitch(context.Context, *AssistantActionEnableSwitchReq) (*emptypb.Empty, error)
+	AssistantMCPDeleteByMCPId(context.Context, *AssistantMCPDeleteByMCPIdReq) (*emptypb.Empty, error)
+	// --- custom builtin tool ---
+	AssistantToolCreate(context.Context, *AssistantToolCreateReq) (*emptypb.Empty, error)
+	AssistantToolDelete(context.Context, *AssistantToolDeleteReq) (*emptypb.Empty, error)
+	AssistantToolEnableSwitch(context.Context, *AssistantToolEnableSwitchReq) (*emptypb.Empty, error)
+	AssistantToolConfig(context.Context, *AssistantToolConfigReq) (*emptypb.Empty, error)
+	AssistantToolDeleteByToolId(context.Context, *AssistantToolDeleteByToolIdReq) (*emptypb.Empty, error)
 	// --- conversation ---
 	ConversationCreate(context.Context, *ConversationCreateReq) (*ConversationCreateResp, error)
 	ConversationDelete(context.Context, *ConversationDeleteReq) (*emptypb.Empty, error)
@@ -384,6 +496,13 @@ type AssistantServiceServer interface {
 	GetConversationDetailList(context.Context, *GetConversationDetailListReq) (*GetConversationDetailListResp, error)
 	AssistantConversionStream(*AssistantConversionStreamReq, grpc.ServerStreamingServer[AssistantConversionStreamResp]) error
 	ConversationDeleteByAssistantId(context.Context, *ConversationDeleteByAssistantIdReq) (*emptypb.Empty, error)
+	// --- custom prompt ---
+	CustomPromptCreate(context.Context, *CustomPromptCreateReq) (*CustomPromptIDResp, error)
+	CustomPromptDelete(context.Context, *CustomPromptDeleteReq) (*emptypb.Empty, error)
+	CustomPromptUpdate(context.Context, *CustomPromptUpdateReq) (*emptypb.Empty, error)
+	CustomPromptGet(context.Context, *CustomPromptGetReq) (*CustomPromptInfo, error)
+	CustomPromptGetList(context.Context, *CustomPromptGetListReq) (*CustomPromptList, error)
+	CustomPromptCopy(context.Context, *CustomPromptCopyReq) (*CustomPromptIDResp, error)
 	mustEmbedUnimplementedAssistantServiceServer()
 }
 
@@ -415,6 +534,9 @@ func (UnimplementedAssistantServiceServer) GetAssistantListMyAll(context.Context
 func (UnimplementedAssistantServiceServer) GetAssistantInfo(context.Context, *GetAssistantInfoReq) (*AssistantInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAssistantInfo not implemented")
 }
+func (UnimplementedAssistantServiceServer) AssistantCopy(context.Context, *AssistantCopyReq) (*AssistantCreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantCopy not implemented")
+}
 func (UnimplementedAssistantServiceServer) AssistantWorkFlowCreate(context.Context, *AssistantWorkFlowCreateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssistantWorkFlowCreate not implemented")
 }
@@ -423,6 +545,9 @@ func (UnimplementedAssistantServiceServer) AssistantWorkFlowDelete(context.Conte
 }
 func (UnimplementedAssistantServiceServer) AssistantWorkFlowEnableSwitch(context.Context, *AssistantWorkFlowEnableSwitchReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssistantWorkFlowEnableSwitch not implemented")
+}
+func (UnimplementedAssistantServiceServer) AssistantWorkFlowDeleteByWorkflowId(context.Context, *AssistantWorkFlowDeleteByWorkflowIdReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantWorkFlowDeleteByWorkflowId not implemented")
 }
 func (UnimplementedAssistantServiceServer) AssistantMCPCreate(context.Context, *AssistantMCPCreateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssistantMCPCreate not implemented")
@@ -436,20 +561,23 @@ func (UnimplementedAssistantServiceServer) AssistantMCPEnableSwitch(context.Cont
 func (UnimplementedAssistantServiceServer) AssistantMCPGetList(context.Context, *AssistantMCPGetListReq) (*AssistantMCPList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssistantMCPGetList not implemented")
 }
-func (UnimplementedAssistantServiceServer) AssistantActionCreate(context.Context, *AssistantActionCreateReq) (*AssistantActionCreateResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssistantActionCreate not implemented")
+func (UnimplementedAssistantServiceServer) AssistantMCPDeleteByMCPId(context.Context, *AssistantMCPDeleteByMCPIdReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantMCPDeleteByMCPId not implemented")
 }
-func (UnimplementedAssistantServiceServer) AssistantActionDelete(context.Context, *AssistantActionDeleteReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssistantActionDelete not implemented")
+func (UnimplementedAssistantServiceServer) AssistantToolCreate(context.Context, *AssistantToolCreateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantToolCreate not implemented")
 }
-func (UnimplementedAssistantServiceServer) AssistantActionUpdate(context.Context, *AssistantActionUpdateReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssistantActionUpdate not implemented")
+func (UnimplementedAssistantServiceServer) AssistantToolDelete(context.Context, *AssistantToolDeleteReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantToolDelete not implemented")
 }
-func (UnimplementedAssistantServiceServer) GetAssistantActionInfo(context.Context, *GetAssistantActionInfoReq) (*GetAssistantActionInfoResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAssistantActionInfo not implemented")
+func (UnimplementedAssistantServiceServer) AssistantToolEnableSwitch(context.Context, *AssistantToolEnableSwitchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantToolEnableSwitch not implemented")
 }
-func (UnimplementedAssistantServiceServer) AssistantActionEnableSwitch(context.Context, *AssistantActionEnableSwitchReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssistantActionEnableSwitch not implemented")
+func (UnimplementedAssistantServiceServer) AssistantToolConfig(context.Context, *AssistantToolConfigReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantToolConfig not implemented")
+}
+func (UnimplementedAssistantServiceServer) AssistantToolDeleteByToolId(context.Context, *AssistantToolDeleteByToolIdReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssistantToolDeleteByToolId not implemented")
 }
 func (UnimplementedAssistantServiceServer) ConversationCreate(context.Context, *ConversationCreateReq) (*ConversationCreateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConversationCreate not implemented")
@@ -468,6 +596,24 @@ func (UnimplementedAssistantServiceServer) AssistantConversionStream(*AssistantC
 }
 func (UnimplementedAssistantServiceServer) ConversationDeleteByAssistantId(context.Context, *ConversationDeleteByAssistantIdReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConversationDeleteByAssistantId not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptCreate(context.Context, *CustomPromptCreateReq) (*CustomPromptIDResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptCreate not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptDelete(context.Context, *CustomPromptDeleteReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptDelete not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptUpdate(context.Context, *CustomPromptUpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptUpdate not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptGet(context.Context, *CustomPromptGetReq) (*CustomPromptInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptGet not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptGetList(context.Context, *CustomPromptGetListReq) (*CustomPromptList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptGetList not implemented")
+}
+func (UnimplementedAssistantServiceServer) CustomPromptCopy(context.Context, *CustomPromptCopyReq) (*CustomPromptIDResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptCopy not implemented")
 }
 func (UnimplementedAssistantServiceServer) mustEmbedUnimplementedAssistantServiceServer() {}
 func (UnimplementedAssistantServiceServer) testEmbeddedByValue()                          {}
@@ -616,6 +762,24 @@ func _AssistantService_GetAssistantInfo_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_AssistantCopy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantCopyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).AssistantCopy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_AssistantCopy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).AssistantCopy(ctx, req.(*AssistantCopyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AssistantService_AssistantWorkFlowCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AssistantWorkFlowCreateReq)
 	if err := dec(in); err != nil {
@@ -666,6 +830,24 @@ func _AssistantService_AssistantWorkFlowEnableSwitch_Handler(srv interface{}, ct
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AssistantServiceServer).AssistantWorkFlowEnableSwitch(ctx, req.(*AssistantWorkFlowEnableSwitchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_AssistantWorkFlowDeleteByWorkflowId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantWorkFlowDeleteByWorkflowIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).AssistantWorkFlowDeleteByWorkflowId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_AssistantWorkFlowDeleteByWorkflowId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).AssistantWorkFlowDeleteByWorkflowId(ctx, req.(*AssistantWorkFlowDeleteByWorkflowIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -742,92 +924,110 @@ func _AssistantService_AssistantMCPGetList_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssistantService_AssistantActionCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssistantActionCreateReq)
+func _AssistantService_AssistantMCPDeleteByMCPId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantMCPDeleteByMCPIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssistantServiceServer).AssistantActionCreate(ctx, in)
+		return srv.(AssistantServiceServer).AssistantMCPDeleteByMCPId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AssistantService_AssistantActionCreate_FullMethodName,
+		FullMethod: AssistantService_AssistantMCPDeleteByMCPId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssistantServiceServer).AssistantActionCreate(ctx, req.(*AssistantActionCreateReq))
+		return srv.(AssistantServiceServer).AssistantMCPDeleteByMCPId(ctx, req.(*AssistantMCPDeleteByMCPIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssistantService_AssistantActionDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssistantActionDeleteReq)
+func _AssistantService_AssistantToolCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantToolCreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssistantServiceServer).AssistantActionDelete(ctx, in)
+		return srv.(AssistantServiceServer).AssistantToolCreate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AssistantService_AssistantActionDelete_FullMethodName,
+		FullMethod: AssistantService_AssistantToolCreate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssistantServiceServer).AssistantActionDelete(ctx, req.(*AssistantActionDeleteReq))
+		return srv.(AssistantServiceServer).AssistantToolCreate(ctx, req.(*AssistantToolCreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssistantService_AssistantActionUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssistantActionUpdateReq)
+func _AssistantService_AssistantToolDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantToolDeleteReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssistantServiceServer).AssistantActionUpdate(ctx, in)
+		return srv.(AssistantServiceServer).AssistantToolDelete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AssistantService_AssistantActionUpdate_FullMethodName,
+		FullMethod: AssistantService_AssistantToolDelete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssistantServiceServer).AssistantActionUpdate(ctx, req.(*AssistantActionUpdateReq))
+		return srv.(AssistantServiceServer).AssistantToolDelete(ctx, req.(*AssistantToolDeleteReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssistantService_GetAssistantActionInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAssistantActionInfoReq)
+func _AssistantService_AssistantToolEnableSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantToolEnableSwitchReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssistantServiceServer).GetAssistantActionInfo(ctx, in)
+		return srv.(AssistantServiceServer).AssistantToolEnableSwitch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AssistantService_GetAssistantActionInfo_FullMethodName,
+		FullMethod: AssistantService_AssistantToolEnableSwitch_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssistantServiceServer).GetAssistantActionInfo(ctx, req.(*GetAssistantActionInfoReq))
+		return srv.(AssistantServiceServer).AssistantToolEnableSwitch(ctx, req.(*AssistantToolEnableSwitchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssistantService_AssistantActionEnableSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssistantActionEnableSwitchReq)
+func _AssistantService_AssistantToolConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantToolConfigReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssistantServiceServer).AssistantActionEnableSwitch(ctx, in)
+		return srv.(AssistantServiceServer).AssistantToolConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AssistantService_AssistantActionEnableSwitch_FullMethodName,
+		FullMethod: AssistantService_AssistantToolConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssistantServiceServer).AssistantActionEnableSwitch(ctx, req.(*AssistantActionEnableSwitchReq))
+		return srv.(AssistantServiceServer).AssistantToolConfig(ctx, req.(*AssistantToolConfigReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_AssistantToolDeleteByToolId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssistantToolDeleteByToolIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).AssistantToolDeleteByToolId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_AssistantToolDeleteByToolId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).AssistantToolDeleteByToolId(ctx, req.(*AssistantToolDeleteByToolIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -933,6 +1133,114 @@ func _AssistantService_ConversationDeleteByAssistantId_Handler(srv interface{}, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_CustomPromptCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptCreate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptCreate(ctx, req.(*CustomPromptCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_CustomPromptDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptDeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptDelete(ctx, req.(*CustomPromptDeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_CustomPromptUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptUpdate(ctx, req.(*CustomPromptUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_CustomPromptGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptGet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptGet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptGet(ctx, req.(*CustomPromptGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_CustomPromptGetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptGetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptGetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptGetList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptGetList(ctx, req.(*CustomPromptGetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_CustomPromptCopy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomPromptCopyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CustomPromptCopy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CustomPromptCopy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CustomPromptCopy(ctx, req.(*CustomPromptCopyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssistantService_ServiceDesc is the grpc.ServiceDesc for AssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -969,6 +1277,10 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AssistantService_GetAssistantInfo_Handler,
 		},
 		{
+			MethodName: "AssistantCopy",
+			Handler:    _AssistantService_AssistantCopy_Handler,
+		},
+		{
 			MethodName: "AssistantWorkFlowCreate",
 			Handler:    _AssistantService_AssistantWorkFlowCreate_Handler,
 		},
@@ -979,6 +1291,10 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AssistantWorkFlowEnableSwitch",
 			Handler:    _AssistantService_AssistantWorkFlowEnableSwitch_Handler,
+		},
+		{
+			MethodName: "AssistantWorkFlowDeleteByWorkflowId",
+			Handler:    _AssistantService_AssistantWorkFlowDeleteByWorkflowId_Handler,
 		},
 		{
 			MethodName: "AssistantMCPCreate",
@@ -997,24 +1313,28 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AssistantService_AssistantMCPGetList_Handler,
 		},
 		{
-			MethodName: "AssistantActionCreate",
-			Handler:    _AssistantService_AssistantActionCreate_Handler,
+			MethodName: "AssistantMCPDeleteByMCPId",
+			Handler:    _AssistantService_AssistantMCPDeleteByMCPId_Handler,
 		},
 		{
-			MethodName: "AssistantActionDelete",
-			Handler:    _AssistantService_AssistantActionDelete_Handler,
+			MethodName: "AssistantToolCreate",
+			Handler:    _AssistantService_AssistantToolCreate_Handler,
 		},
 		{
-			MethodName: "AssistantActionUpdate",
-			Handler:    _AssistantService_AssistantActionUpdate_Handler,
+			MethodName: "AssistantToolDelete",
+			Handler:    _AssistantService_AssistantToolDelete_Handler,
 		},
 		{
-			MethodName: "GetAssistantActionInfo",
-			Handler:    _AssistantService_GetAssistantActionInfo_Handler,
+			MethodName: "AssistantToolEnableSwitch",
+			Handler:    _AssistantService_AssistantToolEnableSwitch_Handler,
 		},
 		{
-			MethodName: "AssistantActionEnableSwitch",
-			Handler:    _AssistantService_AssistantActionEnableSwitch_Handler,
+			MethodName: "AssistantToolConfig",
+			Handler:    _AssistantService_AssistantToolConfig_Handler,
+		},
+		{
+			MethodName: "AssistantToolDeleteByToolId",
+			Handler:    _AssistantService_AssistantToolDeleteByToolId_Handler,
 		},
 		{
 			MethodName: "ConversationCreate",
@@ -1035,6 +1355,30 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ConversationDeleteByAssistantId",
 			Handler:    _AssistantService_ConversationDeleteByAssistantId_Handler,
+		},
+		{
+			MethodName: "CustomPromptCreate",
+			Handler:    _AssistantService_CustomPromptCreate_Handler,
+		},
+		{
+			MethodName: "CustomPromptDelete",
+			Handler:    _AssistantService_CustomPromptDelete_Handler,
+		},
+		{
+			MethodName: "CustomPromptUpdate",
+			Handler:    _AssistantService_CustomPromptUpdate_Handler,
+		},
+		{
+			MethodName: "CustomPromptGet",
+			Handler:    _AssistantService_CustomPromptGet_Handler,
+		},
+		{
+			MethodName: "CustomPromptGetList",
+			Handler:    _AssistantService_CustomPromptGetList_Handler,
+		},
+		{
+			MethodName: "CustomPromptCopy",
+			Handler:    _AssistantService_CustomPromptCopy_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

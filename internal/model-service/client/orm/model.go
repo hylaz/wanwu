@@ -20,19 +20,19 @@ func (c *Client) ImportModel(ctx context.Context, tab *model_client.ModelImporte
 		}
 		db.Rollback()
 	}()
-	// 先查询是否已存在相同的记录
-	if err := sqlopt.SQLOptions(
-		sqlopt.WithProvider(tab.Provider),
-		sqlopt.WithModelType(tab.ModelType),
-		sqlopt.WithModel(tab.Model),
-		sqlopt.WithOrgID(tab.OrgID),
-		sqlopt.WithUserID(tab.UserID),
-	).Apply(db).Select("id").First(&model_client.ModelImported{}).Error; err == nil {
-		return toErrStatus("model_create_err", "model with same identifier exist")
-	} else if err != gorm.ErrRecordNotFound {
-		// 其他错误
-		return toErrStatus("model_create_err", err.Error())
-	}
+	// 查询是否已存在相同的模型(0.2.1版本下掉）
+	//if err := sqlopt.SQLOptions(
+	//	sqlopt.WithProvider(tab.Provider),
+	//	sqlopt.WithModelType(tab.ModelType),
+	//	sqlopt.WithModel(tab.Model),
+	//	sqlopt.WithOrgID(tab.OrgID),
+	//	sqlopt.WithUserID(tab.UserID),
+	//).Apply(db).Select("id").First(&model_client.ModelImported{}).Error; err == nil {
+	//	return toErrStatus("model_create_err", "model with same identifier exist")
+	//} else if err != gorm.ErrRecordNotFound {
+	//	// 其他错误
+	//	return toErrStatus("model_create_err", err.Error())
+	//}
 
 	if tab.DisplayName != "" {
 		if err := sqlopt.SQLOptions(
@@ -59,9 +59,7 @@ func (c *Client) DeleteModel(ctx context.Context, tab *model_client.ModelImporte
 	// 查询
 	var existing model_client.ModelImported
 	if err := sqlopt.SQLOptions(
-		sqlopt.WithProvider(tab.Provider),
-		sqlopt.WithModelType(tab.ModelType),
-		sqlopt.WithModel(tab.Model),
+		sqlopt.WithID(tab.ID),
 		sqlopt.WithOrgID(tab.OrgID),
 		sqlopt.WithUserID(tab.UserID),
 	).Apply(c.db).WithContext(ctx).Select("id").First(&existing).Error; err != nil {
@@ -87,6 +85,7 @@ func (c *Client) UpdateModel(ctx context.Context, tab *model_client.ModelImporte
 	// 更新
 	if err := c.db.WithContext(ctx).Model(existing).Updates(map[string]interface{}{
 		"display_name":    tab.DisplayName,
+		"model_desc":      tab.ModelDesc,
 		"model_icon_path": tab.ModelIconPath,
 		"publish_date":    tab.PublishDate,
 		"provider_config": tab.ProviderConfig,
@@ -100,9 +99,7 @@ func (c *Client) ChangeModelStatus(ctx context.Context, tab *model_client.ModelI
 	// 查询
 	var existing model_client.ModelImported
 	if err := sqlopt.SQLOptions(
-		sqlopt.WithProvider(tab.Provider),
-		sqlopt.WithModelType(tab.ModelType),
-		sqlopt.WithModel(tab.Model),
+		sqlopt.WithID(tab.ID),
 		sqlopt.WithOrgID(tab.OrgID),
 		sqlopt.WithUserID(tab.UserID),
 	).Apply(c.db).WithContext(ctx).Select("id").First(&existing).Error; err != nil {
@@ -136,9 +133,7 @@ func (c *Client) GetModelByIds(ctx context.Context, modelIds []uint32) ([]*model
 func (c *Client) GetModel(ctx context.Context, tab *model_client.ModelImported) (*model_client.ModelImported, *errs.Status) {
 	info := &model_client.ModelImported{}
 	if err := sqlopt.SQLOptions(
-		sqlopt.WithProvider(tab.Provider),
-		sqlopt.WithModelType(tab.ModelType),
-		sqlopt.WithModel(tab.Model),
+		sqlopt.WithID(tab.ID),
 		sqlopt.WithOrgID(tab.OrgID),
 		sqlopt.WithUserID(tab.UserID),
 	).Apply(c.db).WithContext(ctx).First(info).Error; err != nil {
@@ -147,8 +142,7 @@ func (c *Client) GetModel(ctx context.Context, tab *model_client.ModelImported) 
 	return info, nil
 }
 
-func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported) ([]*model_client.ModelImported, int64, *errs.Status) {
-	var count int64
+func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported) ([]*model_client.ModelImported, *errs.Status) {
 	var modelInfos []*model_client.ModelImported
 	db := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(tab.OrgID),
@@ -158,33 +152,23 @@ func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported
 		sqlopt.LikeDisplayNameOrModel(tab.DisplayName),
 	).Apply(c.db.WithContext(ctx))
 	if tab.IsActive {
-		db = db.Where("is_active = ?", true)
+		db = sqlopt.WithIsActive(true).Apply(db)
 	}
-
-	if err := db.Order("created_at DESC").Find(&modelInfos).Error; err != nil {
-		return nil, 0, toErrStatus("model_list_models_err", err.Error())
+	if err := db.Order("updated_at DESC").Find(&modelInfos).Error; err != nil {
+		return nil, toErrStatus("model_list_models_err", err.Error())
 	}
-	if err := db.Count(&count).Error; err != nil {
-		return nil, 0, toErrStatus("model_list_models_err", err.Error())
-	}
-	return modelInfos, count, nil
+	return modelInfos, nil
 }
 
-func (c *Client) ListTypeModels(ctx context.Context, tab *model_client.ModelImported) ([]*model_client.ModelImported, int64, *errs.Status) {
-	var count int64
+func (c *Client) ListTypeModels(ctx context.Context, tab *model_client.ModelImported) ([]*model_client.ModelImported, *errs.Status) {
 	var modelInfos []*model_client.ModelImported
-	db := sqlopt.SQLOptions(
+	if err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(tab.OrgID),
 		sqlopt.WithUserID(tab.UserID),
 		sqlopt.WithModelType(tab.ModelType),
 		sqlopt.WithIsActive(true),
-	).Apply(c.db.WithContext(ctx))
-
-	if err := db.Order("provider DESC").Find(&modelInfos).Error; err != nil {
-		return nil, 0, toErrStatus("model_list_type_models_err", err.Error())
+	).Apply(c.db.WithContext(ctx)).Order("provider DESC").Find(&modelInfos).Error; err != nil {
+		return nil, toErrStatus("model_list_type_models_err", err.Error())
 	}
-	if err := db.Count(&count).Error; err != nil {
-		return nil, 0, toErrStatus("model_list_type_models_err", err.Error())
-	}
-	return modelInfos, count, nil
+	return modelInfos, nil
 }

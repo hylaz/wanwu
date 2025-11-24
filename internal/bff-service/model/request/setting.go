@@ -8,6 +8,7 @@ type CustomTabConfig struct {
 
 type CustomLoginConfig struct {
 	LoginBg          Avatar `json:"loginBg"`          // 登录页背景图
+	LoginLogo        Avatar `json:"loginLogo"`        // 登录页图标
 	LoginWelcomeText string `json:"loginWelcomeText"` // 登录页欢迎语
 	LoginButtonColor string `json:"loginButtonColor"` // 登录按钮颜色
 	CommonCheck

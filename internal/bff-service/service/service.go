@@ -3,21 +3,22 @@ package service
 import (
 	"fmt"
 
-	knowledgebase_keywords_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-keywords-service"
-	knowledgebase_splitter_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-splitter-service"
-	knowledgebase_tag_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-tag-service"
-	operate_service "github.com/UnicomAI/wanwu/api/proto/operate-service"
-	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
-
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
+	knowledgebase_keywords_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-keywords-service"
+	knowledgebase_permission_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-permission-service"
+	knowledgebase_report_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-report-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
+	knowledgebase_splitter_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-splitter-service"
+	knowledgebase_tag_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-tag-service"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
+	operate_service "github.com/UnicomAI/wanwu/api/proto/operate-service"
 	perm_service "github.com/UnicomAI/wanwu/api/proto/perm-service"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
+	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"google.golang.org/grpc"
@@ -30,20 +31,22 @@ const (
 )
 
 var (
-	iam                   iam_service.IAMServiceClient
-	perm                  perm_service.PermServiceClient
-	model                 model_service.ModelServiceClient
-	mcp                   mcp_service.MCPServiceClient
-	knowledgeBase         knowledgebase_service.KnowledgeBaseServiceClient
-	knowledgeBaseDoc      knowledgebase_doc_service.KnowledgeBaseDocServiceClient
-	knowledgeBaseTag      knowledgebase_tag_service.KnowledgeBaseTagServiceClient
-	knowledgeBaseSplitter knowledgebase_splitter_service.KnowledgeBaseSplitterServiceClient
-	knowledgeBaseKeywords knowledgebase_keywords_service.KnowledgeBaseKeywordsServiceClient
-	app                   app_service.AppServiceClient
-	rag                   rag_service.RagServiceClient
-	assistant             assistant_service.AssistantServiceClient
-	safety                safety_service.SafetyServiceClient
-	operate               operate_service.OperateServiceClient
+	iam                     iam_service.IAMServiceClient
+	perm                    perm_service.PermServiceClient
+	model                   model_service.ModelServiceClient
+	mcp                     mcp_service.MCPServiceClient
+	knowledgeBase           knowledgebase_service.KnowledgeBaseServiceClient
+	knowledgeBaseDoc        knowledgebase_doc_service.KnowledgeBaseDocServiceClient
+	knowledgeBaseTag        knowledgebase_tag_service.KnowledgeBaseTagServiceClient
+	knowledgeBaseSplitter   knowledgebase_splitter_service.KnowledgeBaseSplitterServiceClient
+	knowledgeBasePermission knowledgebase_permission_service.KnowledgeBasePermissionServiceClient
+	knowledgeBaseKeywords   knowledgebase_keywords_service.KnowledgeBaseKeywordsServiceClient
+	knowledgeBaseReport     knowledgebase_report_service.KnowledgeBaseReportServiceClient
+	app                     app_service.AppServiceClient
+	rag                     rag_service.RagServiceClient
+	assistant               assistant_service.AssistantServiceClient
+	safety                  safety_service.SafetyServiceClient
+	operate                 operate_service.OperateServiceClient
 )
 
 // --- API ---
@@ -93,6 +96,8 @@ func Init() error {
 	knowledgeBaseTag = knowledgebase_tag_service.NewKnowledgeBaseTagServiceClient(knowledgeBaseConn)
 	knowledgeBaseKeywords = knowledgebase_keywords_service.NewKnowledgeBaseKeywordsServiceClient(knowledgeBaseConn)
 	knowledgeBaseSplitter = knowledgebase_splitter_service.NewKnowledgeBaseSplitterServiceClient(knowledgeBaseConn)
+	knowledgeBasePermission = knowledgebase_permission_service.NewKnowledgeBasePermissionServiceClient(knowledgeBaseConn)
+	knowledgeBaseReport = knowledgebase_report_service.NewKnowledgeBaseReportServiceClient(knowledgeBaseConn)
 	rag = rag_service.NewRagServiceClient(ragConn)
 	assistant = assistant_service.NewAssistantServiceClient(assistantConn)
 	safety = safety_service.NewSafetyServiceClient(appConn)

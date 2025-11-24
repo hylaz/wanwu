@@ -142,7 +142,8 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		}
 		err := service.RagKnowledgeDelete(ctx, &service.RagDeleteParams{
 			UserId:            knowledge.UserId,
-			KnowledgeBaseName: knowledge.Name,
+			KnowledgeBaseName: knowledge.RagName,
+			KnowledgeId:       knowledge.KnowledgeId,
 		})
 		if err != nil {
 			return err
@@ -154,6 +155,11 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		err = orm.DeleteImportTaskByKnowledgeId(tx, knowledge.KnowledgeId)
 		if err != nil {
 			return err
+		}
+		//删除相关权限
+		err1 := orm.AsyncDeletePermissionByKnowledgeId(knowledge.KnowledgeId)
+		if err1 != nil {
+			log.Errorf("deleteKnowledgeIdPermission err: %s", err1)
 		}
 		return nil
 	})

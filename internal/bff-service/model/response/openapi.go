@@ -49,3 +49,7 @@ type OpenAIChatHistory struct {
 	Query    string `json:"query"`
 	Response string `json:"response"`
 }
+
+type OpenAPIChatflowCreateConversationResponse struct {
+	ConversationId string `json:"conversation_id"`
+}

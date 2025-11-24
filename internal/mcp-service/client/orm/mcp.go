@@ -64,6 +64,21 @@ func (c *Client) CreateMCP(ctx context.Context, tab *model.MCPClient) *errs.Stat
 	})
 }
 
+func (c *Client) UpdateMCP(ctx context.Context, tab *model.MCPClient) *errs.Status {
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithID(tab.ID),
+	).Apply(c.db).WithContext(ctx).Model(tab).Updates(map[string]interface{}{
+		"name":        tab.Name,
+		"from":        tab.From,
+		"desc":        tab.Desc,
+		"sse_url":     tab.SseUrl,
+		"avatar_path": tab.AvatarPath,
+	}).Error; err != nil {
+		return toErrStatus("mcp_update_err", err.Error())
+	}
+	return nil
+}
+
 func (c *Client) DeleteMCP(ctx context.Context, mcpID uint32) *errs.Status {
 	if err := sqlopt.WithID(mcpID).Apply(c.db).WithContext(ctx).Delete(&model.MCPClient{}).Error; err != nil {
 		return toErrStatus("mcp_delete_err", err.Error())
@@ -77,8 +92,16 @@ func (c *Client) ListMCPs(ctx context.Context, orgID, userID, name string) ([]*m
 		sqlopt.WithOrgID(orgID),
 		sqlopt.WithUserID(userID),
 		sqlopt.LikeName(name),
-	).Apply(c.db).WithContext(ctx).Order("id DESC").Find(&mcpInfos).Error; err != nil {
-		return nil, toErrStatus("mcp_list_mcps_err", err.Error())
+	).Apply(c.db).WithContext(ctx).Order("updated_at DESC").Find(&mcpInfos).Error; err != nil {
+		return nil, toErrStatus("mcp_get_custom_tool_list_err", err.Error())
+	}
+	return mcpInfos, nil
+}
+
+func (c *Client) ListMCPsByMCPIdList(ctx context.Context, mcpIDList []uint32) ([]*model.MCPClient, *errs.Status) {
+	var mcpInfos []*model.MCPClient
+	if err := sqlopt.WithIDs(mcpIDList).Apply(c.db).WithContext(ctx).Order("id DESC").Find(&mcpInfos).Error; err != nil {
+		return nil, toErrStatus("mcp_get_custom_tool_list_err", err.Error())
 	}
 	return mcpInfos, nil
 }

@@ -66,7 +66,8 @@ func UpdateRag(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	err := service.UpdateRag(ctx, req)
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	err := service.UpdateRag(ctx, req, userId, orgId)
 	gin_util.Response(ctx, nil, err)
 }
 
@@ -127,5 +128,26 @@ func GetRag(ctx *gin.Context) {
 		return
 	}
 	resp, err := service.GetRag(ctx, req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// CopyRag
+//
+//	@Tags		rag
+//	@Summary	复制RAG
+//	@Description
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Param		data	body		request.RagReq	true	"复制RAG的请求参数"
+//	@Success	200		{object}	response.Response{data=request.RagReq}
+//	@Router		/appspace/rag/copy [post]
+func CopyRag(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.RagReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.CopyRag(ctx, userId, orgId, req)
 	gin_util.Response(ctx, resp, err)
 }

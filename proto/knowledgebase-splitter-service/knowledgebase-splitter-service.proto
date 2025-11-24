@@ -31,6 +31,7 @@ message KnowledgeSplitterInfo {
   string splitterId = 1;//知识库分隔符id
   string splitterName = 2; //知识库分隔符名称
   string splitterValue = 3; //知识库分隔符值
+  string type = 4; // preset 内置 / custom 用户
 }
 
 message CreateKnowledgeSplitterReq{

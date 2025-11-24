@@ -1,0 +1,153 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "元景-文件语音识别1.0",
+    "description": "支持中英文等多种语言长短音频文件的识别。",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr": {
+      "post": {
+        "summary": "支持中英文等多种语言长短音频文件的识别。\n支持的音频格式： wav、m4a、mp3、mp4、acc等。\n长音频建议调用异步接口上传音频，再通过查询接口获取转写结果。",
+        "operationId": "yuanjing_audiofile2text_1p0",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [{
+          "name": "Authorization",
+          "in": "header",
+          "description": "",
+          "required": false,
+          "example": "",
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string",
+                    "description": "音频文件",
+                    "example": ""
+                  },
+                  "config": {
+                    "type": "object",
+                    "properties": {
+                      "diarization": {
+                        "type": "integer",
+                        "description": "说话人日志开关，0或1, 默认0"
+                      },
+                      "translate": {
+                        "type": "integer",
+                        "description": "是否进行英文翻译，0或1, 默认0（当输入的为中文或英文音频时才起效，其他语言均返回空字符串）"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "description": "uuid, 会话的唯一标识"
+                      },
+                      "add_punc": {
+                        "type": "integer",
+                        "description": "是否加标点开关，0或1, 默认1"
+                      },
+                      "itn_switch": {
+                        "type": "integer",
+                        "description": "是否反正则化，0或1, 默认0"
+                      },
+                      "vad_switch": {
+                        "type": "integer",
+                        "description": "音频断点检测，0或1，默认1，长音频（时长超过30s）需要开启"
+                      },
+                      "spk_num": {
+                        "type": "integer",
+                        "description": "若能确认音频中的说话人数量，请填写此参数，以增加说话人日志的准确度"
+                      },
+                      "sensitive": {
+                        "type": "integer",
+                        "description": "是否进行敏感词检测，0或1, 默认0"
+                      },
+                      "language": {
+                        "type": "string",
+                        "description": "音频语言，可自动识别（如需指定该参数，可设置\"zh\"代表中文，\"en\"代表英文，其他语言映射代码请咨询项目负责人）"
+                      },
+                      "audio_classiﬁcation\t": {
+                        "type": "integer",
+                        "description": "是否做音频分类，0或1, 默认0"
+                      },
+                      "diarization_mode": {
+                        "type": "integer",
+                        "description": "说话人日志参数，选项0、1或2，默认0。参数越大，说话人区分灵敏度越高"
+                      },
+                      "max_end_sil": {
+                        "type": "integer",
+                        "description": "尾点判停参数：尾部连续检测到多长时间静音进行判停，单位ms，建议参数范围[300,1000]，默认800ms"
+                      },
+                      "max_single_seg": {
+                        "type": "integer",
+                        "description": "强制截断参数：超过多长时间有声段会进行强制截断，单位ms，参数范围[5000,30000]，默认30000ms"
+                      },
+                      "speech_noise_thres\t": {
+                        "type": "integer",
+                        "description": "取值越大，语音被误判为噪音的概率越大，参数范围[0,1]，默认值0.6"
+                      }
+                    },
+                    "required": ["session_id"]
+                  }
+                },
+                "required": ["file", "config"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "ok表示成功"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "description": "会话的唯一标识"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "结果"
+                    }
+                  },
+                  "required": ["status", "code", "msg", "uuid", "result"]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "servers": [{
+    "url": "https://maas-api.ai-yuanjing.com",
+    "description": "maas"
+  }]
+}

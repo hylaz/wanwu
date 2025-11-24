@@ -49,6 +49,7 @@ func toProtoSystemCustom(system *orm.SystemCustom) *operate_service.SystemCustom
 		},
 		Login: &operate_service.Login{
 			LoginBgPath:      system.Login.LoginBgPath,
+			LoginLogo:        system.Login.LogoPath,
 			LoginWelcomeText: system.Login.WelcomeText,
 			LoginButtonColor: system.Login.ButtonColor},
 		Home: &operate_service.Home{
@@ -73,6 +74,7 @@ func toSystemCustomLogin(req *operate_service.CreateSystemCustomLoginReq) orm.Sy
 	return orm.SystemCustom{
 		Login: orm.LoginConfig{
 			LoginBgPath: req.Login.GetLoginBgPath(),
+			LogoPath:    req.Login.GetLoginLogo(),
 			WelcomeText: req.Login.GetLoginWelcomeText(),
 			ButtonColor: req.Login.GetLoginButtonColor(),
 		},

@@ -6,6 +6,7 @@ import (
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/app-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/app-service/client/orm/sqlopt"
+	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
 func (c *Client) GetApiKeyList(ctx context.Context, userId, orgId, appId, appType string) ([]*model.ApiKey, *errs.Status) {
@@ -22,9 +23,9 @@ func (c *Client) GetApiKeyList(ctx context.Context, userId, orgId, appId, appTyp
 	return apiKeys, nil
 }
 
-func (c *Client) DelApiKey(ctx context.Context, apiId string) *errs.Status {
+func (c *Client) DelApiKey(ctx context.Context, apiId uint32) *errs.Status {
 	if err := sqlopt.WithID(apiId).Apply(c.db.WithContext(ctx)).Delete(&model.ApiKey{}).Error; err != nil {
-		return toErrStatus("app_api_key_delete", apiId, err.Error())
+		return toErrStatus("app_api_key_delete", util.Int2Str(apiId), err.Error())
 	}
 	return nil
 }

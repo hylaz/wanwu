@@ -27,7 +27,7 @@ pdfmetrics.registerFont(TTFont('SimHei', 'simhei.ttf'))
 
 def upload_file_to_minio(formatted_markdown,to_format,filename):
     try:
-        url = 'http://172.17.0.1:15001/upload'
+        url = 'http://localhost:15001/upload'
         path = '/agent/agent_open_source/minio/file/'
         file_path = ''
         if to_format == 'pdf':

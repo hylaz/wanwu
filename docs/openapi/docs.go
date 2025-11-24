@@ -15,6 +15,26 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/.well-known/openid-configuration": {
+            "get": {
+                "description": "自动获取 OP 的配置信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "动态客户端发现配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthConfig"
+                        }
+                    }
+                }
+            }
+        },
         "/agent/chat": {
             "post": {
                 "description": "智能体对话OpenAPI",
@@ -101,6 +121,375 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatflow/chat": {
+            "post": {
+                "description": "对话流OpenAPI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "对话流OpenAPI",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OpenAPIChatflowChatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/chatflow/conversation": {
+            "post": {
+                "description": "对话流创建对话OpenAPI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "对话流创建对话OpenAPI",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OpenAPIChatflowCreateConversationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.OpenAPIChatflowCreateConversationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/message": {
+            "post": {
+                "description": "获取MCPServer Message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer Message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcpServerId",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/sse": {
+            "get": {
+                "description": "获取MCPServer SSE",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer SSE",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/streamable": {
+            "post": {
+                "description": "获取MCPServer streamable 类型消息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer streamable 类型消息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/code/token": {
+            "post": {
+                "description": "授权码方式-获取Token",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "授权码方式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "授权类型",
+                        "name": "grant_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "授权码",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "回调地址",
+                        "name": "redirect_uri",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "备案密钥",
+                        "name": "client_secret",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/code/token/refresh": {
+            "post": {
+                "description": "刷新令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "刷新令牌",
+                "parameters": [
+                    {
+                        "description": "RefreshToken",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OAuthRefreshRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthRefreshTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/jwks": {
+            "get": {
+                "description": "自动获取OAuthJWKS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "公钥获取链接",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthJWKS"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/login": {
+            "get": {
+                "description": "返回OAuth登录页面",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "OAuth登录授权",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备案ID",
+                        "name": "client_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "重定向URI",
+                        "name": "redirect_uri",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "响应类型",
+                        "name": "response_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限范围",
+                        "name": "scope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态参数",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "重定向到指定URI",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/userinfo": {
+            "get": {
+                "description": "通过access token获取用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi.OIDC"
+                ],
+                "summary": "OAuth获取用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OAuthGetUserInfo"
+                        }
+                    }
+                }
+            }
+        },
         "/rag/chat": {
             "post": {
                 "description": "文本问答OpenAPI",
@@ -140,9 +529,127 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/workflow/file/upload": {
+            "post": {
+                "description": "工作流OpenAPI文件上传",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "工作流OpenAPI文件上传",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/workflow/run": {
+            "post": {
+                "description": "工作流OpenAPI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "工作流OpenAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "oauth2_util.JWK": {
+            "type": "object",
+            "properties": {
+                "alg": {
+                    "type": "string"
+                },
+                "e": {
+                    "type": "string"
+                },
+                "kid": {
+                    "type": "string"
+                },
+                "kty": {
+                    "type": "string"
+                },
+                "n": {
+                    "type": "string"
+                },
+                "use": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.History": {
+            "type": "object",
+            "properties": {
+                "needHistory": {
+                    "type": "boolean"
+                },
+                "query": {
+                    "type": "string"
+                },
+                "response": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.OAuthRefreshRequest": {
+            "type": "object",
+            "required": [
+                "grant_type"
+            ],
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "client_secret": {
+                    "type": "string"
+                },
+                "grant_type": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
         "request.OpenAPIAgentChatRequest": {
             "type": "object",
             "required": [
@@ -169,17 +676,180 @@ const docTemplate = `{
                 }
             }
         },
+        "request.OpenAPIChatflowChatRequest": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {
+                    "type": "string"
+                },
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.OpenAPIChatflowCreateConversationRequest": {
+            "type": "object",
+            "properties": {
+                "conversation_name": {
+                    "type": "string"
+                }
+            }
+        },
         "request.OpenAPIRagChatRequest": {
             "type": "object",
             "required": [
                 "query"
             ],
             "properties": {
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.History"
+                    }
+                },
                 "query": {
                     "type": "string"
                 },
                 "stream": {
                     "type": "boolean"
+                }
+            }
+        },
+        "response.OAuthConfig": {
+            "type": "object",
+            "properties": {
+                "authorization_endpoint": {
+                    "description": "获取授权码接口",
+                    "type": "string"
+                },
+                "id_token_signing_alg_values_supported": {
+                    "description": "jwt签名算法",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "issuer": {
+                    "description": "auth的base url",
+                    "type": "string"
+                },
+                "jwks_uri": {
+                    "description": "获取jwt公钥",
+                    "type": "string"
+                },
+                "response_types_supported": {
+                    "description": "授权模式，默认code",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subject_types_supported": {
+                    "description": "用户标识类型，即 ID Token中的sub是如何生成的。",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "token_endpoint": {
+                    "description": "获取token接口",
+                    "type": "string"
+                },
+                "userinfo_endpoint": {
+                    "description": "获取用户信息接口",
+                    "type": "string"
+                }
+            }
+        },
+        "response.OAuthGetUserInfo": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OAuthJWKS": {
+            "type": "object",
+            "properties": {
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/oauth2_util.JWK"
+                    }
+                }
+            }
+        },
+        "response.OAuthRefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "访问令牌",
+                    "type": "string"
+                },
+                "expires_at": {
+                    "description": "token过期时间(毫秒时间戳)",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "刷新令牌(可选)",
+                    "type": "string"
+                }
+            }
+        },
+        "response.OAuthTokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "访问令牌",
+                    "type": "string"
+                },
+                "expires_in": {
+                    "description": "token过期时间(毫秒时间戳)",
+                    "type": "integer"
+                },
+                "id_token": {
+                    "description": "ID令牌",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "刷新令牌",
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "权限范围",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "token_type": {
+                    "description": "令牌类型(bearer)",
+                    "type": "string"
                 }
             }
         },
@@ -269,6 +939,14 @@ const docTemplate = `{
             }
         },
         "response.OpenAPIAgentCreateConversationResponse": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OpenAPIChatflowCreateConversationResponse": {
             "type": "object",
             "properties": {
                 "conversation_id": {

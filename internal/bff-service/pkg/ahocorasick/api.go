@@ -3,6 +3,15 @@ package ahocorasick
 import (
 	"fmt"
 	"sync"
+	"time"
+
+	"github.com/UnicomAI/wanwu/pkg/log"
+	"github.com/UnicomAI/wanwu/pkg/util"
+)
+
+const (
+	dictLRUDura       = time.Hour
+	dictLRUTickerDura = 30 * time.Minute
 )
 
 var (
@@ -10,16 +19,17 @@ var (
 )
 
 type acDict struct {
-	DictID  string
-	Version string
-	Reply   string
-
-	Matcher *Matcher
+	DictID   string
+	Version  string
+	Reply    string
+	LastUsed time.Time
+	Matcher  *Matcher
 }
 
 type acMgr struct {
-	mu    sync.RWMutex
-	dicts map[string]*acDict
+	mu       sync.RWMutex
+	dicts    map[string]*acDict
+	stopChan chan struct{}
 }
 
 type MatchResult struct {
@@ -39,34 +49,121 @@ type DictStatus struct {
 	Status  bool // 词表是否存在
 }
 
-// 初始化
-func Init() error {
-	if _ac != nil {
-		return fmt.Errorf("aho-corasick already init")
+// ------------ api -----------
+func BuildDict(dict DictConfig, reply string, words []string) error {
+	if _ac == nil {
+		return fmt.Errorf("aho-corasick not init")
 	}
-	_ac = &acMgr{
-		dicts: make(map[string]*acDict),
-	}
-	return nil
+	return _ac.buildDict(dict, reply, words)
 }
 
-// CheckDictStatus 检查多个字典的状态
 func CheckDictStatus(dicts []DictConfig) ([]DictStatus, error) {
 	if _ac == nil {
 		return nil, fmt.Errorf("aho-corasick not init")
 	}
+	return _ac.checkDictStatus(dicts)
+}
+
+func ContentMatch(content string, dicts []DictConfig, returnFirstMatch bool) ([]MatchResult, error) {
+	if _ac == nil {
+		return nil, fmt.Errorf("aho-corasick not init")
+	}
+	return _ac.contentMatch(content, dicts, returnFirstMatch)
+}
+
+func ContentContain(content string, dicts []DictConfig) (*DictConfig, error) {
+	if _ac == nil {
+		return nil, fmt.Errorf("aho-corasick not init")
+	}
+	return _ac.contentContain(content, dicts)
+}
+
+// ------------ init -----------
+func Init(useLRU bool) error {
+	if _ac != nil {
+		return fmt.Errorf("aho-corasick already init")
+	}
+	_ac = &acMgr{
+		dicts:    make(map[string]*acDict),
+		stopChan: make(chan struct{}),
+	}
+	if useLRU {
+		_ac.startCleanup()
+	}
+	return nil
+}
+
+func Stop() {
+	if _ac != nil {
+		_ac.stop()
+	}
+	_ac = nil
+}
+
+// ------------ internal -----------
+func (a *acMgr) startCleanup() {
+	ticker := time.NewTicker(dictLRUTickerDura)
+	go func() {
+		defer util.PrintPanicStack()
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				a.mu.Lock()
+				threshold := time.Now().Add(-1 * dictLRUDura)
+				for k, v := range a.dicts {
+					log.Debugf("aho-corasick dict [%v]", k)
+					if v.LastUsed.Before(threshold) {
+						log.Debugf("aho-corasick dict delete [%v] lastUsed[%v]", k, v.LastUsed)
+						delete(a.dicts, k)
+					}
+				}
+				a.mu.Unlock()
+			case <-a.stopChan:
+				return
+			}
+		}
+	}()
+}
+
+func (a *acMgr) stop() {
+	close(a.stopChan)
+}
+
+func (a *acMgr) buildDict(dict DictConfig, reply string, words []string) error {
+	if dict.DictID == "" || dict.Version == "" {
+		return fmt.Errorf("aho-corasick build dict,config can not be empty")
+	}
+	dictKey := getDictKey(dict.DictID, dict.Version)
+	matcher := NewStringMatcher(words)
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.dicts[dictKey] = &acDict{
+		DictID:   dict.DictID,
+		Version:  dict.Version,
+		Matcher:  matcher,
+		Reply:    reply,
+		LastUsed: time.Now(),
+	}
+	return nil
+}
+
+func (a *acMgr) checkDictStatus(dicts []DictConfig) ([]DictStatus, error) {
 	if len(dicts) == 0 {
 		return nil, nil
 	}
-	_ac.mu.RLock()
-	defer _ac.mu.RUnlock()
+	a.mu.RLock()
+	defer a.mu.RUnlock()
 	result := make([]DictStatus, 0, len(dicts))
 	for _, cfg := range dicts {
 		if cfg.Version == "" || cfg.DictID == "" {
-			return nil, fmt.Errorf("dict config id or version can not be empty")
+			return nil, fmt.Errorf("aho-corasick check dict status,config id or version can not be empty")
 		}
 		dictKey := getDictKey(cfg.DictID, cfg.Version)
-		_, exists := _ac.dicts[dictKey]
+		_, exists := a.dicts[dictKey]
+		if exists {
+			a.dicts[dictKey].LastUsed = time.Now()
+		}
 		result = append(result, DictStatus{
 			DictCfg: cfg,
 			Status:  exists,
@@ -75,44 +172,24 @@ func CheckDictStatus(dicts []DictConfig) ([]DictStatus, error) {
 	return result, nil
 }
 
-func BuildDict(dict DictConfig, reply string, words []string) error {
-	if _ac == nil {
-		return fmt.Errorf("aho-corasick not init")
-	}
-	if dict.DictID == "" || dict.Version == "" {
-		return fmt.Errorf("dict config can not be empty")
-	}
-
-	dictKey := getDictKey(dict.DictID, dict.Version)
-	matcher := NewStringMatcher(words)
-	_ac.mu.Lock()
-	defer _ac.mu.Unlock()
-	_ac.dicts[dictKey] = &acDict{
-		DictID:  dict.DictID,
-		Version: dict.Version,
-		Matcher: matcher,
-		Reply:   reply,
-	}
-	return nil
-}
-
-func ContentMatch(content string, dicts []DictConfig, returnFirstMatch bool) ([]MatchResult, error) {
-	if _ac == nil {
-		return nil, fmt.Errorf("aho-corasick not init")
-	}
+func (a *acMgr) contentMatch(content string, dicts []DictConfig, returnFirstMatch bool) ([]MatchResult, error) {
 	if len(content) == 0 || len(dicts) == 0 {
 		return nil, nil
 	}
 	// 1. 加读锁，仅保护字典读取阶段
-	_ac.mu.RLock()
+	a.mu.RLock()
 	dictsCopy := make(map[string]*acDict) // 复制字典，避免后续操作依赖锁
 	for _, cfg := range dicts {
 		dictKey := getDictKey(cfg.DictID, cfg.Version)
-		if dict, exists := _ac.dicts[dictKey]; exists && dict != nil {
+		if dict, exists := a.dicts[dictKey]; exists && dict != nil {
+			a.dicts[dictKey].LastUsed = time.Now()
 			dictsCopy[dictKey] = dict
 		}
 	}
-	_ac.mu.RUnlock() // 字典读取完毕，立即释放锁
+	a.mu.RUnlock() // 字典读取完毕，立即释放锁
+	if len(dictsCopy) != len(dicts) {
+		log.Warnf("aho-corasick content match dictscopy len[%v] dicts len[%v] missmatch", len(dictsCopy), len(dicts))
+	}
 	// 2. 无锁状态下进行匹配
 	results := make([]MatchResult, 0)
 	contentBytes := []byte(content)
@@ -142,23 +219,24 @@ func ContentMatch(content string, dicts []DictConfig, returnFirstMatch bool) ([]
 	return results, nil
 }
 
-func ContentContain(content string, dicts []DictConfig) (*DictConfig, error) {
-	if _ac == nil {
-		return nil, fmt.Errorf("aho-corasick not init")
-	}
+func (a *acMgr) contentContain(content string, dicts []DictConfig) (*DictConfig, error) {
 	if len(content) == 0 || len(dicts) == 0 {
 		return nil, nil
 	}
 	// 1. 加读锁，仅保护字典读取阶段
-	_ac.mu.RLock()
+	a.mu.RLock()
 	dictsCopy := make(map[string]*acDict) // 复制字典，避免后续操作依赖锁
 	for _, cfg := range dicts {
 		dictKey := getDictKey(cfg.DictID, cfg.Version)
-		if dict, exists := _ac.dicts[dictKey]; exists && dict != nil {
+		if dict, exists := a.dicts[dictKey]; exists && dict != nil {
+			a.dicts[dictKey].LastUsed = time.Now()
 			dictsCopy[dictKey] = dict
 		}
 	}
-	_ac.mu.RUnlock() // 字典读取完毕，立即释放锁
+	a.mu.RUnlock() // 字典读取完毕，立即释放锁
+	if len(dictsCopy) != len(dicts) {
+		log.Warnf("aho-corasick content match dictscopy len[%v] dicts len[%v] missmatch", len(dictsCopy), len(dicts))
+	}
 	// 2. 无锁状态匹配字段
 	contentBytes := []byte(content)
 	for _, cfg := range dictsCopy {
@@ -170,7 +248,6 @@ func ContentContain(content string, dicts []DictConfig) (*DictConfig, error) {
 	return nil, nil
 }
 
-// =--- internal ---
 func (m *Matcher) getOriginalWord(index int) string {
 	for _, node := range m.trie {
 		if node.output && node.index == index {

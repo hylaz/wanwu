@@ -38,3 +38,10 @@ func GenerateCaptcha() (code, b64s string, err error) {
 	b64s = item.EncodeB64string()
 	return code, b64s, nil
 }
+
+func RandText(size int) string {
+	if size <= 0 {
+		size = length
+	}
+	return base64Captcha.RandText(size, captcha)
+}

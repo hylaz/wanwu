@@ -46,6 +46,12 @@ func WithUserID(userID string) SQLOption {
 	})
 }
 
+func WithAppIDs(Ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("app_id IN (?)", Ids)
+	})
+}
+
 func WithExcludeUserID(userID string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if userID != "" {
@@ -55,18 +61,9 @@ func WithExcludeUserID(userID string) SQLOption {
 	})
 }
 
-func WithID(Id string) SQLOption {
+func WithSuffix(suffix string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
-		if Id != "" {
-			return db.Where("id = ?", Id)
-		}
-		return db
-	})
-}
-
-func WithIDs(Ids []string) SQLOption {
-	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
-		return db.Where("id IN (?)", Ids)
+		return db.Where("suffix = ?", suffix)
 	})
 }
 
@@ -85,6 +82,18 @@ func WithAppType(appType string) SQLOption {
 			return db.Where("app_type = ?", appType)
 		}
 		return db
+	})
+}
+
+func WithID(id uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("id = ?", id)
+	})
+}
+
+func WithIDs(Ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("id IN (?)", Ids)
 	})
 }
 
@@ -157,16 +166,14 @@ func EndUpdatedAt(endUpdatedAt int64) SQLOption {
 	})
 }
 
-func WithSearchType(userID, searchType string) SQLOption {
+func WithSearchType(userID, orgID, searchType string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		var query string
 		var args []interface{}
 		switch searchType {
 		case "", "all":
-			query = "user_id = ? AND publish_type = ?"
-			args = append(args, userID, constant.AppPublishPrivate)
-			query = "(" + query + ") OR " + "publish_type = ?"
-			args = append(args, constant.AppPublishPublic)
+			query = "(user_id = ? AND publish_type = ?) OR (publish_type = ?) OR (publish_type = ? AND org_id = ?)"
+			args = append(args, userID, constant.AppPublishPrivate, constant.AppPublishPublic, constant.AppPublishOrganization, orgID)
 		case "private":
 			query = "user_id = ? AND publish_type = ?"
 			args = append(args, userID, constant.AppPublishPrivate)
@@ -175,12 +182,9 @@ func WithSearchType(userID, searchType string) SQLOption {
 	})
 }
 
-func WithTableID(tableID string) SQLOption {
+func WithTableID(tableID uint32) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
-		if tableID != "" {
-			return db.Where("table_id = ?", tableID)
-		}
-		return db
+		return db.Where("table_id = ?", tableID)
 	})
 }
 
@@ -211,5 +215,11 @@ func WithContent(content string) SQLOption {
 func WithContents(contents []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("content IN ?", contents)
+	})
+}
+
+func WithConversationID(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("conversation_id = ?", id)
 	})
 }

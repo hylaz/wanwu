@@ -1,16 +1,10 @@
 package callback
 
 import (
-	"encoding/json"
-	"fmt"
-
-	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
-	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
-	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
-	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,115 +13,22 @@ import (
 
 //	@BasePath	/callback/v1
 
-// GetModelById
+// FileUrlConvertBase64
 //
 //	@Tags		callback
-//	@Summary	根据ModelId获取模型
+//	@Summary	文件Url转换为base64
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string	true	"模型ID"
-//	@Success	200		{object}	response.Response{data=response.ModelInfo}
-//	@Router		/model/{modelId} [get]
-func GetModelById(ctx *gin.Context) {
-	modelId := ctx.Param("modelId")
-	resp, err := service.GetModelById(ctx, &request.GetModelByIdRequest{ModelId: modelId})
-	// 替换callback返回的模型中的apiKey/endpointUrl信息
-	if resp != nil && resp.Config != nil {
-		cfg := make(map[string]interface{})
-		b, err := json.Marshal(resp.Config)
-		if err != nil {
-			gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v marshal config err: %v", modelId, err)))
-			return
-		}
-		if err = json.Unmarshal(b, &cfg); err != nil {
-			gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v unmarshal config err: %v", modelId, err)))
-			return
-		}
-		// 替换apiKey, endpointUrl
-		cfg["apiKey"] = "useless-api-key"
-		endpoint := mp.ToModelEndpoint(resp.ModelId, resp.Model)
-		for k, v := range endpoint {
-			if k == "model_url" {
-				cfg["endpointUrl"] = v
-				break
-			}
-		}
-		// 替换Config
-		resp.Config = cfg
+//	@Param		data	body		request.FileUrlConvertBase64Req	true	"文件Url转换base64请求参数"
+//	@Success	200		{object}	response.Response{data=string}
+//	@Router		/file/url/base64 [post]
+func FileUrlConvertBase64(ctx *gin.Context) {
+	var req request.FileUrlConvertBase64Req
+	if !gin_util.Bind(ctx, &req) {
+		return
 	}
+	resp, err := service.FileUrlConvertBase64(ctx, req.FileUrl)
 	gin_util.Response(ctx, resp, err)
-}
-
-// ModelChatCompletions
-//
-//	@Tags		callback
-//	@Summary	Model Chat Completions
-//	@Accept		json
-//	@Produce	json
-//	@Param		modelId	path		string				true	"模型ID"
-//	@Param		data	body		mp_common.LLMReq{}	true	"请求参数"
-//	@Success	200		{object}	mp_common.LLMResp{}
-//	@Router		/model/{modelId}/chat/completions [post]
-func ModelChatCompletions(ctx *gin.Context) {
-	var data mp_common.LLMReq
-	if !gin_util.Bind(ctx, &data) {
-		return
-	}
-	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data)
-}
-
-// ModelEmbeddings
-//
-//	@Tags		callback
-//	@Summary	Model Embeddings
-//	@Accept		json
-//	@Produce	json
-//	@Param		modelId	path		string						true	"模型ID"
-//	@Param		data	body		mp_common.EmbeddingReq{}	true	"请求参数"
-//	@Success	200		{object}	mp_common.EmbeddingResp{}
-//	@Router		/model/{modelId}/embeddings [post]
-func ModelEmbeddings(ctx *gin.Context) {
-	var data mp_common.EmbeddingReq
-	if !gin_util.Bind(ctx, &data) {
-		return
-	}
-	service.ModelEmbeddings(ctx, ctx.Param("modelId"), &data)
-}
-
-// ModelRerank
-//
-//	@Tags		callback
-//	@Summary	Model Rerank
-//	@Accept		json
-//	@Produce	json
-//	@Param		modelId	path		string					true	"模型ID"
-//	@Param		data	body		mp_common.RerankReq{}	true	"请求参数"
-//	@Success	200		{object}	mp_common.RerankResp{}
-//	@Router		/model/{modelId}/rerank [post]
-func ModelRerank(ctx *gin.Context) {
-	var data mp_common.RerankReq
-	if !gin_util.Bind(ctx, &data) {
-		return
-	}
-	service.ModelRerank(ctx, ctx.Param("modelId"), &data)
-}
-
-// ModelOcr
-//
-//	@Tags		callback
-//	@Summary	Model Ocr
-//	@Accept		multipart/form-data
-//	@Produce	json
-//	@Param		modelId	path		string	true	"模型ID"
-//	@Param		file	formData	file	true	"文件"
-//	@Success	200		{object}	mp_common.OcrResp{}
-//	@Router		/model/{modelId}/ocr [post]
-func ModelOcr(ctx *gin.Context) {
-	var data mp_common.OcrReq
-	if !gin_util.BindForm(ctx, &data) {
-		return
-	}
-	service.ModelOcr(ctx, ctx.Param("modelId"), &data)
 }
 
 // UpdateDocStatus
@@ -146,6 +47,25 @@ func UpdateDocStatus(ctx *gin.Context) {
 		return
 	}
 	err := service.UpdateDocStatus(ctx, &req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// UpdateKnowledgeStatus
+//
+//	@Tags			callback
+//	@Summary		更新知识库状态
+//	@Description	更新知识库状态
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.CallbackUpdateDocStatusReq	true	"更新知识库状态请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/api/knowledge/status [post]
+func UpdateKnowledgeStatus(ctx *gin.Context) {
+	var req request.CallbackUpdateKnowledgeStatusReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.UpdateKnowledgeStatus(ctx, &req)
 	gin_util.Response(ctx, nil, err)
 }
 
@@ -194,4 +114,48 @@ func SelectKnowledgeInfoByName(ctx *gin.Context) {
 	}
 	resp, err := service.SelectKnowledgeInfoByName(ctx, req.UserId, req.OrgId, &req)
 	gin_util.Response(ctx, resp, err)
+}
+
+// SearchKnowledgeBase
+//
+//	@Tags			callback
+//	@Summary		查询知识库列表（命中测试）
+//	@Description	查询知识库列表（命中测试）
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.RagSearchKnowledgeBaseReq	true	"查询知识库列表请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/rag/search-knowledge-base [post]
+func SearchKnowledgeBase(ctx *gin.Context) {
+	var req request.RagSearchKnowledgeBaseReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, httpStatus := service.RagSearchKnowledgeBase(ctx, &req)
+	gin_util.ResponseRawByte(ctx, httpStatus, resp)
+}
+
+// KnowledgeStreamSearch
+//
+//	@Tags			callback
+//	@Summary		知识库流式问答
+//	@Description	知识库流式问答
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.RagKnowledgeChatReq	true	"知识库流式问答请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/rag/knowledge/stream/search [post]
+func KnowledgeStreamSearch(ctx *gin.Context) {
+	userId := ctx.GetHeader("X-uid")
+	var req request.RagKnowledgeChatReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	req.UserId = userId
+	err := service.KnowledgeStreamSearch(ctx, &req)
+	if err != nil {
+		resp, httpStatus := response.CommonRagKnowledgeError(err)
+		gin_util.ResponseRawByte(ctx, httpStatus, resp)
+		return
+	}
 }

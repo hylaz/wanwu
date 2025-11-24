@@ -14,8 +14,15 @@ type RagConfig struct {
 }
 
 type ChatRagRequest struct {
-	RagID    string `json:"ragId" validate:"required"`
-	Question string `json:"question" validate:"required"`
+	RagID    string     `json:"ragId" validate:"required"`
+	Question string     `json:"question" validate:"required"`
+	History  []*History `json:"history"`
+}
+
+type History struct {
+	Query       string `json:"query"`
+	Response    string `json:"response"`
+	NeedHistory bool   `json:"needHistory"`
 }
 
 type RagReq struct {

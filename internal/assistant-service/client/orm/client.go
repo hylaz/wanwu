@@ -28,9 +28,10 @@ func NewClient(db *gorm.DB) (*Client, error) {
 	if err := db.AutoMigrate(
 		model.Assistant{},
 		model.Conversation{},
-		model.AssistantAction{},
 		model.AssistantWorkflow{},
 		model.AssistantMCP{},
+		model.AssistantTool{},
+		model.CustomPrompt{},
 	); err != nil {
 		return nil, err
 	}

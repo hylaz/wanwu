@@ -8,8 +8,8 @@ import (
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func Record(ctx *gin.Context) {
@@ -34,6 +34,38 @@ func requestFullPath(ctx *gin.Context) string {
 		return ctx.Request.URL.Path + "?" + ctx.Request.URL.RawQuery
 	}
 	return ctx.Request.URL.Path
+}
+
+func getFieldValue(ctx *gin.Context, fieldName string) string {
+	//尝试从query中获取field
+	value := ctx.Query(fieldName)
+	if len(value) > 0 {
+		return value
+	}
+	if binding.MIMEJSON != ctx.ContentType() {
+		return ""
+	}
+	//获取原始数据
+	body, err := requestBody(ctx)
+	if err != nil || len(body) == 0 {
+		return ""
+	}
+	//构造参数对应map
+	paramsMap := make(map[string]interface{})
+	err = json.Unmarshal([]byte(body), &paramsMap)
+	if err != nil {
+		return ""
+	}
+	//获取对应filed的值
+	fieldValue := paramsMap[fieldName]
+	if fieldValue == nil {
+		return ""
+	}
+	retValue, ok := fieldValue.(string)
+	if !ok {
+		return ""
+	}
+	return retValue
 }
 
 func requestBody(ctx *gin.Context) (string, error) {

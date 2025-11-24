@@ -58,9 +58,20 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
 		}
 	}
+	var ragHistory []*rag_service.HistoryItem
+	if len(req.History) > 0 {
+		for _, history := range req.History {
+			ragHistory = append(ragHistory, &rag_service.HistoryItem{
+				Query:       history.Query,
+				Response:    history.Response,
+				NeedHistory: history.NeedHistory,
+			})
+		}
+	}
 	stream, err := rag.ChatRag(ctx, &rag_service.ChatRagReq{
 		RagId:    req.RagID,
 		Question: req.Question,
+		History:  ragHistory,
 		Identity: &rag_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -70,11 +81,21 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 		return nil, err
 	}
 
+	firstResp, err := stream.Recv()
+	if err != nil {
+		if err == io.EOF {
+			// 流已经结束，没有数据
+			return nil, err
+		}
+		return nil, err
+	}
+
 	rawCh := make(chan string, 128)
 	go func() {
 		defer util.PrintPanicStack()
 		defer close(rawCh)
 		log.Infof("[RAG] %v user %v org %v start, query: %s", req.RagID, userId, orgId, req.Question)
+		rawCh <- firstResp.Content
 		for {
 			s, err := stream.Recv()
 			if err == io.EOF {
@@ -100,7 +121,7 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 func buildRagChatRespLineProcessor() func(*gin.Context, string, interface{}) (string, bool, error) {
 	return func(c *gin.Context, lineText string, params interface{}) (string, bool, error) {
 		if strings.HasPrefix(lineText, "error:") {
-			errorText := fmt.Sprintf("data: {\"code\": \"-1\", \"msg\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
+			errorText := fmt.Sprintf("data: {\"code\": -1, \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
 			return errorText, false, nil
 		}
 		if strings.HasPrefix(lineText, "data:") {

@@ -38,6 +38,32 @@ func AuthOpenAPI(appType string) func(*gin.Context) {
 
 }
 
+func AuthOpenAPIByQuery(appType string) func(*gin.Context) {
+	return func(ctx *gin.Context) {
+		token, err := getApiKeyByQuery(ctx)
+		if err != nil {
+			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, err.Error())
+			ctx.Abort()
+			return
+		}
+		apiKey, err := service.GetApiKeyByKey(ctx, token)
+		if err != nil {
+			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, err.Error())
+			ctx.Abort()
+			return
+		}
+		if apiKey.AppType != appType {
+			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, "invalid appType")
+			ctx.Abort()
+			return
+		}
+		ctx.Set(gin_util.USER_ID, apiKey.UserId)
+		ctx.Set(gin_util.X_ORG_ID, apiKey.OrgId)
+		ctx.Set(gin_util.APP_ID, apiKey.AppId)
+	}
+
+}
+
 func getApiKey(ctx *gin.Context) (string, error) {
 	authorization := ctx.Request.Header.Get("Authorization")
 	if authorization != "" {
@@ -47,6 +73,15 @@ func getApiKey(ctx *gin.Context) (string, error) {
 		} else {
 			return "", fmt.Errorf("not Bearer token format")
 		}
+	} else {
+		return "", fmt.Errorf("token is nil")
+	}
+}
+
+func getApiKeyByQuery(ctx *gin.Context) (string, error) {
+	key := ctx.Query("key")
+	if key != "" {
+		return key, nil
 	} else {
 		return "", fmt.Errorf("token is nil")
 	}

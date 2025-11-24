@@ -1,0 +1,11 @@
+configparser
+gunicorn
+quart
+flask
+FlagEmbedding==1.2.5
+elasticsearch
+modelscope
+requests
+pytz
+langchain-community
+openai

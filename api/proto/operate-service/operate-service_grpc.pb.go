@@ -24,6 +24,8 @@ const (
 	OperateService_CreateSystemCustomLogin_FullMethodName = "/operate_service.OperateService/CreateSystemCustomLogin"
 	OperateService_CreateSystemCustomHome_FullMethodName  = "/operate_service.OperateService/CreateSystemCustomHome"
 	OperateService_GetSystemCustom_FullMethodName         = "/operate_service.OperateService/GetSystemCustom"
+	OperateService_AddClientRecord_FullMethodName         = "/operate_service.OperateService/AddClientRecord"
+	OperateService_GetClientStatistic_FullMethodName      = "/operate_service.OperateService/GetClientStatistic"
 )
 
 // OperateServiceClient is the client API for OperateService service.
@@ -34,6 +36,8 @@ type OperateServiceClient interface {
 	CreateSystemCustomLogin(ctx context.Context, in *CreateSystemCustomLoginReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateSystemCustomHome(ctx context.Context, in *CreateSystemCustomHomeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetSystemCustom(ctx context.Context, in *GetSystemCustomReq, opts ...grpc.CallOption) (*SystemCustom, error)
+	AddClientRecord(ctx context.Context, in *AddClientRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetClientStatistic(ctx context.Context, in *GetClientStatisticReq, opts ...grpc.CallOption) (*ClientStatistic, error)
 }
 
 type operateServiceClient struct {
@@ -84,6 +88,26 @@ func (c *operateServiceClient) GetSystemCustom(ctx context.Context, in *GetSyste
 	return out, nil
 }
 
+func (c *operateServiceClient) AddClientRecord(ctx context.Context, in *AddClientRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, OperateService_AddClientRecord_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operateServiceClient) GetClientStatistic(ctx context.Context, in *GetClientStatisticReq, opts ...grpc.CallOption) (*ClientStatistic, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClientStatistic)
+	err := c.cc.Invoke(ctx, OperateService_GetClientStatistic_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OperateServiceServer is the server API for OperateService service.
 // All implementations must embed UnimplementedOperateServiceServer
 // for forward compatibility.
@@ -92,6 +116,8 @@ type OperateServiceServer interface {
 	CreateSystemCustomLogin(context.Context, *CreateSystemCustomLoginReq) (*emptypb.Empty, error)
 	CreateSystemCustomHome(context.Context, *CreateSystemCustomHomeReq) (*emptypb.Empty, error)
 	GetSystemCustom(context.Context, *GetSystemCustomReq) (*SystemCustom, error)
+	AddClientRecord(context.Context, *AddClientRecordReq) (*emptypb.Empty, error)
+	GetClientStatistic(context.Context, *GetClientStatisticReq) (*ClientStatistic, error)
 	mustEmbedUnimplementedOperateServiceServer()
 }
 
@@ -113,6 +139,12 @@ func (UnimplementedOperateServiceServer) CreateSystemCustomHome(context.Context,
 }
 func (UnimplementedOperateServiceServer) GetSystemCustom(context.Context, *GetSystemCustomReq) (*SystemCustom, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSystemCustom not implemented")
+}
+func (UnimplementedOperateServiceServer) AddClientRecord(context.Context, *AddClientRecordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddClientRecord not implemented")
+}
+func (UnimplementedOperateServiceServer) GetClientStatistic(context.Context, *GetClientStatisticReq) (*ClientStatistic, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClientStatistic not implemented")
 }
 func (UnimplementedOperateServiceServer) mustEmbedUnimplementedOperateServiceServer() {}
 func (UnimplementedOperateServiceServer) testEmbeddedByValue()                        {}
@@ -207,6 +239,42 @@ func _OperateService_GetSystemCustom_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OperateService_AddClientRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddClientRecordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperateServiceServer).AddClientRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperateService_AddClientRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperateServiceServer).AddClientRecord(ctx, req.(*AddClientRecordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperateService_GetClientStatistic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClientStatisticReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperateServiceServer).GetClientStatistic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperateService_GetClientStatistic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperateServiceServer).GetClientStatistic(ctx, req.(*GetClientStatisticReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OperateService_ServiceDesc is the grpc.ServiceDesc for OperateService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +297,14 @@ var OperateService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSystemCustom",
 			Handler:    _OperateService_GetSystemCustom_Handler,
+		},
+		{
+			MethodName: "AddClientRecord",
+			Handler:    _OperateService_AddClientRecord_Handler,
+		},
+		{
+			MethodName: "GetClientStatistic",
+			Handler:    _OperateService_GetClientStatistic_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

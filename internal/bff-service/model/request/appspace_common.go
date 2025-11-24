@@ -63,8 +63,10 @@ type AppKnowledgebaseConfig struct {
 }
 
 type AppKnowledgeBase struct {
-	ID   string `json:"id" validate:"required"` // 知识库id
-	Name string `json:"name"`                   // 知识库名称(请求非必填)
+	ID                   string                `json:"id" validate:"required"` // 知识库id
+	Name                 string                `json:"name"`
+	GraphSwitch          int32                 `json:"graphSwitch"` // 知识图谱开关
+	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
 }
 
 type AppKnowledgebaseParams struct {
@@ -76,6 +78,22 @@ type AppKnowledgebaseParams struct {
 	PriorityMatch     int32   `json:"priorityMatch"`     // 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
 	SemanticsPriority float32 `json:"semanticsPriority"` // 语义权重
 	KeywordPriority   float32 `json:"keywordPriority"`   // 关键词权重
+	TermWeight        float32 `json:"termWeight"`        // 关键词系数，默认为1
+	TermWeightEnable  bool    `json:"termWeightEnable"`  // 关键词系数开关
+	UseGraph          bool    `json:"useGraph"`          // 知识图谱开关
+}
+
+type MetaDataFilterParams struct {
+	FilterEnable     bool                `json:"filterEnable"`     // 元数据过滤开关
+	MetaFilterParams []*MetaFilterParams `json:"metaFilterParams"` // 元数据过滤参数列表
+	FilterLogicType  string              `json:"filterLogicType"`  // 元数据逻辑条件：and/or
+}
+
+type MetaFilterParams struct {
+	Key       string `json:"key"`       // Key
+	Type      string `json:"type"`      // 类型（Time, String, Number）
+	Condition string `json:"condition"` // 条件
+	Value     string `json:"value"`     // value
 }
 
 type AppSafetyConfig struct {
@@ -86,4 +104,8 @@ type AppSafetyConfig struct {
 type SensitiveTable struct {
 	TableId   string `json:"tableId" validate:"required"` // 敏感词表id
 	TableName string `json:"tableName"`                   // 敏感词表名称(请求非必填)
+}
+
+type VisionConfig struct {
+	PicNum int32 `json:"picNum"` // 视觉配置图片数量
 }

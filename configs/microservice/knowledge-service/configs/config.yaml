@@ -85,32 +85,49 @@ kafka:
   user: "admin"
   password:
   topic: "doc-rag"
+  knowledge-graph-topic: "rag-knowledge-graph"
   url-analysis-topic: "url-batch-a-prod"
   url-import-topic: "url-batch-i-prod"
   default-partition-num: 3
 
 rag-server:
   endpoint: 'http://rag-wanwu:8681'
+  proxy-point: 'http://bff-service:6668'
   url-analysis-endpoint: 'http://rag-wanwu:8613'
   url-import-endpoint: 'http://rag-wanwu:8613'
   init-knowledge-uri: '/rag/init-knowledge-base'
   update-knowledge-uri: '/rag/update-kb-name'
   delete-knowledge-uri: '/rag/del-knowledge-base'
-  knowledge-hit-uri: '/rag/search-knowledge-base'
+  knowledge-hit-uri: '/callback/v1/rag/search-knowledge-base'
   get-doc-segment-uri: '/rag/get-content-list'
+  get-child-content-uri: '/rag/get-child-content-list'
   doc-segment-update-status-uri: '/rag/update-content-status'
   doc-delete-uri: '/rag/del-knowledge-file'
-  doc-tag-uri: '/rag/update-file-tags'
   doc-url-analysis-uri: '/url_pra'
   doc-url-import-uri: '/url_insert'
   keywords-uri: '/rag/proper_noun'
+  doc-segment-update-labels-uri: '/rag/update-chunk-labels'
+  doc-segment-create-uri: '/rag/batch-add-chunks'
+  doc-segment-update-uri: '/rag/update-chunk'
+  doc-segment-delete-uri: '/rag/batch-delete-chunks'
+  doc-child-segment-create-uri: '/rag/batch-add-child-chunks'
+  doc-child-segment-update-uri: '/rag/update-child-chunk'
+  doc-child-segment-delete-uri: '/rag/batch-delete-child-chunks'
+  batch-delete-meta-key-uri: '/rag/delete-meta-by-keys'
+  batch-rename-meta-key-uri: '/rag/rename-meta-keys'
+  update-file-metas-uri: '/rag/update-file-metas'
+  get-community-report-list-uri: '/rag/get-community-report-list'
+  batch-add-reports-uri: '/rag/batch-add-reports'
+  update-report-uri: '/rag/update-report'
+  batch-delete-reports-uri: '/rag/batch-delete-reports'
+  knowledge-graph-uri: '/rag/knowledgeBase-graph'
   timeout: 60
 
 usage-limit:
   category-depth: 3
   doc-total: -1
   punc-types: "？@#@！@#@。@#@?@#@......@#@!@#@."
-  file-types: ".docx;.txt;.pdf;.xlsx;.csv;.pptx;.html;.doc;.xls"
+  file-types: ".docx;.txt;.pdf;.xlsx;.csv;.pptx;.html;.doc;.xls;.ofd;.wps;.md"
   compressed-file-type: ".zip;.tar.gz"
   max-number-of-files-in-compressed: -1
   max-file-size: 209715200
@@ -129,3 +146,9 @@ usage-limit:
 
 knowledge-doc-config:
   doc-local-file-path: static/temp
+
+splitters:
+  - name: "\n\n"
+    value: "\n\n"
+  - name: "\n"
+    value: "\n"

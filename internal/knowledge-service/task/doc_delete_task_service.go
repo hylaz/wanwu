@@ -162,6 +162,12 @@ func BatchDeleteAllDoc(ctx context.Context, tx *gorm.DB, knowledge *model.Knowle
 		log.Errorf("ExecuteDeleteDocByIdList error %v", err)
 		return err
 	}
+	//4.删除元数据
+	err = orm.DeleteMetaDataByDocIdList(tx, knowledge.KnowledgeId, buildDocIdList(docList))
+	if err != nil {
+		//只打印，不阻塞
+		log.Errorf("DeleteMetaDataByDocIdList error %v", err)
+	}
 	return nil
 }
 
@@ -170,8 +176,8 @@ func batchRagDelete(ctx context.Context, knowledge *model.KnowledgeBase, docList
 	for _, doc := range docList {
 		var fileName = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
 		err := service.RagDeleteDoc(ctx, &service.RagDeleteDocParams{
-			UserId:        doc.UserId,
-			KnowledgeBase: knowledge.Name,
+			UserId:        knowledge.UserId,
+			KnowledgeBase: knowledge.RagName,
 			FileName:      fileName,
 		})
 		if err != nil {
@@ -194,4 +200,12 @@ func batchMinioDelete(ctx context.Context, docList []*model.KnowledgeDoc) error 
 		}
 	}
 	return nil
+}
+
+func buildDocIdList(docList []*model.KnowledgeDoc) []string {
+	var retList []string
+	for _, doc := range docList {
+		retList = append(retList, doc.DocId)
+	}
+	return retList
 }

@@ -1,21 +1,96 @@
 basePath: /v1
 definitions:
+  config.WorkflowModelParam:
+    properties:
+      default_val:
+        $ref: '#/definitions/config.WorkflowModelParamDefaultVal'
+      desc:
+        type: string
+      label:
+        type: string
+      max:
+        type: string
+      min:
+        type: string
+      name:
+        type: string
+      param_class:
+        $ref: '#/definitions/config.WorkflowModelParamClass'
+      precision:
+        type: integer
+      type:
+        type: integer
+    type: object
+  config.WorkflowModelParamClass:
+    properties:
+      class_id:
+        type: integer
+      label:
+        type: string
+    type: object
+  config.WorkflowModelParamDefaultVal:
+    properties:
+      balance:
+        type: string
+      creative:
+        type: string
+      default_val:
+        type: string
+      precise:
+        type: string
+    type: object
   mp.AppModelParams:
     properties:
+      providerHuoshan:
+        $ref: '#/definitions/mp.AppModelParamsHuoshan'
+      providerModelByInfini:
+        $ref: '#/definitions/mp.AppModelParamsInfini'
+      providerOllama:
+        $ref: '#/definitions/mp.AppModelParamsOllama'
       providerOpenAICompatible:
         allOf:
         - $ref: '#/definitions/mp.AppModelParamsOpenAICompatible'
         description: OpenAI-API-compatible模型配置
+      providerQwen:
+        $ref: '#/definitions/mp.AppModelParamsQwen'
       providerYuanjing:
         allOf:
         - $ref: '#/definitions/mp.AppModelParamsYuanjing'
         description: YuanJing模型配置
+    type: object
+  mp.AppModelParamsHuoshan:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_huoshan.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsInfini:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_infini.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsOllama:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_ollama.LLMParams'
+        description: 大语言模型配置
     type: object
   mp.AppModelParamsOpenAICompatible:
     properties:
       llm:
         allOf:
         - $ref: '#/definitions/mp_openai_compatible.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsQwen:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_qwen.LLMParams'
         description: 大语言模型配置
     type: object
   mp.AppModelParamsYuanjing:
@@ -31,6 +106,15 @@ definitions:
         $ref: '#/definitions/mp_huoshan.Embedding'
       llm:
         $ref: '#/definitions/mp_huoshan.LLM'
+    type: object
+  mp.ProviderModelByInfini:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_infini.Embedding'
+      llm:
+        $ref: '#/definitions/mp_infini.LLM'
+      rerank:
+        $ref: '#/definitions/mp_infini.Rerank'
     type: object
   mp.ProviderModelByOllama:
     properties:
@@ -61,10 +145,14 @@ definitions:
     properties:
       embedding:
         $ref: '#/definitions/mp_yuanjing.Embedding'
+      gui:
+        $ref: '#/definitions/mp_yuanjing.Gui'
       llm:
         $ref: '#/definitions/mp_yuanjing.LLM'
       ocr:
         $ref: '#/definitions/mp_yuanjing.Ocr'
+      pdf-parser:
+        $ref: '#/definitions/mp_yuanjing.PdfParser'
       rerank:
         $ref: '#/definitions/mp_yuanjing.Rerank'
     type: object
@@ -72,6 +160,8 @@ definitions:
     properties:
       providerHuoshan:
         $ref: '#/definitions/mp.ProviderModelByHuoshan'
+      providerModelByInfini:
+        $ref: '#/definitions/mp.ProviderModelByInfini'
       providerOllama:
         $ref: '#/definitions/mp.ProviderModelByOllama'
       providerOpenAICompatible:
@@ -81,11 +171,19 @@ definitions:
       providerYuanJing:
         $ref: '#/definitions/mp.ProviderModelByYuanjing'
     type: object
+  mp_common.Tag:
+    properties:
+      text:
+        type: string
+    type: object
   mp_huoshan.Embedding:
     properties:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -95,6 +193,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -103,7 +204,132 @@ definitions:
         enum:
         - noSupport
         - toolCall
-        - functionCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_huoshan.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_infini.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_infini.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_infini.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    type: object
+  mp_infini.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
         type: string
     type: object
   mp_ollama.Embedding:
@@ -111,6 +337,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -120,6 +349,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -128,14 +360,58 @@ definitions:
         enum:
         - noSupport
         - toolCall
-        - functionCall
         type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_ollama.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
     type: object
   mp_openai_compatible.Embedding:
     properties:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -145,6 +421,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -153,7 +432,15 @@ definitions:
         enum:
         - noSupport
         - toolCall
-        - functionCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
         type: string
     type: object
   mp_openai_compatible.LLMParams:
@@ -194,6 +481,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -203,6 +493,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -212,6 +505,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -220,19 +516,75 @@ definitions:
         enum:
         - noSupport
         - toolCall
-        - functionCall
         type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_qwen.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
     type: object
   mp_qwen.Rerank:
     properties:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
     type: object
   mp_yuanjing.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.Gui:
     properties:
       apiKey:
         description: ApiKey
@@ -246,6 +598,9 @@ definitions:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -254,7 +609,15 @@ definitions:
         enum:
         - noSupport
         - toolCall
-        - functionCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
         type: string
     type: object
   mp_yuanjing.LLMParams:
@@ -299,11 +662,23 @@ definitions:
         description: 推理url
         type: string
     type: object
+  mp_yuanjing.PdfParser:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
   mp_yuanjing.Rerank:
     properties:
       apiKey:
         description: ApiKey
         type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
       endpointUrl:
         description: 推理url
         type: string
@@ -345,6 +720,19 @@ definitions:
     type: string
     x-enum-varnames:
     - Object
+  protocol.OutputSchema:
+    properties:
+      properties:
+        additionalProperties:
+          $ref: '#/definitions/protocol.Property'
+        type: object
+      required:
+        items:
+          type: string
+        type: array
+      type:
+        $ref: '#/definitions/protocol.InputSchemaType'
+    type: object
   protocol.Property:
     properties:
       description:
@@ -389,6 +777,11 @@ definitions:
       name:
         description: Name is the unique identifier of the tool
         type: string
+      outputSchema:
+        allOf:
+        - $ref: '#/definitions/protocol.OutputSchema'
+        description: OutputSchema defines expected output structure for the tool using
+          Optional JSON Schema
     type: object
   protocol.ToolAnnotations:
     properties:
@@ -413,39 +806,6 @@ definitions:
         description: Title is a human-readable title for the tool, useful for UI display
         type: string
     type: object
-  request.ActionAddRequest:
-    properties:
-      apiAuth:
-        $ref: '#/definitions/request.ApiAuthWebRequest'
-      assistantId:
-        type: string
-      schema:
-        type: string
-    required:
-    - apiAuth
-    - assistantId
-    - schema
-    type: object
-  request.ActionIdRequest:
-    properties:
-      actionId:
-        type: string
-    required:
-    - actionId
-    type: object
-  request.ActionUpdateRequest:
-    properties:
-      actionId:
-        type: string
-      apiAuth:
-        $ref: '#/definitions/request.ApiAuthWebRequest'
-      schema:
-        type: string
-    required:
-    - actionId
-    - apiAuth
-    - schema
-    type: object
   request.AnalysisUrlDocReq:
     properties:
       knowledgeId:
@@ -457,17 +817,6 @@ definitions:
     required:
     - knowledgeId
     - urlList
-    type: object
-  request.ApiAuthWebRequest:
-    properties:
-      apiKey:
-        type: string
-      authType:
-        type: string
-      customHeaderName:
-        type: string
-      type:
-        type: string
     type: object
   request.AppBriefConfig:
     properties:
@@ -486,11 +835,15 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      graphSwitch:
+        description: 知识图谱开关
+        type: integer
       id:
         description: 知识库id
         type: string
+      metaDataFilterParams:
+        $ref: '#/definitions/request.MetaDataFilterParams'
       name:
-        description: 知识库名称(请求非必填)
         type: string
     required:
     - id
@@ -524,12 +877,21 @@ definitions:
       semanticsPriority:
         description: 语义权重
         type: number
+      termWeight:
+        description: 关键词系数，默认为1
+        type: number
+      termWeightEnable:
+        description: 关键词系数开关
+        type: boolean
       threshold:
         description: 过滤阈值
         type: number
       topK:
         description: 知识条数
         type: integer
+      useGraph:
+        description: 知识图谱开关
+        type: boolean
     type: object
   request.AppModelConfig:
     properties:
@@ -565,6 +927,99 @@ definitions:
           $ref: '#/definitions/request.SensitiveTable'
         type: array
     type: object
+  request.AppUrlCreateRequest:
+    properties:
+      appId:
+        description: 应用id
+        type: string
+      appType:
+        description: 应用类型
+        type: string
+      copyright:
+        description: 版权
+        type: string
+      copyrightEnable:
+        description: 版权开关
+        type: boolean
+      description:
+        type: string
+      disclaimer:
+        description: 免责声明
+        type: string
+      disclaimerEnable:
+        description: 免责声明开关
+        type: boolean
+      expiredAt:
+        description: 过期时间
+        type: string
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私协议
+        type: string
+      privacyPolicyEnable:
+        description: 隐私协议开关
+        type: boolean
+    required:
+    - appId
+    - appType
+    - name
+    type: object
+  request.AppUrlIdRequest:
+    properties:
+      urlId:
+        description: UrlID
+        type: string
+    required:
+    - urlId
+    type: object
+  request.AppUrlStatusRequest:
+    properties:
+      status:
+        description: 启停状态
+        type: boolean
+      urlId:
+        description: UrlID
+        type: string
+    required:
+    - urlId
+    type: object
+  request.AppUrlUpdateRequest:
+    properties:
+      copyright:
+        description: 版权
+        type: string
+      copyrightEnable:
+        description: 版权开关
+        type: boolean
+      description:
+        type: string
+      disclaimer:
+        description: 免责声明
+        type: string
+      disclaimerEnable:
+        description: 免责声明开关
+        type: boolean
+      expiredAt:
+        description: 过期时间
+        type: string
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私协议
+        type: string
+      privacyPolicyEnable:
+        description: 隐私协议开关
+        type: boolean
+      urlId:
+        description: UrlID
+        type: string
+    required:
+    - name
+    - urlId
+    type: object
   request.AssistantBrief:
     properties:
       assistantId:
@@ -598,10 +1053,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
         description: 模型
-      onlineSearchConfig:
-        allOf:
-        - $ref: '#/definitions/request.OnlineSearchConfig'
-        description: 在线搜索
       prologue:
         description: 开场白
         type: string
@@ -618,8 +1069,78 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppSafetyConfig'
         description: 敏感词表配置
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/request.VisionConfig'
+        description: 视觉配置
     required:
     - assistantId
+    type: object
+  request.AssistantIdRequest:
+    properties:
+      assistantId:
+        type: string
+    required:
+    - assistantId
+    type: object
+  request.AssistantMCPToolAddRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      mcpId:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - mcpId
+    - mcpType
+    type: object
+  request.AssistantMCPToolDelRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      mcpId:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - mcpId
+    - mcpType
+    type: object
+  request.AssistantMCPToolEnableRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      enable:
+        type: boolean
+      mcpId:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - mcpId
+    - mcpType
     type: object
   request.AssistantTemplateRequest:
     properties:
@@ -627,6 +1148,115 @@ definitions:
         type: string
     required:
     - assistantTemplateId
+    type: object
+  request.AssistantToolAddRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      toolId:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - toolId
+    - toolType
+    type: object
+  request.AssistantToolConfig:
+    properties:
+      rerankId:
+        type: string
+    type: object
+  request.AssistantToolConfigRequest:
+    properties:
+      assistantId:
+        type: string
+      toolConfig:
+        $ref: '#/definitions/request.AssistantToolConfig'
+      toolId:
+        type: string
+    required:
+    - assistantId
+    - toolConfig
+    - toolId
+    type: object
+  request.AssistantToolDelRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      toolId:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - toolId
+    - toolType
+    type: object
+  request.AssistantToolEnableRequest:
+    properties:
+      actionName:
+        type: string
+      assistantId:
+        type: string
+      enable:
+        type: boolean
+      toolId:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+    required:
+    - actionName
+    - assistantId
+    - toolId
+    - toolType
+    type: object
+  request.AssistantWorkFlowAddRequest:
+    properties:
+      assistantId:
+        type: string
+      workFlowId:
+        type: string
+    required:
+    - assistantId
+    - workFlowId
+    type: object
+  request.AssistantWorkFlowDelRequest:
+    properties:
+      assistantId:
+        type: string
+      workFlowId:
+        type: string
+    required:
+    - assistantId
+    - workFlowId
+    type: object
+  request.AssistantWorkFlowToolEnableRequest:
+    properties:
+      assistantId:
+        type: string
+      enable:
+        type: boolean
+      workFlowId:
+        type: string
+    required:
+    - assistantId
+    - workFlowId
     type: object
   request.Avatar:
     properties:
@@ -636,6 +1266,31 @@ definitions:
       path:
         description: 前端请求地址，例如：/v1/static/avatar/abc/def.png (请求非必填)
         type: string
+    type: object
+  request.BatchCreateDocSegmentReq:
+    properties:
+      docId:
+        description: 文档id
+        type: string
+      fileUploadId:
+        description: fileUploadId
+        type: string
+    required:
+    - docId
+    - fileUploadId
+    type: object
+  request.BatchDocMetaDataReq:
+    properties:
+      createMeta:
+        description: 文档没设置过对应key则创建元数据
+        type: boolean
+      knowledgeId:
+        type: string
+      metaDataList:
+        description: 文档元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
     type: object
   request.BindKnowledgeTagReq:
     properties:
@@ -666,8 +1321,30 @@ definitions:
     - appId
     - appType
     type: object
+  request.ChangeUserPasswordByEmail:
+    properties:
+      code:
+        description: 邮箱验证码
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      newPassword:
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - code
+    - email
+    - newPassword
+    - oldPassword
+    type: object
   request.ChatRagRequest:
     properties:
+      history:
+        items:
+          $ref: '#/definitions/request.History'
+        type: array
       question:
         type: string
       ragId:
@@ -698,6 +1375,15 @@ definitions:
     required:
     - chunkName
     - fileName
+    type: object
+  request.ChildChunk:
+    properties:
+      chunkNo:
+        description: 子分段序列号
+        type: integer
+      content:
+        description: 子分段内容
+        type: string
     type: object
   request.CleanFileReq:
     properties:
@@ -740,14 +1426,54 @@ definitions:
       conversationId:
         type: string
       fileInfo:
-        $ref: '#/definitions/request.ConversionStreamFile'
+        items:
+          $ref: '#/definitions/request.ConversionStreamFile'
+        type: array
       prompt:
+        type: string
+      systemPrompt:
         type: string
       trial:
         type: boolean
     required:
     - assistantId
     - prompt
+    type: object
+  request.CreateDocChildSegmentReq:
+    properties:
+      content:
+        description: 分段内容
+        items:
+          type: string
+        type: array
+      docId:
+        description: 文档id
+        type: string
+      parentId:
+        description: 父分段id
+        type: string
+    required:
+    - content
+    - docId
+    - parentId
+    type: object
+  request.CreateDocSegmentReq:
+    properties:
+      content:
+        description: 分段内容
+        type: string
+      docId:
+        description: 文档id
+        type: string
+      labels:
+        description: 关键词列表
+        items:
+          type: string
+        type: array
+    required:
+    - content
+    - docId
+    - labels
     type: object
   request.CreateKeywordsReq:
     properties:
@@ -770,10 +1496,13 @@ definitions:
         type: string
       embeddingModelInfo:
         $ref: '#/definitions/request.EmbeddingModel'
+      knowledgeGraph:
+        $ref: '#/definitions/request.KnowledgeGraph'
       name:
         type: string
     required:
     - embeddingModelInfo
+    - knowledgeGraph
     - name
     type: object
   request.CreateKnowledgeSplitterReq:
@@ -793,6 +1522,36 @@ definitions:
     required:
     - tagName
     type: object
+  request.CreateOauthAppReq:
+    properties:
+      desc:
+        type: string
+      name:
+        type: string
+      redirectUri:
+        type: string
+    required:
+    - name
+    - redirectUri
+    type: object
+  request.CreatePromptByTemplateReq:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      templateId:
+        type: string
+    required:
+    - name
+    - templateId
+    type: object
   request.CreateSensitiveWordTableReq:
     properties:
       remark:
@@ -803,6 +1562,24 @@ definitions:
         type: string
     required:
     - tableName
+    type: object
+  request.CreateWorkflowByTemplateReq:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      templateId:
+        type: string
+    required:
+    - name
+    - templateId
     type: object
   request.CustomHomeConfig:
     properties:
@@ -826,9 +1603,41 @@ definitions:
       loginButtonColor:
         description: 登录按钮颜色
         type: string
+      loginLogo:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 登录页图标
       loginWelcomeText:
         description: 登录页欢迎语
         type: string
+    type: object
+  request.CustomPromptCreate:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+    required:
+    - desc
+    - name
+    - prompt
+    type: object
+  request.CustomPromptIDReq:
+    properties:
+      customPromptId:
+        description: 自定义提示词ID
+        type: string
+    required:
+    - customPromptId
     type: object
   request.CustomTabConfig:
     properties:
@@ -839,6 +1648,82 @@ definitions:
       tabTitle:
         description: 标签页标题
         type: string
+    type: object
+  request.CustomToolCreate:
+    properties:
+      apiAuth:
+        allOf:
+        - $ref: '#/definitions/util.ApiAuthWebRequest'
+        description: api身份认证
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      description:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      schema:
+        description: schema
+        type: string
+    required:
+    - apiAuth
+    - description
+    - name
+    - schema
+    type: object
+  request.CustomToolIDReq:
+    properties:
+      customToolId:
+        description: 自定义工具id
+        type: string
+    required:
+    - customToolId
+    type: object
+  request.CustomToolSchemaReq:
+    properties:
+      schema:
+        description: schema
+        type: string
+    required:
+    - schema
+    type: object
+  request.CustomToolUpdateReq:
+    properties:
+      apiAuth:
+        allOf:
+        - $ref: '#/definitions/util.ApiAuthWebRequest'
+        description: api身份认证
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      customToolId:
+        description: 自定义工具ID
+        type: string
+      description:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      schema:
+        description: schema
+        type: string
+    required:
+    - apiAuth
+    - customToolId
+    - description
+    - name
+    - schema
     type: object
   request.DelApiKeyRequest:
     properties:
@@ -860,14 +1745,49 @@ definitions:
     - appId
     - appType
     type: object
+  request.DeleteDocChildSegmentReq:
+    properties:
+      ChildChunkNoList:
+        description: 子分段序列号列表
+        items:
+          type: integer
+        type: array
+      docId:
+        description: 文档id
+        type: string
+      parentChunkNo:
+        description: 父分段序列号
+        type: integer
+      parentId:
+        description: 父分段id
+        type: string
+    required:
+    - ChildChunkNoList
+    - docId
+    - parentId
+    type: object
   request.DeleteDocReq:
     properties:
       docIdList:
         items:
           type: string
         type: array
+      knowledgeId:
+        type: string
     required:
     - docIdList
+    - knowledgeId
+    type: object
+  request.DeleteDocSegmentReq:
+    properties:
+      contentId:
+        type: string
+      docId:
+        description: 文档id
+        type: string
+    required:
+    - contentId
+    - docId
     type: object
   request.DeleteFileReq:
     properties:
@@ -908,23 +1828,17 @@ definitions:
     type: object
   request.DeleteModelRequest:
     properties:
-      model:
-        description: 模型名称
-        type: string
-      modelType:
-        description: 模型类型
-        enum:
-        - llm
-        - embedding
-        - rerank
-        type: string
-      provider:
-        description: 模型供应商
+      modelId:
         type: string
     required:
-    - model
-    - modelType
-    - provider
+    - modelId
+    type: object
+  request.DeleteOauthAppReq:
+    properties:
+      clientId:
+        type: string
+    required:
+    - clientId
     type: object
   request.DeleteSensitiveVocabularyReq:
     properties:
@@ -949,7 +1863,7 @@ definitions:
   request.DocImportReq:
     properties:
       docAnalyzer:
-        description: 文档解析类型
+        description: 文档解析类型 text / ocr  / model
         items:
           type: string
         type: array
@@ -961,6 +1875,16 @@ definitions:
         items:
           $ref: '#/definitions/request.DocInfo'
         type: array
+      docMetaData:
+        description: 元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+      docPreprocess:
+        description: 文本预处理规则 replaceSymbols / deleteLinks
+        items:
+          type: string
+        type: array
       docSegment:
         allOf:
         - $ref: '#/definitions/request.DocSegment'
@@ -968,8 +1892,8 @@ definitions:
       knowledgeId:
         description: 知识库id
         type: string
-      ocrModelId:
-        description: ocr模型id
+      parserModelId:
+        description: 模型解析或ocr模型id
         type: string
     required:
     - docAnalyzer
@@ -995,34 +1919,39 @@ definitions:
         description: 文档url
         type: string
     type: object
-  request.DocListReq:
+  request.DocMetaData:
     properties:
-      docName:
+      metaId:
+        description: 元数据id
         type: string
-      knowledgeId:
+      metaKey:
+        description: key
         type: string
-      pageNo:
-        type: integer
-      pageSize:
-        type: integer
-      status:
-        description: 当前状态  -1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
-        type: integer
-    required:
-    - knowledgeId
-    - pageSize
+      metaRule:
+        description: 正则表达式
+        type: string
+      metaValue:
+        description: 确定值
+        type: string
+      metaValueType:
+        description: string，number，time
+        type: string
+      option:
+        description: option:add(新增)、update(更新)、delete(删除),update 和delete 的时候metaId
+          不能为空
+        type: string
     type: object
   request.DocMetaDataReq:
     properties:
       docId:
         type: string
+      knowledgeId:
+        type: string
       metaDataList:
         description: 文档元数据
         items:
-          $ref: '#/definitions/request.MetaData'
+          $ref: '#/definitions/request.DocMetaData'
         type: array
-    required:
-    - docId
     type: object
   request.DocSegment:
     properties:
@@ -1032,28 +1961,42 @@ definitions:
       overlap:
         description: 可重叠值（只有自定义分段必填）
         type: number
+      segmentMethod:
+        description: 分段方法 0：通用分段；1：父子分段
+        type: string
       segmentType:
-        description: 分段方式 0：自动分段；1：自定义分段
+        description: 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
         type: string
       splitter:
         description: 分隔符（只有自定义分段必填）
         items:
           type: string
         type: array
+      subMaxSplitter:
+        description: 可分隔最大值（只有父子分段必填）
+        type: integer
+      subSplitter:
+        description: 分隔符（只有父子分段必填）
+        items:
+          type: string
+        type: array
     required:
-    - segmentType
+    - segmentMethod
     type: object
-  request.DocSegmentListReq:
+  request.DocSegmentLabelsReq:
     properties:
+      contentId:
+        type: string
       docId:
         type: string
-      pageNo:
-        type: integer
-      pageSize:
-        type: integer
+      labels:
+        items:
+          type: string
+        type: array
     required:
+    - contentId
     - docId
-    - pageSize
+    - labels
     type: object
   request.EmbeddingModel:
     properties:
@@ -1074,10 +2017,21 @@ definitions:
     - appId
     - appType
     type: object
-  request.GetKeywordsDetailReq:
+  request.GetModelRequest:
     properties:
-      id:
-        type: integer
+      modelId:
+        type: string
+    required:
+    - modelId
+    type: object
+  request.History:
+    properties:
+      needHistory:
+        type: boolean
+      query:
+        type: string
+      response:
+        type: string
     type: object
   request.ImportOrUpdateModelRequest:
     properties:
@@ -1095,6 +2049,9 @@ definitions:
         description: 仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数
       model:
         description: 模型名称
+        type: string
+      modelDesc:
+        description: 模型描述
         type: string
       modelId:
         type: string
@@ -1115,22 +2072,41 @@ definitions:
         description: 模型发布时间
         type: string
     required:
+    - displayName
     - model
     - modelType
     - provider
     type: object
+  request.KnowledgeGraph:
+    properties:
+      llmModelId:
+        description: 大模型id，开关为true必填
+        type: string
+      schemaUrl:
+        description: 模型schema文件地址，可以为空
+        type: string
+      switch:
+        description: 知识图谱开关
+        type: boolean
+    type: object
+  request.KnowledgeGraphReq:
+    properties:
+      knowledgeId:
+        type: string
+    required:
+    - knowledgeId
+    type: object
   request.KnowledgeHitReq:
     properties:
-      knowledgeIdList:
+      knowledgeList:
         items:
-          type: string
+          $ref: '#/definitions/request.AppKnowledgeBase'
         type: array
       knowledgeMatchParams:
         $ref: '#/definitions/request.KnowledgeMatchParams'
       question:
         type: string
     required:
-    - knowledgeIdList
     - knowledgeMatchParams
     - question
     type: object
@@ -1151,14 +2127,91 @@ definitions:
       semanticsPriority:
         description: 语义权重
         type: number
+      termWeight:
+        description: 关键词系数
+        type: number
+      termWeightEnable:
+        description: 关键词系数开关
+        type: boolean
       threshold:
         description: threshold 过滤分数阈值
         type: number
       topK:
         description: topK 获取最高的几行
         type: integer
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
     required:
     - matchType
+    type: object
+  request.KnowledgeMetaValueListReq:
+    properties:
+      docIdList:
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        type: string
+    required:
+    - docIdList
+    - knowledgeId
+    type: object
+  request.KnowledgeReportAddReq:
+    properties:
+      content:
+        type: string
+      knowledgeId:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - knowledgeId
+    - title
+    type: object
+  request.KnowledgeReportBatchAddReq:
+    properties:
+      fileUploadId:
+        type: string
+      knowledgeId:
+        type: string
+    required:
+    - fileUploadId
+    - knowledgeId
+    type: object
+  request.KnowledgeReportDeleteReq:
+    properties:
+      contentId:
+        type: string
+      knowledgeId:
+        type: string
+    required:
+    - contentId
+    - knowledgeId
+    type: object
+  request.KnowledgeReportGenerateReq:
+    properties:
+      knowledgeId:
+        type: string
+    required:
+    - knowledgeId
+    type: object
+  request.KnowledgeReportUpdateReq:
+    properties:
+      content:
+        type: string
+      contentId:
+        type: string
+      knowledgeId:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - contentId
+    - knowledgeId
+    - title
     type: object
   request.KnowledgeSelectReq:
     properties:
@@ -1169,27 +2222,80 @@ definitions:
           type: string
         type: array
     type: object
-  request.KnowledgeSplitterSelectReq:
-    properties:
-      splitterName:
-        type: string
-    type: object
-  request.KnowledgeTagSelectReq:
+  request.KnowledgeTransferUserAdminReq:
     properties:
       knowledgeId:
+        description: 知识库id
         type: string
-      tagName:
+      knowledgeUser:
+        allOf:
+        - $ref: '#/definitions/request.KnowledgeUserInfo'
+        description: 知识库用户信息
+      permissionId:
+        description: 权限id编辑时传入
         type: string
+    required:
+    - knowledgeId
+    - knowledgeUser
     type: object
-  request.ListKeywordsReq:
+  request.KnowledgeUserAddReq:
     properties:
-      name:
-        description: 用于搜索【问题中的关键词】/【文档中的词语】
+      knowledgeId:
+        description: 知识库id
         type: string
-      pageNo:
+      knowledgeUserList:
+        description: 知识库用户信息
+        items:
+          $ref: '#/definitions/request.KnowledgeUserInfo'
+        type: array
+      permissionType:
+        description: '权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限'
         type: integer
-      pageSize:
+    required:
+    - knowledgeId
+    - knowledgeUserList
+    type: object
+  request.KnowledgeUserDeleteReq:
+    properties:
+      knowledgeId:
+        description: 知识库id
+        type: string
+      permissionId:
+        description: 知识库用户信息权限信息
+        type: string
+    required:
+    - knowledgeId
+    - permissionId
+    type: object
+  request.KnowledgeUserEditReq:
+    properties:
+      knowledgeId:
+        description: 知识库id
+        type: string
+      knowledgeUser:
+        allOf:
+        - $ref: '#/definitions/request.KnowledgeUserInfo'
+        description: 知识库用户信息
+    required:
+    - knowledgeId
+    - knowledgeUser
+    type: object
+  request.KnowledgeUserInfo:
+    properties:
+      orgId:
+        type: string
+      permissionId:
+        description: 权限id编辑时传入
+        type: string
+      permissionType:
+        description: '权限类型: -1 删除此用户权限；0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑
+          授权权限>编辑权限>查看权限'
         type: integer
+      userId:
+        type: string
+    required:
+    - orgId
+    - userId
     type: object
   request.Login:
     properties:
@@ -1211,15 +2317,32 @@ definitions:
     - password
     - username
     type: object
-  request.MCPAddRequest:
+  request.LoginEmailCheck:
     properties:
-      assistantId:
+      code:
+        description: 邮箱验证码
         type: string
-      mcpId:
+      email:
+        description: 邮箱
         type: string
+    required:
+    - code
+    - email
+    type: object
+  request.LoginSendEmailCode:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+    required:
+    - email
     type: object
   request.MCPCreate:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
       desc:
         description: 描述
         type: string
@@ -1248,12 +2371,149 @@ definitions:
     required:
     - mcpId
     type: object
-  request.MCPIdRequest:
+  request.MCPServerCreateReq:
     properties:
-      mcpId:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
         type: string
     required:
+    - desc
+    - name
+    type: object
+  request.MCPServerIDReq:
+    properties:
+      mcpServerId:
+        type: string
+    required:
+    - mcpServerId
+    type: object
+  request.MCPServerOpenAPIToolCreate:
+    properties:
+      apiAuth:
+        allOf:
+        - $ref: '#/definitions/util.ApiAuthWebRequest'
+        description: api身份认证
+      mcpServerId:
+        description: mcp server Id
+        type: string
+      methodNames:
+        description: API名称列表
+        items:
+          type: string
+        type: array
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      schema:
+        description: schema
+        type: string
+    required:
+    - apiAuth
+    - mcpServerId
+    - methodNames
+    - name
+    - schema
+    type: object
+  request.MCPServerToolCreateReq:
+    properties:
+      id:
+        description: 应用或工具id
+        type: string
+      mcpServerId:
+        description: mcp server Id
+        type: string
+      methodName:
+        description: 显示名称
+        type: string
+      type:
+        description: mcp server tool类型
+        type: string
+    required:
+    - id
+    - mcpServerId
+    - methodName
+    - type
+    type: object
+  request.MCPServerToolIDReq:
+    properties:
+      mcpServerToolId:
+        description: mcp server tool id
+        type: string
+    required:
+    - mcpServerToolId
+    type: object
+  request.MCPServerToolUpdateReq:
+    properties:
+      desc:
+        description: 描述
+        type: string
+      mcpServerToolId:
+        description: mcp server tool id
+        type: string
+      methodName:
+        description: 显示名称
+        type: string
+    required:
+    - desc
+    - mcpServerToolId
+    - methodName
+    type: object
+  request.MCPServerUpdateReq:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      mcpServerId:
+        description: mcp server Id
+        type: string
+      name:
+        description: 名称
+        type: string
+    required:
+    - desc
+    - mcpServerId
+    - name
+    type: object
+  request.MCPUpdate:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      from:
+        description: 来源
+        type: string
+      mcpId:
+        type: string
+      name:
+        description: 名称
+        type: string
+      sseUrl:
+        description: SSE URL
+        type: string
+    required:
+    - desc
+    - from
     - mcpId
+    - name
+    - sseUrl
     type: object
   request.MergeFileReq:
     properties:
@@ -1276,58 +2536,44 @@ definitions:
     - chunkName
     - fileName
     type: object
-  request.MetaData:
+  request.MetaDataFilterParams:
     properties:
-      dataId:
+      filterEnable:
+        description: 元数据过滤开关
+        type: boolean
+      filterLogicType:
+        description: 元数据逻辑条件：and/or
         type: string
-      dataType:
-        description: String，Number，Date
+      metaFilterParams:
+        description: 元数据过滤参数列表
+        items:
+          $ref: '#/definitions/request.MetaFilterParams'
+        type: array
+    type: object
+  request.MetaFilterParams:
+    properties:
+      condition:
+        description: 条件
         type: string
       key:
+        description: Key
         type: string
-      option:
+      type:
+        description: 类型（Time, String, Number）
         type: string
       value:
+        description: value
         type: string
-    required:
-    - dataType
-    - key
-    - option
-    - value
     type: object
   request.ModelStatusRequest:
     properties:
       isActive:
         description: '启用状态（true: 启用，false: 禁用）'
         type: boolean
-      model:
-        description: 模型名称
-        type: string
-      modelType:
-        description: 模型类型
-        enum:
-        - llm
-        - embedding
-        - rerank
-        type: string
-      provider:
-        description: 模型供应商
+      modelId:
         type: string
     required:
-    - model
-    - modelType
-    - provider
-    type: object
-  request.OnlineSearchConfig:
-    properties:
-      enable:
-        type: boolean
-      searchKey:
-        type: string
-      searchRerankId:
-        type: string
-      searchUrl:
-        type: string
+    - modelId
     type: object
   request.OrgCreate:
     properties:
@@ -1383,6 +2629,16 @@ definitions:
     required:
     - userId
     type: object
+  request.PromptOptimizeReq:
+    properties:
+      modelId:
+        type: string
+      prompt:
+        type: string
+    required:
+    - modelId
+    - prompt
+    type: object
   request.PublishAppRequest:
     properties:
       appId:
@@ -1392,15 +2648,8 @@ definitions:
         description: 应用类型
         type: string
       publishType:
-        description: 发布类型(public:公开发布,private:私密发布)
+        description: 发布类型(public:系统公开发布,organization:组织公开发布,private:私密发布)
         type: string
-    type: object
-  request.QueryKnowledgeReq:
-    properties:
-      knowledgeId:
-        type: string
-    required:
-    - knowledgeId
     type: object
   request.RagBrief:
     properties:
@@ -1452,6 +2701,58 @@ definitions:
         type: string
     required:
     - ragId
+    type: object
+  request.RegisterByEmail:
+    properties:
+      code:
+        description: 邮箱验证码
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - code
+    - email
+    - username
+    type: object
+  request.RegisterSendEmailCode:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - email
+    - username
+    type: object
+  request.ResetPasswordByEmail:
+    properties:
+      code:
+        description: 邮箱验证码
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - code
+    - email
+    - password
+    type: object
+  request.ResetPasswordSendEmailCode:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+    required:
+    - email
     type: object
   request.RoleCreate:
     properties:
@@ -1517,12 +2818,16 @@ definitions:
     required:
     - tableId
     type: object
-  request.TagBindCountReq:
+  request.ToolSquareAPIKeyReq:
     properties:
-      tagId:
+      apiKey:
+        description: apiKey
+        type: string
+      toolSquareId:
+        description: 广场toolId
         type: string
     required:
-    - tagId
+    - toolSquareId
     type: object
   request.UnPublishAppRequest:
     properties:
@@ -1532,6 +2837,63 @@ definitions:
       appType:
         description: 应用类型
         type: string
+    type: object
+  request.UpdateCustomPrompt:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      customPromptId:
+        description: 自定义提示词ID
+        type: string
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+    required:
+    - customPromptId
+    - desc
+    - name
+    - prompt
+    type: object
+  request.UpdateDocChildSegmentReq:
+    properties:
+      childChunk:
+        allOf:
+        - $ref: '#/definitions/request.ChildChunk'
+        description: 子分段序列号列表
+      docId:
+        description: 文档id
+        type: string
+      parentChunkNo:
+        description: 父分段序列号
+        type: integer
+      parentId:
+        description: 父分段id
+        type: string
+    required:
+    - childChunk
+    - docId
+    - parentId
+    type: object
+  request.UpdateDocSegmentReq:
+    properties:
+      content:
+        type: string
+      contentId:
+        type: string
+      docId:
+        type: string
+    required:
+    - content
+    - contentId
+    - docId
     type: object
   request.UpdateDocSegmentStatusReq:
     properties:
@@ -1601,6 +2963,49 @@ definitions:
     - tagId
     - tagName
     type: object
+  request.UpdateMetaValueReq:
+    properties:
+      applyToSelected:
+        type: boolean
+      docIdList:
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        type: string
+      metaValueList:
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+    required:
+    - docIdList
+    - knowledgeId
+    type: object
+  request.UpdateOauthAppReq:
+    properties:
+      clientId:
+        type: string
+      desc:
+        type: string
+      name:
+        type: string
+      redirectUri:
+        type: string
+    required:
+    - clientId
+    - name
+    - redirectUri
+    type: object
+  request.UpdateOauthAppStatusReq:
+    properties:
+      clientId:
+        type: string
+      status:
+        description: 启停状态
+        type: boolean
+    required:
+    - clientId
+    type: object
   request.UpdateSensitiveWordTableReplyReq:
     properties:
       reply:
@@ -1649,13 +3054,15 @@ definitions:
     - importType
     - tableId
     type: object
+  request.UserAvatarUpdate:
+    properties:
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+    type: object
   request.UserCreate:
     properties:
       company:
         description: 公司
-        type: string
-      email:
-        description: 邮箱
         type: string
       gender:
         description: 性别（0-女，1-男，空-未知）
@@ -1734,9 +3141,6 @@ definitions:
       company:
         description: 公司
         type: string
-      email:
-        description: 邮箱
-        type: string
       gender:
         description: 性别（0-女，1-男，空-未知）
         type: string
@@ -1766,72 +3170,25 @@ definitions:
     - phone
     - userId
     type: object
-  request.WorkFlowAddRequest:
+  request.VisionConfig:
     properties:
-      assistantId:
-        type: string
-      schema:
-        type: string
-      workFlowId:
-        type: string
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
     type: object
-  request.WorkFlowIdRequest:
+  request.WorkflowIDReq:
     properties:
-      workFlowId:
+      workflow_id:
         type: string
     required:
-    - workFlowId
-    type: object
-  response.Action:
-    properties:
-      actionId:
-        type: string
-      apiAuth:
-        $ref: '#/definitions/response.ApiAuthWebRequest'
-      list:
-        items:
-          $ref: '#/definitions/response.ActionApiResponse'
-        type: array
-      schema:
-        type: string
-      schemaType:
-        type: string
-    type: object
-  response.ActionApiResponse:
-    properties:
-      method:
-        type: string
-      name:
-        type: string
-      path:
-        type: string
-    type: object
-  response.ActionInfos:
-    properties:
-      actionId:
-        type: string
-      apiName:
-        type: string
-      enable:
-        type: boolean
+    - workflow_id
     type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
         items:
-          $ref: '#/definitions/response.Url'
+          $ref: '#/definitions/response.DocUrl'
         type: array
-    type: object
-  response.ApiAuthWebRequest:
-    properties:
-      apiKey:
-        type: string
-      authType:
-        type: string
-      customHeaderName:
-        type: string
-      type:
-        type: string
     type: object
   response.ApiResponse:
     properties:
@@ -1869,17 +3226,69 @@ definitions:
       publishType:
         description: 发布类型(public:公开发布,private:私密发布)
         type: string
+      uniqueId:
+        description: 随机unique id(每次动态生成)
+        type: string
       updatedAt:
         description: 应用更新时间(用于历史记录排序)
         type: string
     type: object
+  response.AppUrlInfo:
+    properties:
+      appId:
+        description: 应用ID
+        type: string
+      appType:
+        description: 应用类型
+        type: string
+      copyright:
+        description: 知识产权
+        type: string
+      copyrightEnable:
+        description: 知识产权开关
+        type: boolean
+      createdAt:
+        description: 创建时间
+        type: string
+      description:
+        description: 应用描述
+        type: string
+      disclaimer:
+        description: 免责声明
+        type: string
+      disclaimerEnable:
+        description: 免责声明开关
+        type: boolean
+      expiredAt:
+        description: 过期时间
+        type: string
+      name:
+        description: Url名称
+        type: string
+      orgId:
+        description: 组织ID
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      privacyPolicyEnable:
+        description: 隐私政策开关
+        type: boolean
+      status:
+        description: 应用Url开关
+        type: boolean
+      suffix:
+        description: 生成Url后缀
+        type: string
+      urlId:
+        description: UrlID
+        type: string
+      userId:
+        description: 用户ID
+        type: string
+    type: object
   response.Assistant:
     properties:
-      actionInfos:
-        description: action信息
-        items:
-          $ref: '#/definitions/response.ActionInfos'
-        type: array
       assistantId:
         type: string
       avatar:
@@ -1902,7 +3311,7 @@ definitions:
       mcpInfos:
         description: MCP信息
         items:
-          $ref: '#/definitions/response.MCPInfos'
+          $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
       modelConfig:
         allOf:
@@ -1911,10 +3320,6 @@ definitions:
       name:
         description: 名称
         type: string
-      onlineSearchConfig:
-        allOf:
-        - $ref: '#/definitions/request.OnlineSearchConfig'
-        description: 在线搜索配置
       prologue:
         description: 开场白
         type: string
@@ -1934,13 +3339,22 @@ definitions:
       scope:
         description: 作用域
         type: integer
+      toolInfos:
+        description: 自定义工具、内置工具
+        items:
+          $ref: '#/definitions/response.AssistantToolInfo'
+        type: array
       updatedAt:
         description: 更新时间
         type: string
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/response.VisionConfig'
+        description: 视觉配置
       workFlowInfos:
         description: 工作流信息
         items:
-          $ref: '#/definitions/response.WorkFlowInfos'
+          $ref: '#/definitions/response.AssistantWorkFlowInfo'
         type: array
     required:
     - assistantId
@@ -1950,6 +3364,39 @@ definitions:
     properties:
       assistantId:
         type: string
+    type: object
+  response.AssistantMCPInfo:
+    properties:
+      actionName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      mcpId:
+        type: string
+      mcpName:
+        type: string
+      mcpType:
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - mcpType
+    type: object
+  response.AssistantRequestFile:
+    properties:
+      fileUrl:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
     type: object
   response.AssistantTemplateInfo:
     properties:
@@ -1998,6 +3445,49 @@ definitions:
     required:
     - name
     type: object
+  response.AssistantToolInfo:
+    properties:
+      actionName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      toolConfig:
+        $ref: '#/definitions/request.AssistantToolConfig'
+      toolId:
+        type: string
+      toolName:
+        type: string
+      toolType:
+        enum:
+        - builtin
+        - custom
+        type: string
+      uniqueId:
+        type: string
+      valid:
+        type: boolean
+    required:
+    - toolType
+    type: object
+  response.AssistantWorkFlowInfo:
+    properties:
+      apiName:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      enable:
+        type: boolean
+      name:
+        type: string
+      uniqueId:
+        type: string
+      workFlowDesc:
+        type: string
+      workFlowId:
+        type: string
+    type: object
   response.Captcha:
     properties:
       b64:
@@ -2021,8 +3511,41 @@ definitions:
         description: 0:不存在，1：已完成
         type: integer
     type: object
+  response.ChildContent:
+    properties:
+      childSnippet:
+        type: string
+      score:
+        type: number
+    type: object
+  response.ChildSegmentInfo:
+    properties:
+      childId:
+        description: 子分段id
+        type: string
+      childNum:
+        description: 子分段序号
+        type: integer
+      content:
+        description: 内容
+        type: string
+      parentId:
+        description: 父分段id
+        type: string
+    type: object
   response.ChunkSearchList:
     properties:
+      childContentList:
+        items:
+          $ref: '#/definitions/response.ChildContent'
+        type: array
+      childScore:
+        items:
+          type: number
+        type: array
+      contentType:
+        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
+        type: string
       knowledgeName:
         type: string
       snippet:
@@ -2035,6 +3558,47 @@ definitions:
       status:
         description: 0:清除失败，1：已完成
         type: integer
+    type: object
+  response.ClientOverView:
+    properties:
+      activeClient:
+        allOf:
+        - $ref: '#/definitions/response.StatisticOverviewItem'
+        description: 日活客户端
+      additionClient:
+        allOf:
+        - $ref: '#/definitions/response.StatisticOverviewItem'
+        description: 新增客户端
+      browse:
+        allOf:
+        - $ref: '#/definitions/response.StatisticOverviewItem'
+        description: 浏览量
+      cumulativeClient:
+        allOf:
+        - $ref: '#/definitions/response.StatisticOverviewItem'
+        description: 累计客户端
+    type: object
+  response.ClientStatistic:
+    properties:
+      overview:
+        allOf:
+        - $ref: '#/definitions/response.ClientOverView'
+        description: 统计面板
+      trend:
+        allOf:
+        - $ref: '#/definitions/response.ClientTrend'
+        description: 统计趋势
+    type: object
+  response.ClientTrend:
+    properties:
+      browse:
+        allOf:
+        - $ref: '#/definitions/response.StatisticChart'
+        description: 浏览量
+      client:
+        allOf:
+        - $ref: '#/definitions/response.StatisticChart'
+        description: 客户端
     type: object
   response.ConversationCreateResp:
     properties:
@@ -2061,9 +3625,9 @@ definitions:
         type: string
       qa_type:
         type: integer
-      requestFileUrls:
+      requestFiles:
         items:
-          type: string
+          $ref: '#/definitions/response.AssistantRequestFile'
         type: array
       response:
         type: string
@@ -2083,6 +3647,86 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  response.CozeWorkflowIDData:
+    properties:
+      workflow_id:
+        type: string
+    type: object
+  response.CozeWorkflowModelInfo:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 模型图标路径
+      config: {}
+      createdAt:
+        type: string
+      displayName:
+        description: 模型显示名称
+        type: string
+      examples:
+        allOf:
+        - $ref: '#/definitions/mp.ProviderModelConfig'
+        description: 仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数
+      isActive:
+        description: '启用状态（true: 启用，false: 禁用）'
+        type: boolean
+      model:
+        description: 模型名称
+        type: string
+      model_ability:
+        $ref: '#/definitions/response.CozeWorkflowModelInfoAbility'
+      model_params:
+        items:
+          $ref: '#/definitions/config.WorkflowModelParam'
+        type: array
+      modelDesc:
+        type: string
+      modelId:
+        type: string
+      modelType:
+        enum:
+        - llm
+        - embedding
+        - rerank
+        type: string
+      orgId:
+        type: string
+      provider:
+        description: 模型供应商
+        enum:
+        - OpenAI-API-compatible
+        - YuanJing
+        type: string
+      publishDate:
+        description: 模型发布时间
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/mp_common.Tag'
+        type: array
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    required:
+    - model
+    - modelType
+    - provider
+    type: object
+  response.CozeWorkflowModelInfoAbility:
+    properties:
+      audio_understanding:
+        type: boolean
+      cot_display:
+        type: boolean
+      function_call:
+        type: boolean
+      image_understanding:
+        type: boolean
+      video_understanding:
+        type: boolean
     type: object
   response.CreateKnowledgeResp:
     properties:
@@ -2111,6 +3755,24 @@ definitions:
       version:
         type: string
     type: object
+  response.CustomDefaultIcon:
+    properties:
+      agentIcon:
+        type: string
+      chatflowIcon:
+        type: string
+      promptIcon:
+        type: string
+      ragIcon:
+        type: string
+      workflowIcon:
+        type: string
+    type: object
+  response.CustomEmail:
+    properties:
+      status:
+        type: boolean
+    type: object
   response.CustomHome:
     properties:
       backgroundColor:
@@ -2133,12 +3795,65 @@ definitions:
       loginButtonColor:
         description: 登录按钮颜色
         type: string
+      logo:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 登录页图标
       platformDesc:
         description: 平台描述词
         type: string
       welcomeText:
         description: 登录页欢迎标词
         type: string
+    type: object
+  response.CustomLoginEmail:
+    properties:
+      email:
+        allOf:
+        - $ref: '#/definitions/response.CustomEmail'
+        description: 登录邮箱
+    type: object
+  response.CustomPrompt:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      customPromptId:
+        description: 自定义提示词ID
+        type: string
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+      updateAt:
+        description: 更新时间
+        type: string
+    type: object
+  response.CustomPromptIDResp:
+    properties:
+      customPromptId:
+        description: 自定义提示词ID
+        type: string
+    type: object
+  response.CustomRegister:
+    properties:
+      email:
+        allOf:
+        - $ref: '#/definitions/response.CustomEmail'
+        description: 注册邮箱
+    type: object
+  response.CustomResetPassword:
+    properties:
+      email:
+        allOf:
+        - $ref: '#/definitions/response.CustomEmail'
+        description: 邮箱
     type: object
   response.CustomTab:
     properties:
@@ -2150,11 +3865,88 @@ definitions:
         description: 标签页标题
         type: string
     type: object
+  response.CustomToolActionInfo:
+    properties:
+      desc:
+        type: string
+      method:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+    type: object
+  response.CustomToolDetail:
+    properties:
+      apiAuth:
+        allOf:
+        - $ref: '#/definitions/util.ApiAuthWebRequest'
+        description: apiAuth
+      apiList:
+        description: action列表
+        items:
+          $ref: '#/definitions/response.CustomToolActionInfo'
+        type: array
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      customToolId:
+        description: 自定义工具id
+        type: string
+      description:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      privacyPolicy:
+        description: 隐私政策
+        type: string
+      schema:
+        description: schema
+        type: string
+    type: object
+  response.CustomToolInfo:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      customToolId:
+        description: 自定义工具id
+        type: string
+      description:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+    type: object
   response.DeleteFileResp:
     properties:
       status:
         description: 0:删除失败，1：已完成
         type: integer
+    type: object
+  response.DocChildSegmentResp:
+    properties:
+      contentList:
+        description: 内容
+        items:
+          $ref: '#/definitions/response.ChildSegmentInfo'
+        type: array
+    type: object
+  response.DocKnowledgeInfo:
+    properties:
+      graphSwitch:
+        type: integer
+      knowledgeId:
+        type: string
+      knowledgeName:
+        type: string
+      showGraphReport:
+        type: boolean
     type: object
   response.DocMenu:
     properties:
@@ -2175,6 +3967,39 @@ definitions:
       pathRaw:
         description: 目录路径
         type: string
+    type: object
+  response.DocMetaData:
+    properties:
+      metaId:
+        description: 元数据id
+        type: string
+      metaKey:
+        description: key
+        type: string
+      metaRule:
+        description: 正则表达式
+        type: string
+      metaValue:
+        description: 确定值
+        type: string
+      metaValueType:
+        description: number，time, string
+        type: string
+    type: object
+  response.DocPageResult:
+    properties:
+      docKnowledgeInfo:
+        $ref: '#/definitions/response.DocKnowledgeInfo'
+      list:
+        items:
+          $ref: '#/definitions/response.ListDocResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
     type: object
   response.DocSearchContent:
     properties:
@@ -2201,11 +4026,6 @@ definitions:
     type: object
   response.DocSegmentResp:
     properties:
-      MetaDataList:
-        description: 文档元数据
-        items:
-          $ref: '#/definitions/response.MetaData'
-        type: array
       contentList:
         description: 内容
         items:
@@ -2217,9 +4037,20 @@ definitions:
       maxSegmentSize:
         description: 设置最大长度
         type: integer
+      metaDataList:
+        description: 文档元数据
+        items:
+          $ref: '#/definitions/response.DocMetaData'
+        type: array
       pageTotal:
         description: 总页数
         type: integer
+      segmentImportStatus:
+        description: 分段导入状态描述
+        type: string
+      segmentMethod:
+        description: 分段方式 父子分段/通用分段
+        type: string
       segmentTotalNum:
         description: 分段数量
         type: integer
@@ -2231,6 +4062,15 @@ definitions:
         type: string
       uploadTime:
         description: 上传时间
+        type: string
+    type: object
+  response.DocUrl:
+    properties:
+      fileName:
+        type: string
+      fileSize:
+        type: integer
+      url:
         type: string
     type: object
   response.EmbeddingModelInfo:
@@ -2265,9 +4105,16 @@ definitions:
       publishType:
         description: 发布类型(public:公开发布,private:私密发布)
         type: string
+      uniqueId:
+        description: 随机unique id(每次动态生成)
+        type: string
       updatedAt:
         description: 应用更新时间(用于历史记录排序)
         type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/response.User'
+        description: 作者信息
     type: object
   response.GetKnowledgeKeywordListResp:
     properties:
@@ -2279,6 +4126,24 @@ definitions:
         type: integer
       pageSize:
         type: integer
+      total:
+        type: integer
+    type: object
+  response.GetKnowledgeMetaSelectResp:
+    properties:
+      knowledgeMetaList:
+        items:
+          $ref: '#/definitions/response.KnowledgeMetaItem'
+        type: array
+    type: object
+  response.GetWorkflowTemplateListResp:
+    properties:
+      downloadLink:
+        $ref: '#/definitions/response.WorkflowTemplateURL'
+      list:
+        items:
+          $ref: '#/definitions/response.WorkflowTemplateInfo'
+        type: array
       total:
         type: integer
     type: object
@@ -2308,6 +4173,106 @@ definitions:
       updatedAt:
         type: string
     type: object
+  response.KnowOrgInfo:
+    properties:
+      orgId:
+        type: string
+      orgName:
+        type: string
+    type: object
+  response.KnowOrgUserInfoResp:
+    properties:
+      orgId:
+        type: string
+      orgName:
+        type: string
+      userInfoList:
+        items:
+          $ref: '#/definitions/response.KnowUserInfo'
+        type: array
+    type: object
+  response.KnowUserInfo:
+    properties:
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
+  response.KnowledgeGraphEdge:
+    properties:
+      description:
+        type: string
+      source_entity:
+        type: string
+      source_id:
+        items:
+          type: string
+        type: array
+      target_entity:
+        type: string
+      weight:
+        type: number
+    type: object
+  response.KnowledgeGraphNode:
+    properties:
+      description:
+        type: string
+      entity_name:
+        type: string
+      entity_type:
+        type: string
+      pagerank:
+        type: number
+      rank:
+        type: integer
+      source_id:
+        items:
+          type: string
+        type: array
+    type: object
+  response.KnowledgeGraphResp:
+    properties:
+      failCount:
+        description: 失败数量
+        type: integer
+      graph:
+        allOf:
+        - $ref: '#/definitions/response.KnowledgeGraphSchema'
+        description: 知识图谱节点、边
+      processingCount:
+        description: 处理中
+        type: integer
+      successCount:
+        description: 成功数量
+        type: integer
+      total:
+        description: 总数
+        type: integer
+    type: object
+  response.KnowledgeGraphSchema:
+    properties:
+      directed:
+        type: boolean
+      edges:
+        items:
+          $ref: '#/definitions/response.KnowledgeGraphEdge'
+        type: array
+      graph:
+        $ref: '#/definitions/response.KnowledgeGraphSourceIdList'
+      mutigraph:
+        type: boolean
+      nodes:
+        items:
+          $ref: '#/definitions/response.KnowledgeGraphNode'
+        type: array
+    type: object
+  response.KnowledgeGraphSourceIdList:
+    properties:
+      source_id:
+        items:
+          type: string
+        type: array
+    type: object
   response.KnowledgeHitResp:
     properties:
       prompt:
@@ -2323,9 +4288,17 @@ definitions:
         items:
           $ref: '#/definitions/response.ChunkSearchList'
         type: array
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
     type: object
   response.KnowledgeInfo:
     properties:
+      createAt:
+        description: 创建时间
+        type: string
+      createUserId:
+        type: string
       description:
         description: 知识库描述
         type: string
@@ -2336,6 +4309,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.EmbeddingModelInfo'
         description: embedding模型信息
+      graphSwitch:
+        description: 图谱开关
+        type: integer
       knowledgeId:
         description: 知识库id
         type: string
@@ -2347,6 +4323,18 @@ definitions:
       name:
         description: 知识库名称
         type: string
+      orgName:
+        description: 知识库所属名称
+        type: string
+      permissionType:
+        description: '权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限'
+        type: integer
+      ragName:
+        description: rag名称
+        type: string
+      share:
+        description: 是分享，还是私有
+        type: boolean
     type: object
   response.KnowledgeListResp:
     properties:
@@ -2354,6 +4342,82 @@ definitions:
         items:
           $ref: '#/definitions/response.KnowledgeInfo'
         type: array
+    type: object
+  response.KnowledgeMetaItem:
+    properties:
+      metaId:
+        type: string
+      metaKey:
+        type: string
+      metaValue:
+        description: 确定值
+        type: string
+      metaValueType:
+        type: string
+    type: object
+  response.KnowledgeMetaValueListResp:
+    properties:
+      knowledgeMetaValues:
+        items:
+          $ref: '#/definitions/response.KnowledgeMetaValues'
+        type: array
+    type: object
+  response.KnowledgeMetaValues:
+    properties:
+      metaId:
+        type: string
+      metaKey:
+        type: string
+      metaValue:
+        description: 确定值
+        items:
+          type: string
+        type: array
+      metaValueType:
+        type: string
+    type: object
+  response.KnowledgeReportInfo:
+    properties:
+      content:
+        type: string
+      contentId:
+        type: string
+      title:
+        type: string
+    type: object
+  response.KnowledgeReportPageResult:
+    properties:
+      canAddReport:
+        description: 是否可新增社区报告：true.可新增 false.不可新增
+        type: boolean
+      canGenerate:
+        description: 是否可生成：true.可生成 false.不可生成
+        type: boolean
+      createdAt:
+        description: 生成时间：unix毫秒级时间戳，若为空串显示-
+        type: string
+      generateLabel:
+        description: '生成社区报告按钮文案: 生成/重新生成'
+        type: string
+      lastImportStatus:
+        type: integer
+      list:
+        description: 社区报告内容列表
+        items:
+          $ref: '#/definitions/response.KnowledgeReportInfo'
+        type: array
+      pageNo:
+        description: 当前页码
+        type: integer
+      pageSize:
+        description: 每页数量
+        type: integer
+      status:
+        description: 状态：0.未生成(-) 1.生成中 2.已生成 3.生成失败
+        type: integer
+      total:
+        description: 社区报告数量：如果为0显示-
+        type: integer
     type: object
   response.KnowledgeSplitter:
     properties:
@@ -2365,6 +4429,9 @@ definitions:
         type: string
       splitterValue:
         description: 知识库分隔符值
+        type: string
+      type:
+        description: 分隔符类型： preset / custom
         type: string
     type: object
   response.KnowledgeSplitterListResp:
@@ -2393,6 +4460,33 @@ definitions:
           $ref: '#/definitions/response.KnowledgeTag'
         type: array
     type: object
+  response.KnowledgeUserInfo:
+    properties:
+      orgId:
+        type: string
+      orgName:
+        type: string
+      permissionId:
+        type: string
+      permissionType:
+        description: '权限类型: -1 删除此用户权限；0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑
+          授权权限>编辑权限>查看权限'
+        type: integer
+      transfer:
+        description: 是否显示转让按钮
+        type: boolean
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
+  response.KnowledgeUserPermissionResp:
+    properties:
+      knowledgeUserInfoList:
+        items:
+          $ref: '#/definitions/response.KnowledgeUserInfo'
+        type: array
+    type: object
   response.Language:
     properties:
       code:
@@ -2413,6 +4507,9 @@ definitions:
     type: object
   response.ListDocResp:
     properties:
+      author:
+        description: 上传文档 作者
+        type: string
       docId:
         type: string
       docName:
@@ -2427,8 +4524,17 @@ definitions:
       fileSize:
         description: 文件大小，预留
         type: string
+      graphErrMsg:
+        description: 图谱错误信息
+        type: string
+      graphStatus:
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        type: integer
       knowledgeId:
         description: 知识库id
+        type: string
+      segmentMethod:
+        description: 分段模式 0:通用分段，1：父子分段
         type: string
       status:
         description: 处理状态
@@ -2474,12 +4580,26 @@ definitions:
       username:
         type: string
     type: object
+  response.LoginByEmail:
+    properties:
+      isEmailCheck:
+        type: boolean
+      isUpdatePassword:
+        description: 是否已更新密码
+        type: boolean
+      token:
+        type: string
+    type: object
   response.LogoCustomInfo:
     properties:
       about:
         allOf:
         - $ref: '#/definitions/response.CustomAbout'
         description: 关于信息
+      defaultIcon:
+        allOf:
+        - $ref: '#/definitions/response.CustomDefaultIcon'
+        description: 应用默认图片
       home:
         allOf:
         - $ref: '#/definitions/response.CustomHome'
@@ -2493,10 +4613,29 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.CustomLogin'
         description: 登录页标题信息
+      loginEmail:
+        allOf:
+        - $ref: '#/definitions/response.CustomLoginEmail'
+        description: 邮箱登录信息
+      register:
+        allOf:
+        - $ref: '#/definitions/response.CustomRegister'
+        description: 注册信息
+      resetPassword:
+        allOf:
+        - $ref: '#/definitions/response.CustomResetPassword'
+        description: 重置密码信息
       tab:
         allOf:
         - $ref: '#/definitions/response.CustomTab'
         description: 标签页信息
+    type: object
+  response.MCPActionList:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/protocol.Tool'
+        type: array
     type: object
   response.MCPDetail:
     properties:
@@ -2569,29 +4708,12 @@ definitions:
         description: SSE URL
         type: string
     type: object
-  response.MCPInfos:
-    properties:
-      enable:
-        type: boolean
-      id:
-        type: string
-      mcpDesc:
-        type: string
-      mcpId:
-        type: string
-      mcpName:
-        type: string
-      mcpServerFrom:
-        type: string
-      mcpServerUrl:
-        type: string
-      mcpSquareId:
-        type: string
-      valid:
-        type: boolean
-    type: object
   response.MCPSelect:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
       description:
         description: 描述
         type: string
@@ -2609,6 +4731,104 @@ definitions:
         type: string
       serverUrl:
         description: sseUrl
+        type: string
+      toolId:
+        description: 工具id
+        type: string
+      toolName:
+        description: 工具名称
+        type: string
+      toolType:
+        description: 工具类型
+        enum:
+        - mcp
+        - mcpserver
+        type: string
+      type:
+        type: string
+      uniqueId:
+        description: 随机unique id(每次动态生成)
+        type: string
+    required:
+    - toolType
+    type: object
+  response.MCPServerCreateResp:
+    properties:
+      mcpServerId:
+        description: mcpServerId
+        type: string
+    type: object
+  response.MCPServerDetail:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      mcpServerId:
+        description: mcpServerId
+        type: string
+      name:
+        description: 名称
+        type: string
+      sseExample:
+        description: sse连接示例
+        type: string
+      sseUrl:
+        description: sse url
+        type: string
+      streamableExample:
+        description: streamable http 连接示例
+        type: string
+      streamableUrl:
+        description: streamable http url
+        type: string
+      tools:
+        description: 绑定工具列表
+        items:
+          $ref: '#/definitions/response.MCPServerToolInfo'
+        type: array
+    type: object
+  response.MCPServerInfo:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      mcpServerId:
+        description: mcpServerId
+        type: string
+      name:
+        description: 名称
+        type: string
+      toolNum:
+        description: 绑定工具数量
+        type: integer
+    type: object
+  response.MCPServerToolInfo:
+    properties:
+      desc:
+        description: 描述
+        type: string
+      id:
+        description: 应用或工具id
+        type: string
+      mcpServerToolId:
+        description: mcpServerToolId
+        type: string
+      methodName:
+        description: 显示名称
+        type: string
+      name:
+        description: 应用或工具名称
+        type: string
+      type:
+        description: 类型
         type: string
     type: object
   response.MCPSquareDetail:
@@ -2656,7 +4876,7 @@ definitions:
       tools:
         description: 工具列表
         items:
-          $ref: '#/definitions/response.MCPTool'
+          $ref: '#/definitions/protocol.Tool'
         type: array
     type: object
   response.MCPSquareInfo:
@@ -2681,44 +4901,6 @@ definitions:
         description: 名称
         type: string
     type: object
-  response.MCPTool:
-    properties:
-      description:
-        description: 工具描述
-        type: string
-      inputSchema:
-        allOf:
-        - $ref: '#/definitions/response.MCPToolInputSchema'
-        description: 工具参数
-      name:
-        description: 工具名
-        type: string
-    type: object
-  response.MCPToolInputSchema:
-    properties:
-      properties:
-        additionalProperties:
-          $ref: '#/definitions/response.MCPToolInputSchemaValue'
-        description: 字段名 -> 字段信息
-        type: object
-      required:
-        description: 必填字段
-        items:
-          type: string
-        type: array
-      type:
-        description: '固定值: object'
-        type: string
-    type: object
-  response.MCPToolInputSchemaValue:
-    properties:
-      description:
-        description: 字段描述
-        type: string
-      type:
-        description: 字段类型
-        type: string
-    type: object
   response.MCPToolList:
     properties:
       tools:
@@ -2734,62 +4916,6 @@ definitions:
       filePath:
         description: minio文件的完整路径
         type: string
-    type: object
-  response.MetaData:
-    properties:
-      dataId:
-        type: string
-      dataType:
-        type: string
-      key:
-        type: string
-      value:
-        type: string
-    type: object
-  response.ModelBrief:
-    properties:
-      avatar:
-        allOf:
-        - $ref: '#/definitions/request.Avatar'
-        description: 模型图标路径
-      createdAt:
-        type: string
-      displayName:
-        description: 模型显示名称
-        type: string
-      isActive:
-        description: '启用状态（true: 启用，false: 禁用）'
-        type: boolean
-      model:
-        description: 模型名称
-        type: string
-      modelId:
-        type: string
-      modelType:
-        enum:
-        - llm
-        - embedding
-        - rerank
-        type: string
-      orgId:
-        type: string
-      provider:
-        description: 模型供应商
-        enum:
-        - OpenAI-API-compatible
-        - YuanJing
-        type: string
-      publishDate:
-        description: 模型发布时间
-        type: string
-      updatedAt:
-        type: string
-      userId:
-        type: string
-    required:
-    - model
-    - modelType
-    - provider
     type: object
   response.ModelInfo:
     properties:
@@ -2813,6 +4939,8 @@ definitions:
       model:
         description: 模型名称
         type: string
+      modelDesc:
+        type: string
       modelId:
         type: string
       modelType:
@@ -2832,6 +4960,10 @@ definitions:
       publishDate:
         description: 模型发布时间
         type: string
+      tags:
+        items:
+          $ref: '#/definitions/mp_common.Tag'
+        type: array
       updatedAt:
         type: string
       userId:
@@ -2840,6 +4972,27 @@ definitions:
     - model
     - modelType
     - provider
+    type: object
+  response.OAuthAppInfo:
+    properties:
+      clientId:
+        description: 客户端ID
+        type: string
+      clientSecret:
+        description: 客户端密钥
+        type: string
+      desc:
+        description: 应用描述
+        type: string
+      name:
+        description: 应用名称
+        type: string
+      redirectUri:
+        description: oauth重定向地址
+        type: string
+      status:
+        description: oauth应用开关
+        type: boolean
     type: object
   response.OrgID:
     properties:
@@ -2891,6 +5044,38 @@ definitions:
       perm:
         description: 权限
         type: string
+    type: object
+  response.PromptIDData:
+    properties:
+      promptId:
+        type: string
+    type: object
+  response.PromptTemplateDetail:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      category:
+        description: 模板分类
+        type: string
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+      templateId:
+        type: string
+    required:
+    - name
+    - templateId
     type: object
   response.ProxyUploadFileResp:
     properties:
@@ -3002,14 +5187,22 @@ definitions:
     properties:
       available:
         type: boolean
+      childNum:
+        description: 子分段数量
+        type: integer
       content:
         type: string
       contentId:
         type: string
       contentNum:
         type: integer
-      len:
-        type: integer
+      isParent:
+        description: 父子分段/通用分段 true是父分段，false是通用分段
+        type: boolean
+      labels:
+        items:
+          type: string
+        type: array
     type: object
   response.Select:
     properties:
@@ -3048,19 +5241,219 @@ definitions:
         description: 敏感词id
         type: string
     type: object
+  response.StatisticChart:
+    properties:
+      lines:
+        description: 统计表中线段集合
+        items:
+          $ref: '#/definitions/response.StatisticChartLine'
+        type: array
+      tableName:
+        description: 统计表名字
+        type: string
+    type: object
+  response.StatisticChartLine:
+    properties:
+      items:
+        description: 线段横纵坐标值
+        items:
+          $ref: '#/definitions/response.StatisticChartLineItem'
+        type: array
+      lineName:
+        description: 线段名字
+        type: string
+    type: object
+  response.StatisticChartLineItem:
+    properties:
+      key:
+        type: string
+      value:
+        type: number
+    type: object
+  response.StatisticOverviewItem:
+    properties:
+      periodOverPeriod:
+        description: 环比上周期百分比
+        type: number
+      value:
+        description: 数量
+        type: number
+    type: object
+  response.ToolAction4Workflow:
+    properties:
+      actionId:
+        type: string
+      actionName:
+        type: string
+      desc:
+        type: string
+    type: object
+  response.ToolActionDetail:
+    properties:
+      action:
+        allOf:
+        - $ref: '#/definitions/protocol.Tool'
+        description: action列表
+      apiKey:
+        description: apiKey
+        type: string
+      needApiKeyInput:
+        description: 是否需要apiKey输入
+        type: boolean
+    type: object
+  response.ToolActionList:
+    properties:
+      actions:
+        description: action列表
+        items:
+          $ref: '#/definitions/protocol.Tool'
+        type: array
+    type: object
+  response.ToolDetail4Workflow:
+    properties:
+      actionId:
+        type: string
+      actionName:
+        type: string
+      iconUrl:
+        type: string
+      inputs:
+        items: {}
+        type: array
+      outputs:
+        items: {}
+        type: array
+    type: object
+  response.ToolSelect:
+    properties:
+      apiKey:
+        description: apiKey
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 工具描述
+        type: string
+      needApiKeyInput:
+        description: 是否需要apiKey输入
+        type: boolean
+      toolId:
+        description: 工具id
+        type: string
+      toolName:
+        description: 工具名称
+        type: string
+      toolType:
+        description: 工具类型
+        enum:
+        - custom
+        - builtin
+        type: string
+      uniqueId:
+        description: unique id
+        type: string
+    required:
+    - toolType
+    type: object
+  response.ToolSelect4Workflow:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/response.ToolAction4Workflow'
+        type: array
+      apiKey:
+        type: string
+      desc:
+        type: string
+      iconUrl:
+        type: string
+      toolId:
+        type: string
+      toolName:
+        type: string
+      toolType:
+        type: string
+    type: object
+  response.ToolSquareDetail:
+    properties:
+      actionSum:
+        description: action总数
+        type: integer
+      apiAuth:
+        allOf:
+        - $ref: '#/definitions/util.ApiAuthWebRequest'
+        description: apiAuth
+      apiKey:
+        description: apiKey
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      detail:
+        description: 详细描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      needApiKeyInput:
+        description: 是否需要apiKey输入
+        type: boolean
+      schema:
+        type: string
+      tags:
+        description: 标签
+        items:
+          type: string
+        type: array
+      toolSquareId:
+        description: 广场mcpId(非空表示来源于广场)
+        type: string
+      tools:
+        description: action列表
+        items:
+          $ref: '#/definitions/protocol.Tool'
+        type: array
+    type: object
+  response.ToolSquareInfo:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+      tags:
+        description: 标签
+        items:
+          type: string
+        type: array
+      toolSquareId:
+        description: 广场mcpId(非空表示来源于广场)
+        type: string
+    type: object
   response.UploadFileResp:
     properties:
       status:
         description: 0:上传失败，1：上传成功
         type: integer
     type: object
-  response.Url:
+  response.User:
     properties:
-      fileName:
+      userId:
+        description: 用户ID
         type: string
-      fileSize:
-        type: integer
-      url:
+      userName:
+        description: 用户名称
         type: string
     type: object
   response.UserID:
@@ -3070,6 +5463,8 @@ definitions:
     type: object
   response.UserInfo:
     properties:
+      avatar:
+        $ref: '#/definitions/request.Avatar'
       company:
         type: string
       createdAt:
@@ -3127,6 +5522,10 @@ definitions:
     type: object
   response.UserPermission:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 用户头像信息
       isUpdatePassword:
         description: 是否已更新密码
         type: boolean
@@ -3139,22 +5538,109 @@ definitions:
         - $ref: '#/definitions/response.UserOrgPermission'
         description: 用户所在组织权限
     type: object
-  response.WorkFlowInfos:
+  response.VisionConfig:
     properties:
-      apiName:
+      maxPicNum:
+        description: 最大图片数量
+        type: integer
+      picNum:
+        description: 视觉配置图片数量
+        type: integer
+    type: object
+  response.WorkflowTemplateDetail:
+    properties:
+      author:
+        description: 作者
         type: string
-      enable:
-        type: boolean
-      id:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      category:
+        description: 模板分类
         type: string
-      valid:
-        type: boolean
-      workFlowDesc:
+      desc:
+        description: 模板描述
         type: string
-      workFlowId:
+      downloadCount:
+        description: 下载次数
+        type: integer
+      feature:
+        description: 模板特性说明
         type: string
-      workFlowName:
+      name:
+        description: 模板名称
         type: string
+      note:
+        description: 注意事项
+        type: string
+      scenario:
+        description: 模板应用场景
+        type: string
+      summary:
+        description: 模板介绍概览
+        type: string
+      templateId:
+        description: 模板ID
+        type: string
+    type: object
+  response.WorkflowTemplateInfo:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      category:
+        description: 模板分类
+        type: string
+      desc:
+        description: 模板描述
+        type: string
+      downloadCount:
+        description: 下载次数
+        type: integer
+      name:
+        description: 模板名称
+        type: string
+      templateId:
+        description: 模板ID
+        type: string
+    type: object
+  response.WorkflowTemplateURL:
+    properties:
+      url:
+        type: string
+    type: object
+  util.ApiAuthWebRequest:
+    properties:
+      apiKeyHeader:
+        description: HTTP头部名称
+        type: string
+      apiKeyHeaderPrefix:
+        description: 鉴权头部前缀
+        enum:
+        - basic
+        - bearer
+        - custom
+        type: string
+      apiKeyQueryParam:
+        description: 查询参数名称
+        type: string
+      apiKeyValue:
+        description: apiKey
+        type: string
+      authType:
+        description: 鉴权类型 None 或 请求头 或 查询参数
+        enum:
+        - none
+        - api_key_query
+        - api_key_header
+        type: string
+    required:
+    - authType
     type: object
 info:
   contact: {}
@@ -3165,6 +5651,7 @@ info:
     | Authorization | JWT token |
     | X-Language    | 语言Code  |
     | X-Org-Id      | 组织ID    |
+    | X-Client-Id   | 客户端标识|
 
     ## HTTP Status
     | HTTP Status             | 说明                   |
@@ -3250,7 +5737,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 删除ApiKey
       tags:
-      - app
+      - app.key
     post:
       consumes:
       - application/json
@@ -3276,7 +5763,7 @@ paths:
               type: object
       summary: 生成ApiKey
       tags:
-      - app
+      - app.key
   /appspace/app/key/list:
     get:
       consumes:
@@ -3309,7 +5796,7 @@ paths:
               type: object
       summary: 获取ApiKey
       tags:
-      - app
+      - app.key
   /appspace/app/list:
     get:
       consumes:
@@ -3320,11 +5807,12 @@ paths:
         in: query
         name: name
         type: string
-      - description: 应用类型 Enums(agent,workflow,rag)
+      - description: 应用类型 Enums(agent,workflow,rag,chatflow)
         enum:
         - agent
         - workflow
         - rag
+        - chatflow
         in: query
         name: appType
         type: string
@@ -3352,6 +5840,140 @@ paths:
       summary: 获取应用列表
       tags:
       - app
+  /appspace/app/openurl:
+    delete:
+      consumes:
+      - application/json
+      description: 删除应用Url
+      parameters:
+      - description: 应用UrlId
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppUrlIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除应用Url
+      tags:
+      - app.url
+    post:
+      consumes:
+      - application/json
+      description: 创建应用Url
+      parameters:
+      - description: 应用Url基本信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppUrlCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 创建应用Url
+      tags:
+      - app.url
+    put:
+      consumes:
+      - application/json
+      description: 编辑应用Url
+      parameters:
+      - description: 应用Url基本信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppUrlUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑应用Url
+      tags:
+      - app.url
+  /appspace/app/openurl/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取应用Url列表
+      parameters:
+      - description: 应用id
+        in: query
+        name: appId
+        required: true
+        type: string
+      - description: 应用类型
+        in: query
+        name: appType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.AppUrlInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取应用Url列表
+      tags:
+      - app.url
+  /appspace/app/openurl/status:
+    put:
+      consumes:
+      - application/json
+      description: 启用/停用应用Url
+      parameters:
+      - description: 应用UrlId
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppUrlStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 启用/停用应用Url
+      tags:
+      - app.url
   /appspace/app/publish:
     delete:
       consumes:
@@ -3431,7 +6053,114 @@ paths:
       - JWT: []
       summary: 获取Api根地址
       tags:
-      - app
+      - app.key
+  /appspace/chatflow:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建Chatflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppBriefConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建Chatflow
+      tags:
+      - chatflow
+  /appspace/chatflow/copy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 拷贝Chatflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 拷贝Chatflow
+      tags:
+      - chatflow
+  /appspace/chatflow/export:
+    get:
+      consumes:
+      - application/json
+      description: 导出工作流的json文件
+      parameters:
+      - description: 工作流ID
+        in: query
+        name: workflow_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出Chatflow
+      tags:
+      - chatflow
+  /appspace/chatflow/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 通过JSON文件导入工作流
+      parameters:
+      - description: 工作流JSON文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 导入Chatflow
+      tags:
+      - chatflow
   /appspace/rag:
     delete:
       consumes:
@@ -3552,11 +6281,172 @@ paths:
       summary: 更新RAG配置信息
       tags:
       - rag
+  /appspace/rag/copy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 复制RAG的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RagReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/request.RagReq'
+              type: object
+      security:
+      - JWT: []
+      summary: 复制RAG
+      tags:
+      - rag
+  /appspace/workflow:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建Workflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppBriefConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建Workflow
+      tags:
+      - workflow
+  /appspace/workflow/copy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建Workflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 拷贝Workflow
+      tags:
+      - workflow
+  /appspace/workflow/export:
+    get:
+      consumes:
+      - application/json
+      description: 导出工作流的json文件
+      parameters:
+      - description: 工作流ID
+        in: query
+        name: workflow_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出Workflow
+      tags:
+      - workflow
+  /appspace/workflow/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 通过JSON文件导入工作流
+      parameters:
+      - description: 工作流JSON文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 导入Workflow
+      tags:
+      - workflow
+  /appspace/workflow/model/select/llm:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.CozeWorkflowModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: llm模型列表（用于workflow）
+      tags:
+      - workflow
   /assistant:
     get:
       consumes:
       - application/json
-      description: 查看智能体详情
+      description: 查看发布后智能体详情
       parameters:
       - description: 智能体id
         in: query
@@ -3577,7 +6467,7 @@ paths:
               type: object
       security:
       - JWT: []
-      summary: 查看智能体详情
+      summary: 查看发布后智能体详情
       tags:
       - agent
     post:
@@ -3629,127 +6519,6 @@ paths:
       security:
       - JWT: []
       summary: 修改智能体基本信息
-      tags:
-      - agent
-  /assistant/action:
-    delete:
-      consumes:
-      - application/json
-      description: 为智能体解绑action
-      parameters:
-      - description: action的id
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ActionIdRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 删除action
-      tags:
-      - agent
-    get:
-      consumes:
-      - application/json
-      description: 查看智能体action详情
-      parameters:
-      - description: action的id
-        in: query
-        name: actionId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.Action'
-              type: object
-      security:
-      - JWT: []
-      summary: 查看智能体action详情
-      tags:
-      - agent
-    post:
-      consumes:
-      - application/json
-      description: 为智能体绑定action
-      parameters:
-      - description: action新增参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ActionAddRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 添加action
-      tags:
-      - agent
-    put:
-      consumes:
-      - application/json
-      description: 为智能体修改action参数
-      parameters:
-      - description: action编辑参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ActionUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 编辑action
-      tags:
-      - agent
-  /assistant/action/enable:
-    put:
-      consumes:
-      - application/json
-      description: 修改智能体绑定的action的启用状态
-      parameters:
-      - description: action的id
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ActionIdRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 启用/停用action
       tags:
       - agent
   /assistant/config:
@@ -3918,75 +6687,61 @@ paths:
       summary: 智能体对话列表
       tags:
       - agent
-  /assistant/mcp:
-    delete:
-      consumes:
-      - application/json
-      description: 为智能体解绑mcp
-      parameters:
-      - description: mcp id
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.MCPIdRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 删除mcp
-      tags:
-      - agent
+  /assistant/copy:
     post:
       consumes:
       - application/json
-      description: 为智能体绑定已发布的mcp工具
+      description: 复制智能体，创建一个新的智能体，基本信息和配置都和原智能体一致
       parameters:
-      - description: mcp新增参数
+      - description: 智能体id
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.MCPAddRequest'
+          $ref: '#/definitions/request.AssistantIdRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.AssistantCreateResp'
+              type: object
       security:
       - JWT: []
-      summary: 添加mcp工具
+      summary: 复制智能体
       tags:
       - agent
-  /assistant/mcp/enable:
-    put:
+  /assistant/draft:
+    get:
       consumes:
       - application/json
-      description: 修改智能体绑定的MCP的启用状态
+      description: 查看草稿智能体详情
       parameters:
-      - description: mcp id
-        in: body
-        name: data
+      - description: 智能体id
+        in: query
+        name: assistantId
         required: true
-        schema:
-          $ref: '#/definitions/request.MCPIdRequest'
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.Assistant'
+              type: object
       security:
       - JWT: []
-      summary: 启用/停用 MCP
+      summary: 查看草稿智能体详情
       tags:
       - agent
   /assistant/stream:
@@ -4112,18 +6867,184 @@ paths:
       summary: 智能体模板列表
       tags:
       - agent
-  /assistant/workflow:
+  /assistant/tool:
+    delete:
+      consumes:
+      - application/json
+      description: 为智能体解绑自定义、内建工具
+      parameters:
+      - description: 智能体id与自定义、内建工具id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantToolDelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除自定义、内建工具
+      tags:
+      - agent
+    post:
+      consumes:
+      - application/json
+      description: 为智能体绑定自定义、内建工具
+      parameters:
+      - description: 自定义、内建工具新增参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantToolAddRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 添加自定义、内建工具
+      tags:
+      - agent
+  /assistant/tool/config:
+    put:
+      consumes:
+      - application/json
+      description: 配置智能体工具，包括自定义工具和内置工具
+      parameters:
+      - description: 智能体工具配置参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantToolConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 配置智能体工具
+      tags:
+      - agent
+  /assistant/tool/mcp:
+    delete:
+      consumes:
+      - application/json
+      description: 为智能体解绑mcp
+      parameters:
+      - description: mcp工具id、mcp类型、智能体id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantMCPToolDelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除mcp
+      tags:
+      - agent
+    post:
+      consumes:
+      - application/json
+      description: 为智能体绑定已发布的mcp工具
+      parameters:
+      - description: mcp工具id、mcp类型、智能体id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantMCPToolAddRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 添加mcp工具
+      tags:
+      - agent
+  /assistant/tool/mcp/switch:
+    put:
+      consumes:
+      - application/json
+      description: 修改智能体绑定的MCP的启用状态
+      parameters:
+      - description: mcp工具id、mcp类型、智能体id、enable
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantMCPToolEnableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 启用/停用 MCP
+      tags:
+      - agent
+  /assistant/tool/switch:
+    put:
+      consumes:
+      - application/json
+      description: 修改智能体绑定的自定义、内建工具的启用状态
+      parameters:
+      - description: 智能体id与自定义、内建工具id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssistantToolEnableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 启用/停用自定义、内建工具
+      tags:
+      - agent
+  /assistant/tool/workflow:
     delete:
       consumes:
       - application/json
       description: 为智能体解绑工作流
       parameters:
-      - description: 工作流id
+      - description: 工作流id,智能体id
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.WorkFlowIdRequest'
+          $ref: '#/definitions/request.AssistantWorkFlowDelRequest'
       produces:
       - application/json
       responses:
@@ -4146,7 +7067,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.WorkFlowAddRequest'
+          $ref: '#/definitions/request.AssistantWorkFlowAddRequest'
       produces:
       - application/json
       responses:
@@ -4159,18 +7080,18 @@ paths:
       summary: 添加工作流
       tags:
       - agent
-  /assistant/workflow/enable:
+  /assistant/tool/workflow/switch:
     put:
       consumes:
       - application/json
       description: 修改智能体绑定的工作流的启用状态
       parameters:
-      - description: 工作流id
+      - description: 工作流id,智能体id,开关
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.WorkFlowIdRequest'
+          $ref: '#/definitions/request.AssistantWorkFlowToolEnableRequest'
       produces:
       - application/json
       responses:
@@ -4303,6 +7224,116 @@ paths:
                   $ref: '#/definitions/response.Login'
               type: object
       summary: 用户登录
+      tags:
+      - guest
+  /base/login/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户名+密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.LoginByEmail'
+              type: object
+      summary: 用户邮箱双因子登录
+      tags:
+      - guest
+  /base/password/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 重置密码信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResetPasswordByEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 邮箱重置密码
+      tags:
+      - guest
+  /base/password/email/code:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 邮箱地址
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResetPasswordSendEmailCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 重置密码邮箱验证码发送
+      tags:
+      - guest
+  /base/register/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 邮箱注册信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterByEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 用户邮箱注册
+      tags:
+      - guest
+  /base/register/email/code:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 邮箱地址
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterSendEmailCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 邮箱注册验证码发送
       tags:
       - guest
   /custom/home:
@@ -4546,7 +7577,7 @@ paths:
       - JWT: []
       summary: 文件校验
       tags:
-      - common
+      - common.file
   /file/check/list:
     get:
       consumes:
@@ -4575,7 +7606,7 @@ paths:
       - JWT: []
       summary: 文件列表校验
       tags:
-      - common
+      - common.file
   /file/clean:
     post:
       consumes:
@@ -4604,7 +7635,7 @@ paths:
       - JWT: []
       summary: 文件清除
       tags:
-      - common
+      - common.file
   /file/delete:
     delete:
       consumes:
@@ -4633,7 +7664,7 @@ paths:
       - JWT: []
       summary: 文件删除
       tags:
-      - common
+      - common.file
   /file/merge:
     post:
       consumes:
@@ -4662,7 +7693,7 @@ paths:
       - JWT: []
       summary: 文件合并
       tags:
-      - common
+      - common.file
   /file/upload:
     post:
       consumes:
@@ -4705,7 +7736,7 @@ paths:
       - JWT: []
       summary: 文件上传
       tags:
-      - common
+      - common.file
   /knowledge:
     delete:
       consumes:
@@ -4806,7 +7837,7 @@ paths:
       - JWT: []
       summary: 删除文档
       tags:
-      - knowledge
+      - knowledge.doc
   /knowledge/doc/import:
     post:
       consumes:
@@ -4830,19 +7861,17 @@ paths:
       - JWT: []
       summary: 上传文档
       tags:
-      - knowledge
+      - knowledge.doc
   /knowledge/doc/import/tip:
     get:
       consumes:
       - application/json
       description: 获取知识库异步上传任务提示：有正在执行的异步上传任务/最近一次上传任务的失败信息
       parameters:
-      - description: 获取知识库异步上传任务提示请求参数
-        in: body
-        name: data
+      - in: query
+        name: knowledgeId
         required: true
-        schema:
-          $ref: '#/definitions/request.QueryKnowledgeReq'
+        type: string
       produces:
       - application/json
       responses:
@@ -4854,19 +7883,31 @@ paths:
       - JWT: []
       summary: 获取知识库异步上传任务提示
       tags:
-      - knowledge
+      - knowledge.doc
   /knowledge/doc/list:
     get:
       consumes:
       - application/json
       description: 获取知识库文档列表，不展示状态为无效（-1）的文档数据
       parameters:
-      - description: 文档列表查询请求参数
-        in: body
-        name: data
+      - in: query
+        name: docName
+        type: string
+      - in: query
+        name: knowledgeId
         required: true
-        schema:
-          $ref: '#/definitions/request.DocListReq'
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: 当前状态  -1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
+        in: query
+        name: status
+        type: integer
       produces:
       - application/json
       responses:
@@ -4874,18 +7915,16 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.PageResult'
+            - $ref: '#/definitions/response.Response'
             - properties:
-                list:
-                  items:
-                    $ref: '#/definitions/response.ListDocResp'
-                  type: array
+                data:
+                  $ref: '#/definitions/response.DocPageResult'
               type: object
       security:
       - JWT: []
       summary: 获取文档列表
       tags:
-      - knowledge
+      - knowledge.doc
   /knowledge/doc/meta:
     post:
       consumes:
@@ -4909,19 +7948,247 @@ paths:
       - JWT: []
       summary: 更新文档元数据
       tags:
-      - knowledge
+      - knowledge.doc
+  /knowledge/doc/meta/batch:
+    post:
+      consumes:
+      - application/json
+      description: 批量更新文档元数据
+      parameters:
+      - description: 批量文档更新元数据请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.BatchDocMetaDataReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 批量更新文档元数据
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/batch/create:
+    post:
+      consumes:
+      - application/json
+      description: 批量新增文档切片
+      parameters:
+      - description: 批量新增文档切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.BatchCreateDocSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 批量新增文档切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/child/create:
+    post:
+      consumes:
+      - application/json
+      description: 新增文档子分片
+      parameters:
+      - description: 新增文档子切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocChildSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 新增文档子分片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/child/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除文档子切片
+      parameters:
+      - description: 删除文档切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteDocChildSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除文档子切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/child/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取子分段列表
+      parameters:
+      - in: query
+        name: contentId
+        required: true
+        type: string
+      - in: query
+        name: docId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocChildSegmentResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取子分段列表
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/child/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档子切片
+      parameters:
+      - description: 更新文档子切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocChildSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档子切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/create:
+    post:
+      consumes:
+      - application/json
+      description: 新增文档切片
+      parameters:
+      - description: 新增文档切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 新增文档切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除文档切片
+      parameters:
+      - description: 删除文档切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteDocSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除文档切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/segment/labels:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档切片标签
+      parameters:
+      - description: 更新文档切片标签请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DocSegmentLabelsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档切片标签
+      tags:
+      - knowledge.doc
   /knowledge/doc/segment/list:
     get:
       consumes:
       - application/json
       description: 获取文档切分结果
       parameters:
-      - description: 获取文档切分结果请求参数
-        in: body
-        name: data
+      - in: query
+        name: docId
         required: true
-        schema:
-          $ref: '#/definitions/request.DocSegmentListReq'
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -4938,7 +8205,7 @@ paths:
       - JWT: []
       summary: 获取文档切分结果
       tags:
-      - knowledge
+      - knowledge.doc
   /knowledge/doc/segment/status/update:
     post:
       consumes:
@@ -4962,7 +8229,31 @@ paths:
       - JWT: []
       summary: 更新文档切片启用状态
       tags:
-      - knowledge
+      - knowledge.doc
+  /knowledge/doc/segment/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档切片
+      parameters:
+      - description: 更新文档切片请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocSegmentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档切片
+      tags:
+      - knowledge.doc
   /knowledge/doc/url/analysis:
     post:
       consumes:
@@ -4990,6 +8281,35 @@ paths:
       security:
       - JWT: []
       summary: 解析url
+      tags:
+      - knowledge.doc
+  /knowledge/graph:
+    get:
+      consumes:
+      - application/json
+      description: 查询知识图谱详情
+      parameters:
+      - description: 查询知识图谱详情
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeGraphReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeGraphResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 查询知识图谱详情
       tags:
       - knowledge
   /knowledge/hit:
@@ -5050,12 +8370,16 @@ paths:
       - application/json
       description: 查询知识库关键词列表
       parameters:
-      - description: 关键词列表查询请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.ListKeywordsReq'
+      - description: 用于搜索【问题中的关键词】/【文档中的词语】
+        in: query
+        name: name
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
       produces:
       - application/json
       responses:
@@ -5120,12 +8444,9 @@ paths:
       - application/json
       description: 查询知识库关键词详情
       parameters:
-      - description: 关键词列表查询请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.GetKeywordsDetailReq'
+      - in: query
+        name: id
+        type: integer
       produces:
       - application/json
       responses:
@@ -5138,6 +8459,268 @@ paths:
       summary: 查询知识库关键词详情
       tags:
       - knowledge.keywords
+  /knowledge/meta/select:
+    get:
+      consumes:
+      - application/json
+      description: 获取知识库元数据
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetKnowledgeMetaSelectResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取知识库元数据
+      tags:
+      - knowledge
+  /knowledge/meta/value/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取文档元数据列表
+      parameters:
+      - description: 文档元数据列表请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeMetaValueListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeMetaValueListResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取文档元数据列表
+      tags:
+      - knowledge
+  /knowledge/meta/value/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新知识库元数据值
+      parameters:
+      - description: 更新知识库元数据值请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateMetaValueReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新知识库元数据值
+      tags:
+      - knowledge
+  /knowledge/org:
+    get:
+      consumes:
+      - application/json
+      description: 知识库组织列表
+      parameters:
+      - description: 知识库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowOrgInfo'
+              type: object
+      security:
+      - JWT: []
+      summary: 知识库组织列表
+      tags:
+      - knowledge.permission
+  /knowledge/report/add:
+    post:
+      consumes:
+      - application/json
+      description: 单条新增社区报告
+      parameters:
+      - description: 单条新增社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeReportAddReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 单条新增社区报告
+      tags:
+      - knowledge.report
+  /knowledge/report/batch/add:
+    post:
+      consumes:
+      - application/json
+      description: 批量新增社区报告
+      parameters:
+      - description: 批量新增社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeReportBatchAddReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 批量新增社区报告
+      tags:
+      - knowledge.report
+  /knowledge/report/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除社区报告
+      parameters:
+      - description: 删除社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeReportDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除社区报告
+      tags:
+      - knowledge.report
+  /knowledge/report/generate:
+    post:
+      consumes:
+      - application/json
+      description: 生成社区报告
+      parameters:
+      - description: 生成社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeReportGenerateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 生成社区报告
+      tags:
+      - knowledge.report
+  /knowledge/report/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取社区报告
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeReportPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取社区报告
+      tags:
+      - knowledge.report
+  /knowledge/report/update:
+    post:
+      consumes:
+      - application/json
+      description: 编辑社区报告
+      parameters:
+      - description: 编辑社区报告请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeReportUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑社区报告
+      tags:
+      - knowledge.report
   /knowledge/select:
     post:
       consumes:
@@ -5196,12 +8779,9 @@ paths:
       - application/json
       description: 查询知识库分隔符列表
       parameters:
-      - description: 查询知识库请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.KnowledgeSplitterSelectReq'
+      - in: query
+        name: splitterName
+        type: string
       produces:
       - application/json
       responses:
@@ -5294,12 +8874,12 @@ paths:
       - application/json
       description: 查询知识库标签列表
       parameters:
-      - description: 查询知识库请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.KnowledgeTagSelectReq'
+      - in: query
+        name: knowledgeId
+        type: string
+      - in: query
+        name: tagName
+        type: string
       produces:
       - application/json
       responses:
@@ -5398,12 +8978,10 @@ paths:
       - application/json
       description: 查询标签绑定知识库数量
       parameters:
-      - description: 查询tag绑定数量参数请求参数
-        in: body
-        name: data
+      - in: query
+        name: tagId
         required: true
-        schema:
-          $ref: '#/definitions/request.TagBindCountReq'
+        type: string
       produces:
       - application/json
       responses:
@@ -5421,6 +8999,167 @@ paths:
       summary: 查询标签绑定知识库数量
       tags:
       - knowledge.tag
+  /knowledge/user:
+    get:
+      consumes:
+      - application/json
+      description: 知识库用户权限列表
+      parameters:
+      - description: 知识库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeUserPermissionResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 知识库用户权限列表
+      tags:
+      - knowledge.permission
+  /knowledge/user/add:
+    post:
+      consumes:
+      - application/json
+      description: 增加知识库用户
+      parameters:
+      - description: 增加知识库用户请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeUserAddReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 增加知识库用户
+      tags:
+      - knowledge.permission
+  /knowledge/user/admin/transfer:
+    post:
+      consumes:
+      - application/json
+      description: 转让管理员权限
+      parameters:
+      - description: 转让管理员权限请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeTransferUserAdminReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 转让管理员权限
+      tags:
+      - knowledge.permission
+  /knowledge/user/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除知识库用户
+      parameters:
+      - description: 删除知识库用户请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeUserDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除知识库用户
+      tags:
+      - knowledge.permission
+  /knowledge/user/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改知识库用户
+      parameters:
+      - description: 修改知识库用户请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeUserEditReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 修改知识库用户
+      tags:
+      - knowledge.permission
+  /knowledge/user/no/permit:
+    get:
+      consumes:
+      - application/json
+      description: 没有知识库用户列表
+      parameters:
+      - description: 知识库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - description: 选择组织id
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: 是否是转让列表
+        in: query
+        name: transfer
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowOrgUserInfoResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 没有知识库用户列表
+      tags:
+      - knowledge.permission
   /mcp:
     delete:
       consumes:
@@ -5489,6 +9228,59 @@ paths:
       summary: 创建自定义MCP
       tags:
       - mcp
+    put:
+      consumes:
+      - application/json
+      description: 修改自定义MCP
+      parameters:
+      - description: 自定义MCP信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 修改自定义MCP
+      tags:
+      - mcp
+  /mcp/action/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取MCP Action列表
+      parameters:
+      - in: query
+        name: toolId
+        required: true
+        type: string
+      - enum:
+        - mcp
+        - mcpserver
+        in: query
+        name: toolType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.MCPActionList'
+              type: object
+      summary: 获取MCP Action列表
+      tags:
+      - mcp
   /mcp/list:
     get:
       consumes:
@@ -5553,6 +9345,218 @@ paths:
       summary: 获取自定义MCP列表（用于下拉选择）
       tags:
       - mcp
+  /mcp/server:
+    delete:
+      consumes:
+      - application/json
+      description: 删除MCP Server
+      parameters:
+      - description: mcpServerId
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除MCP Server
+      tags:
+      - mcp.server
+    get:
+      consumes:
+      - application/json
+      description: 获取MCP Server详情
+      parameters:
+      - description: mcpServerId
+        in: query
+        name: mcpServerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.MCPServerDetail'
+              type: object
+      summary: 获取MCP Server详情
+      tags:
+      - mcp.server
+    post:
+      consumes:
+      - application/json
+      description: 创建MCP Server
+      parameters:
+      - description: MCP Server信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.MCPServerCreateResp'
+              type: object
+      summary: 创建MCP Server
+      tags:
+      - mcp.server
+    put:
+      consumes:
+      - application/json
+      description: 更新MCP Server
+      parameters:
+      - description: MCP Server信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 更新MCP Server
+      tags:
+      - mcp.server
+  /mcp/server/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取MCP Server列表
+      parameters:
+      - description: mcp server名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.MCPServerInfo'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取MCP Server列表
+      tags:
+      - mcp.server
+  /mcp/server/tool:
+    delete:
+      consumes:
+      - application/json
+      description: 删除MCP Server工具
+      parameters:
+      - description: mcpServerToolId
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerToolIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除MCP Server工具
+      tags:
+      - mcp.server
+    post:
+      consumes:
+      - application/json
+      description: 创建MCP Server工具
+      parameters:
+      - description: MCP Server工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerToolCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 创建MCP Server工具
+      tags:
+      - mcp.server
+    put:
+      consumes:
+      - application/json
+      description: 更新MCP Server工具
+      parameters:
+      - description: MCP Server工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerToolUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 更新MCP Server工具
+      tags:
+      - mcp.server
+  /mcp/server/tool/openapi:
+    post:
+      consumes:
+      - application/json
+      description: 创建openapi工具
+      parameters:
+      - description: openapi工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MCPServerOpenAPIToolCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 创建openapi工具
+      tags:
+      - tool
   /mcp/square:
     get:
       consumes:
@@ -5712,25 +9716,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 模型类型
-        enum:
-        - llm
-        - embedding
-        - rerank
-        in: query
-        name: modelType
+      - description: 模型ID
+        in: body
+        name: data
         required: true
-        type: string
-      - description: 模型名称
-        in: query
-        name: model
-        required: true
-        type: string
-      - description: 模型供应商
-        in: query
-        name: provider
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/request.GetModelRequest'
       produces:
       - application/json
       responses:
@@ -5832,7 +9823,7 @@ paths:
                   - $ref: '#/definitions/response.ListResult'
                   - properties:
                       list:
-                        $ref: '#/definitions/response.ModelBrief'
+                        $ref: '#/definitions/response.ModelInfo'
                     type: object
               type: object
       security:
@@ -5858,12 +9849,38 @@ paths:
                   - $ref: '#/definitions/response.ListResult'
                   - properties:
                       list:
-                        $ref: '#/definitions/response.ModelBrief'
+                        $ref: '#/definitions/response.ModelInfo'
                     type: object
               type: object
       security:
       - JWT: []
       summary: embedding模型列表
+      tags:
+      - model
+  /model/select/gui:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: gui模型列表
       tags:
       - model
   /model/select/llm:
@@ -5884,7 +9901,7 @@ paths:
                   - $ref: '#/definitions/response.ListResult'
                   - properties:
                       list:
-                        $ref: '#/definitions/response.ModelBrief'
+                        $ref: '#/definitions/response.ModelInfo'
                     type: object
               type: object
       security:
@@ -5910,12 +9927,38 @@ paths:
                   - $ref: '#/definitions/response.ListResult'
                   - properties:
                       list:
-                        $ref: '#/definitions/response.ModelBrief'
+                        $ref: '#/definitions/response.ModelInfo'
                     type: object
               type: object
       security:
       - JWT: []
       summary: ocr模型列表
+      tags:
+      - model
+  /model/select/pdf-parser:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: pdf文档解析模型列表
       tags:
       - model
   /model/select/rerank:
@@ -5936,7 +9979,7 @@ paths:
                   - $ref: '#/definitions/response.ListResult'
                   - properties:
                       list:
-                        $ref: '#/definitions/response.ModelBrief'
+                        $ref: '#/definitions/response.ModelInfo'
                     type: object
               type: object
       security:
@@ -5967,6 +10010,184 @@ paths:
       summary: 模型启用/关闭
       tags:
       - model
+  /oauth/app:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的OAuth应用
+      parameters:
+      - description: OAuth应用ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除OAuth应用
+      tags:
+      - oauth
+    post:
+      consumes:
+      - application/json
+      description: 创建新的OAuth应用
+      parameters:
+      - description: OAuth应用创建请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 创建OAuth应用
+      tags:
+      - oauth
+    put:
+      consumes:
+      - application/json
+      description: 更新OAuth应用信息
+      parameters:
+      - description: OAuth应用更新请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOauthAppReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新OAuth应用
+      tags:
+      - oauth
+  /oauth/app/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取OAuth应用分页列表
+      parameters:
+      - description: 第三方平台名(模糊查询)
+        in: query
+        name: name
+        type: string
+      - description: 页面编号，从1开始
+        in: query
+        name: pageNo
+        required: true
+        type: integer
+      - description: 单页数量，从1开始
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.OAuthAppInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取OAuth应用列表
+      tags:
+      - oauth
+  /oauth/app/status:
+    put:
+      consumes:
+      - application/json
+      description: 启用或禁用OAuth应用
+      parameters:
+      - description: OAuth应用状态更新请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOauthAppStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新OAuth应用状态
+      tags:
+      - oauth
+  /oauth/code/authorize:
+    get:
+      consumes:
+      - application/json
+      description: 授权码方式-获取授权码
+      parameters:
+      - description: 备案ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: 重定向URI
+        in: query
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 响应类型
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: 权限范围
+        in: query
+        name: scope
+        type: string
+      - description: 状态参数
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: 重定向到指定URI
+          schema:
+            type: string
+      summary: 授权码方式
+      tags:
+      - oauth
   /org:
     delete:
       consumes:
@@ -6206,6 +10427,274 @@ paths:
       summary: 邀请用户加入组织
       tags:
       - permission.user
+  /prompt/custom:
+    delete:
+      consumes:
+      - application/json
+      description: 删除自定义Prompt
+      parameters:
+      - description: 自定义PromptID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomPromptIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除自定义Prompt
+      tags:
+      - prompt
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义Prompt详情
+      parameters:
+      - description: customPromptId
+        in: query
+        name: customPromptId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomPrompt'
+              type: object
+      summary: 获取自定义Prompt详情
+      tags:
+      - prompt
+    post:
+      consumes:
+      - application/json
+      description: 创建自定义Prompt
+      parameters:
+      - description: 自定义Prompt信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomPromptCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomPromptIDResp'
+              type: object
+      summary: 创建自定义Prompt
+      tags:
+      - prompt
+    put:
+      consumes:
+      - application/json
+      description: 更新自定义Prompt
+      parameters:
+      - description: 自定义Prompt信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCustomPrompt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 更新自定义Prompt
+      tags:
+      - prompt
+  /prompt/custom/copy:
+    post:
+      consumes:
+      - application/json
+      description: 复制自定义Prompt
+      parameters:
+      - description: 自定义PromptID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomPromptIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomPromptIDResp'
+              type: object
+      summary: 复制自定义Prompt
+      tags:
+      - prompt
+  /prompt/custom/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义Prompt列表
+      parameters:
+      - description: name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.CustomPrompt'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取自定义Prompt列表
+      tags:
+      - prompt
+  /prompt/optimize:
+    post:
+      consumes:
+      - application/json
+      description: 获取提示词优化结果
+      parameters:
+      - description: 提示词优化请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PromptOptimizeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取提示词优化结果
+      tags:
+      - prompt
+  /prompt/template:
+    post:
+      consumes:
+      - application/json
+      description: 复制提示词模板
+      parameters:
+      - description: 通过模板创建提示词的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreatePromptByTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PromptIDData'
+              type: object
+      summary: 复制提示词模板
+      tags:
+      - prompt
+  /prompt/template/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取提示词模板详情
+      parameters:
+      - description: 模板ID
+        in: query
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PromptTemplateDetail'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取提示词模板详情
+      tags:
+      - guest
+  /prompt/template/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取提示词模板列表
+      parameters:
+      - description: 模板名称
+        in: query
+        name: name
+        type: string
+      - description: 模板分类
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.PromptTemplateDetail'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取提示词模板列表
+      tags:
+      - guest
   /proxy/file/upload:
     post:
       consumes:
@@ -6238,7 +10727,7 @@ paths:
       - JWT: []
       summary: 代理文件上传
       tags:
-      - common
+      - common.file
   /rag/chat:
     post:
       consumes:
@@ -6753,6 +11242,380 @@ paths:
       summary: 获取词表数据列表
       tags:
       - safety
+  /statistic/client:
+    get:
+      consumes:
+      - application/json
+      description: 获取客户端统计数据
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ClientStatistic'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取客户端统计数据
+      tags:
+      - statistic_client
+  /tool/action/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取工具详情
+      parameters:
+      - description: action名称
+        in: query
+        name: actionName
+        required: true
+        type: string
+      - description: 工具id
+        in: query
+        name: toolId
+        required: true
+        type: string
+      - description: 工具类型
+        enum:
+        - builtin
+        - custom
+        in: query
+        name: toolType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolActionDetail'
+              type: object
+      summary: 获取工具详情
+      tags:
+      - tool
+  /tool/action/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取工具列表
+      parameters:
+      - description: 工具id
+        in: query
+        name: toolId
+        required: true
+        type: string
+      - description: 工具类型
+        enum:
+        - builtin
+        - custom
+        in: query
+        name: toolType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolActionList'
+              type: object
+      summary: 获取工具列表
+      tags:
+      - tool
+  /tool/builtin:
+    post:
+      consumes:
+      - application/json
+      description: 修改内置工具
+      parameters:
+      - description: 内置工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ToolSquareAPIKeyReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 修改内置工具
+      tags:
+      - tool.builtin
+  /tool/custom:
+    delete:
+      consumes:
+      - application/json
+      description: 删除自定义工具
+      parameters:
+      - description: 自定义工具ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomToolIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除自定义工具
+      tags:
+      - tool.custom
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义工具详情
+      parameters:
+      - description: customToolId
+        in: query
+        name: customToolId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomToolDetail'
+              type: object
+      summary: 获取自定义工具详情
+      tags:
+      - tool.custom
+    post:
+      consumes:
+      - application/json
+      description: 创建自定义工具
+      parameters:
+      - description: 自定义工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomToolCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 创建自定义工具
+      tags:
+      - tool.custom
+    put:
+      consumes:
+      - application/json
+      description: 修改自定义工具
+      parameters:
+      - description: 自定义工具信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomToolUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 修改自定义工具
+      tags:
+      - tool.custom
+  /tool/custom/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义工具列表
+      parameters:
+      - description: CustomTool名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.CustomToolInfo'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取自定义工具列表
+      tags:
+      - tool.custom
+  /tool/custom/schema:
+    post:
+      consumes:
+      - application/json
+      description: 解析自定义工具的Schema转换为API相关数据
+      parameters:
+      - description: Schema格式数据
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomToolSchemaReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.CustomToolActionInfo'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取可用API列表（根据Schema）
+      tags:
+      - tool.custom
+  /tool/select:
+    get:
+      consumes:
+      - application/json
+      description: 获取工具列表（用于下拉选择）
+      parameters:
+      - description: 工具名
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ToolSelect'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取工具列表（用于下拉选择）
+      tags:
+      - tool
+  /tool/square:
+    get:
+      consumes:
+      - application/json
+      description: 获取内置工具详情
+      parameters:
+      - description: toolSquareId
+        in: query
+        name: toolSquareId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolSquareDetail'
+              type: object
+      summary: 获取内置工具详情
+      tags:
+      - tool.square
+  /tool/square/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取内置工具列表
+      parameters:
+      - description: tool名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ToolSquareInfo'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取内置工具列表
+      tags:
+      - tool.builtin
   /user:
     delete:
       consumes:
@@ -6851,6 +11714,30 @@ paths:
       summary: 重置用户密码（by 管理员）
       tags:
       - permission.user
+  /user/avatar:
+    put:
+      consumes:
+      - application/json
+      description: 更新用户的头像信息
+      parameters:
+      - description: 用户头像信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserAvatarUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑用户头像
+      tags:
+      - common
   /user/info:
     get:
       consumes:
@@ -6916,6 +11803,92 @@ paths:
       summary: 获取用户列表
       tags:
       - permission.user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 二阶段用户非首次登录邮箱校验与绑定
+      parameters:
+      - description: 语言
+        in: header
+        name: X-Language
+        type: string
+      - description: 登录邮箱信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginEmailCheck'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.Login'
+              type: object
+      security:
+      - JWT: []
+      summary: 非首次登录邮箱校验与绑定
+      tags:
+      - common
+    put:
+      consumes:
+      - application/json
+      description: 二阶段用户首次登录邮箱校验绑定与修改密码
+      parameters:
+      - description: 语言
+        in: header
+        name: X-Language
+        type: string
+      - description: 密码和邮箱信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangeUserPasswordByEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.Login'
+              type: object
+      security:
+      - JWT: []
+      summary: 用户首次登录邮箱校验绑定与修改密码
+      tags:
+      - common
+  /user/login/email/code:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 邮箱地址
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginSendEmailCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 登录邮箱验证码发送
+      tags:
+      - common
   /user/password:
     put:
       consumes:
@@ -6983,6 +11956,257 @@ paths:
       summary: 修改用户状态
       tags:
       - permission.user
+  /workflow/select:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: workflow名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ExplorationAppInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 智能体工作流列表
+      tags:
+      - workflow
+  /workflow/template:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 通过模板创建Workflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateWorkflowByTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 复制工作流模板
+      tags:
+      - workflow
+  /workflow/template/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取工作流模板详情
+      parameters:
+      - description: 模板ID
+        in: query
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.WorkflowTemplateDetail'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取工作流模板详情
+      tags:
+      - guest
+  /workflow/template/download:
+    get:
+      consumes:
+      - application/json
+      description: 下载工作流模板
+      parameters:
+      - description: 模板ID
+        in: query
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 下载工作流模板
+      tags:
+      - guest
+  /workflow/template/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取工作流模板列表
+      parameters:
+      - description: 模板名称
+        in: query
+        name: name
+        type: string
+      - description: 模板分类
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetWorkflowTemplateListResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取工作流模板列表
+      tags:
+      - guest
+  /workflow/template/recommend:
+    get:
+      consumes:
+      - application/json
+      description: 获取工作流模板推荐
+      parameters:
+      - description: 模板ID
+        in: query
+        name: templateId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GetWorkflowTemplateListResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取工作流模板推荐
+      tags:
+      - guest
+  /workflow/tool/action:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 工具类型
+        enum:
+        - builtin
+        - custom
+        in: query
+        name: toolType
+        required: true
+        type: string
+      - description: 工具具体action名称
+        in: query
+        name: actionName
+        required: true
+        type: string
+      - description: 工具ID
+        in: query
+        name: toolId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ToolDetail4Workflow'
+              type: object
+      security:
+      - JWT: []
+      summary: 工具具体action（用于workflow）
+      tags:
+      - workflow
+  /workflow/tool/select:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 工具类型
+        enum:
+        - builtin
+        - custom
+        in: query
+        name: toolType
+        required: true
+        type: string
+      - description: 工具名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ToolSelect4Workflow'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 工具列表（用于workflow）
+      tags:
+      - workflow
 securityDefinitions:
   JWT:
     in: header
