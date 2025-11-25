@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "文生图",
+    "title": "元景-文生图-12B",
     "description": "",
     "version": "1.0.0"
   },
@@ -9,21 +9,23 @@
   "paths": {
     "/openapi/metaview_t2i_intention_removal": {
       "post": {
-        "summary": "文生图",
-        "operationId": "yuanjing_text2img_12b",
+        "summary": "元景-文生图-12B",
         "deprecated": false,
         "description": "元景-文生图-12B文生图大模型基于扩散模型机制训练，支持中英双语输入，能够根据输入内容生成符合描述的图像内容，并增加意图去除和提示词润色。",
+        "operationId": "yuanjing_text2img_12b",
         "tags": [],
-        "parameters": [{
-          "name": "Authorization",
-          "in": "header",
-          "description": "Bearer token",
-          "required": true,
-          "example": "",
-          "schema": {
-            "type": "string"
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization: Bearer {$ACCESS_TOKEN}",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
           }
-        }],
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -31,18 +33,58 @@
                 "type": "object",
                 "properties": {
                   "prompt": {
-                    "description": "用户提出的问题",
+                    "description": "提示词",
                     "type": "string"
                   },
                   "response_format": {
-                    "description": "输出格式'url'或'b64_json'，默认值为url",
+                    "description": "“url” or “b64_json”,默认b64_json",
                     "type": "string"
+                  },
+                  "report_url": {
+                    "description": "参考,http://192.168.2.109:4999/web/#/611659092/216556697，默认https://test.ai-yuanjing.com/bffservice/v1/inference/report",
+                    "type": "string"
+                  },
+                  "advanced_opt": {
+                    "type": "object",
+                    "properties": {
+                      "height": {
+                        "type": "integer",
+                        "description": "生成图像的高度，非8的倍数时会自动处理为最接近的8的倍数；建议值1024，最大值不超过2048，推荐按附件指定尺寸配置",
+                        "minimum": 1,
+                        "maximum": 2048
+                      },
+                      "width": {
+                        "type": "integer",
+                        "description": "生成图像的宽度，非8的倍数时会自动处理为最接近的8的倍数；建议值1024，最大值不超过2048，推荐按附件指定尺寸配置",
+                        "minimum": 1,
+                        "maximum": 2048
+                      },
+                      "num_images_per_prompt": {
+                        "type": "integer",
+                        "description": "单次提示词生成的图像数量，取值范围1-4，超过4时自动处理为4",
+                        "minimum": 1,
+                        "maximum": 4
+                      },
+                      "negative_prompt": {
+                        "type": "string",
+                        "description": "负提示词，用于排除生成图像中不需要的元素"
+                      },
+                      "style": {
+                        "type": "string",
+                        "description": "图像风格，受提示词内容影响可能存在失效情况，不同风格示例效果见附件；推荐风格：摄影、电影、动漫、漫画、3D、像素艺术、中国风、中国红窗花、平面插图、CG动画、油画、水彩、水墨画、剪纸、素描、黑白线条艺术、达芬奇、梵高、皮克斯、奇幻艺术、赛博朋克、低多边形、未来主义、工笔画"
+                      }
+                    },
+                    "description": "高级选项参数"
                   }
                 },
-                "required": ["prompt", "response_format"]
-              }
+                "required": [
+                  "prompt"
+                ]
+              },
+              "examples": {}
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -53,28 +95,40 @@
                   "type": "object",
                   "properties": {
                     "code": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "状态码,\n0：正常;\n7：服务异常;\n1003：命中敏感词"
                     },
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "错误码描述信息"
                     },
                     "result": {
                       "type": "array",
                       "items": {
                         "type": "string"
-                      }
+                      },
+                      "description": "如果response_format为b64_json时,为base64编码的list。如果response_format为url时，为url list。"
                     },
                     "usage": {
                       "type": "object",
                       "properties": {
                         "total_patches": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "生成图片patch计数"
                         }
                       },
-                      "required": ["total_patches"]
+                      "required": [
+                        "total_patches"
+                      ],
+                      "description": "生成图片patch计数"
                     }
                   },
-                  "required": ["code", "message", "result", "usage"]
+                  "required": [
+                    "code",
+                    "message",
+                    "result",
+                    "usage"
+                  ]
                 }
               }
             },
@@ -89,9 +143,10 @@
     "schemas": {},
     "securitySchemes": {}
   },
-  "servers": [{
-    "url": "https://maas-api.ai-yuanjing.com",
-    "description": "maas"
-  }],
-  "security": []
+  "servers": [
+    {
+      "url": "https://maas-api.ai-yuanjing.com",
+      "description": "maas"
+    }
+  ]
 }
