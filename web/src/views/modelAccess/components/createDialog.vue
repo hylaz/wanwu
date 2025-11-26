@@ -126,6 +126,7 @@
         <el-form-item :label="$t('modelAccess.table.inferUrl')" prop="endpointUrl">
           <el-input
             v-model="createForm.endpointUrl"
+            :title="$t('common.hint.inferUrl') + (typeObj.inferUrl[createForm.modelType] || typeObj.inferUrl[provider.key] || '--')"
             :placeholder="$t('common.hint.inferUrl') + (typeObj.inferUrl[createForm.modelType] || typeObj.inferUrl[provider.key] || '--')"
           >
           </el-input>

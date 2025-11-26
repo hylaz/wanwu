@@ -88,6 +88,7 @@ export const TYPE_OBJ = {
         [OLLAMA]: 'https://192.168.21.100:11434',
         [QWEN]: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
         [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3',
-        [INFINI]: 'https://cloud.infini-ai.com/maas/v1'
+        [INFINI]: 'https://cloud.infini-ai.com/maas/v1',
+        [ASR]: 'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr'
     },
 }
