@@ -487,6 +487,7 @@ def vector_search(index_name, base_names, query, top_k, min_score, embedding_mod
                 "bool": {
                     "must": [
                         {"terms": {"QABase": base_names}},
+                        {"term": {"status": True}},
                         build_doc_meta_query(meta_filter_list)
                     ]
                 }
@@ -539,6 +540,7 @@ def text_search(index_name, base_names, query, top_k, min_score, meta_filter_lis
                     "bool": {
                         "must": [
                             {"terms": {"QABase": base_names}},
+                            {"term": {"status": True}},
                             build_doc_meta_query(meta_filter_list)
                         ]
                     }
