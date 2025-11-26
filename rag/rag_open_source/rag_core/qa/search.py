@@ -25,7 +25,7 @@ def search_qa_base(question, top_k, threshold=0.0, return_meta=False, retrieve_m
 
         for user_id, qa_base_name_id_list in qa_base_info.items():
             search_result = None
-            qa_base_names = [[qa_base_name_id["qa_base_name"]] for qa_base_name_id in qa_base_name_id_list]
+            qa_base_names = [qa_base_name_id["QABase"] for qa_base_name_id in qa_base_name_id_list]
             if retrieve_method in {"semantic_search", "hybrid_search"}:
                 search_result = es_utils.vector_search(user_id, qa_base_names, question, top_k, threshold=threshold,
                                                        metadata_filtering_conditions = metadata_filtering_conditions)

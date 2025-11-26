@@ -1904,15 +1904,15 @@ def update_qa():
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
         logger.info(f"用户:{user_id},问答库:{qa_base_name},qa_base_id:{qa_base_id}, qa_pair_id: {qa_pair_id}, update_data:{update_data}")
 
-        if "question" in data:
+        if "question" in update_data:
             embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, qa_base_name)
-            res = emb_util.get_embs([data["question"]], embedding_model_id=embedding_model_id)
+            res = emb_util.get_embs([update_data["question"]], embedding_model_id=embedding_model_id)
             if len(res["result"]) != 1:
-                raise RuntimeError(f"Error getting embeddings:{data}")
+                raise RuntimeError(f"Error getting embeddings:{update_data}")
             dense_vector_dim = len(res["result"][0]["dense_vec"]) if res["result"] else 1024
             field_name = f"q_{dense_vector_dim}_content_vector"
-            data[field_name] = res["result"][0]["dense_vec"]
-        es_result = qa_ops.update_qa_data(qa_index_name, qa_base_name, qa_pair_id, data)
+            update_data[field_name] = res["result"][0]["dense_vec"]
+        es_result = qa_ops.update_qa_data(qa_index_name, qa_base_name, qa_pair_id, update_data)
         if not es_result["success"]:
             logger.info(f"当前用户:{user_id},问答库:{qa_base_name}, 问答对更新时发生错误：{es_result}")
             raise RuntimeError(es_result.get("error", ""))
@@ -2147,7 +2147,7 @@ def vector_search():
 
 
 @app.route('/api/v1/rag/es/text_search', methods=['POST'])
-def vector_search():
+def text_search():
     """ 多问答库库 text检索 """
     logger.info("--------------------------启动问答库全文检索---------------------------\n")
     data = request.get_json()

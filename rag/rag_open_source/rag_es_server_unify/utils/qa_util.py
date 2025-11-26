@@ -483,9 +483,14 @@ def vector_search(index_name, base_names, query, top_k, min_score, embedding_mod
         "knn": {
             "field": field_name,
             "query_vector": query_vector,
-            "filter": [
-                build_doc_meta_query(meta_filter_list)
-            ],
+            "filter": {
+                "bool": {
+                    "must": [
+                        {"terms": {"QABase": base_names}},
+                        build_doc_meta_query(meta_filter_list)
+                    ]
+                }
+            },
             "k": top_k,
             "num_candidates": max(50, top_k),
         },
@@ -530,9 +535,14 @@ def text_search(index_name, base_names, query, top_k, min_score, meta_filter_lis
     search_body = {
         "query": {
             "bool": {
-                "filter": [
-                    build_doc_meta_query(meta_filter_list)
-                ],
+                "filter": {
+                    "bool": {
+                        "must": [
+                            {"terms": {"QABase": base_names}},
+                            build_doc_meta_query(meta_filter_list)
+                        ]
+                    }
+                },
                 "must": [
                     {"match": {"question": query}}
                 ]

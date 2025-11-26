@@ -1359,7 +1359,7 @@ def delete_qa_base():
 @app.route("/rag/batch-add-QAs", methods=['POST'])
 def batch_add_qas():
     """ 批量新增问答对 """
-    logger.info('-------------- 批量删除问答对---------------')
+    logger.info('-------------- 批量新增问答对---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1414,7 +1414,7 @@ def update_qa():
         qa_base = data["QABase"]
         qa_id = data["QAId"]
         qa_pair = data["QAPair"]
-        logger.info(f"[update_qa] uid={user_id}, base={qa_base}, qaid={qa_id}, count={len(qa_pair)}")
+        logger.info(f"[update_qa] uid={user_id}, base={qa_base}, qaid={qa_id}, qa_pair={qa_pair}")
         response_info = qa_index.update_qa(user_id, qa_base, qa_id, qa_pair)
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
@@ -1588,8 +1588,8 @@ def search_qa_base():
 
         if rewrite_query:
             for user_id, qa_info_list in qa_base_info.items():
-                qa_base_names = [qa_info['qa_base_name'] for qa_info in qa_info_list]
-                qa_base_ids = [qa_info['qa_base_id']  for qa_info in qa_info_list]
+                qa_base_names = [qa_info['QABase'] for qa_info in qa_info_list]
+                qa_base_ids = [qa_info['QAId']  for qa_info in qa_info_list]
                 query_dict_list = get_query_dict_cache(redis_client, user_id, qa_base_ids)
                 if query_dict_list:
                     rewritten_queries = query_rewrite(question, query_dict_list)
