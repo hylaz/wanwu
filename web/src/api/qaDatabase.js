@@ -81,3 +81,12 @@ export const switchQaPair = (data) => {
     data,
   });
 };
+
+//问答库命中测试
+export const qaHitTest = (data) => {
+  return service({
+    url: `${USER_API}/knowledge/qa/hit`,
+    method: "post",
+    data,
+  });
+};

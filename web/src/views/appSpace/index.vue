@@ -1,32 +1,56 @@
 <template>
   <div class="page-wrapper">
     <div class="page-title">
-      <img class="page-title-img" :src="typeObj[type] ? typeObj[type].img : require('@/assets/imgs/task.png')" alt="" />
-      <span class="page-title-name">{{typeObj[type] ? typeObj[type].title : $t('appSpace.title')}}</span>
+      <img
+        class="page-title-img"
+        :src="
+          typeObj[type] ? typeObj[type].img : require('@/assets/imgs/task.png')
+        "
+        alt=""
+      />
+      <span class="page-title-name">
+        {{ typeObj[type] ? typeObj[type].title : $t("appSpace.title") }}
+      </span>
     </div>
     <div class="hide-loading-bg" style="padding: 20px" v-loading="loading">
-      <search-input :placeholder="$t('appSpace.search')" ref="searchInput" @handleSearch="handleSearch" />
+      <search-input
+        :placeholder="$t('appSpace.search')"
+        ref="searchInput"
+        @handleSearch="handleSearch"
+      />
       <div class="workflow-tabs" v-if="[workflow, chat].includes(type)">
-        <div :class="['workflow-tab',{ 'active': tabActive === workflow }]" @click="tabClick(workflow)">
-          {{$t('appSpace.workflow')}}
+        <div
+          :class="['workflow-tab', { active: tabActive === workflow }]"
+          @click="tabClick(workflow)"
+        >
+          {{ $t("appSpace.workflow") }}
         </div>
-        <div :class="['workflow-tab',{ 'active': tabActive === chat }]" @click="tabClick(chat)">
-          {{$t('appSpace.chat')}}
+        <div
+          :class="['workflow-tab', { active: tabActive === chat }]"
+          @click="tabClick(chat)"
+        >
+          {{ $t("appSpace.chat") }}
         </div>
       </div>
       <div class="header-right">
-        <el-button size="mini" type="primary" @click="showImport" v-if="[workflow, chat].includes(type)">
-          {{$t('common.button.import')}}
+        <el-button
+          size="mini"
+          type="primary"
+          @click="showImport"
+          v-if="[workflow, chat].includes(type)"
+        >
+          {{ $t("common.button.import") }}
         </el-button>
-        <el-button size="mini" type="primary" @click="showCreate" icon="el-icon-plus" v-if="validateAgent()">
-          {{$t('common.button.create')}}
+        <el-button
+          size="mini"
+          type="primary"
+          @click="showCreate"
+          icon="el-icon-plus"
+        >
+          {{ $t("common.button.create") }}
         </el-button>
       </div>
-      <!-- <div v-if="type === 'agent'" class="agent_type_switch">
-          <div v-for="item in agentSwitch" :class="{'agentActive':item.type === agnet_type }" class="agent_type_item" @click="agentType_change(item)" :key="item.type">{{item.name}}</div>
-      </div> -->
       <AppList
-        :agnetType="agnet_type"
         :type="type"
         :showCreate="showCreate"
         :appData="listData"
@@ -46,217 +70,148 @@
 </template>
 
 <script>
-import SearchInput from "@/components/searchInput.vue"
-import AppList from "@/components/appList.vue"
-import CreateTotalDialog from "@/components/createTotalDialog.vue"
-import UploadFileDialog from "@/components/uploadFileDialog.vue"
-import { getAppSpaceList,agnetTemplateList } from "@/api/appspace"
-import { CHAT, WORKFLOW, RAG, AGENT } from "@/utils/commonSet"
-import { mapGetters } from 'vuex'
-import { fetchPermFirPath } from "@/utils/util"
+import SearchInput from "@/components/searchInput.vue";
+import AppList from "@/components/appList.vue";
+import CreateTotalDialog from "@/components/createTotalDialog.vue";
+import UploadFileDialog from "@/components/uploadFileDialog.vue";
+import { getAppSpaceList, agnetTemplateList } from "@/api/appspace";
+import { CHAT, WORKFLOW, RAG, AGENT } from "@/utils/commonSet";
+import { mapGetters } from "vuex";
+import { fetchPermFirPath } from "@/utils/util";
 
 export default {
   components: { SearchInput, CreateTotalDialog, UploadFileDialog, AppList },
   data() {
     return {
-      type: '',
+      type: "",
       chat: CHAT,
       workflow: WORKFLOW,
       tabActive: WORKFLOW,
       loading: false,
-      listData:[],
+      listData: [],
       typeObj: {
-        [WORKFLOW]: {title: this.$t('appSpace.workflow'), img: require('@/assets/imgs/workflow_icon.svg')},
-        [CHAT]: {title: this.$t('appSpace.workflow'), img: require('@/assets/imgs/workflow_icon.svg')},
-        [RAG]: {title: this.$t('appSpace.rag'), img: require('@/assets/imgs/rag.svg')},
-        [AGENT]: {title: this.$t('appSpace.agent'), img: require('@/assets/imgs/agent.svg')}
+        [WORKFLOW]: {
+          title: this.$t("appSpace.workflow"),
+          img: require("@/assets/imgs/workflow_icon.svg"),
+        },
+        [CHAT]: {
+          title: this.$t("appSpace.workflow"),
+          img: require("@/assets/imgs/workflow_icon.svg"),
+        },
+        [RAG]: {
+          title: this.$t("appSpace.rag"),
+          img: require("@/assets/imgs/rag.svg"),
+        },
+        [AGENT]: {
+          title: this.$t("appSpace.agent"),
+          img: require("@/assets/imgs/agent.svg"),
+        },
       },
       currentTypeObj: {},
-      agnet_type:'auto',
-      agentSwitch:[
-        {
-          type:'template',
-          name:this.$t('appSpace.agentTemp')
-        },
-        {
-          type:'auto',
-          name:this.$t('appSpace.agentAuto')
-        }
-      ]
-    }
+    };
   },
   watch: {
     $route: {
       handler(val) {
-        const {type} = val ? val.params || {} : {}
-        const {type: flowType} = val.query || {}
-        this.type = flowType || type
-        this.tabActive = flowType || WORKFLOW
+        const { type } = val ? val.params || {} : {};
+        const { type: flowType } = val.query || {};
+        this.type = flowType || type;
+        this.tabActive = flowType || WORKFLOW;
 
-        this.listData = []
-        this.$refs.searchInput.value = ''
-        this.justifyRenderPage(type)
-        // this.getTypeData();
-        this.getTableData()
+        this.listData = [];
+        this.$refs.searchInput.value = "";
+        this.justifyRenderPage(type);
+        this.getTableData();
       },
       // 深度观察监听
-      deep: true
+      deep: true,
     },
-    fromList:{
-      handler(val){
-        if(val !== ''){
+    fromList: {
+      handler(val) {
+        if (val !== "") {
           this.type = val;
-          // this.getTypeData();
-          this.getTableData()
+          this.getTableData();
         }
-      }
-    }
+      },
+    },
   },
   computed: {
-    ...mapGetters('app', ['fromList']),
+    ...mapGetters("app", ["fromList"]),
   },
   mounted() {
-    const {type} = this.$route.params || {}
-    const {type: flowType} = this.$route.query || {}
-    this.type = flowType || type
-    this.tabActive = flowType || WORKFLOW
-    this.justifyRenderPage(type)
-    // this.getTypeData();
+    const { type } = this.$route.params || {};
+    const { type: flowType } = this.$route.query || {};
+    this.type = flowType || type;
+    this.tabActive = flowType || WORKFLOW;
+    this.justifyRenderPage(type);
     this.getTableData();
   },
   methods: {
     justifyRenderPage(type) {
       if (![WORKFLOW, AGENT, RAG].includes(type)) {
-        const {path} = fetchPermFirPath()
-        this.$router.push({path})
+        const { path } = fetchPermFirPath();
+        this.$router.push({ path });
       }
     },
-    getTypeData(){
-      if(this.type === AGENT){
-      this.agnet_type = 'template'
-      this.getAgentTemplate();
-      }else{
-        this.getTableData();
-      }
-    },
-    handleSearch(){
-      if(this.type === AGENT && this.agnet_type === 'template'){
-        this.getAgentTemplate();
-      }else{
-        this.getTableData();
-      }
-    },
-    validateAgent(){
-      if(this.type === AGENT && this.agnet_type === 'template'){
-        return false
-      }
-      return true
-    },
-    getAgentTemplate(){
-      this.loading = true
-      const searchInput = this.$refs.searchInput.value
-      agnetTemplateList({category:'',name:searchInput}).then(res =>{
-        if(res.code === 0){
-          this.loading = false
-          this.listData = res.data 
-            ? res.data.list.map(item => ({
-                ...item,
-                isShowCopy: false
-              })) 
-            : [];
-          }
-      }).catch(() => {
-        this.loading = false
-        this.listData = []
-      })
-    },
-    agentType_change(item){
-      this.agnet_type = item.type;
-      this.$refs.searchInput.value = '';
-      if(this.agnet_type === 'auto'){
-        this.getTableData();
-      }else{
-        this.getAgentTemplate();
-      }
+    handleSearch() {
+      this.getTableData();
     },
     getTableData() {
-      this.loading = true
-      const searchInput = this.$refs.searchInput
+      this.loading = true;
+      const searchInput = this.$refs.searchInput;
       const searchInfo = {
-        appType: this.type === 'all' ? '' : this.type,
-        ...searchInput.value && {name: searchInput.value}
-      }
-      getAppSpaceList(searchInfo).then(res => {
-        this.loading = false
-        this.listData = res.data ? (res.data.list || []) : []
-      }).catch(() => {
-        this.loading = false
-        this.listData = []
-      })
+        appType: this.type === "all" ? "" : this.type,
+        ...(searchInput.value && { name: searchInput.value }),
+      };
+      getAppSpaceList(searchInfo)
+        .then((res) => {
+          this.loading = false;
+          this.listData = res.data ? res.data.list || [] : [];
+        })
+        .catch(() => {
+          this.loading = false;
+          this.listData = [];
+        });
     },
     tabClick(type) {
-      this.tabActive = type
-      this.type = type
+      this.tabActive = type;
+      this.type = type;
       if (type === CHAT) {
-        this.$router.replace({ query: { type } })
+        this.$router.replace({ query: { type } });
       } else if (type === WORKFLOW) {
-        this.$router.replace({ query: {} })
+        this.$router.replace({ query: {} });
       }
-      this.getTypeData()
+      this.getTableData();
     },
     showImport() {
-      this.$refs.uploadFileDialog.openDialog()
+      this.$refs.uploadFileDialog.openDialog();
     },
     showCreate() {
       switch (this.type) {
         case AGENT:
-          this.$refs.createTotalDialog.showCreateIntelligent()
-          break
+          this.$refs.createTotalDialog.showCreateIntelligent();
+          break;
         case RAG:
-          this.$refs.createTotalDialog.showCreateTxtQues()
-          break
+          this.$refs.createTotalDialog.showCreateTxtQues();
+          break;
         case CHAT:
-          this.$refs.createTotalDialog.showCreateChat()
-          break
+          this.$refs.createTotalDialog.showCreateChat();
+          break;
         case WORKFLOW:
-          this.$refs.createTotalDialog.showCreateWorkflow()
-          break
+          this.$refs.createTotalDialog.showCreateWorkflow();
+          break;
         default:
-          this.$refs.createTotalDialog.openDialog()
-          break
+          this.$refs.createTotalDialog.openDialog();
+          break;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 .header-right {
   display: inline-block;
   float: right;
-}
-.agent_type_switch{
-  margin-top:20px;
-  width:300px;
-  height:40px;
-  border-bottom: 1px solid #333;
-  display:flex;
-  justify-content:space-between;
-  .agent_type_item{
-    cursor: pointer;
-    height:100%;
-    width:50%;
-    color:#333;
-    border-radius:4px;
-    text-align:center;
-    line-height:40px;
-    font-size: 14px;
-  }
-  .agentActive{
-    color: #fff;
-    background: #333;
-    border-radius: 0;
-    font-weight: bold;
-  }
 }
 .workflow-tabs {
   margin-top: 20px;

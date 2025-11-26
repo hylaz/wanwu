@@ -45,17 +45,23 @@
         </div>
       </div>
     </div>
+    <knowledgeSelect ref="knowledgeSelect" />
   </div>
 </template>
-
 <script>
+import knowledgeSelect from "@/components/knowledgeSelect.vue";
 export default {
   name: "QaDatabase",
+  components:{knowledgeSelect},
   props: {
     knowledgeList: {
       type: Array,
       default: () => [],
     },
+    category:{
+      type:Number,
+      default:0
+    }
   },
   methods: {
     handleAdd() {

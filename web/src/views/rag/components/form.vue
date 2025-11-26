@@ -15,7 +15,10 @@
           </div>
           <div class="basicInfo-desc">
             <span class="basicInfo-title">{{ editForm.name || "" }}</span>
-            <span class="el-icon-edit-outline editIcon" @click="editAgent"></span>
+            <span
+              class="el-icon-edit-outline editIcon"
+              @click="editAgent"
+            ></span>
             <LinkIcon type="rag" />
             <p>{{ editForm.desc || "" }}</p>
           </div>
@@ -32,7 +35,12 @@
           <img :src="require('@/assets/imgs/apikey.png')" />
           {{ $t("rag.form.apiKey") }}
         </el-button>
-        <el-button size="small" type="primary" @click="handlePublish" style="padding: 13px 12px">
+        <el-button
+          size="small"
+          type="primary"
+          @click="handlePublish"
+          style="padding: 13px 12px"
+        >
           {{ $t("common.button.publish") }}
           <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
         </el-button>
@@ -66,16 +74,24 @@
           <div class="block prompt-box">
             <p class="block-title common-set">
               <span class="common-set-label">
-                <img :src="require('@/assets/imgs/require.png')" class="required-label" />
+                <img
+                  :src="require('@/assets/imgs/require.png')"
+                  class="required-label"
+                />
                 {{ $t("agent.form.modelSelect") }}
-                <span class="model-tips">[ {{ $t("rag.modelTips") }} ]</span>
+                <span class="model-tips">[ {{ $t("app.modelTips") }} ]</span>
               </span>
-              <span class="el-icon-s-operation operation" @click="showModelSet"></span>
+              <span
+                class="el-icon-s-operation operation"
+                @click="showModelSet"
+              ></span>
             </p>
             <div class="rl">
               <el-select
                 v-model="editForm.modelParams"
-                :placeholder="$t('knowledgeManage.create.modelSearchPlaceholder')"
+                :placeholder="
+                  $t('knowledgeManage.create.modelSearchPlaceholder')
+                "
                 @visible-change="visibleChange"
                 :loading-text="$t('knowledgeManage.create.modelLoading')"
                 class="cover-input-icon model-select"
@@ -92,7 +108,10 @@
                 >
                   <div class="model-option-content">
                     <span class="model-name">{{ item.displayName }}</span>
-                    <div class="model-select-tags" v-if="item.tags && item.tags.length > 0">
+                    <div
+                      class="model-select-tags"
+                      v-if="item.tags && item.tags.length > 0"
+                    >
                       <span
                         v-for="(tag, tagIdx) in item.tags"
                         :key="tagIdx"
@@ -108,7 +127,10 @@
           <div class="block recommend-box">
             <p class="block-title common-set">
               <span class="common-set-label">
-                <img :src="require('@/assets/imgs/require.png')" class="required-label" />
+                <img
+                  :src="require('@/assets/imgs/require.png')"
+                  class="required-label"
+                />
                 {{ $t("agent.form.linkKnowledge") }}
               </span>
               <span>
@@ -142,7 +164,10 @@
                           style="margin-right: 10px"
                         ></span>
                       </el-tooltip>
-                      <span class="el-icon-delete del" @click="delKnowledge(i)"></span>
+                      <span
+                        class="el-icon-delete del"
+                        @click="delKnowledge(i)"
+                      ></span>
                     </div>
                   </div>
                 </div>
@@ -153,7 +178,10 @@
         <div class="block safety-box">
           <p class="block-title common-set">
             <span class="common-set-label">
-              <img :src="require('@/assets/imgs/require.png')" class="required-label" />
+              <img
+                :src="require('@/assets/imgs/require.png')"
+                class="required-label"
+              />
               {{ $t("searchConfig.title") }}
             </span>
           </p>
@@ -199,7 +227,7 @@
         <ChiChat
           ref="chiChat"
           @chiswitchChange="chiSwitchChange"
-          :isEnabled="editForm.knowledgeConfig.chiChat"
+          :chiChatSwitch="editForm.knowledgeConfig.chiChat"
         />
       </div>
       <div class="drawer-test">
@@ -214,7 +242,11 @@
       @updateInfo="getDetail"
     />
     <!-- 模型设置 -->
-    <ModelSet @setModelSet="setModelSet" ref="modelSetDialog" :modelConfig="editForm.modelConfig" />
+    <ModelSet
+      @setModelSet="setModelSet"
+      ref="modelSetDialog"
+      :modelConfig="editForm.modelConfig"
+    />
     <!-- 知识库设置 -->
     <knowledgeSet
       @setKnowledgeSet="setKnowledgeSet"
@@ -225,7 +257,10 @@
     <ApiKeyDialog ref="apiKeyDialog" :appId="editForm.appId" :appType="'rag'" />
     <setSafety ref="setSafety" @sendSafety="sendSafety" />
     <!-- 知识库选择 -->
-    <knowledgeSelect ref="knowledgeSelect" @getKnowledgeData="getKnowledgeData" />
+    <knowledgeSelect
+      ref="knowledgeSelect"
+      @getKnowledgeData="getKnowledgeData"
+    />
     <!-- 元数据设置 -->
     <el-dialog
       :visible.sync="metaSetVisible"
@@ -239,7 +274,11 @@
           <span>[ {{ $t("agent.form.metaDataFilterDesc") }}]</span>
         </div>
       </template>
-      <metaSet ref="metaSet" :knowledgeId="currentKnowledgeId" :currentMetaData="currentMetaData" />
+      <metaSet
+        ref="metaSet"
+        :knowledgeId="currentKnowledgeId"
+        :currentMetaData="currentMetaData"
+      />
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleMetaClose">
           {{ $t("common.button.cancel") }}
@@ -366,9 +405,10 @@ export default {
             "knowledgeConfig",
             "safetyConfig",
           ];
-          const changed = props.some(prop => {
+          const changed = props.some((prop) => {
             return (
-              JSON.stringify(newVal[prop]) !== JSON.stringify((this.initialEditForm || {})[prop])
+              JSON.stringify(newVal[prop]) !==
+              JSON.stringify((this.initialEditForm || {})[prop])
             );
           });
           if (changed && !this.isUpdating) {
@@ -377,7 +417,8 @@ export default {
               newVal["knowledgeConfig"]["priorityMatch"];
             if (
               newVal["modelParams"] !== "" ||
-              (isMixPriorityMatch && !newVal["knowledgeConfig"]["rerankModelId"])
+              (isMixPriorityMatch &&
+                !newVal["knowledgeConfig"]["rerankModelId"])
             ) {
               this.updateInfo();
             }
@@ -391,7 +432,7 @@ export default {
     showGraphSwitch() {
       return (
         this.editForm.knowledgebases &&
-        this.editForm.knowledgebases.some(item => item.graphSwitch === 1)
+        this.editForm.knowledgebases.some((item) => item.graphSwitch === 1)
       );
     },
   },
@@ -424,7 +465,9 @@ export default {
           metaData["metaDataFilterParams"]["metaFilterParams"]
         )
       ) {
-        this.$message.warning(this.$t("knowledgeManage.meta.metaInfoIncomplete"));
+        this.$message.warning(
+          this.$t("knowledgeManage.meta.metaInfoIncomplete")
+        );
         return;
       }
       this.$set(this.editForm.knowledgebases, this.knowledgeIndex, {
@@ -440,8 +483,10 @@ export default {
       this.metaSetVisible = false;
     },
     getKnowledgeData(data) {
-      const originalIds = new Set(this.editForm.knowledgebases.map(item => item.id));
-      const newItems = data.filter(item => !originalIds.has(item.id));
+      const originalIds = new Set(
+        this.editForm.knowledgebases.map((item) => item.id)
+      );
+      const newItems = data.filter((item) => !originalIds.has(item.id));
       this.editForm.knowledgebases.push(...newItems);
     },
     showMetaSet(e, index) {
@@ -476,7 +521,7 @@ export default {
       //获取详情
       this.isSettingFromDetail = true; // 设置标志位，防止触发更新逻辑
       getRagInfo({ ragId: this.editForm.appId })
-        .then(res => {
+        .then((res) => {
           if (res.code === 0) {
             this.editForm.avatar = res.data.avatar;
             this.editForm.name = res.data.name;
@@ -494,8 +539,10 @@ export default {
               this.editForm.knowledgebases = knowledgeData;
             }
             if (res.data.knowledgeBaseConfig.config !== null) {
-              this.editForm.knowledgeConfig = res.data.knowledgeBaseConfig.config;
-              const { matchType, priorityMatch } = res.data.knowledgeBaseConfig.config;
+              this.editForm.knowledgeConfig =
+                res.data.knowledgeBaseConfig.config;
+              const { matchType, priorityMatch } =
+                res.data.knowledgeBaseConfig.config;
               if (matchType === "") {
                 this.editForm.knowledgeConfig = {
                   ...this.editForm.knowledgeConfig,
@@ -505,7 +552,8 @@ export default {
               }
             }
 
-            this.editForm.knowledgeConfig.rerankModelId = res.data.rerankConfig.modelId;
+            this.editForm.knowledgeConfig.rerankModelId =
+              res.data.rerankConfig.modelId;
             this.$nextTick(() => {
               this.isSettingFromDetail = false;
             });
@@ -518,7 +566,7 @@ export default {
         });
     },
     getRerankData() {
-      getRerankList().then(res => {
+      getRerankList().then((res) => {
         if (res.code === 0) {
           this.rerankOptions = res.data.list || [];
         }
@@ -528,7 +576,8 @@ export default {
       this.showOperation = !this.showOperation;
     },
     savePublish() {
-      const { matchType, priorityMatch, rerankModelId } = this.editForm.knowledgeConfig;
+      const { matchType, priorityMatch, rerankModelId } =
+        this.editForm.knowledgeConfig;
       const isMixPriorityMatch = matchType === "mix" && priorityMatch;
       if (this.editForm.modelParams === "") {
         this.$message.warning(this.$t("agent.form.selectModel"));
@@ -547,7 +596,7 @@ export default {
         appType: "rag",
         publishType: this.scope,
       };
-      appPublish(data).then(res => {
+      appPublish(data).then((res) => {
         if (res.code === 0) {
           this.$router.push({ path: "/explore" });
         }
@@ -555,7 +604,7 @@ export default {
     },
     apiKeyRootUrl() {
       const data = { appId: this.editForm.appId, appType: "rag" };
-      getApiKeyRoot(data).then(res => {
+      getApiKeyRoot(data).then((res) => {
         if (res.code === 0) {
           this.apiURL = res.data || "";
         }
@@ -593,7 +642,7 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modleOptions = (res.data.list || []).filter(item => {
+        this.modleOptions = (res.data.list || []).filter((item) => {
           return item.config && item.config.visionSupport !== "support";
         });
 
@@ -607,7 +656,9 @@ export default {
       this.isUpdating = true;
       try {
         //模型数据
-        const modeInfo = this.modleOptions.find(item => item.modelId === this.editForm.modelParams);
+        const modeInfo = this.modleOptions.find(
+          (item) => item.modelId === this.editForm.modelParams
+        );
         if (
           this.editForm.knowledgeConfig.matchType === "mix" &&
           this.editForm.knowledgeConfig.priorityMatch === 1
@@ -615,7 +666,7 @@ export default {
           this.editForm.knowledgeConfig.rerankModelId = "";
         }
         const rerankInfo = this.rerankOptions.find(
-          item => item.modelId === this.editForm.knowledgeConfig.rerankModelId
+          (item) => item.modelId === this.editForm.knowledgeConfig.rerankModelId
         );
         let fromParams = {
           ragId: this.editForm.appId,

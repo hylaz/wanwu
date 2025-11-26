@@ -106,9 +106,9 @@ export default {
       this.loading = true;
       const data = {
         knowledgeId: this.knowledgeId,
-        docInfoList: {
+        docInfoList: [{
           docUrl: this.uploadedFileId,
-        },
+        }],
       };
 
       qaDocImport(data)

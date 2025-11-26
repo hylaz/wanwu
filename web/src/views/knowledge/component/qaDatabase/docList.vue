@@ -45,30 +45,13 @@
                   icon="el-icon-refresh"
                   @click="reload"
                 >
-                  {{ $t("common.gpuDialog.reload") }}
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="exportData"
-                  icon="el-icon-download"
-                >
-                  {{ $t("knowledgeManage.qaDatabase.exportData") }}
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="exportRecord"
-                  icon="el-icon-download"
-                >
-                  {{ $t("knowledgeManage.qaDatabase.exportRecord") }}
                 </el-button>
                 <el-button
                   size="mini"
                   type="primary"
                   @click="
                     $router.push(
-                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}`
+                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&type=qa`
                     )
                   "
                 >
@@ -78,38 +61,35 @@
                   size="mini"
                   type="primary"
                   @click="showMeta"
-                  v-if="[10, 20, 30].includes(permissionType)"
+                  v-if="hasManagePerm"
                 >
                   {{ $t("knowledgeManage.docList.metaDataManagement") }}
                 </el-button>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  :underline="false"
-                  @click="handleCreateQaPair"
-                  v-if="[10, 20, 30].includes(permissionType)"
-                >
-                  {{ $t("knowledgeManage.qaDatabase.createQaPair") }}
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  :underline="false"
-                  @click="handleUpload"
-                  v-if="[10, 20, 30].includes(permissionType)"
-                >
-                  {{ $t("knowledgeManage.fileUpload") }}
-                </el-button>
+                <template v-if="hasManagePerm">
+                  <el-dropdown
+                    v-for="(group,index) in dropdownGroups"
+                    :key="group.label"
+                    @command="handleCommand"
+                    :style="{ margin: index === 0 ? '0 10px' : '' }"
+                  >
+                    <el-button size="mini" type="primary">
+                      {{ group.label }}
+                      <i :class="['el-icon--right', group.icon]"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item
+                        v-for="item in group.items"
+                        :key="item.command"
+                        :command="item.command"
+                      >
+                        {{ item.label }}
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </template>
               </div>
             </el-header>
             <el-main class="noPadding" v-loading="tableLoading">
-              <el-alert
-                :title="title_tips"
-                type="warning"
-                show-icon
-                style="margin-bottom: 10px"
-                v-if="showTips"
-              ></el-alert>
               <el-table
                 ref="dataTable"
                 :data="tableData"
@@ -121,7 +101,7 @@
                 <el-table-column
                   type="selection"
                   reserve-selection
-                  v-if="[10, 20, 30].includes(permissionType)"
+                  v-if="hasManagePerm"
                   width="55"
                 >
                 </el-table-column>
@@ -241,7 +221,7 @@
                         scope.row.status &&
                         [0, 1, 3].includes(Number(scope.row.status))
                       "
-                      v-if="[10, 20, 30].includes(permissionType)"
+                      v-if="hasManagePerm"
                       :type="
                         scope.row &&
                         scope.row.status &&
@@ -336,7 +316,7 @@ import BatchMetatButton from "../meta/batchMetatButton.vue";
 import createQa from "./createQa.vue";
 import fileUpload from "./fileUpload.vue";
 import exportRecord from "./exportRecord.vue";
-import { uploadFileTips, updateDocMeta } from "@/api/knowledge";
+import { updateDocMeta } from "@/api/knowledge";
 import {
   getQaPairList,
   delQaPair,
@@ -344,7 +324,7 @@ import {
   qaDocExport,
 } from "@/api/qaDatabase";
 import { mapGetters } from "vuex";
-import { COMMUNITY_IMPORT_STATUS } from "../../config";
+import { COMMUNITY_IMPORT_STATUS, DROPDOWN_GROUPS } from "../../config";
 export default {
   components: {
     Pagination,
@@ -369,8 +349,6 @@ export default {
       },
       fileList: [],
       listApi: getQaPairList,
-      title_tips: "",
-      showTips: false,
       tableData: [],
       knowLegOptions: this.getKnowOptions(),
       knowledgeData: [],
@@ -384,6 +362,7 @@ export default {
       selectedTableData: [],
       selectedDocIds: [],
       qaImportStatus: COMMUNITY_IMPORT_STATUS,
+      dropdownGroups: DROPDOWN_GROUPS,
     };
   },
   watch: {
@@ -410,6 +389,9 @@ export default {
   },
   computed: {
     ...mapGetters("app", ["permissionType"]),
+    hasManagePerm() {
+      return [10, 20, 30].includes(this.permissionType);
+    }
   },
   mounted() {
     this.getTableData(this.docQuery);
@@ -435,6 +417,15 @@ export default {
     this.clearTimer();
   },
   methods: {
+    handleCommand(command) {
+      const actions = {
+        exportData: this.exportData,
+        exportRecord: this.exportRecord,
+        createQaPair: this.handleCreateQaPair,
+        fileUpload: this.handleUpload,
+      };
+      (actions[command] || this.handleUpload)();
+    },
     exportRecord() {
       this.$refs.exportRecord.showDialog();
     },
@@ -484,7 +475,7 @@ export default {
       this.$refs.createQa.showDialog();
     },
     handleEditMetaData(row) {
-      this.$refs.batchMetaData.showDialog();
+      this.$refs.batchMetaData.showDialog(row);
       this.batchMetaType = "single";
       this.selectedTableData = [row];
       this.selectedDocIds = [row.qaPairId];
@@ -675,23 +666,6 @@ export default {
       this.tableLoading = true;
       this.tableData = await this.$refs["pagination"].getTableData(data);
       this.tableLoading = false;
-      this.getTips();
-    },
-    getTips() {
-      uploadFileTips({ knowledgeId: this.docQuery.knowledgeId }).then((res) => {
-        if (res.code === 0) {
-          if (res.data.uploadstatus === 1) {
-            this.showTips = true;
-            this.title_tips = this.$t("knowledgeManage.refreshTips");
-          } else if (res.data.uploadstatus === 2) {
-            this.showTips = false;
-            this.title_tips = "";
-          } else {
-            this.showTips = true;
-            this.title_tips = res.data.msg;
-          }
-        }
-      });
     },
     changeOption(data) {
       //通过文档状态查找

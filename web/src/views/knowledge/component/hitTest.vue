@@ -58,15 +58,11 @@
                   </span>
                   <span
                     v-if="
-                      ['graph', 'community_report'].includes(item.contentType)
+                      ['graph', 'community_report','qa'].includes(item.contentType)
                     "
                     class="segment-type"
                   >
-                    {{
-                      item.contentType === "graph"
-                        ? "#" + $t("knowledgeManage.graphTag")
-                        : "#" + $t("knowledgeManage.communityReportTag")
-                    }}
+                    {{ getTitle(item.contentType)}}
                   </span>
                   <span v-else>
                     <span class="segment-type">
@@ -170,6 +166,7 @@
 </template>
 <script>
 import { hitTest } from "@/api/knowledge";
+import { qaHitTest } from "@/api/qaDatabase";
 import { md } from "@/mixins/marksown-it";
 import { formatScore } from "@/utils/util";
 import searchConfig from "@/components/searchConfig.vue";
@@ -178,6 +175,12 @@ import metaSet from "@/components/metaSet";
 import sectionShow from "./sectionShow.vue";
 export default {
   components: { LinkIcon, searchConfig, metaSet, sectionShow },
+  props: {
+    type: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       md: md,
@@ -197,6 +200,14 @@ export default {
     formatScore,
     goBack() {
       this.$router.go(-1);
+    },
+    getTitle(contentType) {
+      const map = {
+        qa: "knowledgeManage.qaDatabase.name",
+        graph: "knowledgeManage.graphTag",
+        community_report: "knowledgeManage.communityReportTag",
+      };
+      return "#" + this.$t(map[contentType]);
     },
     sendConfigInfo(data) {
       this.formInline = data;
@@ -251,6 +262,30 @@ export default {
       this.resultLoading = true;
       this.searchList = [];
       this.score = [];
+      if (this.type === "qa") {
+        this.qaHitTest(data);
+      } else {
+        this.knowledgeHitTest(data);
+      }
+    },
+    qaHitTest(data){
+      qaHitTest(data)
+        .then((res) => {
+          if (res.code === 0) {
+            this.searchList = res.data !== null ? res.data.searchList : [];
+            this.score = res.data !== null ? res.data.score : [];
+            this.resultLoading = false;
+          }else{
+            this.searchList = [];
+            this.resultLoading = false;
+          }
+        })
+        .catch(() => {
+          this.searchList = [];
+          this.resultLoading = false;
+        });
+    },
+    knowledgeHitTest(data) {
       hitTest(data)
         .then((res) => {
           if (res.code === 0) {
@@ -272,9 +307,8 @@ export default {
         })
         .catch(() => {
           this.resultLoading = false;
-        });
+      });
     },
-
     // 显示分段详情弹框
     showSectionDetail(index) {
       const currentItem = this.searchList[index];

@@ -174,10 +174,9 @@ export default {
       window.open(url, "_blank", "noopener,noreferrer");
     },
     handleDelete(row) {
-      const qaExportRecordId = row.qaExportRecordId;
-      if (!recordId) {
-        this.$message.error(this.$t("common.noData"));
-        return;
+      const data = {
+        qaExportRecordId:row.qaExportRecordId,
+        knowledgeId: this.knowledgeId,
       }
       this.$confirm(
         this.$t("knowledgeManage.deleteTips"),
@@ -190,7 +189,7 @@ export default {
       )
         .then(() => {
           this.tableLoading = true;
-          delQaRecord({ qaExportRecordId })
+          delQaRecord(data)
             .then((res) => {
               if (res.code === 0) {
                 this.$message.success(this.$t("common.info.delete"));
@@ -222,6 +221,9 @@ export default {
   /deep/ .el-dialog__footer {
     padding: 10px 20px 20px;
     border-top: 1px solid #f0f0f0;
+  }
+  /deep/ .el-button.is-disabled{
+    background: transparent;
   }
 }
 

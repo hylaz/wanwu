@@ -113,3 +113,22 @@ export const COMMUNITY_IMPORT_STATUS = {
   2: i18n.t("knowledgeManage.communityReport.taskFinished"),
   3: i18n.t("knowledgeManage.communityReport.taskFailed"),
 };
+
+export const DROPDOWN_GROUPS = [
+  {
+    label: i18n.t("common.button.export"),
+    icon: "el-icon-arrow-down",
+    items: [
+      { command: "exportData", label: i18n.t("knowledgeManage.qaDatabase.exportData") },
+      { command: "exportRecord", label: i18n.t("knowledgeManage.qaDatabase.exportRecord") },
+    ],
+  },
+  {
+    label: i18n.t("common.button.add"),
+    icon: "el-icon-arrow-down",
+    items: [
+      { command: "createQaPair", label: i18n.t("knowledgeManage.qaDatabase.createQaPair") },
+      { command: "fileUpload", label: i18n.t("knowledgeManage.fileUpload") },
+    ]
+  }
+]

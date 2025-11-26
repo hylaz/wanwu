@@ -23,7 +23,7 @@
 export default {
   name: "ChiChat",
   props: {
-    isEnabled: {
+    chiChatSwitch: {
       type: Boolean,
       default: false,
     },
@@ -34,7 +34,7 @@ export default {
     };
   },
   watch: {
-    isEnabled: {
+    chiChatSwitch: {
       handler(newVal) {
         this.isEnabled = newVal;
       },
@@ -93,4 +93,3 @@ export default {
   }
 }
 </style>
-

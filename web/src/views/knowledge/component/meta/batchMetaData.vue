@@ -184,25 +184,28 @@ export default {
       })
         .then((res) => {
           if (res.code === 0) {
-            this.metaDataList = (res.data.knowledgeMetaValues || []).map(
-              (item) => ({
-                ...item,
-                metaValue:
-                  item.metaValue.length > 1
-                    ? item.metaValue
-                    : item.metaValueType === "time"
-                    ? Number(item.metaValue[0])
-                    : item.metaValue[0],
-                option: "existing",
-                originalMetaValue: item.metaValue,
-              })
-            );
+            this.handleMataData(res.data.knowledgeMetaValues || [])
             this.docLoading = false;
           }
         })
         .catch(() => {
           this.docLoading = false;
         });
+    },
+    handleMataData(data){
+      this.metaDataList = data.map(
+        (item) => ({
+          ...item,
+          metaValue:
+            item.metaValue.length > 1
+              ? item.metaValue
+              : item.metaValueType === "time"
+              ? Number(item.metaValue[0])
+              : item.metaValue[0],
+          option: "existing",
+          originalMetaValue: item.metaValue,
+        })
+      );
     },
     getList() {
       const knowledgeId = this.$route.params.id;
@@ -214,13 +217,16 @@ export default {
         })
         .catch(() => {});
     },
-    showDialog() {
+    showDialog(row=null) {
       this.dialogVisible = true;
       this.applyToSelected = false;
       this.getList();
-      this.getMetaList();
+      if (row) {
+        this.handleMataData(row.metaDataList);
+      } else {
+        this.getMetaList();
+      }
     },
-
     handleClose() {
       this.dialogVisible = false;
       this.$emit("reLoadDocList");
