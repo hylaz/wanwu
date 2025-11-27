@@ -42,6 +42,21 @@ func WithKnowledgeID(id string) SQLOption {
 	})
 }
 
+func WithQAPairID(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("qa_pair_id = ?", id)
+	})
+}
+
+func WithQuestionMd5(questionMd5 string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(questionMd5) > 0 {
+			return db.Where("question_md5 = ?", questionMd5)
+		}
+		return db
+	})
+}
+
 func WithOverKnowledgePermission(id int) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("permission_type >= ?", id)
@@ -72,6 +87,12 @@ func WithKnowledgeIDList(idList []string) SQLOption {
 	})
 }
 
+func WithCategory(category int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("category = ?", category)
+	})
+}
+
 func WithTagID(id string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tag_id = ?", id)
@@ -90,6 +111,12 @@ func WithImportID(id string) SQLOption {
 	})
 }
 
+func WithExportID(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("export_id = ?", id)
+	})
+}
+
 func WithImportIDs(idList []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("import_id in ?", idList)
@@ -99,6 +126,12 @@ func WithImportIDs(idList []string) SQLOption {
 func WithDocIDs(ids []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("doc_id in ?", ids)
+	})
+}
+
+func WithQAPairIDs(ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("qa_pair_id in ?", ids)
 	})
 }
 
@@ -171,6 +204,15 @@ func WithStatusList(status []int) SQLOption {
 			return db.Where("status = ?", status[0])
 		}
 		return db.Where("status IN ?", status)
+	})
+}
+
+func WithStatus(status int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if status == -1 {
+			return db
+		}
+		return db.Where("status = ?", status)
 	})
 }
 

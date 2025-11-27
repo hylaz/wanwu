@@ -90,10 +90,11 @@ func uploadFile(ctx context.Context, extractDir string) (docList []*model.DocInf
 	}
 	//解压后文件大小限制
 	dir := config.GetConfig().Minio.KnowledgeDir
+	bucketName := config.GetConfig().Minio.Bucket
 	//循环遍历所有文件,上传minio
 	for _, fileInfo := range fileList {
 		//上传文档
-		_, minioFilePath, _, err := service.UploadLocalFile(ctx, dir, util.BuildFilePath("", fileInfo.DocInfo.DocType), fileInfo.DocLocalPath)
+		_, minioFilePath, _, err := service.UploadLocalFile(ctx, dir, bucketName, util.BuildFilePath("", fileInfo.DocInfo.DocType), fileInfo.DocLocalPath)
 		if err != nil {
 			log.Errorf("upload file err: %v", err)
 			continue

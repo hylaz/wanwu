@@ -90,4 +90,16 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	// 知识图谱详情
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/graph", http.MethodGet, v1.GetKnowledgeGraph, "获取知识图谱详情", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
 
+	// 问答库
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair", http.MethodPost, v1.GreateKnowledgeQAPair, "新增问答对", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair", http.MethodPut, v1.UpdateKnowledgeQAPair, "编辑问答对", middleware.AuthKnowledgeQAPair("qaPairId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair", http.MethodDelete, v1.DeleteKnowledgeQAPair, "删除问答对", middleware.AuthKnowledgeQAPair("qaPairId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair/switch", http.MethodPut, v1.UpdateKnowledgeQAPairSwitch, "启停问答对", middleware.AuthKnowledgeQAPair("qaPairId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair/list", http.MethodGet, v1.GetKnowledgeQAPairList, "获取问答对列表", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/pair/import", http.MethodPost, v1.ImportKnowledgeQAPair, "问答库文档导入", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/export", http.MethodGet, v1.ExportKnowledgeQAPair, "问答库文档导出", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/export/record/list", http.MethodGet, v1.GetKnowledgeQAExportRecordList, "获取问答库导出记录列表", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/export/record", http.MethodDelete, v1.DeleteKnowledgeQAExportRecord, "删除问答库导出记录", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/qa/hit", http.MethodPost, v1.KnowledgeQAHit, "问答库命中测试")
 }

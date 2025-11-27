@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -121,7 +120,7 @@ func (s *Service) UpdateDocMetaData(ctx context.Context, req *knowledgebase_doc_
 	if len(req.DocId) > 0 {
 		return updateDocMetaData(ctx, req)
 	}
-	// 更新知识库元数据
+	// 更新知识库元数据key（元数据管理部分）
 	if len(req.KnowledgeId) > 0 {
 		return updateKnowledgeMetaData(ctx, req)
 	}
@@ -169,12 +168,7 @@ func updateKnowledgeMetaData(ctx context.Context, req *knowledgebase_doc_service
 	updateStatus := MetaStatusFailed
 	// 5.执行批量删除
 	if len(deleteList) > 0 {
-		err = orm.BatchDeleteMeta(ctx, deleteList, req.KnowledgeId, &service.RagBatchDeleteMetaParams{
-			UserId:        knowledge.UserId,
-			KnowledgeBase: knowledge.Name,
-			KnowledgeId:   req.KnowledgeId,
-			Keys:          deleteList,
-		})
+		err = orm.BatchDeleteMeta(ctx, deleteList, knowledge)
 		if err != nil {
 			log.Errorf("删除元数据失败 错误(%v) 删除参数(%v)", err, req)
 			return nil, util.ErrCode(errs.Code_KnowledgeMetaDeleteFailed)
@@ -183,12 +177,7 @@ func updateKnowledgeMetaData(ctx context.Context, req *knowledgebase_doc_service
 	}
 	// 6.执行批量更新
 	if len(updateList) > 0 {
-		err = orm.BatchUpdateMetaKey(ctx, updateList, req.KnowledgeId, &service.RagBatchUpdateMetaKeyParams{
-			UserId:        knowledge.UserId,
-			KnowledgeBase: knowledge.Name,
-			KnowledgeId:   req.KnowledgeId,
-			Mappings:      updateList,
-		})
+		err = orm.BatchUpdateMetaKey(ctx, updateList, knowledge)
 		if err != nil {
 			log.Errorf("更新元数据失败 错误(%v) 更新参数(%v)", err, req)
 			if updateStatus == MetaStatusPartial {
@@ -211,7 +200,11 @@ func updateKnowledgeMetaData(ctx context.Context, req *knowledgebase_doc_service
 			return nil, util.ErrCode(errs.Code_KnowledgeMetaCreateFailed)
 		}
 	}
-
+	// 8.更新知识库update_at
+	err = orm.SyncUpdateKnowledgeBase(ctx, knowledge.KnowledgeId)
+	if err != nil {
+		return nil, err
+	}
 	return &emptypb.Empty{}, nil
 }
 
@@ -223,6 +216,60 @@ func buildImportTaskIdList(docList []*model.KnowledgeDoc) []string {
 
 // updateDocMetaData 更新文档元数据
 func updateDocMetaData(ctx context.Context, req *knowledgebase_doc_service.UpdateDocMetaDataReq) (*emptypb.Empty, error) {
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
+		return nil, err
+	}
+	switch knowledge.Category {
+	case model.CategoryQA:
+		return updateKnowledgeQAPairMeta(ctx, req)
+	default:
+		return updateKnowledgeDocMeta(ctx, req)
+	}
+}
+
+func updateKnowledgeQAPairMeta(ctx context.Context, req *knowledgebase_doc_service.UpdateDocMetaDataReq) (*emptypb.Empty, error) {
+	//1.查询问答对详情
+	qaPairList, err := orm.SelectQAPairByQAPairIdList(ctx, []string{req.DocId}, "", "")
+	if err != nil {
+		log.Errorf("没有操作该问答库文档的权限 参数(%v)", req)
+		return nil, err
+	}
+	qaPair := qaPairList[0]
+	//2.状态校验
+	if qaPair.Status != model.QAPairSuccess {
+		log.Errorf("非处理完成文档无法增加元数据 状态(%d) 错误(%v) 参数(%v)", qaPair.Status, err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaStatusFailed)
+	}
+	//3.查询问答库信息
+	knowledge, err := orm.SelectKnowledgeById(ctx, qaPair.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("没有操作该问答库的权限 参数(%v)", req)
+		return nil, err
+	}
+	//4.查询元数据
+	metaDocList, err := orm.SelectMetaByKnowledgeId(ctx, "", "", knowledge.KnowledgeId)
+	if err != nil {
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaStatusFailed)
+	}
+	docMetaMap := buildMetaDocMap(metaDocList)
+	//5.构造元数据操作列表
+	metaDataList := removeDuplicateMeta(req.MetaDataList)
+	addList, updateList, deleteList := buildDocMetaModelList(metaDataList, "", "", req.KnowledgeId, req.DocId)
+	if err1 := checkMetaKeyType(addList, updateList, docMetaMap); err1 != nil {
+		return nil, err1
+	}
+	//6.更新数据库并发送RAG请求
+	err = orm.BatchUpdateQAMetaValue(ctx, addList, updateList, deleteList, knowledge, knowledge.UserId, []string{req.DocId})
+	if err != nil {
+		log.Errorf("docId %v update qaPair meta fail %v", req.DocId, err)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaFailed)
+	}
+	return &emptypb.Empty{}, err
+}
+
+func updateKnowledgeDocMeta(ctx context.Context, req *knowledgebase_doc_service.UpdateDocMetaDataReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
 	docList, err := orm.SelectDocByDocIdList(ctx, []string{req.DocId}, "", "")
 	if err != nil {
@@ -249,27 +296,14 @@ func updateDocMetaData(ctx context.Context, req *knowledgebase_doc_service.Updat
 	docMetaMap := buildMetaDocMap(metaDocList)
 	//5.构造元数据操作列表
 	metaDataList := removeDuplicateMeta(req.MetaDataList)
-	var fileName = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
 	addList, updateList, deleteList := buildDocMetaModelList(metaDataList, "", "", req.KnowledgeId, req.DocId)
 	if err1 := checkMetaKeyType(addList, updateList, docMetaMap); err1 != nil {
 		return nil, err1
 	}
-	//6.构造RAG请求参数
-	params, err := buildMetaRagParams(fileName, metaDataList)
+	//6.更新数据库并发送RAG请求
+	err = orm.BatchUpdateDocMetaValue(ctx, addList, updateList, deleteList, knowledge, docList, knowledge.UserId, []string{req.DocId})
 	if err != nil {
-		log.Errorf("docId %v update buildMetaRagParams fail %v", req.DocId, err)
-		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaFailed)
-	}
-	//7.更新数据库并发送RAG请求
-	err = orm.UpdateDocStatusDocMeta(ctx, addList, updateList, deleteList,
-		&service.BatchRagDocMetaParams{
-			KnowledgeBase: knowledge.RagName,
-			UserId:        knowledge.UserId,
-			KnowledgeId:   knowledge.KnowledgeId,
-			MetaList:      params,
-		})
-	if err != nil {
-		log.Errorf("docId %v update doc tag fail %v", req.DocId, err)
+		log.Errorf("docId %v update doc meta fail %v", req.DocId, err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaFailed)
 	}
 	return &emptypb.Empty{}, nil
@@ -517,102 +551,6 @@ func (s *Service) AnalysisDocUrl(ctx context.Context, req *knowledgebase_doc_ser
 	return &knowledgebase_doc_service.AnalysisUrlDocResp{UrlList: retUrlList}, nil
 }
 
-// BatchUpdateDocMetaData 批量更新文档元数据
-func (s *Service) BatchUpdateDocMetaData(ctx context.Context, req *knowledgebase_doc_service.BatchUpdateDocMetaDataReq) (*emptypb.Empty, error) {
-	//1.查询知识库信息
-	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
-	if err != nil {
-		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
-		return nil, err
-	}
-	//2.查询知识库下所有文档
-	docList, err := orm.GetDocListByKnowledgeId(ctx, "", "", req.KnowledgeId)
-	if err != nil {
-		log.Errorf("没有查询到文档列表 错误(%v) 参数(%v)", err, req)
-		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentCreateFailed)
-	}
-	if len(docList) == 0 {
-		return &emptypb.Empty{}, nil
-	}
-	//3.查询已经设置key的文档
-	metaList, err := orm.SelectMetaByKnowledgeId(ctx, "", "", req.KnowledgeId)
-	if err != nil {
-		log.Errorf("没有查询到文档列表 错误(%v) 参数(%v)", err, req)
-		return nil, util.ErrCode(errs.Code_KnowledgeDocSegmentCreateFailed)
-	}
-	//4.更新数据map
-	var keyValueMap = make(map[string]string)
-	for _, item := range req.MetaDataList {
-		keyValueMap[item.Key] = item.Value
-	}
-	addList, updateList := buildUpdateMetaDataParams(knowledge.KnowledgeId, req.OrgId, req.UserId, docList, metaList, keyValueMap)
-	//5.文档Id与名称map
-	docNameMap := make(map[string]string)
-	for _, doc := range docList {
-		docNameMap[doc.DocId] = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
-	}
-	//6.批量更新
-	err = orm.UpdateBatchStatusDocMeta(ctx, req.KnowledgeId, docNameMap, addList, updateList, &service.BatchRagDocMetaParams{
-		KnowledgeId:   knowledge.KnowledgeId,
-		KnowledgeBase: knowledge.RagName,
-		UserId:        knowledge.UserId,
-	})
-	if err != nil {
-		log.Errorf("update doc tag fail %v", err)
-		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaFailed)
-	}
-	return &emptypb.Empty{}, nil
-}
-
-func buildUpdateMetaDataParams(knowledgeId, orgId, userId string, docList []*model.KnowledgeDoc, metaList []*model.KnowledgeDocMeta, updateMap map[string]string) (addList []*model.KnowledgeDocMeta,
-	updateList []*model.KnowledgeDocMeta) {
-	existMetaMap := make(map[string]map[string]*model.KnowledgeDocMeta)
-	keyTypeMap := make(map[string]string)
-	if len(metaList) > 0 {
-		for _, meta := range metaList {
-			if _, exists := existMetaMap[meta.DocId]; !exists {
-				existMetaMap[meta.DocId] = make(map[string]*model.KnowledgeDocMeta)
-			}
-			if len(updateMap[meta.Key]) > 0 {
-				existMetaMap[meta.DocId][meta.Key] = meta
-				keyTypeMap[meta.Key] = meta.ValueType
-			}
-		}
-	}
-	for _, doc := range docList {
-		dataMap := existMetaMap[doc.DocId]
-		if len(dataMap) > 0 {
-			for metaKey, metaInfo := range dataMap {
-				updateList = append(updateList, &model.KnowledgeDocMeta{
-					MetaId:    metaInfo.MetaId,
-					DocId:     doc.DocId,
-					Key:       metaKey,
-					Value:     updateMap[metaKey],
-					ValueType: metaInfo.ValueType,
-				})
-			}
-		} else {
-			for key, value := range updateMap {
-				addList = append(addList, &model.KnowledgeDocMeta{
-					KnowledgeId: knowledgeId,
-					MetaId:      generator.GetGenerator().NewID(),
-					DocId:       doc.DocId,
-					Key:         key,
-					Value:       value,
-					ValueType:   keyTypeMap[key],
-					Rule:        "",
-					OrgId:       orgId,
-					UserId:      userId,
-					CreatedAt:   time.Now().UnixMilli(),
-					UpdatedAt:   time.Now().UnixMilli(),
-				})
-			}
-
-		}
-	}
-
-	return
-}
 func checkDocStatus(docList []*model.KnowledgeDoc) ([]uint32, []*model.KnowledgeDoc, error) {
 	var docIdList []uint32
 	var docResultList []*model.KnowledgeDoc
@@ -942,43 +880,6 @@ func buildDocMetaModelList(metaDataList []*knowledgebase_doc_service.MetaData, o
 		}
 	}
 	return
-}
-
-func buildMetaRagParams(fileName string, metaDataList []*knowledgebase_doc_service.MetaData) ([]*service.DocMetaInfo, error) {
-	if len(metaDataList) == 0 {
-		return make([]*service.DocMetaInfo, 0), nil
-	}
-	var retList = make([]*service.DocMetaInfo, 0)
-	metaList := make([]*service.MetaData, 0)
-	for _, data := range metaDataList {
-		if data.Option == "delete" {
-			continue
-		}
-		valueData, err := buildValueData(data.ValueType, data.Value)
-		if err != nil {
-			log.Errorf("buildValueData error %s", err.Error())
-			return nil, err
-		}
-		metaList = append(metaList, &service.MetaData{
-			Key:       data.Key,
-			Value:     valueData,
-			ValueType: data.ValueType,
-		})
-	}
-	retList = append(retList, &service.DocMetaInfo{
-		FileName:     fileName,
-		MetaDataList: metaList,
-	})
-	return retList, nil
-}
-
-func buildValueData(valueType string, value string) (interface{}, error) {
-	switch valueType {
-	case model.MetaTypeNumber:
-	case model.MetaTypeTime:
-		return strconv.ParseInt(value, 10, 64)
-	}
-	return value, nil
 }
 
 func buildSplitter(splitterList []string) string {

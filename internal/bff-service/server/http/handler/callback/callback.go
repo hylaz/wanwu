@@ -162,6 +162,25 @@ func KnowledgeStreamSearch(ctx *gin.Context) {
 	}
 }
 
+// SearchQABase
+//
+//	@Tags			callback
+//	@Summary		查询问答列表（命中测试）
+//	@Description	查询问答列表（命中测试）
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.RagSearchQABaseReq	true	"查询知识库列表请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/rag/search-qa-base [post]
+func SearchQABase(ctx *gin.Context) {
+	var req request.RagSearchQABaseReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, httpStatus := service.RagSearchQABase(ctx, &req)
+	gin_util.ResponseRawByte(ctx, httpStatus, resp)
+}
+
 // AudioBase64ConvertText
 //
 //	@Tags		callback

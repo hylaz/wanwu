@@ -107,6 +107,20 @@ enum Code {
   KnowledgeDeleteReportFailed = 147003; // 删除社区报告失败，请稍后重试
   KnowledgeUpdateReportFailed = 147004; // 更新社区报告失败，请稍后重试
   KnowledgeGenerateReportFailed = 147005; // 生成社区报告失败，请稍后重试
+  KnowledgeQABaseSelectFailed = 148001; //获取问答库失败，请稍后重试
+  KnowledgeQAPairImportFailed = 148002; //问答库文档导入失败，请稍后重试
+  KnowledgeCreateQAPairFailed = 148003; //新增问答对失败，请稍后重试
+  KnowledgeDuplicateQAPirQuestion= 148004; //问答对问题校验失败，请稍后重试
+  KnowledgeUpdateQAPairFailed = 148005; //更新问答对失败，请稍后重试
+  KnowledgeQAPairSelectFailed = 148006; //获取问答对失败，请稍后重试
+  KnowledgeUpdateQAPairSwitchFailed = 148007; //启停问答对失败，请稍后重试
+  KnowledgeDeleteQAPairFailed = 148008; //删除问答对失败，请稍后重试
+  KnowledgeQAPairsSelectFailed = 148009; //获取问答库问答对列表失败，请稍后重试
+  KnowledgeQAPairExportFailed = 148010; //问答库文档导入失败，请稍后重试
+  KnowledgeQAExportRecordsSelectFailed = 148011; //获取问答库导出记录列表失败，请稍后重试
+  KnowledgeDeleteExportRecordFailed = 148012; //删除导出记录失败，请稍后重试
+
+
 
   // --- rag-service ---
   // [150000, 159999]

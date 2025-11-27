@@ -185,7 +185,7 @@ workflow-template:
 
 prompt-template:
   configPath: configs/microservice/bff-service/configs/prompt_template_config.yaml
-  
+
 # --- middleware ---
 
 minio:
@@ -241,6 +241,7 @@ rag-knowledge:
   chat-endpoint: 'http://rag-wanwu:10891'
   search-knowledge-base-uri: '/rag/search-knowledge-base'
   knowledge-chat-uri: '/rag/knowledge/stream/search'
+  search-qa-base-uri: '/rag/search-QA-base'
 
 workflow:
   endpoint: http://workflow-wanwu:8999

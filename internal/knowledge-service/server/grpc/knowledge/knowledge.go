@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
@@ -33,7 +34,7 @@ const (
 )
 
 func (s *Service) SelectKnowledgeList(ctx context.Context, req *knowledgebase_service.KnowledgeSelectReq) (*knowledgebase_service.KnowledgeSelectListResp, error) {
-	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, req.TagIdList)
+	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, int(req.Category), req.TagIdList)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, req))
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
@@ -88,17 +89,17 @@ func (s *Service) SelectKnowledgeDetailByIdList(ctx context.Context, req *knowle
 
 func (s *Service) CreateKnowledge(ctx context.Context, req *knowledgebase_service.CreateKnowledgeReq) (*knowledgebase_service.CreateKnowledgeResp, error) {
 	//1.重名校验
-	err := orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, "")
+	err := orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, "", int(req.Category))
 	if err != nil {
 		return nil, err
 	}
-	//2.创建创建知识库
+	//2.创建知识库
 	knowledgeModel, err := buildKnowledgeBaseModel(req)
 	if err != nil {
 		log.Errorf("buildKnowledgeBaseModel error %s", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseCreateFailed)
 	}
-	err = orm.CreateKnowledge(ctx, knowledgeModel, req.EmbeddingModelInfo.ModelId)
+	err = orm.CreateKnowledge(ctx, knowledgeModel, req.EmbeddingModelInfo.ModelId, int(req.Category))
 	if err != nil {
 		log.Errorf("CreateKnowledge error %v params %v", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseCreateFailed)
@@ -119,7 +120,7 @@ func (s *Service) UpdateKnowledge(ctx context.Context, req *knowledgebase_servic
 		return nil, err
 	}
 	//2.重名校验
-	err = orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, knowledge.KnowledgeId)
+	err = orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, knowledge.KnowledgeId, knowledge.Category)
 	if err != nil {
 		return nil, err
 	}
@@ -205,6 +206,57 @@ func (s *Service) GetKnowledgeMetaValueList(ctx context.Context, req *knowledgeb
 }
 
 func (s *Service) UpdateKnowledgeMetaValue(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error) {
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
+		return nil, err
+	}
+	switch knowledge.Category {
+	case model.CategoryQA:
+		return updateQAMetaValue(ctx, req)
+	default:
+		return updateKnowledgeMetaValue(ctx, req)
+	}
+}
+
+func updateQAMetaValue(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error) {
+	//1.查询问答对详情
+	qaPairList, err := orm.SelectQAPairByQAPairIdList(ctx, req.DocIdList, "", "")
+	if err != nil {
+		log.Errorf("没有操作该问答库文档的权限 参数(%v)", req)
+		return nil, err
+	}
+	qaPair := qaPairList[0]
+	//2.状态校验
+	if qaPair.Status != model.QAPairSuccess {
+		log.Errorf("非处理完成文档无法修改元数据 状态(%d) 错误(%v) 参数(%v)", qaPair.Status, err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaStatusFailed)
+	}
+	//3.查询知识库信息
+	knowledge, err := orm.SelectKnowledgeById(ctx, qaPair.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf("没有操作该知识库的权限 参数(%v)", req)
+		return nil, err
+	}
+	//4.查询元数据
+	docMetaList, err := orm.SelectMetaByDocIds(ctx, "", "", req.DocIdList)
+	if err != nil {
+		return nil, util.ErrCode(errs.Code_KnowledgeMetaFetchFailed)
+	}
+	//5.构造文档元数据map
+	docMetaMap := buildDocMetaMap(docMetaList)
+	//6.构造元数据列表
+	addList, updateList, deleteList := buildMetaList(req, docMetaMap, qaPair.KnowledgeId)
+	//7.更新数据库并发送rag请求
+	err = orm.BatchUpdateQAMetaValue(ctx, addList, updateList, deleteList, knowledge, knowledge.UserId, req.DocIdList)
+	if err != nil {
+		log.Errorf("更新文档元数据失败(%v)  参数(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeMetaUpdateFailed)
+	}
+	return nil, nil
+}
+
+func updateKnowledgeMetaValue(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeMetaValueReq) (*emptypb.Empty, error) {
 	//1.查询文档详情
 	docList, err := orm.SelectDocByDocIdList(ctx, req.DocIdList, "", "")
 	if err != nil {
@@ -414,6 +466,7 @@ func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model
 		return nil, err
 	}
 	idList, nameList := buildKnowledgeList(list)
+	// bff做了代理，直接传请求里的userId
 	ret := &rag_service.KnowledgeHitParams{
 		UserId:               req.UserId,
 		Question:             req.Question,
@@ -472,7 +525,7 @@ func buildRagHitMetaItems(knowledgeID string, params []*knowledgebase_service.Me
 			return nil, err
 		}
 		// 转换参数值
-		ragValue, err := convertValue(param.Value, param.Type)
+		ragValue, err := buildValueData(param.Type, param.Value)
 		if err != nil {
 			log.Errorf("kbId: %s, convert value failed: %v", knowledgeID, err)
 			return nil, fmt.Errorf("convert value for key %s: %s", param.Key, err.Error())
@@ -521,18 +574,11 @@ func isValidFilterParams(params *knowledgebase_service.MetaDataFilterParams) boo
 		len(params.MetaFilterParams) > 0
 }
 
-func convertValue(value, valueType string) (interface{}, error) {
-	if len(value) == 0 {
-		return nil, nil
-	}
-	// 根据类型转换value
-	if valueType == MetaValueTypeNumber || valueType == MetaValueTypeTime {
-		ragValue, err := pkg_util.I64(value)
-		if err != nil {
-			log.Errorf("convertMetaValue fail %v", err)
-			return nil, err
-		}
-		return ragValue, nil
+func buildValueData(valueType string, value string) (interface{}, error) {
+	switch valueType {
+	case model.MetaTypeNumber:
+	case model.MetaTypeTime:
+		return strconv.ParseInt(value, 10, 64)
 	}
 	return value, nil
 }
@@ -632,11 +678,16 @@ func checkRepeatedMetaKey(metaList []*model.KnowledgeDocMeta) []*model.Knowledge
 func buildKnowledgeInfo(knowledge *model.KnowledgeBase) *knowledgebase_service.KnowledgeInfo {
 	embeddingModelInfo := &knowledgebase_service.EmbeddingModelInfo{}
 	_ = json.Unmarshal([]byte(knowledge.EmbeddingModel), embeddingModelInfo)
+	graph := orm.BuildKnowledgeGraph(knowledge.KnowledgeGraph)
+	docCount := knowledge.DocCount
+	if docCount < 0 {
+		docCount = 0
+	}
 	return &knowledgebase_service.KnowledgeInfo{
 		KnowledgeId:        knowledge.KnowledgeId,
 		Name:               knowledge.Name,
 		Description:        knowledge.Description,
-		DocCount:           int32(knowledge.DocCount),
+		DocCount:           int32(docCount),
 		ShareCount:         int32(knowledge.ShareCount),
 		EmbeddingModelInfo: embeddingModelInfo,
 		CreatedAt:          pkg_util.Time2Str(knowledge.CreatedAt),
@@ -644,6 +695,9 @@ func buildKnowledgeInfo(knowledge *model.KnowledgeBase) *knowledgebase_service.K
 		CreateUserId:       knowledge.UserId,
 		RagName:            knowledge.RagName,
 		GraphSwitch:        int32(knowledge.KnowledgeGraphSwitch),
+		Category:           int32(knowledge.Category),
+		LlmModelId:         graph.GraphModelId,
+		UpdatedAt:          pkg_util.Time2Str(knowledge.UpdatedAt),
 	}
 }
 
@@ -682,6 +736,7 @@ func buildKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeReq) (*mo
 		KnowledgeGraphSwitch: buildKnowledgeGraphSwitch(req.KnowledgeGraph.Switch),
 		CreatedAt:            time.Now().UnixMilli(),
 		UpdatedAt:            time.Now().UnixMilli(),
+		Category:             int(req.Category),
 	}, nil
 }
 

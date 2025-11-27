@@ -299,6 +299,7 @@ services:
       WANWU_KNOWLEDGE_SEARCH_URL: http://bff-service:6668/callback/v1/rag/search-knowledge-base
       WANWU_FILE_GENERATOR_URL: http://agent-wanwu:15002/upload
       WANWU_FILE_PARSER_URL: http://rag-wanwu:8681/rag/doc_parser
+      WANWU_QA_SEARCH_URL: http://bff-service:6668/callback/v1/rag/search-QA-base
       # 用于openapi调用workflow是否跳过execute history；默认0不跳过，会记录execute history；追求高并发为1不记录
       WANWU_WORKFLOW_OPENAPI_RUN_SKIP_EXECUTE_HISTORY: ${WANWU_WORKFLOW_OPENAPI_RUN_SKIP_EXECUTE_HISTORY}
       # 用于nginx 8081代理workflow-wanwu:8998 minio presign相关api

@@ -601,6 +601,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/rag/search-qa-base": {
+            "post": {
+                "description": "查询问答列表（命中测试）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "查询问答列表（命中测试）",
+                "parameters": [
+                    {
+                        "description": "查询知识库列表请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RagSearchQABaseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/workflow/list": {
             "get": {
                 "description": "根据userId和spaceId获取Workflow",
@@ -2632,6 +2666,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.RagQaInfo": {
+            "type": "object",
+            "properties": {
+                "qa_base_id": {
+                    "type": "string"
+                },
+                "qa_base_name": {
+                    "type": "string"
+                }
+            }
+        },
         "request.RagSearchKnowledgeBaseReq": {
             "type": "object",
             "required": [
@@ -2694,6 +2739,78 @@ const docTemplate = `{
                 "use_graph": {
                     "description": "是否启动知识图谱查询",
                     "type": "boolean"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "weights": {
+                    "description": "权重搜索下的权重配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.WeightParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "request.RagSearchQABaseReq": {
+            "type": "object",
+            "required": [
+                "knowledgeIdList",
+                "question",
+                "userId"
+            ],
+            "properties": {
+                "knowledgeIdList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "metadata_filtering": {
+                    "description": "元数据过滤开关",
+                    "type": "boolean"
+                },
+                "metadata_filtering_conditions": {
+                    "description": "元数据过滤条件",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetadataFilterItem"
+                    }
+                },
+                "qa_base_info": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/request.RagQaInfo"
+                        }
+                    }
+                },
+                "question": {
+                    "type": "string"
+                },
+                "rerank_mod": {
+                    "description": "rerank_model:重排序模式，weighted_score：权重搜索",
+                    "type": "string"
+                },
+                "rerank_model_id": {
+                    "description": "rerankId",
+                    "type": "string"
+                },
+                "retrieve_method": {
+                    "description": "hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索",
+                    "type": "string"
+                },
+                "term_weight_coefficient": {
+                    "description": "关键词系数",
+                    "type": "number"
+                },
+                "threshold": {
+                    "type": "number"
+                },
+                "topK": {
+                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"

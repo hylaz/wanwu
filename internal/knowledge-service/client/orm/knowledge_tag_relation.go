@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
@@ -66,8 +67,13 @@ func BindKnowledgeTag(ctx context.Context, dataList []*model.KnowledgeTagRelatio
 		//2.再绑定
 		if len(dataList) > 0 {
 			err = tx.Model(&model.KnowledgeTagRelation{}).CreateInBatches(dataList, len(dataList)).Error
-			return err
+			if err != nil {
+				return err
+			}
 		}
-		return nil
+		// 3. 更新知识库的UpdatedAt
+		err = tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
+			Update("update_at", time.Now().UnixMilli()).Error
+		return err
 	})
 }

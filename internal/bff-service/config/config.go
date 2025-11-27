@@ -111,6 +111,7 @@ type RagKnowledgeConfig struct {
 	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
 	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
 	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
+	SearchQABaseUri        string `json:"search-qa-base-uri" mapstructure:"search-qa-base-uri"`
 	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
 }
 

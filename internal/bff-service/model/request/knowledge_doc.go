@@ -35,7 +35,7 @@ type DocImportReq struct {
 }
 
 type DocMetaDataReq struct {
-	KnowledgeId  string         `json:"knowledgeId"`
+	KnowledgeId  string         `json:"knowledgeId" validate:"required"`
 	DocId        string         `json:"docId"`
 	MetaDataList []*DocMetaData `json:"metaDataList"` //文档元数据
 }

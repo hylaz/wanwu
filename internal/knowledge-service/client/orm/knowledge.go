@@ -18,7 +18,7 @@ import (
 )
 
 // SelectKnowledgeList 查询知识库列表
-func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, tagIdList []string) ([]*model.KnowledgeBase, map[string]int, error) {
+func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, category int, tagIdList []string) ([]*model.KnowledgeBase, map[string]int, error) {
 	var knowledgeIdList []string
 	var err error
 	if len(tagIdList) > 0 {
@@ -40,9 +40,9 @@ func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, tagIdL
 		return make([]*model.KnowledgeBase, 0), nil, nil
 	}
 	var knowledgeList []*model.KnowledgeBase
-	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.LikeName(name), sqlopt.WithDelete(0)).
+	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.LikeName(name), sqlopt.WithDelete(0), sqlopt.WithCategory(category)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeBase{}).
-		Order("create_at desc").
+		Order("update_at desc").
 		Find(&knowledgeList).
 		Error
 	if err != nil {
@@ -116,7 +116,7 @@ func SelectKnowledgeByIdNoDeleteCheck(ctx context.Context, knowledgeId, userId, 
 }
 
 // CheckSameKnowledgeName 知识库名称是否存在同名
-func CheckSameKnowledgeName(ctx context.Context, userId, orgId, name, knowledgeId string) error {
+func CheckSameKnowledgeName(ctx context.Context, userId, orgId, name, knowledgeId string, category int) error {
 	//var count int64
 	//err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithName(name), sqlopt.WithoutKnowledgeID(knowledgeId), sqlopt.WithDelete(0)).
 	//	Apply(db.GetHandle(ctx), &model.KnowledgeBase{}).
@@ -130,7 +130,7 @@ func CheckSameKnowledgeName(ctx context.Context, userId, orgId, name, knowledgeI
 	//}
 	//return nil
 
-	list, _, err := SelectKnowledgeList(ctx, userId, orgId, name, nil)
+	list, _, err := SelectKnowledgeList(ctx, userId, orgId, name, category, nil)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, name))
 		return util.ErrCode(errs.Code_KnowledgeBaseDuplicateName)
@@ -153,7 +153,7 @@ func CheckSameKnowledgeName(ctx context.Context, userId, orgId, name, knowledgeI
 }
 
 // CreateKnowledge 创建知识库
-func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embeddingModelId string) error {
+func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embeddingModelId string, category int) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//1.插入数据
 		err := createKnowledge(tx, knowledge)
@@ -166,13 +166,23 @@ func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embedd
 			return err
 		}
 		//3.通知rag创建知识库
-		return service.RagKnowledgeCreate(ctx, &service.RagCreateParams{
-			UserId:               knowledge.UserId,
-			Name:                 knowledge.RagName,
-			KnowledgeBaseId:      knowledge.KnowledgeId,
-			EmbeddingModelId:     embeddingModelId,
-			EnableKnowledgeGraph: knowledge.KnowledgeGraphSwitch > 0,
-		})
+		switch category {
+		case model.CategoryQA:
+			return service.RagQACreate(ctx, &service.RagQACreateParams{
+				UserId:           knowledge.UserId,
+				QABase:           knowledge.RagName,
+				QAId:             knowledge.KnowledgeId,
+				EmbeddingModelId: embeddingModelId,
+			})
+		default:
+			return service.RagKnowledgeCreate(ctx, &service.RagCreateParams{
+				UserId:               knowledge.UserId,
+				Name:                 knowledge.RagName,
+				KnowledgeBaseId:      knowledge.KnowledgeId,
+				EmbeddingModelId:     embeddingModelId,
+				EnableKnowledgeGraph: knowledge.KnowledgeGraphSwitch > 0,
+			})
+		}
 	})
 }
 
@@ -234,9 +244,17 @@ func DeleteKnowledge(ctx context.Context, knowledgeBase *model.KnowledgeBase) er
 			return err
 		}
 		//2.通知rag更新知识库
-		return async_task.SubmitTask(ctx, async_task.KnowledgeDeleteTaskType, &async_task.KnowledgeDeleteParams{
-			KnowledgeId: knowledgeBase.KnowledgeId,
-		})
+		switch knowledgeBase.Category {
+		case model.CategoryQA:
+			return async_task.SubmitTask(ctx, async_task.QADeleteTaskType, &async_task.KnowledgeDeleteParams{
+				KnowledgeId: knowledgeBase.KnowledgeId,
+			})
+		default:
+			return async_task.SubmitTask(ctx, async_task.KnowledgeDeleteTaskType, &async_task.KnowledgeDeleteParams{
+				KnowledgeId: knowledgeBase.KnowledgeId,
+			})
+		}
+
 	})
 }
 
@@ -254,6 +272,12 @@ func UpdateKnowledgeFileInfo(tx *gorm.DB, knowledgeId string, resultList []*mode
 	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
 		Update("doc_size", gorm.Expr("doc_size + ?", docSize)).
 		Update("doc_count", gorm.Expr("doc_count + ?", len(resultList))).Error
+}
+
+// UpdateKnowledgeDocCount 更新知识库文档数量
+func UpdateKnowledgeDocCount(tx *gorm.DB, knowledgeId string, docCount int) error {
+	return tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
+		Update("doc_count", gorm.Expr("doc_count + ?", docCount)).Error
 }
 
 // DeleteKnowledgeFileInfo 删除知识库文档信息

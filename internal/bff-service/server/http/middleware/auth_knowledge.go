@@ -46,6 +46,35 @@ func AuthKnowledgeDoc(fieldName string, permissionType int32) func(ctx *gin.Cont
 	}
 }
 
+// AuthKnowledgeQAPair 校验问答对
+func AuthKnowledgeQAPair(fieldName string, permissionType int32) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		defer util.PrintPanicStack()
+		//1.获取value值
+		value := getFieldValue(ctx, fieldName)
+		if len(value) == 0 {
+			gin_util.ResponseErrWithStatus(ctx, http.StatusBadRequest, errors.New("qaPairId is required"))
+			ctx.Abort()
+			return
+		}
+		//2.根据QAPairId获取知识库id
+		knowledgeId, err := searchKnowledgeIdByQAPairId(ctx, value)
+		if err != nil {
+			gin_util.ResponseErrWithStatus(ctx, http.StatusBadRequest, err)
+			ctx.Abort()
+			return
+		}
+		//3.校验用户授权权限
+		err = knowledgeGrantUser(ctx, knowledgeId, permissionType)
+		//4.异常处理
+		if err != nil {
+			gin_util.ResponseErrWithStatus(ctx, http.StatusBadRequest, err)
+			ctx.Abort()
+			return
+		}
+	}
+}
+
 // AuthKnowledgeIfHas 校验知识库权限,允许字段为空
 func AuthKnowledgeIfHas(fieldName string, permissionType int32) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
@@ -95,6 +124,14 @@ func searchKnowledgeId(ctx *gin.Context, docId string) (string, error) {
 		return "", err
 	}
 	return docInfo.KnowledgeId, nil
+}
+
+func searchKnowledgeIdByQAPairId(ctx *gin.Context, qaPairId string) (string, error) {
+	qaPairInfo, err := service.GetQAPairDetail(ctx, "", "", qaPairId)
+	if err != nil {
+		return "", err
+	}
+	return qaPairInfo.KnowledgeId, nil
 }
 
 func knowledgeGrantUser(ctx *gin.Context, knowledgeId string, permissionType int32) error {
