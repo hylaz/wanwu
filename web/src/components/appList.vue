@@ -141,7 +141,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 command="transform"
-                v-if="[workflow, chat].includes(n.appType)"
+                v-if="[workflow, chat].includes(n.appType) && !n.publishType"
               >
                 {{
                   $t("common.button.transform") +
