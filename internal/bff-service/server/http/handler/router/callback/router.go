@@ -21,7 +21,7 @@ func Register(callbackAPI *gin.RouterGroup) {
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/ocr", http.MethodPost, callback.ModelOcr, "Model ocr")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/gui", http.MethodPost, callback.ModelGui, "Model gui")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/pdf-parser", http.MethodPost, callback.ModelPdfParser, "Model pdf文档解析")
-	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/asr", http.MethodPost, callback.ModelAsr, "Model asr")
+	//mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/asr", http.MethodPost, callback.ModelAsr, "Model asr")
 	//mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/text2image", http.MethodPost, callback.ModelText2Image, "Model asr")
 	// workflow
 	mid.Sub("callback").Reg(callbackAPI, "/workflow/list", http.MethodGet, callback.GetWorkflowList, "根据userId和spaceId获取Workflow")
