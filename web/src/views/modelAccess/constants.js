@@ -15,7 +15,7 @@ export const MODEL_TYPE_OBJ = {
     [OCR]: 'OCR',
     [GUI]: 'GUI',
     [PDF_PARSER]: i18n.t('modelAccess.type.pdfParser'),
-    [ASR]: i18n.t('modelAccess.type.asr')
+    // [ASR]: i18n.t('modelAccess.type.asr')
 }
 
 export const MODEL_TYPE = Object.keys(MODEL_TYPE_OBJ).map(key => ({key, name: MODEL_TYPE_OBJ[key]}))
