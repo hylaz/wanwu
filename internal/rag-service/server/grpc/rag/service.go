@@ -182,7 +182,7 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 	if kbGlobalConfig.MatchType == "" {
 		kbGlobalConfig.KeywordPriority = model.KeywordPriorityDefault
 		kbGlobalConfig.MatchType = model.MatchTypeDefault
-		kbGlobalConfig.PriorityMatch = model.PriorityDefault
+		kbGlobalConfig.PriorityMatch = model.KnowledgePriorityDefault
 		kbGlobalConfig.Threshold = model.ThresholdDefault
 		kbGlobalConfig.SemanticsPriority = model.SemanticsPriorityDefault
 		kbGlobalConfig.TopK = model.TopKDefault
@@ -198,7 +198,7 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 	if qaConfig.GlobalConfig.MatchType == "" {
 		qaConfig.GlobalConfig.KeywordPriority = model.KeywordPriorityDefault
 		qaConfig.GlobalConfig.MatchType = model.MatchTypeDefault
-		qaConfig.GlobalConfig.PriorityMatch = model.PriorityDefault
+		qaConfig.GlobalConfig.PriorityMatch = model.QAPriorityDefault
 		qaConfig.GlobalConfig.Threshold = model.ThresholdDefault
 		qaConfig.GlobalConfig.SemanticsPriority = model.SemanticsPriorityDefault
 		qaConfig.GlobalConfig.TopK = model.TopKDefault

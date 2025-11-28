@@ -2,7 +2,8 @@ package model
 
 const (
 	MatchTypeDefault         = "mix"
-	PriorityDefault          = 1
+	KnowledgePriorityDefault = 1
+	QAPriorityDefault        = 0
 	KeywordPriorityDefault   = 0.8
 	ThresholdDefault         = 0.4
 	SemanticsPriorityDefault = 0.2
