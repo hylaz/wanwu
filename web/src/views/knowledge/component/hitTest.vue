@@ -35,6 +35,7 @@
           <searchConfig
             ref="searchConfig"
             @sendConfigInfo="sendConfigInfo"
+            :config="formInline"
             :showGraphSwitch="graphSwitch"
           />
         </div>
@@ -195,7 +196,17 @@ export default {
       knowledgeIdList: {},
       searchList: [],
       score: [],
-      formInline: null,
+      formInline: {
+        keywordPriority: 0.8, //关键词权重
+        matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+        priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+        rerankModelId: "", //rerank模型id
+        semanticsPriority: 0.2, //语义权重
+        topK: 5, //topK 获取最高的几行
+        threshold: 0.4, //过滤分数阈值
+        maxHistory: 0, //
+        useGraph: false,//是否开启知识图谱
+      },
       knowledgeId: this.$route.query.knowledgeId,
       name: this.$route.query.name,
       graphSwitch: this.$route.query.graphSwitch || false,
@@ -206,7 +217,7 @@ export default {
   mounted(){
     this.$nextTick(() =>{
        const config = this.$refs.searchConfig.formInline;
-       this.formInline = config;
+       this.formInline = JSON.parse(JSON.stringify(config));
     })
   },
   methods: {
@@ -223,7 +234,7 @@ export default {
       return "#" + map[contentType];
     },
     sendConfigInfo(data) {
-      this.formInline = data;
+      this.formInline = JSON.parse(JSON.stringify(data));
     },
     startTest() {
       const metaData = this.$refs.metaSet.getMetaData();
@@ -243,9 +254,9 @@ export default {
         );
         return;
       }
-      
-      const { matchType, priorityMatch, rerankModelId } =
-        this.formInline.knowledgeMatchParams;
+
+      const params = this.formInline.knowledgeMatchParams || this.formInline;
+      const { matchType, priorityMatch, rerankModelId } = params;
       if(matchType === ''){
         this.$message.warning(
           this.$t("knowledgeManage.hitTest.selectSearchType")
@@ -259,7 +270,7 @@ export default {
         return;
       }
       if (matchType === "mix" && priorityMatch === 1) {
-        this.formInline.knowledgeMatchParams.rerankModelId = "";
+        params.rerankModelId = "";
       }
       if (
         this.$refs.metaSet.validateRequiredFields(
@@ -273,6 +284,7 @@ export default {
       }
       const data = {
         ...this.formInline,
+        knowledgeMatchParams: params, 
         knowledgeList: [this.knowledgeIdList],
         question: this.question,
       };

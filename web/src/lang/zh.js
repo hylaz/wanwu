@@ -1468,7 +1468,6 @@ export default {
   app: {
     modelTips: "暂不支持选择图文问答类模型",
     selectRerank: "请选rerank择模型！",
-    selectKnowledge: "请选择关联知识库！",
     recallParameterSet:'召回参数配置',
     linkQaDatabase:'关联问答库',
     selectQAdatabase:'选择问答库',

@@ -277,7 +277,8 @@ export default {
             if (!this.setType) {
               delete this.formInline.knowledgeMatchParams.maxHistory;
             }
-            this.$emit("sendConfigInfo", this.formInline);
+            const payload = JSON.parse(JSON.stringify(this.formInline));
+            this.$emit("sendConfigInfo", payload);
           }
         }, 200);
       },
@@ -287,14 +288,17 @@ export default {
     config: {
       handler(newVal) {
         if (newVal && Object.keys(newVal).length > 0) {
-          this.isSettingFromConfig = true; // 设置标志位
-          const formData = JSON.parse(JSON.stringify(newVal));
+          this.isSettingFromConfig = true;
+          const params = newVal.knowledgeMatchParams || newVal;
+          const formData = JSON.parse(JSON.stringify(params));
           this.formInline.knowledgeMatchParams = formData;
-          const { matchType, priorityMatch } =
-            this.formInline.knowledgeMatchParams;
+          const { matchType, priorityMatch } = this.formInline.knowledgeMatchParams;
           if (matchType !== "") {
             this.searchTypeData = this.searchTypeData.map((item) => ({
               ...item,
+              ...(this.hasMixTypeRange(item,"mixTypeRange") && {
+                mixTypeRange: formData.semanticsPriority || 0.2,
+              }),
               showContent: item.value === matchType ? true : false,
             }));
             if (matchType === "mix") {
@@ -303,7 +307,6 @@ export default {
             }
           }
 
-          // 使用nextTick确保DOM更新完成后再重置标志位
           this.$nextTick(() => {
             this.isSettingFromConfig = false;
           });
@@ -323,6 +326,9 @@ export default {
     this.getRerankData();
   },
   methods: {
+    hasMixTypeRange(item,key) {
+      return Object.prototype.hasOwnProperty.call(item, key);
+    },
     filteredMixType(item){
       if (this.category && this.category === 1) {
         return item.mixType.filter((_, idx) => idx !== 0);
@@ -394,7 +400,8 @@ export default {
         delete formData.knowledgeMatchParams.maxHistory;
         this.$emit("sendConfigInfo", formData);
       } else {
-        this.$emit("sendConfigInfo", this.formInline);
+        const payload = JSON.parse(JSON.stringify(this.formInline));
+        this.$emit("sendConfigInfo", payload);
       }
     },
   },

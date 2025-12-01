@@ -362,17 +362,8 @@ export default {
       deep: true,
     },
   },
-  computed: {
-    showGraphSwitch() {
-      return (
-        this.editForm.knowledgebases &&
-        this.editForm.knowledgebases.some((item) => item.graphSwitch === 1)
-      );
-    },
-  },
   mounted() {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
-    this.$set(this.editForm, "knowledgeConfig", this.editForm.knowledgeBaseConfig.config);
   },
   created() {
     this.getModelData(); //获取模型列表
@@ -496,7 +487,7 @@ export default {
         this.$message.warning(this.$t("app.selectRerank"));
         return false;
       }
-      if (this.editForm.knowledgebases.length === 0) {
+      if (this.editForm.knowledgeBaseConfig.knowledgebases.length === 0 && this.editForm.qaKnowledgeBaseConfig.knowledgebases.length === 0) {
         this.$message.warning(this.$t("app.selectKnowledge"));
         return false;
       }

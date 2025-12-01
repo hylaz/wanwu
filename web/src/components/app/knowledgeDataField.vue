@@ -140,7 +140,8 @@ export default {
         if (val === 'qaKnowledgeBaseConfig') {
           this.showGraphSwitch = false;
         } else {
-          this.showGraphSwitch = true;
+          const knowledgebases = (this.knowledgeConfig && this.knowledgeConfig.knowledgebases) || [];
+          this.showGraphSwitch = knowledgebases.some((item) => item.graphSwitch === 1);
         }
       },
       immediate: true
