@@ -7,7 +7,7 @@
       </div>
       <div class="popup-content">
         <p class="message">
-          {{ params.client_name + $t('oauth.popup.perm') }}
+          {{ clientName + $t('oauth.popup.perm') }}
         </p>
         <ul class="permissions-list">
           <li>
@@ -31,28 +31,13 @@ import {store} from "@/store";
 export default {
   data() {
     return {
-      params: {
-        client_id: '',
-        redirect_uri: '',
-        scope: '',
-        response_type: '',
-        state: '',
-        client_name: ''
-      },
+      clientName: '',
       token: store.getters['user/token'],
     }
   },
-  watch: {
-    $route: {
-      handler() {
-        this.params = this.$route.query
-      },
-      // 深度观察监听
-      deep: true
-    }
-  },
   mounted() {
-    this.params = this.$route.query
+    const searchParams = new URLSearchParams(window.location.search);
+    this.clientName = searchParams.get('client_name') || '';
   },
 
   methods: {
@@ -60,7 +45,18 @@ export default {
       window.open("about:blank", "_top")
     },
     handleConfirm() {
-      const authorizeUrl = `${OAUTH_API}/oauth/code/authorize${window.location.search}&jwt_token=${this.token}`
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const allowedParams = ['client_id', 'redirect_uri', 'scope', 'response_type', 'state'];
+      const cleanParams = new URLSearchParams();
+
+      allowedParams.forEach(param => {
+        if (searchParams.has(param)) {
+          cleanParams.append(param, searchParams.get(param));
+        }
+      });
+
+      const authorizeUrl = `${OAUTH_API}/oauth/code/authorize?${cleanParams.toString()}&jwt_token=${encodeURIComponent(this.token)}`
       window.location.href = authorizeUrl
     }
   }
