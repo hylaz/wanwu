@@ -42,7 +42,6 @@
                 action=""
                 :show-file-list="false"
                 :auto-upload="false"
-                :limit="5"
                 multiple
                 accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
                 :file-list="fileList"
@@ -58,7 +57,7 @@
                   </div>
                   <div class="tips">
                     <p v-if="fileType === 'file'"><span class="red">*</span>您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制</p>
-                    <p v-if="fileType === 'file'"><span class="red">*</span>非压缩包文件，一次可传5个文件，如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待</p>
+                    <p v-if="fileType === 'file'"><span class="red">*</span>如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待</p>
                     <p v-if="fileType === 'fileUrl'"><span class="red">*</span>批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb <a
                         class="template_downLoad"
                         href="#"
