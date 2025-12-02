@@ -403,6 +403,7 @@ services:
       - 8669:8669
     volumes:
       - ./callback:/callback
+      - ${WANWU_PROJECT_DIR}/callback-wanwu/log:/callback/log
     environment:
       MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
       MINIO_USER: ${WANWU_MINIO_USER}

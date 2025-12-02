@@ -7,13 +7,14 @@ from configs.config import load_config
 from extensions.minio import init_minio
 from extensions.redis import init_redis
 from utils.response import register_error_handlers
-from utils.router_trace import add_request_tracing
+from utils.trace import register_tracing
 
 
 def create_app():
     app = Flask(__name__)
-    app.logger.setLevel(logging.INFO)
     app.config["SWAGGER"] = {"openapi": "3.0.1"}
+    # 初始化 swagger
+    Swagger(app)
 
     # init config
     load_config()
@@ -24,11 +25,8 @@ def create_app():
     # init minio
     init_minio()
 
-    # 初始化 swagger
-    Swagger(app)
-
-    # 添加路由追踪
-    add_request_tracing(app)
+    # 添加日志记录
+    register_tracing(app)
 
     # 注册异常处理
     register_error_handlers(app)

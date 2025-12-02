@@ -1,7 +1,8 @@
 from flask import Blueprint, request
 
 from callback.services.hello_demo import get_message
-from utils.response import BizError, response_error, response_ok
+from utils.log import logger
+from utils.response import BizError, response_err, response_ok
 
 hello_demo = Blueprint("hello", __name__)
 
@@ -32,8 +33,7 @@ def get_hello():
     """
     username = request.args.get("username")
     if not username:
-        raise BizError("username is None", code=2002)
-
+        raise BizError("username is None")
     return response_ok(get_message(username))
 
 
@@ -67,11 +67,10 @@ def post_hello():
     """
     data = request.get_json()
     if data is None:
-        return response_error(2003, "invalid body")
+        raise BizError("request body is None")
     username = data["username"]
     if not username:
-        raise BizError("username is None", code=2002)
-
+        raise BizError("username is None")
     return response_ok(get_message(username))
 
 
@@ -105,6 +104,5 @@ def put_hello():
     """
     username = request.form["username"]
     if not username:
-        raise BizError("username is None", code=2002)
-
+        raise BizError("username is None")
     return response_ok(get_message(username))
