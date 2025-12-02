@@ -692,6 +692,7 @@ export default {
     checkFail: "审核未通过",
     operateSuccess: "操作成功",
     deleteTips: "确定要删除此条数据吗?",
+    deleteBatchTips: "确定要删除这些数据吗?",
     tip: "提示",
     refreshTips:
       "您导入的文件正在异步处理中，请耐心等待，您可以尝试，刷新列表获取导入结果。",
@@ -1017,6 +1018,7 @@ export default {
   },
   metaData: {
     batchEdit: "批量编辑元数据值",
+    batchDelete: "批量删除文档",
     selected: "已选择",
   },
   metaSet: {

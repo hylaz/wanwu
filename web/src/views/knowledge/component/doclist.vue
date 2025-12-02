@@ -319,6 +319,7 @@
       ref="BatchMetatButton"
       :selectedCount="selectedTableData.length"
       @showBatchMeta="showBatchMeta"
+      @handleBatchDelete="handleBatchDelete"
       @handleMetaCancel="handleMetaCancel"
     />
   </div>
@@ -593,6 +594,21 @@ export default {
       this.docListVisible = true;
       this.currentDocdata = data;
     },
+    async handleDelete(docIdList) {
+      this.loading = true;
+      try {
+        let res = await delDocItem({
+          docIdList,
+          knowledgeId: this.docQuery.knowledgeId
+        });
+        if (res.code === 0) {
+          this.$message.success(this.$t("common.info.delete"));
+        }
+      } finally {
+        this.reLoadDocList();
+        this.loading = false;
+      }
+    },
     handleDel(data) {
       this.$confirm(
         this.$t("knowledgeManage.deleteTips"),
@@ -602,23 +618,22 @@ export default {
           cancelButtonText: this.$t("common.button.cancel"),
           type: "warning",
         }
-      )
-        .then(async () => {
-          let jsondata = {
-            docIdList: [data.docId],
-            knowledgeId: this.docQuery.knowledgeId,
-          };
-          this.loading = true;
-          let res = await delDocItem(jsondata);
-          if (res.code === 0) {
-            this.$message.success(this.$t("common.info.delete"));
-            this.getTableData(this.docQuery); //获取知识分类数据
-          }
-          this.loading = false;
-        })
-        .catch((error) => {
-          this.getTableData(this.docQuery);
-        });
+      ).then(() => {
+        this.handleDelete([data.docId]);
+      }).catch(() => {});
+    },
+    handleBatchDelete() {
+      this.$confirm(
+        this.$t("knowledgeManage.deleteBatchTips"),
+        this.$t("knowledgeManage.tip"),
+        {
+          confirmButtonText: this.$t("common.button.confirm"),
+          cancelButtonText: this.$t("common.button.cancel"),
+          type: "warning",
+        }
+      ).then(() => {
+        this.handleDelete(this.selectedDocIds);
+      }).catch(() => {});
     },
     async getTableData(data) {
       this.tableLoading = true;

@@ -14,6 +14,13 @@
         <span class="item-text">{{ $t('metaData.batchEdit') }}</span>
       </div>
       <div class="toolbar-divider"></div>
+      <div class="toolbar-item" @click="handleBatchDelete">
+        <div class="icon-wrapper">
+          <i class="el-icon-delete metadata-icon"></i>
+        </div>
+        <span class="item-text">{{ $t('metaData.batchDelete') }}</span>
+      </div>
+      <div class="toolbar-divider"></div>
       <div class="toolbar-item" @click="handleCancel">
         <span class="item-text">{{ $t('common.confirm.cancel') }}</span>
       </div>
@@ -37,6 +44,9 @@ export default {
   methods: {
     handleMetadata() {
       this.$emit('showBatchMeta');
+    },
+    handleBatchDelete() {
+      this.$emit('handleBatchDelete');
     },
     handleCancel() {
       this.$emit('handleMetaCancel');

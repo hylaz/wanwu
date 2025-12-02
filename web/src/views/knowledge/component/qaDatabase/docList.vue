@@ -302,6 +302,7 @@
       ref="BatchMetatButton"
       :selectedCount="selectedTableData.length"
       @showBatchMeta="showBatchMeta"
+      @handleBatchDelete="handleBatchDelete"
       @handleMetaCancel="handleMetaCancel"
       :type="batchMetaType"
     />
@@ -654,6 +655,21 @@ export default {
       ];
       return commonOptions;
     },
+    async handleDelete(QAPairIdList) {
+      this.loading = true;
+      try {
+        let res = await delQaPair({
+          QAPairIdList,
+          knowledgeId: this.docQuery.knowledgeId
+        });
+        if (res.code === 0) {
+          this.$message.success(this.$t("common.info.delete"));
+        }
+      } finally {
+        this.reLoadDocList();
+        this.loading = false;
+      }
+    },
     handleDel(data) {
       this.$confirm(
         this.$t("knowledgeManage.deleteTips"),
@@ -663,19 +679,22 @@ export default {
           cancelButtonText: this.$t("common.button.cancel"),
           type: "warning",
         }
-      )
-        .then(async () => {
-          this.loading = true;
-          let res = await delQaPair({ qaPairId: data.qaPairId });
-          if (res.code === 0) {
-            this.$message.success(this.$t("common.info.delete"));
-            this.getTableData(this.docQuery); //获取知识分类数据
-          }
-          this.loading = false;
-        })
-        .catch((error) => {
-          this.getTableData(this.docQuery);
-        });
+      ).then(() => {
+        this.handleDelete([data.qaPairId]);
+      }).catch(() => {});
+    },
+    handleBatchDelete() {
+      this.$confirm(
+        this.$t("knowledgeManage.deleteBatchTips"),
+        this.$t("knowledgeManage.tip"),
+        {
+          confirmButtonText: this.$t("common.button.confirm"),
+          cancelButtonText: this.$t("common.button.cancel"),
+          type: "warning",
+        }
+      ).then(() => {
+        this.handleDelete(this.selectedDocIds);
+      }).catch(() => {});
     },
     async getTableData(data) {
       this.tableLoading = true;
