@@ -3326,6 +3326,16 @@ definitions:
     required:
     - workflow_id
     type: object
+  request.WorkflowRunReq:
+    properties:
+      input:
+        additionalProperties: {}
+        type: object
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
+    type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
@@ -4263,6 +4273,17 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.User'
         description: 作者信息
+    type: object
+  response.ExplorationWorkflowRunResp:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+      terminate_plan:
+        description: useAnswerContent(文本) 或 returnVariables(变量)
+        type: string
     type: object
   response.GetKnowledgeKeywordListResp:
     properties:
@@ -12579,6 +12600,30 @@ paths:
       summary: 修改用户状态
       tags:
       - permission.user
+  /workflow/run:
+    post:
+      consumes:
+      - application/json
+      description: 工作流运行接口
+      parameters:
+      - description: 工作流运行参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowRunReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ExplorationWorkflowRunResp'
+      security:
+      - JWT: []
+      summary: 工作流运行接口
+      tags:
+      - workflow
   /workflow/select:
     get:
       consumes:

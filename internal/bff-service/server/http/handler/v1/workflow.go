@@ -1,15 +1,20 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 
+	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
 )
 
 // ListLlmModelsByWorkflow
@@ -208,4 +213,53 @@ func WorkflowConvert(ctx *gin.Context) {
 		return
 	}
 	gin_util.Response(ctx, nil, service.WorkflowConvert(ctx, getOrgID(ctx), req.WorkflowID, constant.AppTypeChatflow))
+}
+
+// ExplorationWorkflowRun
+//
+//	@Tags			workflow
+//	@Summary		工作流运行接口
+//	@Description	工作流运行接口
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.WorkflowRunReq	true	"工作流运行参数"
+//	@Success		200		{object}	response.ExplorationWorkflowRunResp
+//	@Router			/workflow/run [post]
+func ExplorationWorkflowRun(ctx *gin.Context) {
+	var req request.WorkflowRunReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+
+	jsonData, err := json.Marshal(req.Input)
+	if err != nil {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, "invalid input"))
+		return
+	}
+
+	resp, err := service.OpenAPIWorkflowRun(ctx, req.WorkflowID, jsonData)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+
+	ewrResp := &response.ExplorationWorkflowRunResp{
+		Code: int64(codes.OK),
+		Data: string(resp),
+		Msg:  "",
+	}
+	// 判断 resp 是否为 JSON 对象
+	if err := json.Unmarshal(resp, &map[string]any{}); err != nil {
+		ewrResp.TerminatePlan = "useAnswerContent"
+	} else {
+		ewrResp.TerminatePlan = "returnVariables"
+	}
+
+	b, err := json.Marshal(ewrResp)
+	if err != nil {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "failed to marshal response"))
+		return
+	}
+	gin_util.ResponseRawByte(ctx, http.StatusOK, b)
 }

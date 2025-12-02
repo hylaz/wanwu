@@ -129,3 +129,10 @@ type UploadFileByWorkflowResp struct {
 	Url string `json:"url"`
 	Uri string `json:"uri"`
 }
+
+type ExplorationWorkflowRunResp struct {
+	Code          int64  `json:"code"`
+	Data          any    `json:"data"`
+	Msg           string `json:"msg"`
+	TerminatePlan string `json:"terminate_plan"` // useAnswerContent(文本) 或 returnVariables(变量)
+}

@@ -11205,6 +11205,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/workflow/run": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "工作流运行接口",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "工作流运行接口",
+                "parameters": [
+                    {
+                        "description": "工作流运行参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowRunReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ExplorationWorkflowRunResp"
+                        }
+                    }
+                }
+            }
+        },
         "/workflow/select": {
             "get": {
                 "security": [
@@ -16510,6 +16549,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.WorkflowRunReq": {
+            "type": "object",
+            "required": [
+                "workflow_id"
+            ],
+            "properties": {
+                "input": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "workflow_id": {
+                    "type": "string"
+                }
+            }
+        },
         "response.AnalysisDocUrlResp": {
             "type": "object",
             "properties": {
@@ -17936,6 +17990,22 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.User"
                         }
                     ]
+                }
+            }
+        },
+        "response.ExplorationWorkflowRunResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
+                },
+                "terminate_plan": {
+                    "description": "useAnswerContent(文本) 或 returnVariables(变量)",
+                    "type": "string"
                 }
             }
         },

@@ -24,4 +24,7 @@ func registerExploration(apiV1 *gin.RouterGroup) {
 	mid.Sub("exploration").Reg(apiV1, "/assistant/conversation/list", http.MethodGet, v1.GetConversationList, "智能体对话列表")
 	mid.Sub("exploration").Reg(apiV1, "/assistant/conversation/detail", http.MethodGet, v1.GetConversationDetailList, "智能体对话详情历史列表")
 	mid.Sub("exploration").Reg(apiV1, "/assistant/stream", http.MethodPost, v1.AssistantConversionStream, "智能体流式问答", middleware.AppHistoryRecord("assistantId", constant.AppTypeAgent))
+
+	// workflow 相关接口
+	mid.Sub("exploration").Reg(apiV1, "/workflow/run", http.MethodPost, v1.ExplorationWorkflowRun, "工作流运行接口", middleware.AppHistoryRecord("workflow_id", constant.AppTypeWorkflow))
 }
