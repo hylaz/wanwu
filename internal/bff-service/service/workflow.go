@@ -309,7 +309,7 @@ func WorkflowConvert(ctx *gin.Context, orgId, workflowId, flowMode string) error
 	return nil
 }
 
-func ExplorationWorkflowRun(ctx *gin.Context, orgId string, req request.WorkflowRunReq) (*response.CozeGetWorkFlowProcessData, error) {
+func ExplorationWorkflowRun(ctx *gin.Context, orgId string, req request.WorkflowRunReq) (*response.CozeNodeResult, error) {
 	// Step 1: 触发异步执行（使用web的test_run接口），获取executeId
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.TestRunWebUri)
 	testRunRet := &response.CozeWorkFlowTestRunResponse{}
@@ -356,10 +356,10 @@ func ExplorationWorkflowRun(ctx *gin.Context, orgId string, req request.Workflow
 		case <-pollCtx.Done():
 			// 超时 or 上层取消
 			if errors.Is(pollCtx.Err(), context.DeadlineExceeded) {
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
-					"workflow execution timeout (exceeded 1 minute)")
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
+					"workflow execution timeout")
 			}
-			return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+			return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 				"request canceled")
 
 		case <-ticker.C:
@@ -378,45 +378,50 @@ func ExplorationWorkflowRun(ctx *gin.Context, orgId string, req request.Workflow
 				Get(gpUri)
 
 			if err != nil {
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status", err.Error())
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run", err.Error())
 			}
 			if statusResp.StatusCode() >= 300 {
 				b, _ := io.ReadAll(statusResp.RawResponse.Body)
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 					fmt.Sprintf("[%d] %s", statusResp.StatusCode(), string(b)))
 			}
 
 			var processResp response.CozeGetWorkflowProcessResponse
 			if err := json.Unmarshal(statusResp.Body(), &processResp); err != nil {
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 					fmt.Sprintf("failed to unmarshal status response: %v", err))
 			}
 			data := processResp.Data
 			if data.ExecuteId == "" {
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status", "executeId is empty in status response")
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run", "executeId is empty in status response")
 			}
 
 			switch data.ExecuteStatus {
 			case 2: // Success
-				return data, nil
+				for _, nodeResult := range data.NodeResults {
+					if nodeResult.NodeType == "End" && nodeResult.NodeId == "900001" {
+						return nodeResult, nil
+					}
+				}
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run", "workflow execution succeeded but End node result not found")
 
 			case 3: // Failed
 				reason := "unknown"
 				if data.Reason != nil {
 					reason = *data.Reason
 				}
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 					fmt.Sprintf("workflow execution failed: %s", reason))
 
 			case 4: // Canceled
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 					"workflow execution was canceled")
 
 			case 1: // Running — 继续下一次轮询
 				continue
 
 			default:
-				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
 					fmt.Sprintf("unexpected executeStatus: %d", data.ExecuteStatus))
 			}
 		}
