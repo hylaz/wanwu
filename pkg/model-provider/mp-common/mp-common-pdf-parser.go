@@ -142,13 +142,12 @@ func PdfParser(ctx *gin.Context, provider, apiKey, url string, req *PdfParserReq
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v pdfParser err: %v", url, provider, err)
 	}
-	bodyBytes, err := io.ReadAll(resp.RawResponse.Body)
+	b, err := io.ReadAll(resp.RawResponse.Body)
 	if err != nil {
-		return nil, fmt.Errorf("read response body failed: %v", err)
+		return nil, fmt.Errorf("request %v %v read response body failed: %v", url, provider, err)
 	}
 	if resp.StatusCode() >= 300 {
-		return nil, fmt.Errorf("request %v %v pdfParser http status %v msg: %v", url, provider, resp.StatusCode(), string(bodyBytes))
+		return nil, fmt.Errorf("request %v %v pdfParser http status %v msg: %v", url, provider, resp.StatusCode(), string(b))
 	}
-
-	return bodyBytes, nil
+	return b, nil
 }

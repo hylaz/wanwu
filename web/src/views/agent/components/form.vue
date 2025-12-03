@@ -628,7 +628,11 @@ export default {
           maxHistory: 0, //最长上下文
           useGraph: false,
         },
-        recommendQuestion: [{ value: "" }],
+        recommendQuestion: [
+          {
+            value: "",
+          },
+        ],
         modelConfig: {
           temperature: 0.7,
           topP: 1,
@@ -855,7 +859,9 @@ export default {
       this.editForm.safetyConfig.tables = tablesData;
     },
     actionSwitch(id) {
-      enableAction({ actionId: id }).then((res) => {
+      enableAction({
+        actionId: id,
+      }).then((res) => {
         if (res.code === 0) {
           this.getAppDetail();
         }
@@ -934,7 +940,9 @@ export default {
       });
     },
     goBack() {
-      this.$router.push({ path: "/appSpace/agent" });
+      this.$router.push({
+        path: "/appSpace/agent",
+      });
     },
     handlePublish() {
       this.showOperation = !this.showOperation;
@@ -955,7 +963,9 @@ export default {
       };
       appPublish(data).then((res) => {
         if (res.code === 0) {
-          this.$router.push({ path: "/explore" });
+          this.$router.push({
+            path: "/explore",
+          });
         }
       });
     },
@@ -1074,7 +1084,9 @@ export default {
           provider: modeInfo.provider,
         },
         safetyConfig: this.editForm.safetyConfig,
-        visionConfig: { picNum: this.editForm.visionConfig.picNum },
+        visionConfig: {
+          picNum: this.editForm.visionConfig.picNum,
+        },
         rerankConfig: rerankInfo
           ? {
               displayName: rerankInfo.displayName,
@@ -1156,9 +1168,18 @@ export default {
         this.mcpInfos = data.mcpInfos || [];
         this.actionInfos = data.toolInfos || [];
         this.allTools = [
-          ...this.workFlowInfos.map((item) => ({ ...item, type: "workflow" })),
-          ...this.mcpInfos.map((item) => ({ ...item, type: "mcp" })),
-          ...this.actionInfos.map((item) => ({ ...item, type: "action" })),
+          ...this.workFlowInfos.map((item) => ({
+            ...item,
+            type: "workflow",
+          })),
+          ...this.mcpInfos.map((item) => ({
+            ...item,
+            type: "mcp",
+          })),
+          ...this.actionInfos.map((item) => ({
+            ...item,
+            type: "action",
+          })),
         ];
 
         this.setMaxPicNum(this.editForm.visionConfig.picNum);
@@ -1189,7 +1210,9 @@ export default {
       if (this.editForm.recommendQuestion.length > 3) {
         return;
       }
-      this.editForm.recommendQuestion.push({ value: "" });
+      this.editForm.recommendQuestion.push({
+        value: "",
+      });
     },
     clearRecommend(n, index) {
       if (this.editForm.recommendQuestion.length === 1) return;
@@ -1207,7 +1230,9 @@ export default {
         }
       )
         .then(async () => {
-          let res = await delActionInfo({ actionId });
+          let res = await delActionInfo({
+            actionId,
+          });
           if (res.code === 0) {
             this.$message.success(this.$t("createApp.delSuccess"));
             this.getAppDetail();
@@ -1225,6 +1250,7 @@ export default {
   user-select: none;
   pointer-events: none !important;
 }
+
 /deep/ {
   .apikeyBtn {
     border: 1px solid $btn_bg;
@@ -1232,26 +1258,32 @@ export default {
     color: $btn_bg;
     display: flex;
     align-items: center;
+
     img {
       height: 14px;
     }
   }
+
   .metaSetVisible {
     .el-dialog__header {
       border-bottom: 1px solid #dbdbdb;
     }
+
     .el-dialog__body {
       max-height: 400px;
       overflow-y: auto;
     }
   }
 }
+
 .metaHeader {
   display: flex;
   justify-content: flex-start;
+
   h3 {
     font-size: 18px;
   }
+
   span {
     margin-left: 10px;
     color: #666;
@@ -1259,54 +1291,66 @@ export default {
     padding-top: 5px;
   }
 }
+
 //通用添加按钮
 .common-add {
   color: #595959;
   cursor: pointer;
   margin-left: 10px;
+
   .handleBtn,
   .el-icon-plus {
     font-size: 13px !important;
     padding: 0 2px;
   }
+
   .set {
     margin-left: 1px;
   }
+
   .el-icon-plus {
     font-weight: bold;
   }
 }
+
 .model-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .label {
     display: flex;
     align-items: center;
     font-size: 15px;
   }
 }
+
 .question {
   cursor: pointer;
   color: #999;
   margin-left: 8px;
 }
+
 ::selection {
   color: #1a2029;
   background: #c8deff;
 }
+
 .question {
   cursor: pointer;
   color: #ccc;
   margin-left: 6px;
 }
+
 .basicInfo {
   display: flex;
   align-items: center;
   border-radius: 12px;
   padding: 16px;
+
   .img {
     margin-right: 10px;
+
     img {
       border-radius: 6px;
       width: 32px;
@@ -1315,21 +1359,25 @@ export default {
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
     }
   }
+
   .basicInfo-desc {
     flex: 1;
   }
+
   .basicInfo-title {
     display: inline-block;
     font-weight: 600;
     font-size: 14px;
     color: #1f2937;
   }
+
   .editIcon {
     font-size: 16px;
     margin-left: 5px;
     cursor: pointer;
     color: #6b7280;
   }
+
   p {
     color: #6b7280;
     font-size: 12px;
@@ -1337,6 +1385,7 @@ export default {
     line-height: 1.2;
   }
 }
+
 .form-header {
   width: 100%;
   height: 60px;
@@ -1346,6 +1395,7 @@ export default {
   padding: 0 20px;
   position: relative;
   border-bottom: 1px solid #dbdbdb;
+
   .popover-operation {
     position: absolute;
     bottom: -122px;
@@ -1355,42 +1405,50 @@ export default {
     padding: 10px 20px;
     border-radius: 6px;
     z-index: 999;
+
     .saveBtn {
       display: flex;
       justify-content: center;
       padding: 10px 0;
     }
   }
+
   .header-left {
     display: flex;
     align-items: center;
+
     .btn {
       margin-right: 10px;
       font-size: 18px;
       cursor: pointer;
     }
+
     .header-left-title {
       font-size: 18px;
       color: $color_title;
       font-weight: bold;
     }
   }
+
   .header-right {
     display: flex;
     align-items: center;
   }
 }
+
 .agent-from-content {
   height: 100%;
   width: 100%;
   overflow: hidden !important;
 }
+
 .agent_form {
   padding: 0 10px;
   display: flex;
   justify-content: space-between;
   gap: 10px;
   height: calc(100% - 60px);
+
   .drawer-info {
     position: relative;
     width: 30%;
@@ -1400,24 +1458,29 @@ export default {
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
     // padding: 10px;
   }
+
   .labelTitle {
     font-size: 18px;
     font-weight: 800;
     padding: 10px 20px;
   }
+
   .promptTitle {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 10px 0 10px;
+
     .prompt-title-icon {
       display: flex;
       align-items: center;
     }
+
     h3 {
       font-size: 18px;
       font-weight: 800;
     }
+
     span {
       margin-left: 5px;
       font-size: 16px;
@@ -1428,11 +1491,13 @@ export default {
       border-radius: 50%;
       background: #e0e7ff;
     }
+
     .tool-icon {
       display: inline-block;
       width: 32px;
       height: 32px;
       cursor: pointer;
+
       img {
         width: 100%;
         height: 100%;
@@ -1440,11 +1505,13 @@ export default {
       }
     }
   }
+
   .actionConfig {
     overflow-y: auto;
     width: 60%;
     padding: 0 40px;
   }
+
   .drawer-form {
     width: 30%;
     margin: 10px 0;
@@ -1455,6 +1522,7 @@ export default {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+
     /deep/.el-input__inner,
     /deep/.el-textarea__inner {
       background-color: transparent !important;
@@ -1462,27 +1530,32 @@ export default {
       font-family: "Microsoft YaHei", Arial, sans-serif;
       padding: 15px;
     }
+
     .flex {
       width: 100%;
       display: flex;
       justify-content: space-between;
     }
+
     .link-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       padding: 10px 20px;
     }
+
     .common-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       padding: 5px 20px;
       margin-bottom: 15px;
+
       .block {
         margin-bottom: 10px;
       }
     }
+
     .tool-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
@@ -1495,36 +1568,44 @@ export default {
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       margin-bottom: 15px;
+
       .block {
         padding: 5px 20px;
         margin-bottom: 0px !important;
       }
     }
+
     /*通用*/
     .block {
       margin-bottom: 15px;
+
       .tool-title {
         display: flex;
         justify-content: space-between;
+
         span {
           font-size: 15px;
         }
       }
+
       .block-title {
         line-height: 30px;
         font-size: 15px;
         font-weight: bold;
         display: flex;
         align-items: center;
+
         .title_tips {
           color: #999;
           margin-left: 20px;
           font-weight: normal;
         }
+
         .question-tips {
           margin-left: 5px;
         }
       }
+
       .block-link {
         border: 1px solid #ddd;
         padding: 6px 10px;
@@ -1532,11 +1613,13 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .link-text {
           color: $color;
           display: flex;
           align-items: center;
         }
+
         .link-operation {
           cursor: pointer;
           margin-right: 5px;
@@ -1544,56 +1627,69 @@ export default {
           line-height: 20px;
         }
       }
+
       .tool-conent {
         display: flex;
         justify-content: space-between;
         gap: 10px;
+
         .tool {
           width: 100%;
           max-height: 300px;
           overflow-y: auto;
+
           .action-list {
             width: 100%;
           }
         }
       }
+
       .model-select {
         width: 100%;
       }
+
       .model-select-tips {
         margin-top: 10px;
         color: #dc6803;
       }
+
       .operation {
         text-align: center;
         cursor: pointer;
         font-size: 16px;
         padding-right: 10px;
       }
+
       .operation:hover {
         color: $color;
       }
+
       .tips {
         display: flex;
         align-items: center;
         margin-bottom: 5px;
+
         .block-title-tips {
           color: #ccc;
           margin-right: 10px;
         }
       }
+
       .paramsSet {
         padding: 10px;
       }
+
       .required-label {
         width: 18px;
         height: 18px;
         margin-right: 4px;
       }
+
       .block-tip {
         color: #919eac;
       }
     }
+
     .el-input__count {
       color: #909399;
       background: #fafafa;
@@ -1602,17 +1698,21 @@ export default {
       bottom: 5px;
       right: 10px;
     }
+
     /*新建应用*/
     .name-box {
       height: 90px;
       line-height: 90px;
       font-size: 22px;
       display: flex;
+
       .name-input {
         width: 100%;
       }
+
       .input-echo {
         font-size: 22px;
+
         .name-edit {
           margin-left: 20px;
           cursor: pointer;
@@ -1620,31 +1720,38 @@ export default {
         }
       }
     }
+
     .logo-box {
       margin-top: 20px;
+
       .right-input-box {
         flex: 1;
         width: 0;
         margin-left: 20px;
       }
+
       .instructions-input {
         margin-top: 10px;
       }
     }
+
     .logo-upload {
       width: 120px;
       height: 120px;
       margin-top: 3px;
+
       /deep/ {
         .el-upload {
           width: 100%;
           height: 100%;
         }
+
         .echo-img {
           img {
             object-fit: cover;
             height: 100%;
           }
+
           .echo-img-tip {
             position: absolute;
             width: 100%;
@@ -1658,11 +1765,13 @@ export default {
         }
       }
     }
+
     /deep/.desc-input {
       .el-textarea__inner {
         height: 90px !important;
       }
     }
+
     .systemPrompt-tip {
       background-color: #f1f1f1;
       border-radius: 6px;
@@ -1671,24 +1780,29 @@ export default {
       margin-top: 10px;
       padding: 8px 20px;
     }
+
     /*推荐问题*/
     .recommend-box {
       .recommend-title {
         display: flex;
         justify-content: space-between;
+
         span {
           font-size: 15px;
         }
       }
+
       .recommend-item {
         margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         position: relative;
+
         .recommend--input {
           width: calc(100% - 30px);
           margin-right: 30px;
         }
+
         .recommend-del {
           position: absolute;
           right: 10px;
@@ -1696,6 +1810,7 @@ export default {
           color: #595959;
           cursor: pointer;
         }
+
         .close--icon {
           display: inline-block;
           width: 60px;
@@ -1703,6 +1818,7 @@ export default {
           text-align: center;
           cursor: pointer;
           color: #333;
+
           &:hover {
             font-weight: bold;
           }
@@ -1725,6 +1841,7 @@ export default {
       .el-checkbox-group {
         margin-top: 10px;
       }
+
       .plugin-checkbox /deep/.el-checkbox__inner.is-checked.el-checkbox__inner {
         background-color: #409eff;
         border-color: #409eff;
@@ -1743,6 +1860,7 @@ export default {
       border-top: 1px solid #d3d7dd;
     }
   }
+
   .drawer-test {
     width: calc((100% - 320px - 20px) / 2);
     background: #f7f8fa;
@@ -1760,9 +1878,11 @@ export default {
   left: -2px;
   right: -2px;
 }
+
 .action-list {
   margin: 10px 0 15px 0;
   width: 100%;
+
   .action-item {
     display: flex;
     justify-content: space-between;
@@ -1771,6 +1891,7 @@ export default {
     border-radius: 6px;
     margin-bottom: 5px;
     width: 100%;
+
     .name {
       width: 80%;
       box-sizing: border-box;
@@ -1779,16 +1900,19 @@ export default {
       display: flex;
       align-items: center;
       color: #333;
+
       .desc-info {
         color: #ccc;
         margin-left: 4px;
       }
+
       .toolImg {
         width: 30px;
         height: 30px;
         border-radius: 50%;
         background: #eee;
         margin-right: 5px;
+
         img {
           width: 100%;
           height: 100%;
@@ -1797,6 +1921,7 @@ export default {
         }
       }
     }
+
     .bt {
       text-align: center;
       width: 30%;
@@ -1806,14 +1931,17 @@ export default {
       padding-right: 10px;
       box-sizing: border-box;
       cursor: pointer;
+
       .del {
         color: $btn_bg;
         font-size: 16px;
         line-height: 20px;
       }
+
       .bt-switch {
         margin: 0 6px 0 6px;
       }
+
       .bt-operation {
         font-size: 16px;
         line-height: 20px;
@@ -1826,20 +1954,28 @@ export default {
 .vue-treeselect .vue-treeselect__menu-container {
   z-index: 9999 !important;
 }
+
 .custom-tooltip.is-light {
-  border-color: #ccc; /* 设置边框颜色 */
-  background-color: #fff; /* 设置背景颜色 */
-  color: #666; /* 设置文字颜色 */
+  border-color: #ccc;
+  /* 设置边框颜色 */
+  background-color: #fff;
+  /* 设置背景颜色 */
+  color: #666;
+  /* 设置文字颜色 */
 }
+
 .custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
   border-top-color: #fff !important;
 }
+
 .custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
   border-top-color: #ccc !important;
 }
+
 .drawer-test .echo .session-item {
   width: 30vw !important;
 }
+
 .model-option-content {
   display: flex;
   justify-content: space-between;
@@ -1857,6 +1993,7 @@ export default {
     gap: 4px;
     flex-shrink: 0;
     margin-top: 4px;
+
     .model-select-tag {
       background-color: #f0f2ff;
       color: $color;
@@ -1868,4 +2005,3 @@ export default {
   }
 }
 </style>
-

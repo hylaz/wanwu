@@ -58,9 +58,11 @@ message UpdateRagReq{
 message UpdateRagConfigReq{
   string ragId = 1;
   common.AppModelConfig modelConfig = 2;                  // 模型
-  common.AppModelConfig rerankConfig = 3;                 // Rerank模型
-  RagKnowledgeBaseConfig knowledgeBaseConfig = 4;         // 知识库
-  RagSensitiveConfig sensitiveConfig = 5;                 // 安全护栏
+  common.AppModelConfig rerankConfig = 3;                 // 知识库Rerank模型
+  common.AppModelConfig QArerankConfig = 4; // 问答库rerank模型
+  RagKnowledgeBaseConfig knowledgeBaseConfig = 5;         // 知识库配置
+  RagQAKnowledgeBaseConfig QAknowledgeBaseConfig = 6; // 问答库配置
+  RagSensitiveConfig sensitiveConfig = 7;                 // 安全护栏
 }
 
 message CreateRagReq {
@@ -77,9 +79,11 @@ message RagInfo {
   common.AppBriefConfig briefConfig = 2;
   common.AppModelConfig modelConfig = 3;                  // 模型
   common.AppModelConfig rerankConfig = 4;                 // Rerank模型
-  RagKnowledgeBaseConfig knowledgeBaseConfig = 5;         // 知识库
-  RagSensitiveConfig sensitiveConfig = 6; // 安全护栏
-  Identity identity = 7;
+  common.AppModelConfig QArerankConfig = 5; // 问答库rerank模型
+  RagKnowledgeBaseConfig knowledgeBaseConfig = 6;         // 知识库
+  RagQAKnowledgeBaseConfig QAknowledgeBaseConfig = 7; // 问答库配置
+  RagSensitiveConfig sensitiveConfig = 8; // 安全护栏
+  Identity identity = 9;
 }
 
 message RagDeleteReq {
@@ -95,10 +99,31 @@ message RagKnowledgeBaseConfig {
   RagGlobalConfig globalConfig = 2;
 }
 
+message RagQAKnowledgeBaseConfig {
+  repeated RagPerQAKnowledgeConfig perKnowledgeConfigs = 1;
+  RagQAGlobalConfig globalConfig = 2;
+}
+
+message RagQAGlobalConfig{
+  int32 maxHistory = 1;                           // 最长上下文
+  float threshold = 2;                            // 过滤阈值
+  int32 topK = 3;                                 // topK
+  string matchType = 4; //matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+  float keywordPriority = 5;// 关键词权重
+  int32 priorityMatch = 6;// 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+  float semanticsPriority = 7;// 语义权重
+}
+
+message RagPerQAKnowledgeConfig{
+  string knowledgeId = 1;
+  RagMetaFilter ragMetaFilter = 2; // 元数据
+}
+
+
 message RagPerKnowledgeConfig{
   string knowledgeId = 1;
-  int32 graphSwitch = 2;
-  RagMetaFilter ragMetaFilter = 3;
+  int32 graphSwitch = 2; // 知识图谱
+  RagMetaFilter ragMetaFilter = 3; // 元数据
 }
 
 message RagMetaFilter{
@@ -125,6 +150,7 @@ message RagGlobalConfig{
   float termWeight = 8; // 关键词系数，默认为1
   bool termWeightEnable = 9; // 关键词系数开关
   bool useGraph = 10; // 知识图谱开关
+  bool chiChat = 11; // 闲聊模式开关
 }
 
 message RagSensitiveConfig{

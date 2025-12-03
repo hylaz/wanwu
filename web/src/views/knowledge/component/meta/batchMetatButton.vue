@@ -1,5 +1,5 @@
 <template>
-  <div class="batch-operation-toolbar" v-if="selectedCount > 0">
+  <div class="batch-operation-toolbar" v-if="selectedCount > 0 && type === 'multiple'">
     <div class="toolbar-container">
       <div class="toolbar-item selected-item">
         <span class="selected-badge">{{ selectedCount }}</span>
@@ -28,6 +28,10 @@ export default {
     selectedCount: {
       type: Number,
       default: 0
+    },
+    type:{
+      type:String,
+      default:'multiple'
     }
   },
   methods: {

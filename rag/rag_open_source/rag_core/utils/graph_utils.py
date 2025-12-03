@@ -461,7 +461,7 @@ def get_community_report_list(user_id: str, kb_name: str, page_size: int, search
     return response_info
 
 @timing.timing_decorator(logger, include_args=True)
-def get_graph_search_list(user_id, kb_names, question, top_k, kb_ids=[], filter_file_name_list=[]):
+def get_graph_search_list(user_id, kb_names, question, top_k, kb_ids=[], filter_file_name_list=[], threshold=0.0):
     """ 根据问题召回知识图谱的 search列表"""
     # 使用query去 es召回 图谱 SPO信息
     try:
@@ -485,8 +485,9 @@ def get_graph_search_list(user_id, kb_names, question, top_k, kb_ids=[], filter_
         es_graph_search_list = es_utils.search_graph_es(user_id, kb_names, graph_node_query, search_top_k, kb_ids=kb_ids,
                                             filter_file_name_list=filter_file_name_list)
         graph_list = []
-        report_topk = min(2, int(top_k*0.4))
-        community_report_result = milvus_utils.search_milvus(user_id, kb_names, report_topk, question, threshold=0,
+        # report_topk = min(2, int(top_k*0.4))
+        report_topk = 1
+        community_report_result = milvus_utils.search_milvus(user_id, kb_names, report_topk, question, threshold=threshold,
                                                    search_field="content", kb_ids=kb_ids, milvus_url=milvus_utils.KNN_COMMUNITY_SEARCH_URL)
         logger.info(f"search report done, user_id:{user_id}, kb_names: {kb_names}, report_topk: {report_topk}, "
                     f"entities: {entities}, reports: {community_report_result}")

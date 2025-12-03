@@ -69,6 +69,7 @@
 {"code":110000,"key":"bff_chatflow_apps_list","langs":{"en":"get chatflow app list err: %v","zh":"获取对话流应用列表错误：%v"}}
 {"code":110000,"key":"bff_chatflow_conversation_create","langs":{"zh":"创建对话流会话错误: %v"}}
 {"code":110000,"key":"bff_chatflow_chat","langs":{"zh":"对话流运行错误: %v"}}
+{"code":110000,"key":"bff_workflow_convert","langs":{"zh":"对话流工作流转换错误: %v"}}
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
 {"code":110000,"key":"bff_doc_center_file_md","langs":{"en":"no markdown files found: %v","zh":"未含有md文件: %v"}}
@@ -273,6 +274,18 @@
 {"code":147003,"key":"","langs":{"zh":"删除社区报告失败，请稍后重试"}}
 {"code":147004,"key":"","langs":{"zh":"更新社区报告失败，请稍后重试"}}
 {"code":147005,"key":"","langs":{"zh":"生成社区报告失败，请稍后重试"}}
+{"code":148001,"key":"","langs":{"zh":"获取问答库失败，请稍后重试"}}
+{"code":148002,"key":"","langs":{"zh":"问答库文档导入失败，请稍后重试"}}
+{"code":148003,"key":"","langs":{"zh":"新增问答对失败，请稍后重试"}}
+{"code":148004,"key":"","langs":{"zh":"问答对问题校验失败，请稍后重试"}}
+{"code":148005,"key":"","langs":{"zh":"更新问答对失败，请稍后重试"}}
+{"code":148006,"key":"","langs":{"zh":"获取问答对失败，请稍后重试"}}
+{"code":148007,"key":"","langs":{"zh":"启停问答对失败，请稍后重试"}}
+{"code":148008,"key":"","langs":{"zh":"删除问答对失败，请稍后重试"}}
+{"code":148009,"key":"","langs":{"zh":"获取问答库问答对列表失败，请稍后重试"}}
+{"code":148010,"key":"","langs":{"zh":"问答库文档导入失败，请稍后重试"}}
+{"code":148011,"key":"","langs":{"zh":"获取问答库导出记录列表失败，请稍后重试"}}
+{"code":148012,"key":"","langs":{"zh":"删除导出记录失败，请稍后重试"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}
@@ -330,6 +343,7 @@
 {"code":160001,"key":"assistant_onlineSearchConfig_unmarshal","langs":{"zh":"智能体onlineSearch配置解析失败: %v"}}
 {"code":160001,"key":"assistant_safetyConfig_unmarshal","langs":{"zh":"智能体safety配置解析失败: %v"}}
 {"code":160001,"key":"assistant_copy","langs":{"zh":"智能体复制错误: %v"}}
+{"code":160001,"key":"assistant_snapshot","langs":{"zh":"智能体快照错误: %v"}}
 {"code":160002,"key":"assistant_action_update","langs":{"zh":"更新action错误: %v"}}
 {"code":160002,"key":"assistant_action_get","langs":{"zh":"获取action错误: %v"}}
 {"code":160002,"key":"assistant_actions_get_by_assistant_id","langs":{"zh":"获取action错误: %v"}}

@@ -7,9 +7,15 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
+const (
+	CategoryKnowledge = 0
+	CategoryQA        = 1
+)
+
 type KnowledgeSelectReq struct {
 	Name      string   `json:"name" form:"name" `
 	TagIdList []string `json:"tagId" form:"tagId" `
+	Category  int32    `json:"category" form:"category"` // 0:知识库，1:问答库
 	CommonCheck
 }
 
@@ -23,7 +29,8 @@ type CreateKnowledgeReq struct {
 	Name           string          `json:"name"  validate:"required"`
 	Description    string          `json:"description"`
 	EmbeddingModel *EmbeddingModel `json:"embeddingModelInfo" validate:"required"`
-	KnowledgeGraph *KnowledgeGraph `json:"knowledgeGraph" validate:"required"`
+	KnowledgeGraph *KnowledgeGraph `json:"knowledgeGraph"`
+	Category       int32           `json:"category" form:"category"` // 0:知识库，1:问答库
 }
 
 type UpdateKnowledgeReq struct {
@@ -128,12 +135,31 @@ type UpdateMetaValueReq struct {
 	ApplyToSelected bool           `json:"applyToSelected"`
 }
 
+// RagSearchQABaseReq rag知识库查询请求
+type RagSearchQABaseReq struct {
+	QAUser                      map[string][]*RagQaInfo `json:"QABaseInfo"`
+	UserId                      string                  `json:"userId" validate:"required"`
+	KnowledgeIdList             []string                `json:"knowledgeIdList,omitempty" validate:"required"`
+	Question                    string                  `json:"question"`
+	ReturnMeta                  bool                    `json:"returnMeta"`
+	Threshold                   float64                 `json:"threshold"`
+	TopK                        int64                   `json:"topK"`
+	RetrieveMethod              string                  `json:"retrieveMethod"`
+	RerankMod                   string                  `json:"rerankMod"`
+	RerankModelId               string                  `json:"rerankModelId"`
+	MetadataFiltering           bool                    `json:"metadataFiltering"`
+	MetadataFilteringConditions []*QAMetadataFilterItem `json:"metadataFilteringConditions"`
+	Weight                      *WeightParams           `json:"weights"`
+	CommonCheck
+}
+
 // RagSearchKnowledgeBaseReq rag知识库查询请求
 type RagSearchKnowledgeBaseReq struct {
+	KnowledgeUser        map[string][]*RagKnowledgeInfo `json:"knowledge_base_info"`
+	UseGraph             bool                           `json:"use_graph"` // 是否启动知识图谱查询
 	UserId               string                         `json:"userId" validate:"required"`
 	Question             string                         `json:"question" validate:"required"`
 	KnowledgeIdList      []string                       `json:"knowledgeIdList,omitempty" validate:"required"`
-	KnowledgeUser        map[string][]*RagKnowledgeInfo `json:"knowledge_base_info"`
 	Threshold            float64                        `json:"threshold"`
 	TopK                 int32                          `json:"topK"`
 	RerankModelId        string                         `json:"rerank_model_id"`               // rerankId
@@ -143,7 +169,6 @@ type RagSearchKnowledgeBaseReq struct {
 	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
-	UseGraph             bool                           `json:"use_graph"`                     // 是否启动知识图谱查询
 	CommonCheck
 }
 
@@ -196,6 +221,11 @@ type RagKnowledgeInfo struct {
 	KnowledgeName string `json:"kb_name"`
 }
 
+type RagQaInfo struct {
+	QaBaseId   string `json:"QAId"`
+	QaBaseName string `json:"QABase"`
+}
+
 type WeightParams struct {
 	VectorWeight float32 `json:"vector_weight"` //语义权重
 	TextWeight   float32 `json:"text_weight"`   //关键字权重
@@ -203,6 +233,12 @@ type WeightParams struct {
 
 type MetadataFilterItem struct {
 	FilterKnowledgeName string      `json:"filtering_kb_name"`
+	LogicalOperator     string      `json:"logical_operator"`
+	Conditions          []*MetaItem `json:"conditions"`
+}
+
+type QAMetadataFilterItem struct {
+	FilteringQaBaseName string      `json:"filtering_qa_base_name"`
 	LogicalOperator     string      `json:"logical_operator"`
 	Conditions          []*MetaItem `json:"conditions"`
 }
@@ -228,11 +264,13 @@ func (c *CreateKnowledgeReq) Check() error {
 		errMsg := fmt.Sprintf("知识库名称只能包含中文、数字、小写英文，符号之只能包含下划线和减号 参数(%v)", c.Name)
 		return errors.New(errMsg)
 	}
-	if c.KnowledgeGraph == nil {
-		return errors.New("knowledge graph can not be nil")
-	}
-	if c.KnowledgeGraph.Switch && c.KnowledgeGraph.LLMModelId == "" {
-		return errors.New("knowledge graph llmModelId can not be empty")
+	if c.Category == CategoryKnowledge {
+		if c.KnowledgeGraph == nil {
+			return errors.New("knowledge graph can not be nil")
+		}
+		if c.KnowledgeGraph.Switch && c.KnowledgeGraph.LLMModelId == "" {
+			return errors.New("knowledge graph llmModelId can not be empty")
+		}
 	}
 	return nil
 }

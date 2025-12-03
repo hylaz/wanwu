@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
@@ -40,20 +41,6 @@ func SelectMetaByDocIds(ctx context.Context, userId, orgId string, docIds []stri
 	return docMetaList, nil
 }
 
-// SelectDocMetaListByKey 根据key,docId获取文档元数据值列表
-func SelectDocMetaListByKey(ctx context.Context, userId, orgId, docId, metaKey string) ([]*model.KnowledgeDocMeta, error) {
-	var docMetaList []*model.KnowledgeDocMeta
-	err := sqlopt.SQLOptions(sqlopt.WithDocID(docId), sqlopt.WithPermit(orgId, userId), sqlopt.WithKey(metaKey), sqlopt.WithNonEmptyValue()).
-		Apply(db.GetHandle(ctx), &model.KnowledgeDocMeta{}).
-		Order("create_at desc").
-		Find(&docMetaList).
-		Error
-	if err != nil {
-		return nil, err
-	}
-	return docMetaList, nil
-}
-
 // SelectMetaByKnowledgeId 获取单个知识库的元数据列表
 func SelectMetaByKnowledgeId(ctx context.Context, userId, orgId string, knowledgeId string) ([]*model.KnowledgeDocMeta, error) {
 	var docMetaList []*model.KnowledgeDocMeta
@@ -68,74 +55,80 @@ func SelectMetaByKnowledgeId(ctx context.Context, userId, orgId string, knowledg
 	return docMetaList, nil
 }
 
-// UpdateDocStatusDocMeta 更新文档元数据
-func UpdateDocStatusDocMeta(ctx context.Context, addList []*model.KnowledgeDocMeta,
-	updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, ragDocMetaParams *service.BatchRagDocMetaParams) error {
+func BatchUpdateQAMetaValue(ctx context.Context, addList, updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, knowledge *model.KnowledgeBase, userId string, qaPairIds []string) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
-		//todo 文档元数据应该不会特别多，所以先这么做，如果比较多，后续优化
-		if len(deleteDataIdList) > 0 {
-			err := tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("meta_id IN ?", deleteDataIdList).Delete(&model.KnowledgeDocMeta{}).Error
-			if err != nil {
-				return err
-			}
+		// 1.更新数据库
+		err := modifyMetaValue(tx, addList, updateList, deleteDataIdList, knowledge.KnowledgeId)
+		if err != nil {
+			return err
 		}
-		if len(addList) > 0 {
-			//插入数据
-			err := tx.Model(&model.KnowledgeDocMeta{}).CreateInBatches(addList, len(addList)).Error
-			if err != nil {
-				return err
-			}
+		// 2.构造rag参数
+		ragParams, err := buildBatchUpdateQAMetaRAGParams(tx, knowledge, userId, qaPairIds)
+		if err != nil {
+			return err
 		}
-		if len(updateList) > 0 {
-			for _, meta := range updateList {
-				//更新数据
-				updateMap := map[string]interface{}{
-					"value": meta.Value,
-				}
-				err := tx.Model(&model.KnowledgeDocMeta{}).Where("meta_id = ?", meta.MetaId).Updates(updateMap).Error
-				if err != nil {
-					return err
-				}
-			}
-		}
-		if ragDocMetaParams != nil {
-			return service.BatchRagDocMeta(ctx, ragDocMetaParams)
+		// 3.发送rag请求
+		err = service.BatchRagQAMeta(ctx, ragParams)
+		if err != nil {
+			return err
 		}
 		return nil
 	})
 }
 
-func BatchUpdateDocMetaValue(ctx context.Context, addList, updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, knowledge *model.KnowledgeBase, docList []*model.KnowledgeDoc, userId string, docIds []string) error {
-	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
-		if len(addList) > 0 {
-			//插入数据
-			err := tx.Model(&model.KnowledgeDocMeta{}).CreateInBatches(addList, len(addList)).Error
-			if err != nil {
-				return err
-			}
-		}
-		if len(updateList) > 0 {
-			for _, meta := range updateList {
-				//更新数据
-				updateMap := map[string]interface{}{
-					"value": meta.Value,
-				}
-				err := tx.Model(&model.KnowledgeDocMeta{}).Where("meta_id = ?", meta.MetaId).Updates(updateMap).Error
-				if err != nil {
-					return err
-				}
-			}
-		}
-		if len(deleteDataIdList) > 0 {
-			err := tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("meta_id IN ?", deleteDataIdList).Delete(&model.KnowledgeDocMeta{}).Error
-			if err != nil {
-				return err
-			}
-		}
-		ragParams, err := buildBatchUpdateMetaRAGParams(tx, knowledge, docList, userId, docIds)
+func modifyMetaValue(tx *gorm.DB, addList []*model.KnowledgeDocMeta, updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, knowledgeId string) error {
+	hasChanges := false
+	if len(addList) > 0 {
+		//插入数据
+		err := tx.Model(&model.KnowledgeDocMeta{}).CreateInBatches(addList, len(addList)).Error
 		if err != nil {
 			return err
 		}
+		hasChanges = true
+	}
+	if len(updateList) > 0 {
+		for _, meta := range updateList {
+			//更新数据
+			updateMap := map[string]interface{}{
+				"value": meta.Value,
+			}
+			err := tx.Model(&model.KnowledgeDocMeta{}).Where("meta_id = ?", meta.MetaId).Updates(updateMap).Error
+			if err != nil {
+				return err
+			}
+		}
+		hasChanges = true
+	}
+	if len(deleteDataIdList) > 0 {
+		err := tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("meta_id IN ?", deleteDataIdList).Delete(&model.KnowledgeDocMeta{}).Error
+		if err != nil {
+			return err
+		}
+		hasChanges = true
+	}
+	if hasChanges {
+		err := tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
+			Update("update_at", time.Now().UnixMilli()).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func BatchUpdateDocMetaValue(ctx context.Context, addList, updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, knowledge *model.KnowledgeBase, docList []*model.KnowledgeDoc, userId string, docIds []string) error {
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1.更新数据库
+		err := modifyMetaValue(tx, addList, updateList, deleteDataIdList, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
+		// 2.构造rag参数
+		ragParams, err := buildBatchUpdateDocMetaRAGParams(tx, knowledge, docList, userId, docIds)
+		if err != nil {
+			return err
+		}
+		// 3.发送rag请求
 		err = service.BatchRagDocMeta(ctx, ragParams)
 		if err != nil {
 			return err
@@ -144,7 +137,7 @@ func BatchUpdateDocMetaValue(ctx context.Context, addList, updateList []*model.K
 	})
 }
 
-func buildBatchUpdateMetaRAGParams(tx *gorm.DB, knowledge *model.KnowledgeBase, docList []*model.KnowledgeDoc, userId string, docIds []string) (*service.BatchRagDocMetaParams, error) {
+func buildBatchUpdateDocMetaRAGParams(tx *gorm.DB, knowledge *model.KnowledgeBase, docList []*model.KnowledgeDoc, userId string, docIds []string) (*service.BatchRagDocMetaParams, error) {
 	docNameMap := make(map[string]string)
 	for _, doc := range docList {
 		docNameMap[doc.DocId] = service.RebuildFileName(doc.DocId, doc.FileType, doc.Name)
@@ -155,7 +148,7 @@ func buildBatchUpdateMetaRAGParams(tx *gorm.DB, knowledge *model.KnowledgeBase, 
 		log.Errorf("docId %v select meta fail %v", docIds, err)
 		return nil, err
 	}
-	metaList, err := buildBatchMetaParamsList(docMetaList, docNameMap, docIds)
+	metaList, err := buildBatchDocMetaParamsList(docMetaList, docNameMap, docIds)
 	if err != nil {
 		log.Errorf("docId %v build meta params fail %v", docIds, err)
 		return nil, err
@@ -169,74 +162,44 @@ func buildBatchUpdateMetaRAGParams(tx *gorm.DB, knowledge *model.KnowledgeBase, 
 	return ragParams, nil
 }
 
-// UpdateBatchStatusDocMeta 批量更新文档tag
-func UpdateBatchStatusDocMeta(ctx context.Context, knowledgeId string, docNameMap map[string]string, addList []*model.KnowledgeDocMeta,
-	updateList []*model.KnowledgeDocMeta, ragDocMetaParams *service.BatchRagDocMetaParams) error {
-	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
-		if len(addList) > 0 {
-			//插入数据
-			err := tx.Model(&model.KnowledgeDocMeta{}).CreateInBatches(addList, len(addList)).Error
-			if err != nil {
-				return err
-			}
-		}
-		if len(updateList) > 0 {
-			for _, meta := range updateList {
-				//更新数据
-				updateMap := map[string]interface{}{
-					"value": meta.Value,
-				}
-				err := tx.Model(&model.KnowledgeDocMeta{}).Where("meta_id = ?", meta.MetaId).Updates(updateMap).Error
-				if err != nil {
-					return err
-				}
-			}
-		}
-		//查询目前全量数据
-		var docMetaList []*model.KnowledgeDocMeta
-		err := sqlopt.SQLOptions(sqlopt.WithKnowledgeID(knowledgeId)).
-			Apply(tx, &model.KnowledgeDocMeta{}).
-			Order("create_at desc").
-			Find(&docMetaList).
-			Error
-		if err != nil {
-			return err
-		}
-		list, err := buildMetaParamsList(docMetaList, docNameMap)
-		if err != nil {
-			return err
-		}
-		ragDocMetaParams.MetaList = list
-		//调用rag
-		return service.BatchRagDocMeta(ctx, ragDocMetaParams)
-	})
+func buildBatchUpdateQAMetaRAGParams(tx *gorm.DB, knowledge *model.KnowledgeBase, userId string, qaPairIds []string) (*service.BatchRagQAMetaParams, error) {
+	qaMetaList := make([]*model.KnowledgeDocMeta, 0)
+	err := tx.Where("doc_id in ?", qaPairIds).Find(&qaMetaList).Error
+	if err != nil {
+		log.Errorf("docId %v select meta fail %v", qaPairIds, err)
+		return nil, err
+	}
+	metaList, err := buildBatchQAMetaParamsList(qaMetaList, qaPairIds)
+	if err != nil {
+		log.Errorf("docId %v build meta params fail %v", qaPairIds, err)
+		return nil, err
+	}
+	ragParams := &service.BatchRagQAMetaParams{
+		UserId: userId,
+		QABase: knowledge.RagName,
+		QAId:   knowledge.KnowledgeId,
+		Metas:  metaList,
+	}
+	return ragParams, nil
 }
 
-// buildBatchMetaParamsList 构建rag元数据参数
-func buildBatchMetaParamsList(docMetaList []*model.KnowledgeDocMeta, docNameMap map[string]string, docIds []string) ([]*service.DocMetaInfo, error) {
-	var docMetaMap = make(map[string][]*model.KnowledgeDocMeta)
+// buildBatchDocMetaParamsList 构建rag元数据参数
+func buildBatchDocMetaParamsList(docMetaList []*model.KnowledgeDocMeta, docNameMap map[string]string, docIds []string) ([]*service.DocMetaInfo, error) {
+	// 分组元数据
+	docMetaMap := make(map[string][]*model.KnowledgeDocMeta)
 	for _, meta := range docMetaList {
-		metas := docMetaMap[meta.DocId]
-		if len(metas) == 0 {
-			metas = make([]*model.KnowledgeDocMeta, 0)
-		}
-		metas = append(metas, meta)
-		docMetaMap[meta.DocId] = metas
+		docMetaMap[meta.DocId] = append(docMetaMap[meta.DocId], meta)
 	}
-	var docTrueMap = make(map[string]bool)
+	dataList := make([]*service.DocMetaInfo, 0, len(docIds))
 	for _, docId := range docIds {
-		docTrueMap[docId] = false
-	}
-	dataList := make([]*service.DocMetaInfo, 0)
-	for docId, metas := range docMetaMap {
-		var retList = make([]*service.MetaData, 0)
-		for _, meta := range metas {
+		metaDataList := make([]*service.MetaData, 0)
+		for _, meta := range docMetaMap[docId] {
 			valueData, err := buildValueData(meta.ValueType, meta.Value)
 			if err != nil {
 				log.Errorf("buildValueData error %s", err.Error())
 				return nil, err
 			}
-			retList = append(retList, &service.MetaData{
+			metaDataList = append(metaDataList, &service.MetaData{
 				Key:       meta.Key,
 				Value:     valueData,
 				ValueType: meta.ValueType,
@@ -244,50 +207,38 @@ func buildBatchMetaParamsList(docMetaList []*model.KnowledgeDocMeta, docNameMap 
 		}
 		dataList = append(dataList, &service.DocMetaInfo{
 			FileName:     docNameMap[docId],
-			MetaDataList: retList,
+			MetaDataList: metaDataList,
 		})
-		docTrueMap[docId] = true
-	}
-	for docId, isTrue := range docTrueMap {
-		if !isTrue {
-			dataList = append(dataList, &service.DocMetaInfo{
-				FileName:     docNameMap[docId],
-				MetaDataList: []*service.MetaData{},
-			})
-		}
 	}
 	return dataList, nil
 }
 
-// buildMetaParamsList 构建rag元数据参数
-func buildMetaParamsList(docMetaList []*model.KnowledgeDocMeta, docNameMap map[string]string) ([]*service.DocMetaInfo, error) {
-	var docMetaMap = make(map[string][]*model.KnowledgeDocMeta)
-	for _, meta := range docMetaList {
-		metas := docMetaMap[meta.DocId]
-		if len(metas) == 0 {
-			metas = make([]*model.KnowledgeDocMeta, 0)
-		}
-		metas = append(metas, meta)
-		docMetaMap[meta.DocId] = metas
+// buildBatchQAMetaParamsList 构建问答库rag元数据参数
+func buildBatchQAMetaParamsList(qaMetaList []*model.KnowledgeDocMeta, qaPairIds []string) ([]*service.QAMetaInfo, error) {
+	// 1.按QaPairId分组元数据
+	var qaMetaMap = make(map[string][]*model.KnowledgeDocMeta)
+	for _, meta := range qaMetaList {
+		qaMetaMap[meta.DocId] = append(qaMetaMap[meta.DocId], meta)
 	}
-	dataList := make([]*service.DocMetaInfo, 0)
-	for docId, metas := range docMetaMap {
-		var retList = make([]*service.MetaData, 0)
-		for _, meta := range metas {
+	// 2.直接遍历所有QaPairId构建结果
+	dataList := make([]*service.QAMetaInfo, 0, len(qaPairIds))
+	for _, qaPairId := range qaPairIds {
+		metaDataList := make([]*service.QAMetaData, 0)
+		for _, meta := range qaMetaMap[qaPairId] {
 			valueData, err := buildValueData(meta.ValueType, meta.Value)
 			if err != nil {
 				log.Errorf("buildValueData error %s", err.Error())
 				return nil, err
 			}
-			retList = append(retList, &service.MetaData{
+			metaDataList = append(metaDataList, &service.QAMetaData{
 				Key:       meta.Key,
 				Value:     valueData,
 				ValueType: meta.ValueType,
 			})
 		}
-		dataList = append(dataList, &service.DocMetaInfo{
-			FileName:     docNameMap[docId],
-			MetaDataList: retList,
+		dataList = append(dataList, &service.QAMetaInfo{
+			QAPairId:     qaPairId,
+			MetaDataList: metaDataList,
 		})
 	}
 	return dataList, nil
@@ -323,6 +274,11 @@ func DeleteMetaDataByDocIdList(tx *gorm.DB, knowledgeId string, docIdList []stri
 	return tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("doc_id IN ?", docIdList).Where("knowledge_id = ?", knowledgeId).Delete(&model.KnowledgeDocMeta{}).Error
 }
 
+// DeleteMetaDataByQaPairIdList 根据qaPairIdList删除元数据
+func DeleteMetaDataByQaPairIdList(tx *gorm.DB, knowledgeId string, qaPairIdList []string) error {
+	return tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("qa_pair_id IN ?", qaPairIdList).Where("knowledge_id = ?", knowledgeId).Delete(&model.KnowledgeDocMeta{}).Error
+}
+
 // createBatchKnowledgeDocMeta 插入数据
 func createBatchKnowledgeDocMeta(tx *gorm.DB, knowledgeDocMetaList []*model.KnowledgeDocMeta) error {
 	err := tx.Model(&model.KnowledgeDocMeta{}).CreateInBatches(knowledgeDocMetaList, len(knowledgeDocMetaList)).Error
@@ -332,39 +288,62 @@ func createBatchKnowledgeDocMeta(tx *gorm.DB, knowledgeDocMetaList []*model.Know
 	return nil
 }
 
-func BatchDeleteMeta(ctx context.Context, deleteList []string, knowledgeId string, ragDeleteParams *service.RagBatchDeleteMetaParams) error {
+func BatchDeleteMeta(ctx context.Context, deleteList []string, knowledge *model.KnowledgeBase) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		// 批量删除元数据
-		err := tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("`key` IN ?", deleteList).Where("knowledge_id = ?", knowledgeId).Delete(&model.KnowledgeDocMeta{}).Error
+		err := tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("`key` IN ?", deleteList).Where("knowledge_id = ?", knowledge.KnowledgeId).Delete(&model.KnowledgeDocMeta{}).Error
 		if err != nil {
 			return err
 		}
 		// 调用rag
-		if ragDeleteParams != nil {
-			return service.RagBatchDeleteMeta(ctx, ragDeleteParams)
+		switch knowledge.Category {
+		case model.CategoryQA:
+			return service.RagQABatchDeleteMeta(ctx, &service.RagQABatchDeleteMetaParams{
+				UserId: knowledge.UserId,
+				QABase: knowledge.RagName,
+				QAId:   knowledge.KnowledgeId,
+				Keys:   deleteList,
+			})
+		default:
+			return service.RagBatchDeleteMeta(ctx, &service.RagBatchDeleteMetaParams{
+				UserId:        knowledge.UserId,
+				KnowledgeBase: knowledge.RagName,
+				KnowledgeId:   knowledge.KnowledgeId,
+				Keys:          deleteList,
+			})
 		}
-		return nil
 	})
 }
 
-func BatchUpdateMetaKey(ctx context.Context, updateList []*service.RagMetaMapKeys, knowledgeId string, ragUpdateParams *service.RagBatchUpdateMetaKeyParams) error {
+func BatchUpdateMetaKey(ctx context.Context, updateList []*service.RagMetaMapKeys, knowledge *model.KnowledgeBase) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		// 批量更新元数据
 		for _, meta := range updateList {
 			updateMap := map[string]interface{}{
 				"key": meta.NewKey,
 			}
-			err := tx.Model(&model.KnowledgeDocMeta{}).Where("`key` = ?", meta.OldKey).Where("knowledge_id = ?", knowledgeId).Updates(updateMap).Error
+			err := tx.Model(&model.KnowledgeDocMeta{}).Where("`key` = ?", meta.OldKey).Where("knowledge_id = ?", knowledge.KnowledgeId).Updates(updateMap).Error
 			if err != nil {
 				return err
 			}
 		}
-
 		// 调用rag
-		if ragUpdateParams != nil {
-			return service.RagBatchUpdateMeta(ctx, ragUpdateParams)
+		switch knowledge.Category {
+		case model.CategoryQA:
+			return service.RagQABatchUpdateMeta(ctx, &service.RagQABatchUpdateMetaKeyParams{
+				UserId:   knowledge.UserId,
+				QABase:   knowledge.RagName,
+				QAId:     knowledge.KnowledgeId,
+				Mappings: updateList,
+			})
+		default:
+			return service.RagBatchUpdateMeta(ctx, &service.RagBatchUpdateMetaKeyParams{
+				UserId:        knowledge.UserId,
+				KnowledgeBase: knowledge.RagName,
+				KnowledgeId:   knowledge.KnowledgeId,
+				Mappings:      updateList,
+			})
 		}
-		return nil
 	})
 }
 
@@ -376,5 +355,13 @@ func BatchAddMeta(ctx context.Context, addList []*model.KnowledgeDocMeta) error 
 			return err
 		}
 		return nil
+	})
+}
+
+func SyncUpdateKnowledgeBase(ctx context.Context, knowledgeId string) error {
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&model.KnowledgeBase{}).Where("knowledge_id = ?", knowledgeId).
+			Update("update_at", time.Now().UnixMilli()).Error
+		return err
 	})
 }

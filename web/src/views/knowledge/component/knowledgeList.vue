@@ -4,25 +4,55 @@
       <div class="smart rl smart-create">
         <div class="app-card-create" @click="showCreate">
           <div class="create-img-wrap">
-            <img class="create-type" src="@/assets/imgs/create_knowledge.svg" alt="" />
-            <img class="create-img" src="@/assets/imgs/create_icon.png" alt="" />
+            <img
+              class="create-type"
+              :src="
+                category === 0
+                  ? require('@/assets/imgs/create_knowledge.svg')
+                  : require('@/assets/imgs/create_qa.png')
+              "
+              alt=""
+            />
+            <img
+              class="create-img"
+              src="@/assets/imgs/create_icon.png"
+              alt=""
+            />
             <div class="create-filter"></div>
           </div>
-          <span>创建知识库</span>
+          <span>
+            {{
+              category === 0
+                ? $t("knowledgeManage.createKnowledge")
+                : $t("knowledgeManage.createQaDatabase")
+            }}
+          </span>
         </div>
       </div>
       <template v-if="listData && listData.length">
-        <div class="smart rl" 
-        v-for="(n,i) in listData" 
-        :key="`${i}sm`" 
-        @click.stop="toDocList(n)">
+        <div
+          class="smart rl"
+          v-for="(n, i) in listData"
+          :key="`${i}sm`"
+          @click.stop="toDocList(n)"
+        >
           <div>
-              <img  class="logo" :src="require('@/assets/imgs/knowledgeIcon.png')" />
-              <p :class="['smartDate']">{{n.docCount || 0}}个文档</p>
+            <img
+              class="logo"
+              :src="require('@/assets/imgs/knowledgeIcon.png')"
+            />
+            <p :class="['smartDate']">
+              {{ n.docCount || 0 }}
+              {{
+                category === 0
+                  ? $t("knowledgeManage.docCountUnit")
+                  : $t("knowledgeManage.qaCountUnit")
+              }}
+            </p>
           </div>
           <div class="info rl">
             <p class="name" :title="n.name">
-              {{n.name}}
+              {{ n.name }}
             </p>
             <el-tooltip
               v-if="n.description"
@@ -31,151 +61,216 @@
               :content="n.description"
               placement="bottom-start"
             >
-              <p class="desc">{{n.description}}</p>
+              <p class="desc">{{ n.description }}</p>
             </el-tooltip>
           </div>
           <div class="tags">
-            <span :class="['smartDate','tagList']" v-if="formattedTagNames(n.knowledgeTagList).length === 0" @click.stop="addTag(n.knowledgeId,n)">
-              <span class="el-icon-price-tag icon-tag"></span>
-              添加标签
+            <span v-if="category === 0">
+              <span
+                :class="['smartDate', 'tagList']"
+                v-if="formattedTagNames(n.knowledgeTagList).length === 0"
+                @click.stop="addTag(n.knowledgeId, n)"
+              >
+                <span class="el-icon-price-tag icon-tag"></span>
+                {{ $t("knowledgeManage.addTag") }}
+              </span>
+              <span v-else @click.stop="addTag(n.knowledgeId, n)">
+                {{ formattedTagNames(n.knowledgeTagList) }}
+              </span>
             </span>
-            <span v-else @click.stop="addTag(n.knowledgeId,n)">{{formattedTagNames(n.knowledgeTagList) }}</span>
           </div>
           <div class="editor">
-            <el-tooltip class="item" effect="dark" :content="n.orgName" placement="right-start">
-              <span style="margin-right:52px; color:#999;font-size:12px;">{{n.orgName.length > 10 ? n.orgName.substring(0, 10) + '...' : n.orgName}}</span>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="n.orgName"
+              placement="right-start"
+            >
+              <span style="margin-right: 52px; color: #999; font-size: 12px">
+                {{
+                  n.orgName.length > 10
+                    ? n.orgName.substring(0, 10) + "..."
+                    : n.orgName
+                }}
+              </span>
             </el-tooltip>
-            <div v-if="n.share" class="publishType" style="right:22px;">
-                <span v-if="n.share" class="publishType-tag"><span class="el-icon-unlock"></span> 公开</span>
-                <span v-else class="publishType-tag"><span class="el-icon-lock"></span> 私密</span>
+            <div v-if="n.share" class="publishType" style="right: 22px">
+              <span v-if="n.share" class="publishType-tag">
+                <span class="el-icon-unlock"></span>
+                {{ $t("knowledgeManage.public") }}
+              </span>
+              <span v-else class="publishType-tag">
+                <span class="el-icon-lock"></span>
+                {{ $t("knowledgeManage.private") }}
+              </span>
             </div>
             <el-dropdown @command="handleClick($event, n)" placement="top">
               <span class="el-dropdown-link">
                 <i class="el-icon-more icon edit-icon" @click.stop></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="edit" v-if="[30].includes(n.permissionType)">{{$t('common.button.edit')}}</el-dropdown-item>
-                <el-dropdown-item command="delete" v-if="[30].includes(n.permissionType)">{{$t('common.button.delete')}}</el-dropdown-item>
-                <el-dropdown-item command="power" >权限</el-dropdown-item>
+                <el-dropdown-item
+                  command="edit"
+                  v-if="[30].includes(n.permissionType)"
+                >
+                  {{ $t("common.button.edit") }}
+                </el-dropdown-item>
+                <el-dropdown-item
+                  command="delete"
+                  v-if="[30].includes(n.permissionType)"
+                >
+                  {{ $t("common.button.delete") }}
+                </el-dropdown-item>
+                <el-dropdown-item command="power">
+                  {{ $t("knowledgeSelect.power") }}
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
         </div>
       </template>
     </div>
-    <el-empty class="noData" v-if="!(listData && listData.length)" :description="$t('common.noData')"></el-empty>
-    <tagDialog ref="tagDialog" @relodaData="relodaData" type="knowledge" :title="title"/>
-    <PowerManagement ref="powerManagement"/>
+    <el-empty
+      class="noData"
+      v-if="!(listData && listData.length)"
+      :description="$t('common.noData')"
+    ></el-empty>
+    <tagDialog
+      ref="tagDialog"
+      @relodaData="relodaData"
+      type="knowledge"
+      :title="title"
+    />
+    <PowerManagement ref="powerManagement" />
   </div>
 </template>
 
 <script>
 import { delKnowledgeItem } from "@/api/knowledge";
-import { AppType } from "@/utils/commonSet"
-import tagDialog from './tagDialog.vue';
-import PowerManagement from './power/index.vue';
-import {mapActions} from 'vuex';
+import { AppType } from "@/utils/commonSet";
+import tagDialog from "./tagDialog.vue";
+import PowerManagement from "./power/index.vue";
+import { mapActions } from "vuex";
 export default {
-  components:{tagDialog, PowerManagement},
-  props:{
-    appData:{
-      type:Array,
-      required:true,
-      default:[]
-    }
+  components: { tagDialog, PowerManagement },
+  props: {
+    appData: {
+      type: Array,
+      required: true,
+      default: [],
+    },
+    category: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
-  watch:{
-    appData:{
-      handler:function(val){
-        this.listData = val
+  watch: {
+    appData: {
+      handler: function (val) {
+        this.listData = val;
       },
-      immediate:true,
-      deep:true
-    }
+      immediate: true,
+      deep: true,
+    },
   },
-  data(){
-    return{
-      apptype:AppType,
+  data() {
+    return {
+      apptype: AppType,
       basePath: this.$basePath,
-      listData:[],
-      title:'创建标签'
-    }
+      listData: [],
+      title: this.$t("knowledgeManage.createTag"),
+    };
   },
-  
-  methods:{
-  ...mapActions("app", ["setPermissionType","clearPermissionType"]),
-  formattedTagNames(data){
-    if(data.length === 0){
-      return [];
-    }
-    const tags = data.filter(item => item.selected).map(item =>  item.tagName ).join(', ');
-    if (tags.length > 30) {
-        return tags.slice(0, 30) + '...';
-    }
-    return tags;
-  },
-  addTag(id,n){
-    if([0].includes(n.permissionType)){
-      this.$message.warning('无操作权限')
-      return;
-    }
-    this.$nextTick(() =>{
-      this.$refs.tagDialog.showDiaglog(id);
-    })
-  },
-  showCreate(){
-    this.$parent.showCreate();
-  },
-    handleClick(command,n){
-      switch (command){
-        case 'edit':
+
+  methods: {
+    ...mapActions("app", ["setPermissionType", "clearPermissionType"]),
+    formattedTagNames(data) {
+      if (data.length === 0) {
+        return [];
+      }
+      const tags = data
+        .filter((item) => item.selected)
+        .map((item) => item.tagName)
+        .join(", ");
+      if (tags.length > 30) {
+        return tags.slice(0, 30) + "...";
+      }
+      return tags;
+    },
+    addTag(id, n) {
+      if ([0].includes(n.permissionType)) {
+        this.$message.warning(this.$t("knowledgeSelect.noOperationPermission"));
+        return;
+      }
+      this.$nextTick(() => {
+        this.$refs.tagDialog.showDiaglog(id);
+      });
+    },
+    showCreate() {
+      this.$parent.showCreate();
+    },
+    handleClick(command, n) {
+      switch (command) {
+        case "edit":
           this.editItem(n);
           break;
-        case 'delete':
-          this.deleteItem(n.knowledgeId)
+        case "delete":
+          this.deleteItem(n.knowledgeId);
           break;
-        case 'power':
+        case "power":
           this.showPowerManagement(n);
           break;
       }
     },
     editItem(row) {
-      this.$emit('editItem', row)
+      this.$emit("editItem", row);
     },
-    relodaData(){
-      this.$emit('reloadData');
+    relodaData(category) {
+      this.$emit("reloadData", category);
     },
-    deleteItem(knowledgeId){
-      this.$confirm(this.$t('knowledgeManage.delKnowledgeTips'), this.$t('knowledgeManage.tip'), {
-        confirmButtonText: this.$t('common.confirm.confirm'),
-        cancelButtonText: this.$t('common.confirm.cancel'),
-        type: "warning",
-        beforeClose:(action, instance, done) =>{
-          if(action === 'confirm'){
-            instance.confirmButtonLoading = true;
-            delKnowledgeItem({knowledgeId})
-              .then(res =>{
-                if(res.code === 0){
-                  this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-                  this.$emit('reloadData')
-                }
-              })
-              .catch(() => {})
-              .finally(() =>{
-                done();
-                setTimeout(() => {
-                  instance.confirmButtonLoading = false;
-                }, 300);
-              })
-          }else{
-            done()
-          }
+    deleteItem(knowledgeId) {
+      this.$confirm(
+        this.$t("knowledgeManage.delKnowledgeTips"),
+        this.$t("knowledgeManage.tip"),
+        {
+          confirmButtonText: this.$t("common.confirm.confirm"),
+          cancelButtonText: this.$t("common.confirm.cancel"),
+          type: "warning",
+          beforeClose: (action, instance, done) => {
+            if (action === "confirm") {
+              instance.confirmButtonLoading = true;
+              delKnowledgeItem({ knowledgeId })
+                .then((res) => {
+                  if (res.code === 0) {
+                    this.$message.success(
+                      this.$t("knowledgeManage.operateSuccess")
+                    );
+                    this.$emit("reloadData", this.category);
+                  }
+                })
+                .catch(() => {})
+                .finally(() => {
+                  done();
+                  setTimeout(() => {
+                    instance.confirmButtonLoading = false;
+                  }, 300);
+                });
+            } else {
+              done();
+            }
+          },
         }
-      }).then(() => {})
+      ).then(() => {});
     },
-    toDocList(n){
-      this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`});
-      this.setPermissionType(n.permissionType)
+    toDocList(n) {
+      if (this.category === 0) {
+        this.$router.push({ path: `/knowledge/doclist/${n.knowledgeId}` });
+      } else {
+        this.$router.push({ path: `/knowledge/qa/docList/${n.knowledgeId}` });
+      }
+
+      this.setPermissionType(n.permissionType);
     },
     showPowerManagement(knowledgeItem) {
       this.$refs.powerManagement.knowledgeId = knowledgeItem.knowledgeId;
@@ -183,8 +278,8 @@ export default {
       this.$refs.powerManagement.permissionType = knowledgeItem.permissionType;
       this.$refs.powerManagement.showDialog();
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -192,37 +287,37 @@ export default {
 .app-card {
   .smart {
     height: 152px;
-    .smartDate{
+    .smartDate {
       // text-align:center;
-      padding-top:3px;
-      color:#888888;
+      padding-top: 3px;
+      color: #888888;
     }
     .info {
       padding-right: 0;
     }
-    .desc{
+    .desc {
       padding-top: 5px;
     }
-    .logo{
-      border-radius:50%;
-      background: #F1F4FF;
+    .logo {
+      border-radius: 50%;
+      background: #f1f4ff;
       box-shadow: none;
       padding: 5px !important;
       width: 65px !important;
       height: 65px !important;
     }
-    .tagList{
+    .tagList {
       cursor: pointer;
-      .icon-tag{
+      .icon-tag {
         transform: rotate(-40deg);
-        margin-right:3px;
+        margin-right: 3px;
       }
     }
-    .tagList:hover{
-        color:$color;
+    .tagList:hover {
+      color: $color;
     }
-    .tag-knowledge{
-      background:#826fff!important;
+    .tag-knowledge {
+      background: #826fff !important;
     }
   }
 }

@@ -144,29 +144,29 @@ func BatchDeleteAllDoc(ctx context.Context, tx *gorm.DB, knowledge *model.Knowle
 	for _, doc := range docList {
 		docIdList = append(docIdList, doc.Id)
 	}
-	//1.删除底层数据
-	err := batchRagDelete(ctx, knowledge, docList)
-	if err != nil {
-		//只打印，不阻塞
-		log.Errorf("batchRagDelete error %v", err)
-	}
-	//2.删除minio
-	err = batchMinioDelete(ctx, docList)
+	//1.删除minio
+	err := batchMinioDelete(ctx, docList)
 	if err != nil {
 		//只打印，不阻塞
 		log.Errorf("batchMinioDelete error %v", err)
 	}
-	//3.删除db数据
+	//2.删除db数据
 	err = orm.ExecuteDeleteDocByIdList(tx, docIdList)
 	if err != nil {
 		log.Errorf("ExecuteDeleteDocByIdList error %v", err)
 		return err
 	}
-	//4.删除元数据
+	//3.删除元数据
 	err = orm.DeleteMetaDataByDocIdList(tx, knowledge.KnowledgeId, buildDocIdList(docList))
 	if err != nil {
 		//只打印，不阻塞
 		log.Errorf("DeleteMetaDataByDocIdList error %v", err)
+	}
+	//4.删除底层数据
+	err = batchRagDelete(ctx, knowledge, docList)
+	if err != nil {
+		//只打印，不阻塞
+		log.Errorf("batchRagDelete error %v", err)
 	}
 	return nil
 }

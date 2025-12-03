@@ -475,25 +475,28 @@ async def search(request: Request):
                 if has_effective_cache:
                     rerank_result = cache_result_json
                 else:
-                    rerank_result = get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent,
+                    rerank_result = get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk_conent,
                                                                chunk_size, return_meta, prompt_template, search_field,
                                                                default_answer, auto_citation, retrieve_method,
                                                                rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                                weights=weights,
                                                                metadata_filtering_conditions=metadata_filtering_conditions,
-                                                               knowledge_base_info=knowledge_base_info, use_graph=use_graph
+                                                               use_graph=use_graph
                                                                )
             else:
-                rerank_result = get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent,
+                rerank_result = get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk_conent,
                                                            chunk_size, return_meta, prompt_template, search_field,
                                                            default_answer, auto_citation, retrieve_method,
                                                            rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                            weights=weights,
                                                            metadata_filtering_conditions=metadata_filtering_conditions,
-                                                           knowledge_base_info=knowledge_base_info, use_graph=use_graph
+                                                           use_graph=use_graph
                                                            )
 
             logger.info("===>data_flywheel=%s,has_effective_cache=%s,rerank_result=%s" % (data_flywheel,has_effective_cache,json.dumps(rerank_result, ensure_ascii=False)))
+            if rerank_result['code'] != 0:
+                raise RuntimeError(f"get_knowledge_based_answer error, err: {rerank_result['message']}")
+
             response_info['code'] = int(rerank_result['code'])
             response_info['message'] = str(rerank_result['message'])
             response_info['msg_id'] = str(msg_id)

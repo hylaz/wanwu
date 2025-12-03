@@ -5,26 +5,24 @@ import asyncio
 import glob
 import shutil
 import copy
+import ast
 from typing import List, Dict, Optional
 import time
 from datetime import datetime
 
 # Add project root to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 # FastAPI imports
 from fastapi import FastAPI, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 
-from utils.logger import logger
-import ast
-from utils import kt_gen as constructor
-from config import get_config, ConfigManager, prompt_templates
-from utils import graph_processor
+from graph.utils.logger import logger
+from graph.utils import kt_gen as constructor
+from graph.config import get_config, ConfigManager, prompt_templates
+from graph.utils import graph_processor
 
 
 app = FastAPI(title="graph Unified Interface", version="1.0.0")
@@ -146,7 +144,7 @@ async def extrac_graph_data(request: Request):
         res_data = builder.build_knowledge_graph(file_name, chunks)
 
         # =========== 更新 graph =============
-        graph_processor.update_graph(user_id, kb_name, file_name, res_data)
+        graph_processor.update_graph(user_id, kb_name, file_name, res_data, config)
 
         # =========== 整理 graph_vocabulary_set =============
         graph_vocabulary_set = set()

@@ -6,11 +6,13 @@ type RagBrief struct {
 }
 
 type RagConfig struct {
-	RagID               string                 `json:"ragId" validate:"required"`
-	ModelConfig         AppModelConfig         `json:"modelConfig" validate:"required"`         // 模型
-	RerankConfig        AppModelConfig         `json:"rerankConfig" validate:"required"`        // Rerank模型
-	KnowledgeBaseConfig AppKnowledgebaseConfig `json:"knowledgeBaseConfig" validate:"required"` // 知识库
-	SafetyConfig        AppSafetyConfig        `json:"safetyConfig"`                            // 敏感词表配置
+	RagID                 string                   `json:"ragId" validate:"required"`
+	ModelConfig           AppModelConfig           `json:"modelConfig" validate:"required"`           // 模型
+	RerankConfig          AppModelConfig           `json:"rerankConfig" validate:"required"`          // 知识库Rerank模型
+	QARerankConfig        AppModelConfig           `json:"qaRerankConfig" validate:"required"`        // 问答库Rerank模型
+	KnowledgeBaseConfig   AppKnowledgebaseConfig   `json:"knowledgeBaseConfig" validate:"required"`   // 知识库
+	QAKnowledgeBaseConfig AppQAKnowledgebaseConfig `json:"qaKnowledgeBaseConfig" validate:"required"` // 问答库（不用传知识图谱开关）
+	SafetyConfig          AppSafetyConfig          `json:"safetyConfig"`                              // 敏感词表配置
 }
 
 type ChatRagRequest struct {

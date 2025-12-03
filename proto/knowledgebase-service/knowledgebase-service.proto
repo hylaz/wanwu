@@ -103,6 +103,7 @@ message CreateKnowledgeReq{
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
   KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
+  int32 category = 7; //分类信息，0:知识库，1：问答库
 }
 
 message EmbeddingModelInfo{
@@ -124,6 +125,7 @@ message KnowledgeSelectReq {
   string orgId = 2;
   string name = 3; //知识库名称，支持模糊搜索
   repeated string tagIdList = 4; //知识库id 列表
+  int32 category = 5; //分类信息，0:知识库，1：问答库
 }
 
 message BatchKnowledgeSelectReq {
@@ -169,6 +171,9 @@ message KnowledgeInfo {
   int32 shareCount = 11;//共享数量
   string ragName = 12;//传给rag的知识库名称
   int32 graphSwitch = 13; //知识图谱开关
+  int32 category = 14; // 0:知识库 1:问答库
+  string llmModelId = 15; // 知识图谱-大模型id
+  string updatedAt = 16; // 更新时间
 }
 
 message KnowledgeTagInfo {
@@ -237,6 +242,7 @@ message UpdateKnowledgeMetaValueReq{
   bool applyToSelected = 3;
   repeated string docIdList = 4;
   repeated MetaValueOperation metaList = 5;
+  string knowledgeId = 6;
 }
 
 message MetaValueOperation{

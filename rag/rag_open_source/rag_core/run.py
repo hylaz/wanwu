@@ -24,6 +24,9 @@ from know_sse import get_query_dict_cache, query_rewrite
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from logging_config import setup_logging
 from settings import MONGO_URL, USE_DATA_FLYWHEEL
+from qa import index as qa_index
+from qa import search as qa_search
+
 # 定义路径
 paths = ["./parser_data"]
 # 遍历路径列表
@@ -200,7 +203,6 @@ def del_kb():
         # 在批量删除文件中补充增加删除reids逻辑 begin
         if USE_DATA_FLYWHEEL:
             try:
-                # redis_client = redis_utils.get_redis_connection()
                 prefix = "%s^%s^" % (user_id, kb_name)
                 redis_data = redis_utils.delete_cache_by_prefix(redis_client, prefix)
                 logger.info("clean flywheel cache result:%s" % json.dumps(redis_data, ensure_ascii=False))
@@ -455,13 +457,13 @@ def search_knowledge_base():
                 else:
                     logger.info("未启用或维护转名词表,query未改写,按原问题:%s 进行召回" % question)
 
-        response_info = kb_utils.get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent, chunk_size,
+        response_info = kb_utils.get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk_conent, chunk_size,
                                                    return_meta, prompt_template, search_field, default_answer,
-                                                   auto_citation, retrieve_method = retrieve_method, kb_ids=[],
+                                                   auto_citation, retrieve_method = retrieve_method,
                                                    filter_file_name_list=filter_file_name_list,
                                                    rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                    weights=weights, metadata_filtering_conditions=metadata_filtering_conditions,
-                                                   knowledge_base_info=knowledge_base_info, use_graph=use_graph)
+                                                   use_graph=use_graph)
         json_str = json.dumps(response_info, ensure_ascii=False)
 
         response = make_response(json_str)
@@ -566,7 +568,6 @@ def del_file():
         # 在批量删除文件中补充增加删除reids逻辑 begin
         if USE_DATA_FLYWHEEL:
             try:
-                # redis_client = redis_utils.get_redis_connection()
                 prefix = "%s^%s^" % (user_id, kb_name)
                 redis_data = redis_utils.delete_cache_by_prefix(redis_client, prefix)
                 logger.info("clean flywheel cache result:%s" % json.dumps(redis_data, ensure_ascii=False))
@@ -616,7 +617,6 @@ def del_files():
         # 在批量删除文件中补充增加删除reids逻辑 begin
         if USE_DATA_FLYWHEEL:
             try:
-                # redis_client = redis_utils.get_redis_connection()
                 prefix = "%s^%s^" % (user_id, kb_name)
                 redis_data = redis_utils.delete_cache_by_prefix(redis_client, prefix)
                 logger.info("clean flywheel cache result:%s" % json.dumps(redis_data, ensure_ascii=False))
@@ -943,7 +943,6 @@ def del_knowledge_cache():
 
         assert len(user_id) > 0
         assert len(kb_name) > 0
-        # redis_client = redis_utils.get_redis_connection()
         prefix = "%s^%s^" % (user_id, kb_name)
         result_data = redis_utils.delete_cache_by_prefix(redis_client, prefix)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1157,7 +1156,6 @@ def proper_noun():
         if msg_id and action and knowledge_base_info:  # 注意 knowledge_base 里是 kb_ids
             for user_id, knowledge_base in knowledge_base_info.items():
                 try:
-                    # redis_client = redis_utils.get_redis_connection()
                     item_entry = {"id": msg_id, "name": name, "alias": alias}
                     if action == "add":
                         redis_utils.add_query_dict_entry(redis_client, user_id, item_entry, knowledge_base)
@@ -1309,6 +1307,316 @@ def knowledgeBaseGraph():
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     return response
+
+
+# ================= QA 知识库相关接口 =================
+# 1. 创建问答库
+@app.route("/rag/init-QA-base", methods=['POST'])
+def init_qa_base():
+    """ 创建问答库 """
+    logger.info('---------------初始化问答库---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        embedding_model_id = data["embedding_model_id"]
+        logger.info(f"[init_qa_base] uid={user_id}, qa_base={qa_base}, qa_id={qa_id}, embed_id={embedding_model_id}")
+        response_info = qa_index.init_qa_base(user_id, qa_base, qa_id, embedding_model_id)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 2. 删除问答库
+@app.route("/rag/delete-QA-base", methods=['POST'])
+def delete_qa_base():
+    """ 删除问答库 """
+    logger.info('---------------删除问答库---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        logger.info(f"[delete_qa_base] uid={user_id}, base={qa_base}, qaid={qa_id}")
+        response_info = qa_index.delete_qa_base(user_id, qa_base, qa_id)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 3. 批量新增问答对
+@app.route("/rag/batch-add-QAs", methods=['POST'])
+def batch_add_qas():
+    """ 批量新增问答对 """
+    logger.info('-------------- 批量新增问答对---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pairs = data["QAPairs"]
+        logger.info(f"[batch_add_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, count={len(qa_pairs)}")
+        response_info = qa_index.batch_add_qas(user_id, qa_base, qa_id, qa_pairs)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 4. 查看问答对列表
+@app.route("/rag/get-QA-list", methods=['POST'])
+def get_qa_list():
+    """ 查看问答对列表 """
+    logger.info('---------------分页获取问答对列表---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        page_size = data["page_size"]
+        search_after = data["search_after"]
+        logger.info(
+            f"[get_qa_list] uid={user_id}, base={qa_base}, qaid={qa_id}, size={page_size}, after={search_after}")
+        response_info = qa_index.get_qa_list(user_id, qa_base, qa_id, page_size, search_after)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 5. 更新问答对
+@app.route("/rag/update-QA", methods=['POST'])
+def update_qa():
+    """ 更新问答对 """
+    logger.info('---------------更新问答对---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pair = data["QAPair"]
+        logger.info(f"[update_qa] uid={user_id}, base={qa_base}, qaid={qa_id}, qa_pair={qa_pair}")
+        response_info = qa_index.update_qa(user_id, qa_base, qa_id, qa_pair)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 6. 删除问答对
+@app.route("/rag/batch-delete-QAs", methods=['POST'])
+def batch_delete_qas():
+    """ 批量删除问答对 """
+    logger.info('---------------批量删除问答对---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pair_ids = data["QAPairIds"]
+        logger.info(f"[batch_delete_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, ids={qa_pair_ids}")
+        response_info = qa_index.batch_delete_qas(user_id, qa_base, qa_id, qa_pair_ids)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 7. 启停问答对
+@app.route("/rag/update-QA-status", methods=['POST'])
+def update_qa_status():
+    """ 启停问答对 """
+    logger.info('---------------更新问答对启停状态---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        qa_pair_id = data["QAPairId"]
+        status = data["status"]
+        logger.info(
+            f"[update_qa_status] uid={user_id}, base={qa_base}, qaid={qa_id}, pair={qa_pair_id}, status={status}")
+        response_info = qa_index.update_qa_status(user_id, qa_base, qa_id, qa_pair_id, status)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.1 批量更新元数据
+@app.route("/rag/update-QA-metas", methods=['POST'])
+def update_qa_metas():
+    """ 批量更新元数据 """
+    logger.info('---------------更新问答对元数据---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        metas = data["metas"]
+        logger.info(f"[update_qa_metas] uid={user_id}, base={qa_base}, qaid={qa_id}, metas={len(metas)}")
+        response_info = qa_index.update_qa_metas(user_id, qa_base, qa_id, metas)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.2 批量删除元数据
+@app.route("/rag/delete-QA-meta-by-keys", methods=['POST'])
+def delete_qa_meta_by_keys():
+    """ 批量删除元数据 """
+    logger.info('---------------删除问答库元数据key---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        keys = data["keys"]
+        logger.info(f"[delete_meta_by_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, keys={keys}")
+        response_info = qa_index.delete_meta_by_keys(user_id, qa_base, qa_id, keys)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+# 8.3 批量重命名元数据 Key
+@app.route("/rag/rename-QA-meta-keys", methods=['POST'])
+def rename_qa_meta_keys():
+    """ 批量重命名元数据 Key """
+    logger.info('---------------重命名问答库元数据key name---------------')
+    try:
+        data = request.get_json()
+        user_id = data['userId']
+        qa_base = data["QABase"]
+        qa_id = data["QAId"]
+        mappings = data["mappings"]
+        logger.info(f"[rename_meta_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, mappings={mappings}")
+        response_info = qa_index.rename_meta_keys(user_id, qa_base, qa_id, mappings)
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e)}
+        headers = {'Access-Control-Allow-Origin': '*'}
+        response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
+    return response
+
+
+@app.route("/rag/search-QA-base", methods=["POST"])  # 查询 done
+def search_qa_base():
+    logger.info('---------------问答库问题查询---------------')
+    try:
+        req_info = json.loads(request.get_data())
+
+        return_meta = req_info.get("returnMeta", False)
+        qa_base_info = req_info.get("QABaseInfo", {})
+        question = req_info['question']
+        rate = float(req_info.get('threshold', 0))
+        top_k = int(req_info.get('topK', 5))
+        # 是否query改写
+        rewrite_query = req_info.get("rewriteQuery", False)
+        rerank_mod = req_info.get("rerankMod", "rerank_model")
+        rerank_model_id = req_info.get("rerankModelId", '')
+        weights = req_info.get("weights", None)
+        retrieve_method = req_info.get("retrieveMethod", "hybrid_search")
+
+        #metadata filtering params
+        metadata_filtering = req_info.get("metadataFiltering", False)
+        metadata_filtering_conditions = req_info.get("metadataFilteringConditions", [])
+        if not metadata_filtering:
+            metadata_filtering_conditions = []
+        logger.info(repr(req_info))
+
+        # 检查 qa_base_info 是否为空
+        if not qa_base_info:
+            raise ValueError("qa_base_info cannot be empty")
+        # 检查 rerank_model_id 是否为空
+        if rerank_mod == "rerank_model" and not rerank_model_id:
+            raise ValueError("rerank_model_id cannot be empty when using model-based reranking.")
+
+        if rerank_mod == "weighted_score" and weights is None:
+            raise ValueError("weights cannot be empty when using weighted score reranking.")
+        if weights is not None and not isinstance(weights, dict):
+            raise ValueError("weights must be a dictionary or None.")
+
+        if rerank_mod == "weighted_score" and retrieve_method != "hybrid_search":
+            raise ValueError("Weighted score reranking is only supported in hybrid search mode.")
+
+        if len(question) <= 0:
+            raise ValueError("empty question")
+
+        if rewrite_query:
+            for user_id, qa_info_list in qa_base_info.items():
+                qa_base_names = [qa_info['QABase'] for qa_info in qa_info_list]
+                qa_base_ids = [qa_info['QAId']  for qa_info in qa_info_list]
+                query_dict_list = get_query_dict_cache(redis_client, user_id, qa_base_ids)
+                if query_dict_list:
+                    rewritten_queries = query_rewrite(question, query_dict_list)
+                    logger.info("对query进行改写,原问题:%s 改写后问题:%s" % (question, ",".join(rewritten_queries)))
+                    if len(rewritten_queries) > 0:
+                        question = rewritten_queries[0]
+                        logger.info("按新问题:%s 进行召回" % question)
+                else:
+                    logger.info("未启用或维护转名词表,query未改写,按原问题:%s 进行召回" % question)
+
+        response_info = qa_search.search_qa_base(question, top_k, rate, return_meta, retrieve_method = retrieve_method,
+                                                   rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
+                                                   weights=weights, metadata_filtering_conditions=metadata_filtering_conditions,
+                                                   qa_base_info=qa_base_info)
+        json_str = json.dumps(response_info, ensure_ascii=False)
+
+        response = make_response(json_str)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+    except Exception as e:
+        logger.info(repr(e))
+        response_info = {'code': 1, "message": repr(e), "data": {"prompt": "", "searchList": []}}
+        json_str = json.dumps(response_info, ensure_ascii=False)
+        response = make_response(json_str)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+
+    return response
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

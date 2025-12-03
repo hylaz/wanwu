@@ -45,7 +45,7 @@
                 <!-- <span class="session-setting-id" v-if="$route.params && $route.params.id">ragID: {{$route.params.id}}</span> -->
                 <el-popover
                   placement="bottom-start"
-                  trigger="hover"
+                  trigger="click"
                   :visible-arrow="false"
                   popper-class="query-copy-popover"
                   content=""
@@ -54,11 +54,16 @@
                     class="query-copy"
                     @click="queryCopy(n.query)"
                     style="cursor: pointer"
-                  ><i class="el-icon-s-order"></i>&nbsp;{{$t('agent.copyToInput')}}</p>
+                  >
+                    <i class="el-icon-s-order"></i>
+                    &nbsp;{{$t('agent.copyToInput')}}
+                  </p>
                   <span
                     slot="reference"
                     class="answer-text"
-                  >{{n.query}}</span>
+                  >
+                    {{n.query}}
+                  </span>
                 </el-popover>
               </div>
             </div>
@@ -90,18 +95,23 @@
             <div
               class="answer-content"
               style="padding:0 10px;color:#E6A23C;"
-            >{{n.pendingResponse}}</div>
+            >
+              {{n.pendingResponse}}
+            </div>
           </div>
         </div>
         <!-- 回答故障  code:7-->
         <div
           class="session-error"
           v-if="n.error"
-        ><i class="el-icon-warning"></i>&nbsp;{{n.response}}</div>
+        >
+          <i class="el-icon-warning"></i>
+          &nbsp;{{n.response}}
+        </div>
 
         <!--回答 文字+图片-->
         <div
-          v-if="(n.response && !n.error)"
+          v-if="(!n.error) && (n.response || n.msg_type)"
           class="session-answer"
           :id="'message-container'+i"
         >
@@ -114,19 +124,31 @@
               class="session-wrap"
               style="width:calc(100% - 30px);"
             >
-              <div
-                v-if="showDSBtn(n.response)"
-                class="deepseek"
-                @click="toggle($event,i)"
-              >
+              <div class="deepseek" v-if="n.msg_type && ['qa_start','qa_finish','knowledge_start'].includes(n.msg_type)">
                 <img
                   :src="require('@/assets/imgs/think-icon.png')"
                   class="think_icon"
-                />{{n.thinkText}}
-                <i v-bind:class="{'el-icon-arrow-down': !n.isOpen,'el-icon-arrow-up': n.isOpen}"></i>
+                />
+                {{getTitle(n.msg_type) }}
               </div>
+              <template v-else>
+                <img
+                  :src="require('@/assets/imgs/think-icon.png')"
+                  class="think_icon"
+                />
+                <div
+                  v-if="showDSBtn(n.response)"
+                  class="deepseek"
+                  @click="toggle($event,i)"
+                >
+                  {{n.thinkText}}
+                  <i v-bind:class="{'el-icon-arrow-down': !n.isOpen,'el-icon-arrow-up': n.isOpen}"></i>
+                </div>
+                <span v-else class="deepseek">{{$t('menu.knowledge')}}</span>
+              </template>
               <!--内容-->
               <div
+                v-if="n.response"
                 class="answer-content"
                 :id="i"
                 v-bind:class="{'ds-res':showDSBtn(n.response)}"
@@ -146,40 +168,46 @@
                 v-if="n.searchList && n.searchList.length && n.finish === 1"
                 class="search-list"
               >
+                <h2 class="recommended-question-title" v-if="n.msg_type && ['qa_finish'].includes(n.msg_type)">{{$t('app.recommendedQuestion')}}</h2>
                 <div
                   v-for="(m,j) in n.searchList"
                   :key="`${j}sdsl`"
                   class="search-list-item"
                 >
-                  <div
-                    class="serach-list-item"
-                    v-if="n.citations && n.citations.includes(j+1)"
-                  >
-                    <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
-                    <a
-                      v-if="m.link"
-                      :href="m.link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="link"
-                    >{{m.link}}</a>
-                    <span v-if="m.title">
-                      <sub
-                        class="subTag"
-                        :data-parents-index="i"
-                        :data-collapse="m.collapse?'true':'false'"
-                      >{{j + 1}}</sub> {{m.title}}
-                    </span>
-                    <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
+                  <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content" @click="handleRecommendedQuestion(m)">
+                    <span>{{j+1}}. {{m.question}}</span>
                   </div>
-                  <el-collapse-transition>
+                  <template v-else>
                     <div
-                      v-show="m.collapse?true:false"
-                      class="snippet"
+                      class="serach-list-item"
+                      v-if="n.citations && n.citations.includes(j+1)"
                     >
-                      <p v-html="m.snippet"></p>
+                      <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
+                      <a
+                        v-if="m.link"
+                        :href="m.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="link"
+                      >{{m.link}}</a>
+                      <span v-if="m.title">
+                        <sub
+                          class="subTag"
+                          :data-parents-index="i"
+                          :data-collapse="m.collapse?'true':'false'"
+                        >{{j + 1}}</sub> {{m.title}}
+                      </span>
+                      <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                     </div>
-                  </el-collapse-transition>
+                    <el-collapse-transition>
+                      <div
+                        v-show="m.collapse?true:false"
+                        class="snippet"
+                      >
+                        <p v-html="m.snippet"></p>
+                      </div>
+                    </el-collapse-transition>
+                  </template>
                 </div>
               </div>
             </div>
@@ -284,7 +312,10 @@ export default {
     clearTimeout(this.scrollTimeout);
   },
   methods: {
-      handleCitationClick(e) {
+    handleRecommendedQuestion(m){
+      this.$emit("handleRecommendedQuestion", m.question);
+    },
+    handleCitationClick(e) {
       // 调用 common.js 中的通用方法
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
@@ -402,12 +433,23 @@ export default {
         }
       }, 500); // 500ms内没有新滚动视为停止
     },
+    getTitle(type){
+      if(type === 'qa_start'){
+        return this.$t('app.qaSearching')
+      }else if(type === 'knowledge_start'){
+        return this.$t('app.knowledgeSearch')
+      }else if(type === 'qa_finish'){
+        return this.$t('knowledgeManage.qaDatabase.name')
+      }else{
+        return this.$t('menu.knowledge')
+      }
+    },
     replaceHTML(data, n) {
       let _data = data;
       var a = new RegExp("<think>");
       var b = new RegExp("</think>");
       if (b.test(data)) {
-        n.thinkText = "已深度思考";
+        n.thinkText = this.$t('agent.alreadyThink');
       }
       // 如果没有返回前缀，则补上
       if (b.test(data) && !a.test(data)) {
@@ -469,7 +511,7 @@ export default {
       return res;
     },
     copycb() {
-      this.$message.success("内容已复制到粘贴板");
+      this.$message.success(this.$t('agent.copyTips'));
     },
     collapseClick(n, m, j) {
       if (!m.collapse) {
@@ -494,8 +536,8 @@ export default {
       this.scrollBottom();
     },
     replaceLastData(index, data) {
-      if (!data.response) {
-        data.response = "无响应数据";
+      if (!data.response && data.finish === 1 ) {
+        data.response = this.$t('app.noResponse');
       }
       this.scrollBottom();
       this.$set(this.session_data.history, index, data);
@@ -582,7 +624,7 @@ export default {
           return {
             ...item,
             responseLoading: false,
-            pendingResponse: "本次回答已被终止",
+            pendingResponse: this.$t('app.stopStream'),
             pending: false, // 标记为已完成
             finish: 1,
           };
@@ -937,6 +979,15 @@ img.failed::after {
     /*出处*/
     .search-list {
       padding: 10px 20px 3px 0;
+      .qa_content{
+        display: flex;
+        gap: 10px;
+        margin-top:5px;
+      }
+      .recommended-question-title{
+        border-bottom: 1px solid #e5e5e5;
+        padding: 5px 0;
+      }
       .search-list-item {
         margin-bottom: 5px;
         line-height: 22px;

@@ -43,7 +43,12 @@ func GetExplorationAppList(ctx *gin.Context, userId, orgId string, req request.G
 	if err != nil {
 		return nil, err
 	}
-	apps := append(rags, append(agents, workFlows...)...)
+	// Coze Chatflow
+	chatFlows, err := explorerationFilterChatFlow(ctx, explorationApp.Infos, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	apps := append(rags, append(agents, append(workFlows, chatFlows...)...)...)
 	sort.SliceStable(apps, func(i, j int) bool {
 		return apps[i].CreatedAt > apps[j].CreatedAt
 	})
@@ -70,6 +75,42 @@ func GetExplorationAppList(ctx *gin.Context, userId, orgId string, req request.G
 		List:  apps,
 		Total: int64(len(apps)),
 	}, nil
+}
+
+func GetWorkflowSelect(ctx *gin.Context, userId, orgId string, req request.GetExplorationAppListRequest) (*response.ListResult, error) {
+	wlist, err := GetExplorationAppList(ctx, userId, orgId, request.GetExplorationAppListRequest{
+		Name:       req.Name,
+		AppType:    constant.AppTypeWorkflow,
+		SearchType: "all",
+	})
+	if err != nil {
+		return nil, err
+	}
+	clist, err := GetExplorationAppList(ctx, userId, orgId, request.GetExplorationAppListRequest{
+		Name:       req.Name,
+		AppType:    constant.AppTypeChatflow,
+		SearchType: "all",
+	})
+	if err != nil {
+		return nil, err
+	}
+	// 类型断言并合并
+	var combinedList []*response.ExplorationAppInfo
+
+	// 处理 wlist.List
+	if wlistSlice, ok := wlist.List.([]*response.ExplorationAppInfo); ok {
+		combinedList = append(combinedList, wlistSlice...)
+	}
+
+	// 处理 clist.List
+	if clistSlice, ok := clist.List.([]*response.ExplorationAppInfo); ok {
+		combinedList = append(combinedList, clistSlice...)
+	}
+	return &response.ListResult{
+		List:  combinedList,
+		Total: wlist.Total + clist.Total,
+	}, nil
+
 }
 
 func ChangeExplorationAppFavorite(ctx *gin.Context, userId, orgId string, req request.ChangeExplorationAppFavoriteRequest) error {
@@ -247,6 +288,53 @@ func explorerationFilterWorkFlow(ctx *gin.Context, apps []*app_service.Explorati
 				appInfo.PublishType = expApp.PublishType
 				appInfo.IsFavorite = expApp.IsFavorite
 				appInfo.Avatar = cacheWorkflowAvatar(foundWorkflow.URL, constant.AppTypeWorkflow)
+				retAppList = append(retAppList, appInfo)
+				appInfo.User.UserId = expApp.UserId
+				break
+			}
+		}
+	}
+	return retAppList, nil
+}
+
+func explorerationFilterChatFlow(ctx *gin.Context, apps []*app_service.ExplorationAppInfo, name string) ([]*response.ExplorationAppInfo, error) {
+	// 首先收集所有chatflow类型的appId
+	var ids []string
+	for _, info := range apps {
+		if info.AppType == constant.AppTypeChatflow {
+			ids = append(ids, info.AppId)
+		}
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	// 获取工作流详情
+	chatFlowList, err := ListWorkflowByIDs(ctx, name, ids)
+	if err != nil {
+		return nil, err
+	}
+	var retAppList []*response.ExplorationAppInfo
+	for _, id := range ids {
+		var foundChatflow *response.CozeWorkflowListDataWorkflow
+		for _, workflow := range chatFlowList.Workflows {
+			if workflow.WorkflowId == id {
+				foundChatflow = workflow
+				break
+			}
+		}
+		if foundChatflow == nil {
+			continue
+		}
+		for _, expApp := range apps {
+			if expApp.AppId == id {
+				appInfo := &response.ExplorationAppInfo{
+					AppBriefInfo: cozeChatflowInfo2Model(foundChatflow),
+				}
+				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
+				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
+				appInfo.PublishType = expApp.PublishType
+				appInfo.IsFavorite = expApp.IsFavorite
+				appInfo.Avatar = cacheWorkflowAvatar(foundChatflow.URL, constant.AppTypeChatflow)
 				retAppList = append(retAppList, appInfo)
 				appInfo.User.UserId = expApp.UserId
 				break

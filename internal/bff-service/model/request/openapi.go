@@ -37,8 +37,9 @@ func (req *OpenAPIChatflowCreateConversationRequest) Check() error {
 }
 
 type OpenAPIChatflowChatRequest struct {
-	ConversationId string `json:"conversation_id"`
-	Query          string `json:"query"`
+	ConversationId string         `json:"conversation_id" validate:"required"`
+	Query          string         `json:"query" validate:"required"`
+	Parameters     map[string]any `json:"parameters"`
 }
 
 func (req *OpenAPIChatflowChatRequest) Check() error {

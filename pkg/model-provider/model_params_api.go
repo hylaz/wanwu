@@ -64,6 +64,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 		case ModelTypeGui:
 		case ModelTypeOcr:
 		case ModelTypePdfParser:
+		case ModelTypeAsr:
+		case ModelTypeText2Image:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}

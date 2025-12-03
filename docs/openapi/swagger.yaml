@@ -58,8 +58,14 @@ definitions:
     properties:
       conversation_id:
         type: string
+      parameters:
+        additionalProperties: {}
+        type: object
       query:
         type: string
+    required:
+    - conversation_id
+    - query
     type: object
   request.OpenAPIChatflowCreateConversationRequest:
     properties:
@@ -457,6 +463,51 @@ paths:
       summary: 获取MCPServer streamable 类型消息
       tags:
       - openapi
+  /oauth/code/authorize:
+    get:
+      consumes:
+      - application/json
+      description: 授权码方式-获取授权码
+      parameters:
+      - description: 备案ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: 重定向URI
+        in: query
+        name: redirect_uri
+        required: true
+        type: string
+      - description: 响应类型
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: 权限范围
+        in: query
+        name: scope
+        type: string
+      - description: 状态参数
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: token
+        in: query
+        name: jwt_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: 重定向到指定URI
+          schema:
+            type: string
+      summary: 授权码方式
+      tags:
+      - oauth
   /oauth/code/token:
     post:
       consumes:

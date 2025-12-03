@@ -2,291 +2,17 @@
 
 import requests
 import uuid
-import re
-import json
-import time
-import hashlib
 import warnings
-from openai import OpenAI
-from model.model_manager import get_model_configure
-import random
-import numpy as np
+
 import utils.mapping_util as es_mapping
-from settings import GET_KB_ID_URL
 from settings import KBNAME_MAPPING_INDEX, DELETE_BACTH_SIZE
 from log.logger import logger
 from utils.config_util import es
 from elasticsearch import helpers
+from utils.util import validate_index_name, generate_md5
+from utils import emb_util
 
 warnings.filterwarnings("ignore")
-
-def get_maas_kb_id(user_id, kb_name):
-    """获取maas的kb_id"""
-    try:
-        url = GET_KB_ID_URL + f"?userId={user_id}&categoryName={kb_name}"
-        r = requests.get(url)
-        result_data = json.loads(r.text)
-        if result_data["code"] == 0:
-            kb_id = result_data["data"].get('categoryId')
-            return kb_id
-        else:
-            raise RuntimeError(f"{kb_name},get_maas_kb_id Error, result: {result_data}, url:{GET_KB_ID_URL}")
-    except Exception as e:
-        raise RuntimeError(kb_name + ",get_maas_kb_id Error: " + str(e) + "url:" + GET_KB_ID_URL) from e
-
-
-def check_status():
-    # 先等待随机0-10秒，模拟网络延迟
-    time.sleep(random.uniform(0, 10))
-    """ 检查 uk 映射表是否支持改名，如果不支持，修改结构"""
-    uk_mappings = {
-        "properties": {
-            "index_name": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
-            "userId": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
-            "kb_name": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
-            "kb_id": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
-        }
-    }
-    try:
-        create_index_if_not_exists(KBNAME_MAPPING_INDEX, mappings=uk_mappings)  # 确保 KBNAME_MAPPING_INDEX 已创建
-        # 检查 KBNAME_MAPPING_INDEX 的 mapping
-        index = es.indices.get(index=KBNAME_MAPPING_INDEX)
-        if "kb_id" in index[KBNAME_MAPPING_INDEX]['mappings']['properties']:
-            logger.info(f"KBNAME_MAPPING_INDEX mapping is new")
-            uk_docs = fetch_all_documents(KBNAME_MAPPING_INDEX)
-            actions = []
-            for item in uk_docs:  # 往索引里插数据，以index的方式，若_id已存在则先删除再添加
-                doc_id = item["_id"]
-                try:
-                    kb_id = get_maas_kb_id(item["_source"]["userId"], item["_source"]["kb_name"])
-                    logger.info(f"{item['_source']['userId']},{item['_source']['kb_name']},kb_id:{kb_id}")
-                except Exception as e:
-                    logger.error(f"{item['_source']['userId']},{item['_source']['kb_name']},get_maas_kb_id Error:{e}")
-                    continue
-                action = {
-                    "_op_type": "update",
-                    "_index": KBNAME_MAPPING_INDEX,
-                    "_id": doc_id,
-                    "doc": {"kb_id": kb_id}
-                }
-                actions.append(action)
-            # 执行更新操作,并返回
-            helpers.bulk(es, actions)
-            es.indices.refresh(index=KBNAME_MAPPING_INDEX)
-            logger.info(f"KBNAME_MAPPING_INDEX mapping updated")
-        else:  # 如果不存在，则更新 mapping 及导入数据
-            add_field_to_mapping(KBNAME_MAPPING_INDEX, "kb_id", "keyword")
-            # 刷新导入kb_id数据，离石的和kb_name 一致
-            uk_docs = fetch_all_documents(KBNAME_MAPPING_INDEX)
-            actions = []
-            for item in uk_docs:  # 往索引里插数据，以index的方式，若_id已存在则先删除再添加
-                doc_id = item["_id"]
-                try:
-                    kb_id = get_maas_kb_id(item["_source"]["userId"], item["_source"]["kb_name"])
-                    logger.info(f"{item['_source']['userId']},{item['_source']['kb_name']},kb_id:{kb_id}")
-                except Exception as e:
-                    logger.error(f"{item['_source']['userId']},{item['_source']['kb_name']},get_maas_kb_id Error:{e}")
-                    continue
-                action = {
-                    "_op_type": "update",
-                    "_index": KBNAME_MAPPING_INDEX,
-                    "_id": doc_id,
-                    "doc": {"kb_id": kb_id}
-                }
-                actions.append(action)
-            # 执行更新操作,并返回
-            helpers.bulk(es, actions)
-            es.indices.refresh(index=KBNAME_MAPPING_INDEX)
-            logger.info(f"KBNAME_MAPPING_INDEX mapping updated")
-    except Exception as e:
-        logger.error(f"Error checking status: {e}")
-
-
-def get_embs(texts: list, embedding_model_id=""):
-    """ 先使用 openai embedding协议获取 文本向量"""
-    emb_info = get_model_configure(embedding_model_id)
-    logger.info(f"Starting embedding request for {len(texts)} texts, model: {emb_info.model_name}")
-
-    api_key = emb_info.api_key or "fake api key"
-    # 安全记录API Key（仅显示部分）
-    masked_key = api_key[:4] + "****" + api_key[-4:] if len(api_key) > 8 else "****"
-
-    client = OpenAI(
-        api_key=api_key,
-        base_url=emb_info.endpoint_url,
-    )
-
-    # 安全的请求日志
-    request_details = {
-        "url": emb_info.endpoint_url,
-        "model": emb_info.model_name,
-        "api_key": masked_key,  # 使用脱敏后的key
-        "text_count": len(texts),
-        "input": texts
-    }
-    logger.info(f"Sending embedding request: {json.dumps(request_details, ensure_ascii=False)}")
-
-    # 退避间隔
-    rate_limit_backoff  = [10, 20, 40, 60] # 限流退避
-    other_error_max_retries = 2        # 其他错误最多重试2次
-    other_error_wait = 0.5             # 每次0.5s
-
-    attempt = 0
-    while attempt < max(len(rate_limit_backoff), other_error_max_retries) + 1:
-        try:
-            # 记录请求开始时间
-            start_time = time.time()
-            completion = client.embeddings.create(
-                model=emb_info.model_name,
-                input=texts,
-                encoding_format="float"
-            )
-
-            response_json = json.loads(completion.model_dump_json())
-            dense_vec_data = response_json["data"]
-            
-            # 计算响应时间
-            latency = time.time() - start_time
-            logger.info(f"Received response in {latency:.2f}s")
-            
-            # 安全的响应日志（只记录元数据）
-            response_metadata = {
-                "object": response_json.get("object"),
-                "model": response_json.get("model"),
-                "usage": response_json.get("usage"),
-                "data_count": len(dense_vec_data)
-            }
-            logger.info(f"Response metadata: {json.dumps(response_metadata)}")
-            
-            # 调试日志：记录前3个向量的维度
-            if dense_vec_data:
-                sample_info = [
-                    {"index": i, "vec_len": len(item["embedding"])} 
-                    for i, item in enumerate(dense_vec_data[:3])
-                ]
-                logger.debug(f"Sample vector dimensions: {sample_info}")
-            
-            # 构建结果
-            result_list = [
-                {"dense_vec": emb_vec["embedding"]}
-                for emb_vec in dense_vec_data
-            ]
-            return {"result": result_list}
-            
-        except Exception as e:
-            # 增强错误日志
-            error_details = f"Error: {type(e).__name__} - {str(e)}"
-
-            # 尝试获取OpenAI错误详情
-            if hasattr(e, 'response'):
-                try:
-                    status_code = getattr(e.response, "status_code", "N/A")
-                    error_body = e.response.text if hasattr(e.response, "text") else "N/A"
-                    error_details += f" | HTTP {status_code}: {error_body[:200]}"
-                except Exception as parse_err:
-                    error_details += f" | Failed to parse error: {parse_err}"
-
-            logger.error(f"Embedding request failed (attempt {attempt + 1}): {error_details}")
-
-            # 判断是否限流
-            is_rate_limited = error_details and "429" in error_details
-            if is_rate_limited:
-                if attempt < len(rate_limit_backoff):
-                    wait_time = rate_limit_backoff[attempt]
-                    logger.warning(f"Rate limited (429). Retrying after {wait_time}s...")
-                    time.sleep(wait_time)
-                    attempt += 1
-                    continue
-                else:
-                    logger.error("Exceeded max retries due to rate limiting.")
-                    break
-            else:
-                if attempt < other_error_max_retries:
-                    logger.warning(f"Non-429 error. Retrying after {other_error_wait}s...")
-                    time.sleep(other_error_wait)
-                    attempt += 1
-                    continue
-                else:
-                    logger.error("Exceeded max retries for non-429 errors.")
-                    break
-    
-    # 最终错误处理
-    raise RuntimeError(f"Failed to get embeddings after retries. Model config: {emb_info}")
-
-def calculate_cosine(query, search_list, embedding_model_id="") -> list[float]:
-    query_vector_scores = []
-    query_vector = get_embs([query], embedding_model_id=embedding_model_id)["result"][0]["dense_vec"]
-    contents = []
-    for item in search_list:
-        contents.append(item["snippet"])
-    contents_vector = get_embs(contents, embedding_model_id=embedding_model_id)["result"]
-    for item in contents_vector:
-        vec1 = np.array(query_vector)
-        vec2 = np.array(item["dense_vec"])
-
-        # calculate dot product
-        dot_product = np.dot(vec1, vec2)
-
-        # calculate norm
-        norm_vec1 = np.linalg.norm(vec1)
-        norm_vec2 = np.linalg.norm(vec2)
-
-        # calculate cosine similarity
-        cosine_sim = dot_product / (norm_vec1 * norm_vec2)
-        query_vector_scores.append(cosine_sim)
-
-    return query_vector_scores
-
-def validate_index_name(index_name):
-    # Check length
-    if len(index_name) > 255:
-        return False, "Index name cannot exceed 255 characters"
-
-    # Check for illegal characters
-    # if not re.match(r'^[a-z0-9_-]+$', index_name):
-    if not re.match(r'^[a-z0-9_\u4e00-\u9fa5-]+$', index_name, re.UNICODE):
-        return False, "Index name can only contain lowercase letters, numbers, hyphens, and underscores"
-
-    # Check if starts with a hyphen or underscore
-    if index_name.startswith('-') or index_name.startswith('_'):
-        return False, "Index name cannot start with a hyphen or underscore"
-
-    # Check for commas
-    if ',' in index_name:
-        return False, "Index name cannot contain commas"
-
-    # Check if name is "." or ".."
-    if index_name in ['.', '..']:
-        return False, "Index name cannot be \".\" or \"..\""
-
-    # Check if starts with "." or ".."
-    if index_name.startswith('.') or index_name.startswith('..'):
-        return False, "Index name cannot start with \".\" or \"..\""
-
-    return True, "Index name is valid"
-
-
-def generate_document_id(title, snippet):
-    """根据文档的标题和摘要生成一个唯一的ID"""
-    # 生成标题和摘要的哈希值
-    hash_title = hashlib.md5(title.encode('utf-8')).hexdigest()
-    hash_snippet = hashlib.md5(snippet.encode('utf-8')).hexdigest()
-    # 组合哈希值生成最终的文档ID
-    return f"{hash_title}-{hash_snippet}"
-
-
-def generate_md5(content_str):
-    # 创建一个md5 hash对象
-    md5_obj = hashlib.md5()
-
-    # 对字符串进行编码，因为md5需要bytes类型的数据
-    md5_obj.update(content_str.encode('utf-8'))
-
-    # 获取十六进制的MD5值
-    md5_value = md5_obj.hexdigest()
-
-    return md5_value
-
 
 def add_field_to_mapping(index_name, field_name, field_type):
     """
@@ -376,7 +102,6 @@ def bulk_add_index_data(index_name, kb_name, data):
     # 提前设置doc_meta字段mapping，避免自动mapping
     es_mapping.update_doc_meta_mapping(index_name)
     for item in data:  # 往索引里插数据，以index的方式，若_id已存在则先删除再添加
-        # doc_id = generate_document_id(item['title'], item['snippet']) # 弃用，
         # 生成一个随机的UUID，相当于不校验重复
         cont_str = kb_name + item["content"] + item["file_name"] + str(item["meta_data"]["chunk_current_num"])
         content_id = generate_md5(cont_str)
@@ -509,41 +234,6 @@ def get_index_update_content_actions(index_name, kb_name, content_id, chunk_curr
         actions.append(action)
 
     return actions
-
-
-def bulk_add_uk_index_data(index_name, data):
-    """(用于userid 的所有 kb_name映射表索引添加数据) 使用 helpers.bulk() 批量上传数据到指定的 Elasticsearch 索引，并返回操作状态"""
-    actions = []
-    # ============== 直接往里添加，固定 id  ==============
-    try:
-        for item in data:  # 往索引里插数据，以index的方式，若_id已存在则先删除再添加
-            if not item["kb_id"]:  # 如果不传递，则生成一个
-                # cont_str = item["index_name"] + item["userId"] + item["kb_name"]
-                # doc_id = generate_md5(cont_str)
-                doc_id = uuid.uuid4()  # 不关注重复
-                # print(doc_id)
-                item['item_id'] = doc_id
-                item['kb_id'] = doc_id
-            else:
-                doc_id = item["kb_id"]
-                item['item_id'] = doc_id
-            action = {
-                "_op_type": "index",  # 使用index,已存在就覆盖
-                "_index": index_name,
-                "_id": doc_id,
-                "_source": item
-            }
-            actions.append(action)
-
-        # 执行批量操作
-        helpers.bulk(es, actions)
-        res = es.indices.refresh(index=index_name)
-
-        # logger.info(f"{res}： bulk_add_uk_index_data  ----- {data}")
-        return {"success": True, "uploaded": len(actions), "error": None}
-    except Exception as e:
-        # 如果批量操作失败，返回失败状态和错误信息
-        return {"success": False, "uploaded": len(actions), "error": str(e)}
 
 
 def cc_bulk_upsert_index_data(index_name, data):
@@ -848,7 +538,7 @@ def is_field_exist(index_name:str, field_name:str)-> (bool, dict):
 def search_data_knn_recall(index_name, kb_names, query, top_k, min_score, filter_file_name_list=[], embedding_model_id=""):
     """根据查询检索数据，仅返回分数高于 min_score 的文档，并按分数从高到低排序，支持多知识库"""
 
-    query_vector = get_embs([query], embedding_model_id=embedding_model_id)["result"][0]["dense_vec"]
+    query_vector = emb_util.get_embs([query], embedding_model_id=embedding_model_id)["result"][0]["dense_vec"]
     field_name = f"q_{len(query_vector)}_content_vector"
     # 检查索引映射以确定使用哪个字段
     field_exist, properties = is_field_exist(index_name, field_name)
@@ -952,42 +642,6 @@ def get_kb_name_list(index_name):
     response = es.search(index=index_name, body=body)
     unique_res = [bucket['key'] for bucket in response['aggregations']['unique_res']['buckets']]
     return unique_res
-
-
-def get_uk_kb_name_list(index_name, user_id):
-    """ 获取 userid 的所有 kb_name 映射表下 某个 user_id 所有的知识库名称的集合"""
-    body = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"userId": user_id}},
-                    # {"match": {"userId": user_id}},
-                ]
-            }
-        },
-        "aggs": {
-            "unique_res": {
-                "terms": {
-                    "field": "kb_name",
-                    "size": 100000,  # 根据需要设置大小
-                }
-            }
-        },
-        "size": 0  # 不需要原始文档，只用于聚合
-    }
-
-    response = es.search(index=index_name, body=body)
-    unique_res = [bucket['key'] for bucket in response['aggregations']['unique_res']['buckets']]
-    return unique_res
-
-
-def get_uk_kb_id_list(index_name, user_id):
-    """ 获取 userid 的所有 kb_name 映射表下 某个 user_id 所有的知识库名称的集合"""
-    kb_id_list = []
-    kb_name_list = get_uk_kb_name_list(index_name, user_id)
-    for kb_name in kb_name_list:
-        kb_id_list.append(get_uk_kb_id(user_id, kb_name))
-    return kb_id_list
 
 
 def get_file_name_list(index_name, kb_name):
@@ -1400,8 +1054,6 @@ def delete_uk_data_by_kbname(userId: str, kb_name: str):
                 "must": [
                     {"term": {"kb_name": kb_name}},
                     {"term": {"userId": userId}},
-                    # {"match": {"kb_name": kb_name}},
-                    # {"match": {"userId": userId}},
                 ]
             }
         }
@@ -2155,126 +1807,6 @@ def get_cc_content_status(index_name, kb_name, content_id_list):
             useful_content_id_list.append(hit["content_id"])
     # ========= 返回 =========
     return useful_content_id_list
-
-
-def get_uk_kb_id(userId, kb_name):
-    """ 获取知识库映射的 kb_id """
-    kb_id = ""
-    logger.info(f"userId:{userId},kb_name:{kb_name} ====== get_uk_kb_id")
-    # 查询条件
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"userId": userId}},
-                    {"term": {"kb_name": kb_name}},
-                ]
-            }
-        }
-    }
-    response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
-    # 遍历搜索结果，获取 kb_id
-    for hit in response["hits"]["hits"]:
-        kb_id = hit['_source']["kb_id"]
-    # ========= 返回 =========
-    if not kb_id:
-        kb_id = get_maas_kb_id(userId, kb_name)  # 如果没有找到，则从 maas 知识库中获取
-    logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 kb_id 为:{kb_id}")
-    return kb_id
-
-
-def get_uk_kb_emb_model_id(userId, kb_name):
-    """ 获取知识库映射的 embedding_model_id  """
-    embedding_model_id = ""
-    logger.info(f"userId:{userId},kb_name:{kb_name} ====== get_uk_kb_emb_model_id")
-    # 查询条件
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"userId": userId}},
-                    {"term": {"kb_name": kb_name}},
-                ]
-            }
-        }
-    }
-    response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
-    # 遍历搜索结果，获取 kb_id
-    for hit in response["hits"]["hits"]:
-        embedding_model_id = hit['_source']["embedding_model_id"]
-    logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 embedding_model_id 为:{embedding_model_id}")
-    return embedding_model_id
-
-
-def get_uk_kb_info(userId, kb_name):
-    """ 获取知识库info  """
-    kb_info = {}
-    logger.info(f"userId:{userId},kb_name:{kb_name} ====== get_uk_kb_info")
-    # 查询条件
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"userId": userId}},
-                    {"term": {"kb_name": kb_name}},
-                ]
-            }
-        }
-    }
-    response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
-    if len(response["hits"]["hits"]) > 1:
-        raise ValueError("存在多条kb info 记录")
-    for hit in response["hits"]["hits"]:
-        kb_id = hit['_source']["kb_id"]
-        if not kb_id:
-            kb_id = get_maas_kb_id(userId, kb_name)  # 如果没有找到，则从 maas 知识库中获取
-        kb_info["kb_id"] = kb_id
-        kb_info["embedding_model_id"] = hit['_source']["embedding_model_id"]
-        if "enable_graph" in hit['_source']:
-            kb_info["enable_knowledge_graph"] = hit['_source']["enable_graph"]
-    logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 kb_info 为:{kb_info}")
-    return kb_info
-
-
-def update_uk_kb_name(userId, old_kb_name, new_kb_name):
-    """ 更新 uk映射表 知识库名 """
-    # 查询条件
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"userId": userId}},
-                    {"term": {"kb_name": old_kb_name}},
-                    # {"match": {"userId": userId}},
-                    # {"match": {"kb_name": old_kb_name}},
-                ]
-            }
-        }
-    }
-    response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
-    # 遍历搜索结果，将actions
-    actions = []
-    for hit in response["hits"]["hits"]:
-        # 往索引里插数据，以index的方式，若_id已存在则先删除再添加
-        doc_id = hit['_id']
-        # print(doc_id)
-        action = {
-            "_op_type": "update",
-            "_index": KBNAME_MAPPING_INDEX,
-            "_id": doc_id,
-            "doc": {"kb_name": new_kb_name}
-        }
-        actions.append(action)
-    if len(actions) < 1:
-        return {'code': 1, 'message': f'没有找到对应的知识库:{old_kb_name}'}
-    # 执行更新操作,并返回
-    try:
-        helpers.bulk(es, actions)
-        es.indices.refresh(index=KBNAME_MAPPING_INDEX)
-        return {'code': 0, 'message': 'success'}
-    except Exception as e:
-        # 如果批量操作失败，返回失败状态和错误信息
-        return {'code': 1, 'message': f'{e}'}
 
 
 if __name__ == "__main__":

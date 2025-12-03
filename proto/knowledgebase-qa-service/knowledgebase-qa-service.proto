@@ -1,0 +1,222 @@
+syntax = "proto3";
+
+package knowledgebase_qa_service;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "gitlab.ai-yuanjing.cn/ai-platform-private/backend-used-bff/common-api/api/proto/knowledgebase-qa-service";
+
+
+service KnowledgeBaseQAService {
+  // 新建问答对
+  rpc CreateQAPair(CreateQAPairReq) returns (CreateQAPairResp) {}
+  // 更新问答对
+  rpc UpdateQAPair(UpdateQAPairReq) returns (google.protobuf.Empty) {}
+  // 启停问答对
+  rpc UpdateQAPairSwitch(UpdateQAPairSwitchReq) returns (google.protobuf.Empty) {}
+  // 删除问答对
+  rpc DeleteQAPair(DeleteQAPairReq) returns (google.protobuf.Empty) {}
+  // 获取问答对详情
+  rpc GetQAPairInfo(GetQAPairInfoReq) returns (QAPairInfo) {}
+  // 获取问答对列表
+  rpc GetQAPairList(GetQAPairListReq) returns (GetQAPairListResp) {}
+  // 导入文档
+  rpc ImportQAPair(ImportQAPairReq) returns (google.protobuf.Empty) {}
+  // 导出文档
+  rpc ExportQAPair(ExportQAPairReq) returns (google.protobuf.Empty) {}
+  // 获取导出记录列表
+  rpc GetExportRecordList(GetExportRecordListReq) returns (GetExportRecordListResp) {}
+  // 删除导出记录
+  rpc DeleteExportRecord(DeleteExportRecordReq) returns (google.protobuf.Empty) {}
+  // 问答库命中测试
+  rpc KnowledgeQAHit(KnowledgeQAHitReq) returns (KnowledgeQAHitResp) {}
+}
+
+message CreateQAPairReq {
+  string knowledgeId = 1;//问答库id
+  string question = 2; //问题
+  string answer = 3; //答案
+  string userId = 4;
+  string orgId = 5;
+}
+
+message CreateQAPairResp {
+  string qaPairId = 1;//问答对id
+}
+
+message UpdateQAPairReq {
+  string qaPairId = 1;//问答对id
+  string question = 2; //问题
+  string answer = 3; //答案
+  string userId = 4;
+  string orgId = 5;
+}
+
+message UpdateQAPairSwitchReq {
+  string qaPairId = 1;//问答对id
+  bool switch = 2; //启停状态
+  string userId = 3;
+  string orgId = 4;
+}
+
+message DeleteQAPairReq {
+  string qaPairId = 1;//问答对id
+  string userId = 2;
+  string orgId = 3;
+}
+
+message GetQAPairInfoReq {
+  string qaPairId = 1;//问答对id
+  string userId = 2;
+  string orgId = 3;
+}
+
+message GetQAPairListReq{
+  string knowledgeId = 1;//问答库id
+  string name = 2; //名称
+  int32  status = 3; //状态
+  int32 pageSize = 4;
+  int32 pageNum = 5;
+  string userId = 6;
+  string orgId = 7;
+}
+
+message GetQAPairListResp{
+  KnowledgeInfo knowledgeInfo = 1;
+  int64 total = 2;
+  int32 pageNum = 3;
+  int32 pageSize = 4;
+  repeated QAPairInfo qaPairInfos = 5;
+}
+
+message KnowledgeInfo{
+  string knowledgeId = 1;//问答库id
+  string knowledgeName = 2;//问答库名称
+}
+
+message QAPairInfo{
+  string qaPairId = 1;//问答对id
+  string knowledgeId = 2;//问答库id
+  string question = 3; //问题
+  string answer = 4; //答案
+  string author = 5; // 作者
+  int32 status = 6; // 状态
+  bool switch = 7; // 开关
+  string errorMsg = 8; // 处理错误信息
+  repeated MetaData metaDataList = 9;//元数据信息
+  string uploadTime = 10; // 上传时间
+  string userId = 11;
+}
+
+message ImportQAPairReq {
+  string knowledgeId = 1; //问答库id
+  repeated DocFileInfo docInfoList = 2; //上传文档列表
+  string userId = 3;
+  string orgId = 4;
+}
+
+message DocFileInfo {
+  string docName = 1;  //文档名称
+  string docUrl = 2;  //文档url
+  string docType = 3; // 文档类型
+  string docId = 4;//文档id
+  int64 docSize = 5;//文档大小
+}
+
+message ExportQAPairReq {
+  string knowledgeId = 1; //问答库id
+  string userId = 2;
+  string orgId = 3;
+}
+
+message GetExportRecordListReq{
+  string knowledgeId = 1;//问答库id
+  string userId = 2;
+  string orgId = 3;
+  int32 pageSize = 4;
+  int32 pageNum = 5;
+}
+
+message GetExportRecordListResp{
+  int64 total = 1;
+  int32 pageNum = 2;
+  int32 pageSize = 3;
+  repeated ExportRecordInfo exportRecordInfos = 4;
+}
+
+message ExportRecordInfo{
+  string qaExportRecordId = 1;//导出记录id
+  string author = 2; //导出人
+  int32 status = 3; //导出状态
+  string filePath = 4; //导出文件路径
+  string errorMsg = 5; //错误信息
+  string exportTime =6; //导出时间
+  string userId = 7;
+}
+
+message DeleteExportRecordReq{
+  string qaExportRecordId = 1;//导出记录id
+  string userId = 2;
+  string orgId = 3;
+}
+
+message KnowledgeQAHitReq{
+  string orgId = 1;
+  string userId = 2;
+  string question = 3; //问题
+  repeated KnowledgeParams knowledgeList = 4;//问答库参数列表
+  KnowledgeMatchParams knowledgeMatchParams = 5; //模型匹配方式
+}
+
+message KnowledgeParams{
+  string knowledgeId = 1; // 问答库id
+  MetaDataFilterParams metaDataFilterParams = 2; // 元数据过滤参数
+}
+
+message MetaDataFilterParams{
+  bool filterEnable = 1; // 元数据过滤开关
+  string filterLogicType = 2; // 元数据过滤逻辑类型
+  repeated MetaFilterParams metaFilterParams = 3; // 元数据过滤参数
+}
+
+message MetaFilterParams{
+  string key = 1; // 元数据key
+  string type = 2; // 元数据类型
+  string value = 3; // 元数据值
+  string condition = 4; // 元数据过滤条件
+}
+
+message KnowledgeMatchParams{
+  string matchType = 1; //matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+  string rerankModelId = 2;//rerank模型id
+  int32 priorityMatch = 3;// 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+  float semanticsPriority = 4;// 语义权重
+  float keywordPriority = 5;// 关键词权重
+  int32 topK = 6;//topK 获取最高的几行
+  float score = 7;//score 过滤分数阈值
+  float termWeight = 8; // 关键词系数
+  bool termWeightEnable = 9; // 关键词系数开关
+}
+
+message MetaData {
+  string metaId = 1; // 元数据id
+  string key = 2; // key
+  string value = 3; // 确定值
+  string valueType = 4; // string, number, time
+  string option = 5; // option:add(新增)、update(更新)、delete(删除),update 和delete 的时候metaId 不能为空
+  string rule = 6; // 正则表达式
+}
+message KnowledgeQAHitResp{
+  repeated double score = 1;
+  repeated KnowledgeQASearchInfo searchList = 2;
+}
+
+message KnowledgeQASearchInfo{
+  string title = 1;
+  string question = 2;
+  string answer = 3;
+  string qaPairId = 4;
+  string qaBase = 5;
+  string qaId = 6;
+  string contentType = 7; // qa
+}

@@ -168,6 +168,31 @@ community_report_mappings = {
     }
 }
 
+qa_mappings = {
+    "dynamic_templates": vector_dynamic_templates,
+    "properties": {
+        "qa_pair_id": {"type": "keyword"},
+        "question": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
+        "answer": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
+        "QABase": {"type": "keyword"},
+        "QAId": {"type": "keyword"},
+        "status": {"type": "boolean"},
+        "meta_data": {
+            "properties": {
+                "doc_meta": {
+                    "type": "nested",
+                    "properties": {
+                        "key": {"type": "keyword"},
+                        "int_value": {"type": "long"},
+                        "string_value": {"type": "keyword"},
+                        "value_type": {"type": "keyword"}
+                    }
+                }
+            }
+        }
+    }
+}
+
 def is_field_exist(index_name:str, field_name:str)-> (bool, dict):
     mapping = es.indices.get_mapping(index=index_name)
     properties = mapping[index_name].get('mappings', {}).get('properties', {})

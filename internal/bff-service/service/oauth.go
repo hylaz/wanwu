@@ -18,7 +18,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func OAuthLogin(ctx *gin.Context, req *request.OAuthRequest) (string, error) {
+func OAuthLogin(ctx *gin.Context, req *request.OAuthLoginRequest) (string, error) {
 	issuer, err := oauth2_util.GetIssuer()
 	if err != nil {
 		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
@@ -52,7 +52,11 @@ func OAuthLogin(ctx *gin.Context, req *request.OAuthRequest) (string, error) {
 	return loginURI, nil
 }
 
-func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest, userID string) (string, error) {
+func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest) (string, error) {
+	userID, err := jwtUserAuth(ctx, req.JwtToken)
+	if err != nil {
+		return "", grpc_util.ErrorStatus(err_code.Code_BFFJWT, err.Error())
+	}
 	oauthApp, err := iam.GetOauthApp(ctx, &iam_service.GetOauthAppReq{
 		ClientId: req.ClientID,
 	})
@@ -323,4 +327,17 @@ func isValidURI(rawURI string) bool {
 		return false
 	}
 	return u.Scheme != "" && u.Host != ""
+}
+
+func jwtUserAuth(ctx *gin.Context, token string) (string, error) {
+	claims, err := jwt_util.ParseToken(token)
+	if err != nil {
+		return "", err
+	}
+	if claims.Subject != jwt_util.SUBJECT_USER {
+		return "", fmt.Errorf("token subject错误")
+	}
+
+	//ctx.Set(gin_util.CLAIMS, claims)
+	return claims.UserID, nil
 }

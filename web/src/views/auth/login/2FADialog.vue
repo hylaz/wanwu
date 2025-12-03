@@ -216,7 +216,7 @@ export default {
           delete data.oldPassword
         }
 
-        await this.LoginIn2FA2({ loginInfo: data, params: this.params })
+        await this.LoginIn2FA2({loginInfo: data, params: this.params})
       })
 
     },
@@ -247,6 +247,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/style/auth.scss";
+
 /deep/ .auth-box {
   min-width: 400px;
   background: rgba(244, 247, 255, 0.7);

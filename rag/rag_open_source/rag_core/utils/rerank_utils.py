@@ -102,9 +102,7 @@ def get_openai_rerank(rerank_url, model_name, api_key, query, documents, raw_sea
     return {"code": 1, "msg": f"{model_name} connection error after retries"}
 
 
-def get_model_rerank(question, top_k, searchList, es_list, rerank_model_id, term_weight_coefficient=1):
-    sorted_scores = []
-    sorted_search_list = []
+def get_model_rerank(question, top_k, documents, raw_search_list, rerank_model_id):
 
     model_config = get_model_configure(rerank_model_id)
     model_provider = model_config.model_provider
@@ -114,32 +112,25 @@ def get_model_rerank(question, top_k, searchList, es_list, rerank_model_id, term
         api_key = model_config.api_key
     else:
         raise Exception(f"model type of model {rerank_model_id} is not rerank")
-    if model_config.model_provider == "OpenAI-API-compatible":
-        documents = gen_rag_list(searchList, es_list)
-        logger.info("openapi doc = %s", repr(documents))
-        raw_search_list = gen_raw_list(searchList, es_list)
-        result_data = get_openai_rerank(model_url, model_name, api_key, question, documents, raw_search_list,
-                                        top_k)  # 不传 len(raw_search_list)
-        sorted_scores = result_data['result']["sorted_scores"]
-        sorted_search_list = result_data['result']["sorted_search_list"]
 
-    elif model_config.model_provider == "YuanJing":
-        raw_search_list = gen_raw_list(searchList, es_list)
-        texts = [item['snippet'] for item in raw_search_list]  # 从字典中提取文本
-        rerank_data = {"query": question, "texts": texts}
-        result_data = get_maas_rerank(model_url, model_name, api_key, rerank_data, raw_search_list,
-                                      top_k)  # 不传 len(raw_search_list)
-        sorted_scores = result_data['result']["sorted_scores"]
-        sorted_search_list = result_data['result']["sorted_search_list"]
+    # if model_config.model_provider == "OpenAI-API-compatible": # 写死openapi格式，具体由bff层适配
+    # documents = gen_rag_list(searchList, es_list)
+    logger.info("get_model_rerank, openapi doc = %s", repr(documents))
+    # raw_search_list = gen_raw_list(searchList, es_list)
+    result_data = get_openai_rerank(model_url, model_name, api_key, question, documents, raw_search_list, top_k)
+    sorted_scores = result_data['result']["sorted_scores"]
+    sorted_search_list = result_data['result']["sorted_search_list"]
 
-    # # =========== 最后过一遍 hybrid_term_weight_rerank =========
-    # rerank_search_list = sorted_search_list
-    # rerank_scores = sorted_scores
-    # # term_weight_coefficient = 1  # 关键词得分系数，默认 1
-    # sorted_search_list, sorted_scores = hybrid_term_weight_rerank(question, rerank_search_list,
-    #                                                               scores=rerank_scores, top_k=top_k, threshold=0,
-    #                                                               term_weight_coefficient=term_weight_coefficient)
-    # # =========== 最后过一遍 hybrid_term_weight_rerank =========
+    # elif model_config.model_provider == "YuanJing":
+    #     raw_search_list = gen_raw_list(searchList, es_list)
+    #     texts = [item['snippet'] for item in raw_search_list]  # 从字典中提取文本
+    #     rerank_data = {"query": question, "texts": texts}
+    #     result_data = get_maas_rerank(model_url, model_name, api_key, rerank_data, raw_search_list,
+    #                                   top_k)  # 不传 len(raw_search_list)
+    #     sorted_scores = result_data['result']["sorted_scores"]
+    #     sorted_search_list = result_data['result']["sorted_search_list"]
+
+
     return sorted_scores, sorted_search_list
 
 

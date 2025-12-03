@@ -12,12 +12,25 @@
     >
       <div>
         <div>
-          <img :src="require('@/assets/imgs/uploadImg.png')" class="upload-img"/>
+          <img
+            :src="require('@/assets/imgs/uploadImg.png')"
+            class="upload-img"
+          />
           <p class="click-text">
-            {{ $t('common.fileUpload.uploadText') }}
-            <span class="clickUpload">{{ $t('common.fileUpload.uploadClick') }}</span>
-            <a class="clickUpload template" :href="templateUrl" download @click.stop>{{ $t('common.fileUpload.templateClick') }}</a>
+            {{ $t("common.fileUpload.uploadText") }}
+            <span class="clickUpload">
+              {{ $t("common.fileUpload.uploadClick") }}
+            </span>
+            <a
+              class="clickUpload template"
+              :href="templateUrl"
+              download
+              @click.stop
+            >
+              {{ $t("common.fileUpload.templateClick") }}
+            </a>
           </p>
+          <slot name="upload-tips" />
         </div>
       </div>
     </el-upload>
@@ -30,33 +43,42 @@
             :key="index"
             class="document_lise_item"
           >
-            <div style="padding:8px 0;" class="lise_item_box">
-                    <span class="size">
-                        <img :src="require('@/assets/imgs/fileicon.png')"/>
-                        {{ file.name }}
-                        <span class="file-size">
-                        {{ filterSize(file.size) }}
-                        </span>
-                        <el-progress
-                          :percentage="file.percentage"
-                          v-if="file.percentage !== 100"
-                          :status="file.progressStatus"
-                          max="100"
-                          class="progress"
-                        ></el-progress>
-                    </span>
+            <div style="padding: 8px 0" class="lise_item_box">
+              <span class="size">
+                <img :src="require('@/assets/imgs/fileicon.png')" />
+                {{ file.name }}
+                <span class="file-size">
+                  {{ filterSize(file.size) }}
+                </span>
+                <el-progress
+                  :percentage="file.percentage"
+                  v-if="file.percentage !== 100"
+                  :status="file.progressStatus"
+                  max="100"
+                  class="progress"
+                ></el-progress>
+              </span>
               <span class="handleBtn">
-                        <span>
-                        <span v-if="file.percentage === 100">
-                            <i class="el-icon-check check success" v-if="file.progressStatus === 'success'"></i>
-                            <i class="el-icon-close close fail" v-else></i>
-                        </span>
-                        <i class="el-icon-loading" v-else-if="file.percentage !== 100 && index === fileIndex"></i>
-                        </span>
-                        <span style="margin-left:30px;">
-                        <i class="el-icon-error error" @click="handleRemove(file,index)"></i>
-                        </span>
-                    </span>
+                <span>
+                  <span v-if="file.percentage === 100">
+                    <i
+                      class="el-icon-check check success"
+                      v-if="file.progressStatus === 'success'"
+                    ></i>
+                    <i class="el-icon-close close fail" v-else></i>
+                  </span>
+                  <i
+                    class="el-icon-loading"
+                    v-else-if="file.percentage !== 100 && index === fileIndex"
+                  ></i>
+                </span>
+                <span style="margin-left: 30px">
+                  <i
+                    class="el-icon-error error"
+                    @click="handleRemove(file, index)"
+                  ></i>
+                </span>
+              </span>
             </div>
           </li>
         </ul>
@@ -66,15 +88,15 @@
 </template>
 <script>
 import uploadChunk from "@/mixins/uploadChunk";
-import {delfile} from "@/api/chunkFile";
+import { delfile } from "@/api/chunkFile";
 
 export default {
-  props: ['templateUrl', 'accept'],
+  props: ["templateUrl", "accept"],
   mixins: [uploadChunk],
   data() {
     return {
       fileList: [],
-    }
+    };
   },
   methods: {
     uploadOnChange(file, fileList) {
@@ -86,8 +108,8 @@ export default {
         this.startUpload();
       }
     },
-    uploadFile(chunkFileName) {
-      this.$emit('uploadFile', chunkFileName)
+    uploadFile(chunkFileName, fileName, filePath) {
+      this.$emit("uploadFile", chunkFileName, fileName, filePath);
     },
     clearFileList() {
       this.fileList = [];
@@ -104,29 +126,29 @@ export default {
       return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
     },
     handleRemove(item, index) {
-      const data = {fileList: [this.resList[index]['name']], isExpired: true}
-      delfile(data).then(res => {
+      const data = { fileList: [this.resList[index]["name"]], isExpired: true };
+      delfile(data).then((res) => {
         if (res.code === 0) {
-          this.$message.success(this.$t('common.info.delete'))
+          this.$message.success(this.$t("common.info.delete"));
         }
-      })
+      });
       this.fileList = this.fileList.filter((files) => files.name !== item.name);
       if (this.fileList.length === 0) {
-        this.file = null
+        this.file = null;
       } else {
-        this.fileIndex--
+        this.fileIndex--;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 .success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .fail {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .upload-box {
@@ -136,7 +158,8 @@ export default {
     margin-top: 10px;
   }
 
-  .clickUpload, .template {
+  .clickUpload,
+  .template {
     color: $color;
     font-weight: bold;
   }
@@ -189,7 +212,7 @@ export default {
   }
 
   .document_lise_item:hover {
-    background: #ECEEFE;
+    background: #eceefe;
   }
 }
 </style>

@@ -45,12 +45,3 @@ export const changeOAuthStatus = (data) => {
         data: data,
     })
 }
-
-// 授权码认证
-export const codeOAuth = (data) => {
-    return service({
-        url: `${USER_API}/oauth/code/authorize`,
-        method: "get",
-        params: data,
-    })
-}

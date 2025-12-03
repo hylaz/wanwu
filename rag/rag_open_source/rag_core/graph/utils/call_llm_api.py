@@ -7,7 +7,7 @@ import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from utils.logger import logger
+from graph.utils.logger import logger
 
 load_dotenv()
 

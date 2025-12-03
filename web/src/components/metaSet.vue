@@ -1,17 +1,31 @@
 <template>
   <div class="metaSet">
     <div class="tool-typ">
-      <el-button icon="el-icon-plus" type="primary" @click="addMetaItem" size="small">{{
-          $t('metaSet.add')
-        }}
+      <el-button
+        icon="el-icon-plus"
+        type="primary"
+        @click="addMetaItem"
+        size="small"
+      >
+        {{ $t("metaSet.add") }}
       </el-button>
-      <el-switch v-model="metaDataFilterParams.filterEnable" active-color="var(--color)"
-                 @change="switchChange"></el-switch>
+      <el-switch
+        v-model="metaDataFilterParams.filterEnable"
+        active-color="var(--color)"
+        @change="switchChange"
+      ></el-switch>
     </div>
     <div class="docMetaData">
-      <div :class="['docMetaBox',metaDataFilterParams.metaFilterParams.length > 1 ? 'docMetaContainer':'']">
+      <div
+        :class="[
+          'docMetaBox',
+          metaDataFilterParams.metaFilterParams.length > 1
+            ? 'docMetaContainer'
+            : '',
+        ]"
+      >
         <div
-          v-for="(item,index) in metaDataFilterParams.metaFilterParams"
+          v-for="(item, index) in metaDataFilterParams.metaFilterParams"
           class="docItem"
           :key="`metaItem-${index}`"
         >
@@ -19,15 +33,15 @@
             <el-select
               v-model="item.key"
               :placeholder="$t('common.select.placeholder') + 'key'"
-              @change="keyChange($event,item,index)"
+              @change="keyChange($event, item, index)"
             >
               <template #prefix>
-                <img class="prefix" src="@/assets/imgs/key.png"/>
+                <img class="prefix" src="@/assets/imgs/key.png" />
               </template>
               <el-option
                 v-for="meta in keyOptions"
                 :key="meta.metaKey"
-                :label="meta.metaKey + ' | ' + '[ '+meta.metaValueType+' ]'"
+                :label="meta.metaKey + ' | ' + '[ ' + meta.metaValueType + ' ]'"
                 :value="meta.metaKey"
               >
               </el-option>
@@ -38,10 +52,14 @@
             <el-select
               v-model="item.condition"
               :placeholder="$t('metaSet.conditionPlaceholder')"
-              @change="conditionChange($event,item)"
+              @change="conditionChange($event, item)"
             >
               <template #prefix>
-                <img class="prefix" src="@/assets/imgs/condition.png" style="width:18px;"/>
+                <img
+                  class="prefix"
+                  src="@/assets/imgs/condition.png"
+                  style="width: 18px"
+                />
               </template>
               <el-option
                 v-for="item in conditionOptions[item.type]"
@@ -59,10 +77,16 @@
               v-if="item.type === 'string' || item.type === ''"
               @blur="metaValueBlur(item)"
               :placeholder="$t('common.input.placeholder') + 'value'"
-              :disabled="item.condition === 'empty' || item.condition === 'not empty'"
+              :disabled="
+                item.condition === 'empty' || item.condition === 'not empty'
+              "
             >
               <template #prefix>
-                <img class="prefix" src="@/assets/imgs/value.png" style="width:16px;"/>
+                <img
+                  class="prefix"
+                  src="@/assets/imgs/value.png"
+                  style="width: 16px"
+                />
               </template>
             </el-input>
             <el-input
@@ -71,10 +95,16 @@
               @blur="metaValueBlur(item)"
               type="number"
               placeholder="number"
-              :disabled="item.condition === 'empty'|| item.condition === 'not empty'"
+              :disabled="
+                item.condition === 'empty' || item.condition === 'not empty'
+              "
             >
               <template #prefix>
-                <img class="prefix" src="@/assets/imgs/number.png" style="width:16px;"/>
+                <img
+                  class="prefix"
+                  src="@/assets/imgs/number.png"
+                  style="width: 16px"
+                />
               </template>
             </el-input>
             <el-date-picker
@@ -85,7 +115,9 @@
               value-format="timestamp"
               type="datetime"
               :placeholder="$t('common.datePicker.placeholder')"
-              :disabled="item.condition === 'empty' || item.condition === 'not empty'"
+              :disabled="
+                item.condition === 'empty' || item.condition === 'not empty'
+              "
             >
             </el-date-picker>
           </div>
@@ -116,131 +148,131 @@
   </div>
 </template>
 <script>
-import {metaSelect} from "@/api/knowledge"
+import { metaSelect } from "@/api/knowledge";
 
 export default {
   props: {
     knowledgeId: {
       type: String,
       required: true,
-      default: ''
+      default: "",
     },
     currentMetaData: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   data() {
     return {
       metaDataFilterParams: {
         filterEnable: false,
-        filterLogicType: 'and',
-        metaFilterParams: []
+        filterLogicType: "and",
+        metaFilterParams: [],
       },
       keyOptions: [],
       conditions: [
         {
-          value: 'and',
-          label: this.$t('metaSet.and')
+          value: "and",
+          label: this.$t("metaSet.and"),
         },
         {
-          value: 'or',
-          label: this.$t('metaSet.or')
-        }
+          value: "or",
+          label: this.$t("metaSet.or"),
+        },
       ],
       conditionOptions: {
         time: [
           {
-            value: 'is',
-            label: this.$t('metaSet.is')
+            value: "is",
+            label: this.$t("metaSet.is"),
           },
           {
-            value: 'before',
-            label: this.$t('metaSet.before')
+            value: "before",
+            label: this.$t("metaSet.before"),
           },
           {
-            value: 'after',
-            label: this.$t('metaSet.after')
+            value: "after",
+            label: this.$t("metaSet.after"),
           },
           {
-            value: 'empty',
-            label: this.$t('metaSet.empty')
+            value: "empty",
+            label: this.$t("metaSet.empty"),
           },
           {
-            value: 'not empty',
-            label: this.$t('metaSet.notEmpty')
-          }
+            value: "not empty",
+            label: this.$t("metaSet.notEmpty"),
+          },
         ],
         string: [
           {
-            value: 'is',
-            label: this.$t('metaSet.is')
+            value: "is",
+            label: this.$t("metaSet.is"),
           },
           {
-            value: 'is not',
-            label: this.$t('metaSet.not')
+            value: "is not",
+            label: this.$t("metaSet.not"),
           },
           {
-            value: 'contains',
-            label: this.$t('metaSet.contains')
+            value: "contains",
+            label: this.$t("metaSet.contains"),
           },
           {
-            value: 'not contains',
-            label: this.$t('metaSet.notContains')
+            value: "not contains",
+            label: this.$t("metaSet.notContains"),
           },
           {
-            value: 'start with',
-            label: this.$t('metaSet.startsWith')
+            value: "start with",
+            label: this.$t("metaSet.startsWith"),
           },
           {
-            value: 'end with',
-            label: this.$t('metaSet.endsWith')
+            value: "end with",
+            label: this.$t("metaSet.endsWith"),
           },
           {
-            value: 'empty',
-            label: this.$t('metaSet.empty')
+            value: "empty",
+            label: this.$t("metaSet.empty"),
           },
           {
-            value: 'not empty',
-            label: this.$t('metaSet.notEmpty')
-          }
+            value: "not empty",
+            label: this.$t("metaSet.notEmpty"),
+          },
         ],
         number: [
           {
-            value: '=',
-            label: this.$t('metaSet.equal')
+            value: "=",
+            label: this.$t("metaSet.equal"),
           },
           {
-            value: '≠',
-            label: this.$t('metaSet.notEqual')
+            value: "≠",
+            label: this.$t("metaSet.notEqual"),
           },
           {
-            value: '>',
-            label: this.$t('metaSet.moreThan')
+            value: ">",
+            label: this.$t("metaSet.moreThan"),
           },
           {
-            value: '≥',
-            label: this.$t('metaSet.moreThanOrEqual')
+            value: "≥",
+            label: this.$t("metaSet.moreThanOrEqual"),
           },
           {
-            value: '<',
-            label: this.$t('metaSet.lessThan')
+            value: "<",
+            label: this.$t("metaSet.lessThan"),
           },
           {
-            value: '≤',
-            label: this.$t('metaSet.lessThanOrEqual')
+            value: "≤",
+            label: this.$t("metaSet.lessThanOrEqual"),
           },
           {
-            value: 'empty',
-            label: this.$t('metaSet.empty')
+            value: "empty",
+            label: this.$t("metaSet.empty"),
           },
           {
-            value: 'not empty',
-            label: this.$t('metaSet.notEmpty')
-          }
-        ]
-      }
-    }
+            value: "not empty",
+            label: this.$t("metaSet.notEmpty"),
+          },
+        ],
+      },
+    };
   },
   watch: {
     currentMetaData: {
@@ -248,29 +280,31 @@ export default {
         if (val === null) {
           this.metaDataFilterParams = {
             filterEnable: false,
-            filterLogicType: 'and',
-            metaFilterParams: []
-          }
+            filterLogicType: "and",
+            metaFilterParams: [],
+          };
           return;
         }
 
         if (Object.keys(val).length > 0) {
-          this.metaDataFilterParams = JSON.parse(JSON.stringify(val))
+          const copy = JSON.parse(JSON.stringify(val));
+          copy.metaFilterParams = copy.metaFilterParams || [];
+          this.metaDataFilterParams = copy;
         }
       },
       immediate: true,
-      deep: true
+      deep: true,
     },
     knowledgeId: {
       handler(val, old) {
         if (val) {
           if (val !== old) {
-            this.getList()
+            this.getList();
           }
         }
       },
       immediate: true,
-    }
+    },
   },
   created() {
     // this.getList()
@@ -282,88 +316,104 @@ export default {
       }
     },
     conditionChange(e, item) {
-      item.value = '';
+      item.value = "";
     },
     getMetaData() {
-      this.metaDataFilterParams.metaFilterParams = this.metaDataFilterParams.metaFilterParams.map(item => {
-        if (item.type === 'time') {
-          return {
-            ...item,
-            value: String(item.value)
-          };
-        }
-        return item;
-      });
-      return {'metaDataFilterParams': this.metaDataFilterParams}
+      this.metaDataFilterParams.metaFilterParams =
+        this.metaDataFilterParams.metaFilterParams.map((item) => {
+          if (item.type === "time") {
+            return {
+              ...item,
+              value: String(item.value),
+            };
+          }
+          return item;
+        });
+      return { metaDataFilterParams: this.metaDataFilterParams };
     },
     getList() {
-      metaSelect({knowledgeId: this.knowledgeId}).then(res => {
+      metaSelect({ knowledgeId: this.knowledgeId }).then((res) => {
         if (res.code === 0) {
-          this.keyOptions = res.data.knowledgeMetaList || []
+          this.keyOptions = res.data.knowledgeMetaList || [];
         }
-      })
+      });
     },
     metaValueBlur(item) {
-      if (item.condition === 'empty' || item.condition === 'not empty') {
+      if (item.condition === "empty" || item.condition === "not empty") {
         return true;
       } else {
         if (!item.value) {
-          this.$message.warning(this.$t('metaSet.valuePlaceholder'));
+          this.$message.warning(this.$t("metaSet.valuePlaceholder"));
           return;
         }
       }
-
     },
     isEmpty(value) {
-      if (value === null || value === 'null' || value === undefined || value === '') return true;
+      if (
+        value === null ||
+        value === "null" ||
+        value === undefined ||
+        value === ""
+      )
+        return true;
       return false;
     },
     validateRequiredFields(data) {
-      return data.some(field => {
-        if (field && typeof field === 'object' && (field.condition === 'empty' || field.condition === 'not empty')) {
+      return data.some((field) => {
+        if (
+          field &&
+          typeof field === "object" &&
+          (field.condition === "empty" || field.condition === "not empty")
+        ) {
           return false;
         }
-        if (field && typeof field === 'object' && 'value' in field) {
+        if (field && typeof field === "object" && "value" in field) {
           return this.isEmpty(field.value);
         }
       });
     },
     addMetaItem() {
       if (this.metaDataFilterParams.filterEnable === false) {
-        this.$message.warning(this.$t('metaSet.filterEnable'))
+        this.$message.warning(this.$t("metaSet.filterEnable"));
         return;
       }
       if (this.metaDataFilterParams.metaFilterParams.length > 0) {
-        if (this.validateRequiredFields(this.metaDataFilterParams.metaFilterParams)) {
-          this.$message.warning(this.$t('metaSet.filterValidate'))
-          return
+        if (
+          this.validateRequiredFields(
+            this.metaDataFilterParams.metaFilterParams
+          )
+        ) {
+          this.$message.warning(this.$t("metaSet.filterValidate"));
+          return;
         }
       }
       this.metaDataFilterParams.metaFilterParams.push({
-        key: '',
-        type: '',
-        condition: '',
-        value: ''
-      })
+        key: "",
+        type: "",
+        condition: "",
+        value: "",
+      });
     },
     clearData() {
       this.metaDataFilterParams.metaFilterParams = [];
-      this.metaDataFilterParams.filterLogicType = 'and';
-      this.metaDataFilterParams.filterEnable = false
+      this.metaDataFilterParams.filterLogicType = "and";
+      this.metaDataFilterParams.filterEnable = false;
     },
     keyChange(val, item) {
-      item.value = '';
-      item.condition = '';
-      item.type = this.keyOptions.filter(i => i.metaKey === val).map(e => e.metaValueType)[0];
+      item.value = "";
+      item.condition = "";
+      item.type = this.keyOptions
+        .filter((i) => i.metaKey === val)
+        .map((e) => e.metaValueType)[0];
     },
     delMetaItem(index) {
-      this.metaDataFilterParams.metaFilterParams.splice(index, 1)
+      this.metaDataFilterParams.metaFilterParams.splice(index, 1);
       if (this.metaDataFilterParams.metaFilterParams.length === 0) {
-        this.metaDataFilterParams.filterLogicType = 'and';
+        this.metaDataFilterParams.filterLogicType = "and";
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 /deep/ {
@@ -379,6 +429,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .el-input__inner{
+    padding: 15px 20px 15px 30px!important;
   }
 
   .el-icon-time {
@@ -422,7 +475,7 @@ export default {
       transform: translateY(-50%);
       border-top-left-radius: 8px;
       border-bottom-left-radius: 8px;
-      border: 1px solid rgba(16, 24, 40, .1411764706);
+      border: 1px solid rgba(16, 24, 40, 0.1411764706);
       border-right-width: 0;
     }
 
@@ -498,5 +551,4 @@ export default {
     }
   }
 }
-
 </style>

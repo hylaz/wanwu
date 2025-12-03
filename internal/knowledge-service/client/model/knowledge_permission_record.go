@@ -18,8 +18,8 @@ type KnowledgePermissionRecord struct {
 	ToPermissionType   int    `gorm:"column:to_permission_type;type:tinyint(1);not null;default:0;comment:'权限类型-1:无权限，0：读权限，10：编辑权限 20：授权权限，一个知识库只有一个人有授权权限'" json:"toPermissionType"`
 	OwnerOrgId         string `gorm:"column:owner_org_id;type:varchar(64);not null;default:'';" json:"ownerOrgId"`
 	OwnerUserId        string `gorm:"column:owner_user_id;type:varchar(64);not null;default:'';" json:"ownerUserId"`
-	CreatedAt          int64  `gorm:"column:create_at;type:bigint(20);not null;" json:"createAt"` // Create Time
-	UpdatedAt          int64  `gorm:"column:update_at;type:bigint(20);not null;" json:"updateAt"` // Update Time
+	CreatedAt          int64  `gorm:"column:create_at;type:bigint(20);autoCreateTime:milli;not null;" json:"createAt"` // Create Time
+	UpdatedAt          int64  `gorm:"column:update_at;type:bigint(20);autoUpdateTime:milli;not null;" json:"updateAt"` // Update Time
 
 }
 

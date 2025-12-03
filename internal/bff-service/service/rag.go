@@ -49,12 +49,18 @@ func UpdateRagConfig(ctx *gin.Context, req request.RagConfig) error {
 	if err != nil {
 		return err
 	}
+	qaRerankConfig, err := appModelConfigModel2Proto(req.QARerankConfig)
+	if err != nil {
+		return err
+	}
 	_, err = rag.UpdateRagConfig(ctx.Request.Context(), &rag_service.UpdateRagConfigReq{
-		RagId:               req.RagID,
-		ModelConfig:         modelConfig,
-		RerankConfig:        rerankConfig,
-		KnowledgeBaseConfig: ragKBConfigToProto(req.KnowledgeBaseConfig),
-		SensitiveConfig:     ragSensitiveConfigToProto(req.SafetyConfig),
+		RagId:                 req.RagID,
+		ModelConfig:           modelConfig,
+		RerankConfig:          rerankConfig,
+		QArerankConfig:        qaRerankConfig,
+		KnowledgeBaseConfig:   ragKBConfigToProto(req.KnowledgeBaseConfig),
+		QAknowledgeBaseConfig: ragQAKBConfigToProto(req.QAKnowledgeBaseConfig),
+		SensitiveConfig:       ragSensitiveConfigToProto(req.SafetyConfig),
 	})
 	return err
 }
@@ -89,6 +95,26 @@ func ragKBConfigToProto(knowledgeConfig request.AppKnowledgebaseConfig) *rag_ser
 		result.PerKnowledgeConfigs = append(result.PerKnowledgeConfigs, perConfig)
 	}
 	result.GlobalConfig = buildRagGlobalConfig(knowledgeConfig.Config)
+	return result
+}
+
+func ragQAKBConfigToProto(qaKnowledgeConfig request.AppQAKnowledgebaseConfig) *rag_service.RagQAKnowledgeBaseConfig {
+	result := &rag_service.RagQAKnowledgeBaseConfig{
+		PerKnowledgeConfigs: make([]*rag_service.RagPerQAKnowledgeConfig, 0, len(qaKnowledgeConfig.Knowledgebases)),
+	}
+	for _, knowledge := range qaKnowledgeConfig.Knowledgebases {
+		// 初始化单个问答库配置
+		perConfig := &rag_service.RagPerQAKnowledgeConfig{
+			KnowledgeId: knowledge.ID,
+		}
+		// 构建元数据过滤条件（如果启用）
+		if metaFilter := buildRagMetaFilter(knowledge.MetaDataFilterParams); metaFilter != nil {
+			perConfig.RagMetaFilter = metaFilter
+		}
+		// 单个知识库配置添加到result
+		result.PerKnowledgeConfigs = append(result.PerKnowledgeConfigs, perConfig)
+	}
+	result.GlobalConfig = buildRagQAGlobalConfig(qaKnowledgeConfig.Config)
 	return result
 }
 
@@ -134,6 +160,19 @@ func buildRagGlobalConfig(kbConfig request.AppKnowledgebaseParams) *rag_service.
 		TermWeight:        kbConfig.TermWeight,
 		TermWeightEnable:  kbConfig.TermWeightEnable,
 		UseGraph:          kbConfig.UseGraph,
+		ChiChat:           kbConfig.ChiChat,
+	}
+}
+
+func buildRagQAGlobalConfig(kbConfig request.AppQAKnowledgebaseParams) *rag_service.RagQAGlobalConfig {
+	return &rag_service.RagQAGlobalConfig{
+		MaxHistory:        kbConfig.MaxHistory,
+		Threshold:         kbConfig.Threshold,
+		TopK:              kbConfig.TopK,
+		MatchType:         kbConfig.MatchType,
+		KeywordPriority:   kbConfig.KeywordPriority,
+		PriorityMatch:     kbConfig.PriorityMatch,
+		SemanticsPriority: kbConfig.SemanticsPriority,
 	}
 }
 
@@ -149,45 +188,57 @@ func GetRag(ctx *gin.Context, req request.RagReq) (*response.RagInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	modelConfig, rerankConfig, err := appModelRerankProto2Model(ctx, resp)
+	modelConfig, rerankConfig, qaRerankConfig, err := appModelRerankProto2Model(ctx, resp)
 	if err != nil {
 		log.Errorf("ragId: %v gets config fail: %v", req.RagID, err.Error())
 	}
 	ragInfo := &response.RagInfo{
-		RagID:               resp.RagId,
-		AppBriefConfig:      appBriefConfigProto2Model(ctx, resp.BriefConfig, constant.AppTypeRag),
-		ModelConfig:         modelConfig,
-		RerankConfig:        rerankConfig,
-		KnowledgeBaseConfig: ragKBConfigProto2Model(ctx, resp.KnowledgeBaseConfig),
-		SafetyConfig:        ragSafetyConfigProto2Model(ctx, resp.SensitiveConfig),
+		RagID:                 resp.RagId,
+		AppBriefConfig:        appBriefConfigProto2Model(ctx, resp.BriefConfig, constant.AppTypeRag),
+		ModelConfig:           modelConfig,
+		RerankConfig:          rerankConfig,
+		QARerankConfig:        qaRerankConfig,
+		KnowledgeBaseConfig:   ragKBConfigProto2Model(ctx, resp.KnowledgeBaseConfig),
+		QAKnowledgeBaseConfig: ragKBQAConfigProto2Model(ctx, resp.QAknowledgeBaseConfig),
+		SafetyConfig:          ragSafetyConfigProto2Model(ctx, resp.SensitiveConfig),
 	}
 
 	return ragInfo, nil
 }
 
-func appModelRerankProto2Model(ctx *gin.Context, resp *rag_service.RagInfo) (request.AppModelConfig, request.AppModelConfig, error) {
-	var modelConfig, rerankConfig request.AppModelConfig
+func appModelRerankProto2Model(ctx *gin.Context, resp *rag_service.RagInfo) (request.AppModelConfig, request.AppModelConfig, request.AppModelConfig, error) {
+	var modelConfig, rerankConfig, qaRerankConfig request.AppModelConfig
 	if resp.ModelConfig.ModelId != "" {
 		modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: resp.ModelConfig.ModelId})
 		if err != nil {
-			return request.AppModelConfig{}, request.AppModelConfig{}, err
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
 		}
 		modelConfig, err = appModelConfigProto2Model(resp.ModelConfig, modelInfo.DisplayName)
 		if err != nil {
-			return request.AppModelConfig{}, request.AppModelConfig{}, err
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
 		}
 	}
 	if resp.RerankConfig.ModelId != "" {
 		rerankInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: resp.RerankConfig.ModelId})
 		if err != nil {
-			return request.AppModelConfig{}, request.AppModelConfig{}, err
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
 		}
 		rerankConfig, err = appModelConfigProto2Model(resp.RerankConfig, rerankInfo.DisplayName)
 		if err != nil {
-			return request.AppModelConfig{}, request.AppModelConfig{}, err
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
 		}
 	}
-	return modelConfig, rerankConfig, nil
+	if resp.QArerankConfig.ModelId != "" {
+		qaRerankInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: resp.QArerankConfig.ModelId})
+		if err != nil {
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
+		}
+		qaRerankConfig, err = appModelConfigProto2Model(resp.QArerankConfig, qaRerankInfo.DisplayName)
+		if err != nil {
+			return request.AppModelConfig{}, request.AppModelConfig{}, request.AppModelConfig{}, err
+		}
+	}
+	return modelConfig, rerankConfig, qaRerankConfig, nil
 }
 
 func ragSafetyConfigProto2Model(ctx *gin.Context, sensitiveCfg *rag_service.RagSensitiveConfig) request.AppSafetyConfig {
@@ -258,12 +309,65 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 		TermWeight:        globalConfig.TermWeight,
 		TermWeightEnable:  globalConfig.TermWeightEnable,
 		UseGraph:          globalConfig.UseGraph,
+		ChiChat:           globalConfig.ChiChat,
 	}
 	return request.AppKnowledgebaseConfig{
 		Knowledgebases: knowledgeList,
 		Config:         appConfig,
 	}
 }
+
+func ragKBQAConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagQAKnowledgeBaseConfig) request.AppQAKnowledgebaseConfig {
+	if kbConfig == nil {
+		return request.AppQAKnowledgebaseConfig{
+			Knowledgebases: make([]request.AppQAKnowledgeBase, 0),
+			Config:         request.AppQAKnowledgebaseParams{},
+		}
+	}
+	knowledgeList := make([]request.AppQAKnowledgeBase, 0, len(kbConfig.PerKnowledgeConfigs))
+
+	// 转换每个问答库的单独配置
+	for _, perConfig := range kbConfig.PerKnowledgeConfigs {
+		kbInfo, err := knowledgeBase.SelectKnowledgeDetailById(ctx, &knowledgeBase_service.KnowledgeDetailSelectReq{
+			KnowledgeId: perConfig.KnowledgeId,
+		})
+		if err != nil {
+			log.Errorf("select qa detail error: %v", err)
+			return request.AppQAKnowledgebaseConfig{
+				Knowledgebases: make([]request.AppQAKnowledgeBase, 0),
+				Config:         request.AppQAKnowledgebaseParams{},
+			}
+		}
+		// 基础信息映射
+		knowledge := request.AppQAKnowledgeBase{
+			ID:   perConfig.KnowledgeId,
+			Name: kbInfo.Name,
+		}
+		// 转换元数据过滤配置
+		metaFilter := perConfig.RagMetaFilter
+		knowledge.MetaDataFilterParams = convertRagMetaFilterToParams(metaFilter)
+
+		knowledgeList = append(knowledgeList, knowledge)
+	}
+	globalConfig := kbConfig.GlobalConfig
+	if globalConfig == nil {
+		globalConfig = &rag_service.RagQAGlobalConfig{}
+	}
+	appConfig := request.AppQAKnowledgebaseParams{
+		MaxHistory:        globalConfig.MaxHistory,
+		Threshold:         globalConfig.Threshold,
+		TopK:              globalConfig.TopK,
+		MatchType:         globalConfig.MatchType,
+		KeywordPriority:   globalConfig.KeywordPriority,
+		PriorityMatch:     globalConfig.PriorityMatch,
+		SemanticsPriority: globalConfig.SemanticsPriority,
+	}
+	return request.AppQAKnowledgebaseConfig{
+		Knowledgebases: knowledgeList,
+		Config:         appConfig,
+	}
+}
+
 func convertRagMetaFilterToParams(metaFilter *rag_service.RagMetaFilter) *request.MetaDataFilterParams {
 	if metaFilter == nil {
 		return nil

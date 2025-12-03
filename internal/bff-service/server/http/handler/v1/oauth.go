@@ -1,43 +1,11 @@
 package v1
 
 import (
-	"net/http"
-
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	"github.com/gin-gonic/gin"
 )
-
-// OAuthAuthorize
-//
-//	@Tags			oauth
-//	@Summary		授权码方式
-//	@Description	授权码方式-获取授权码
-//	@Accept			json
-//	@Produce		json
-//	@Param			client_id		query		string	true	"备案ID"
-//	@Param			redirect_uri	query		string	true	"重定向URI"
-//	@Param			response_type	query		string	true	"响应类型"
-//	@Param			scope			query		string	false	"权限范围"
-//	@Param			state			query		string	true	"状态参数"
-//	@Success		302				{string}	string	"重定向到指定URI"
-//	@Router			/oauth/code/authorize [get]
-func OAuthAuthorize(ctx *gin.Context) {
-	var req request.OAuthRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		gin_util.Response(ctx, nil, err)
-		return
-	}
-	userID := getUserID(ctx)
-	callbackUri, err := service.OAuthAuthorize(ctx, &req, userID)
-	if err != nil {
-		gin_util.Response(ctx, nil, err)
-		return
-	}
-
-	ctx.Redirect(http.StatusFound, callbackUri)
-}
 
 // CreateOauthApp
 //

@@ -92,3 +92,22 @@ func ExportChatflow(ctx *gin.Context) {
 	// 直接写入字节数据
 	ctx.Data(http.StatusOK, "application/octet-stream", resp)
 }
+
+// ChatflowConvert
+//
+//	@Tags			chatflow
+//	@Summary		chatflow转为workflow
+//	@Description	chatflow转为workflow
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.WorkflowConvertReq	true	"对话流工作流转换参数"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/appspace/chatflow/convert [post]
+func ChatflowConvert(ctx *gin.Context) {
+	var req request.WorkflowConvertReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.WorkflowConvert(ctx, getOrgID(ctx), req.WorkflowID, constant.AppTypeWorkflow))
+}

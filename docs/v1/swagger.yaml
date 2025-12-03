@@ -862,6 +862,9 @@ definitions:
     type: object
   request.AppKnowledgebaseParams:
     properties:
+      chiChat:
+        description: 闲聊开关
+        type: boolean
       keywordPriority:
         description: 关键词权重
         type: number
@@ -916,6 +919,54 @@ definitions:
       provider:
         description: 模型供应商
         type: string
+    type: object
+  request.AppQAKnowledgeBase:
+    properties:
+      id:
+        description: 知识库id
+        type: string
+      metaDataFilterParams:
+        $ref: '#/definitions/request.MetaDataFilterParams'
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  request.AppQAKnowledgebaseConfig:
+    properties:
+      config:
+        allOf:
+        - $ref: '#/definitions/request.AppQAKnowledgebaseParams'
+        description: 问答库参数
+      knowledgebases:
+        description: 问答库id、名字
+        items:
+          $ref: '#/definitions/request.AppQAKnowledgeBase'
+        type: array
+    type: object
+  request.AppQAKnowledgebaseParams:
+    properties:
+      keywordPriority:
+        description: 关键词权重
+        type: number
+      matchType:
+        description: matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+        type: string
+      maxHistory:
+        description: 最长上下文
+        type: integer
+      priorityMatch:
+        description: 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+        type: integer
+      semanticsPriority:
+        description: 语义权重
+        type: number
+      threshold:
+        description: 过滤阈值
+        type: number
+      topK:
+        description: 知识条数
+        type: integer
     type: object
   request.AppSafetyConfig:
     properties:
@@ -1490,8 +1541,24 @@ definitions:
     - knowledgeBaseIds
     - name
     type: object
+  request.CreateKnowledgeQAPairReq:
+    properties:
+      answer:
+        description: 答案
+        type: string
+      knowledgeId:
+        type: string
+      question:
+        description: 问题
+        type: string
+    required:
+    - knowledgeId
+    type: object
   request.CreateKnowledgeReq:
     properties:
+      category:
+        description: 0:知识库，1:问答库
+        type: integer
       description:
         type: string
       embeddingModelInfo:
@@ -1502,7 +1569,6 @@ definitions:
         type: string
     required:
     - embeddingModelInfo
-    - knowledgeGraph
     - name
     type: object
   request.CreateKnowledgeSplitterReq:
@@ -1812,6 +1878,25 @@ definitions:
     required:
     - knowledgeId
     type: object
+  request.DeleteKnowledgeQAExportRecordReq:
+    properties:
+      knowledgeId:
+        description: 问答库id
+        type: string
+      qaExportRecordId:
+        description: 问答库导出记录id
+        type: string
+    required:
+    - knowledgeId
+    - qaExportRecordId
+    type: object
+  request.DeleteKnowledgeQAPairReq:
+    properties:
+      qaPairId:
+        type: string
+    required:
+    - qaPairId
+    type: object
   request.DeleteKnowledgeSplitterReq:
     properties:
       splitterId:
@@ -1952,6 +2037,8 @@ definitions:
         items:
           $ref: '#/definitions/request.DocMetaData'
         type: array
+    required:
+    - knowledgeId
     type: object
   request.DocSegment:
     properties:
@@ -2157,6 +2244,20 @@ definitions:
     - docIdList
     - knowledgeId
     type: object
+  request.KnowledgeQAPairImportReq:
+    properties:
+      docInfoList:
+        description: 上传文档列表
+        items:
+          $ref: '#/definitions/request.DocInfo'
+        type: array
+      knowledgeId:
+        description: 问答库id
+        type: string
+    required:
+    - docInfoList
+    - knowledgeId
+    type: object
   request.KnowledgeReportAddReq:
     properties:
       content:
@@ -2215,6 +2316,9 @@ definitions:
     type: object
   request.KnowledgeSelectReq:
     properties:
+      category:
+        description: 0:知识库，1:问答库
+        type: integer
       name:
         type: string
       tagId:
@@ -2679,12 +2783,20 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
         description: 模型
+      qaKnowledgeBaseConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppQAKnowledgebaseConfig'
+        description: 问答库（不用传知识图谱开关）
+      qaRerankConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 问答库Rerank模型
       ragId:
         type: string
       rerankConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
-        description: Rerank模型
+        description: 知识库Rerank模型
       safetyConfig:
         allOf:
         - $ref: '#/definitions/request.AppSafetyConfig'
@@ -2692,6 +2804,8 @@ definitions:
     required:
     - knowledgeBaseConfig
     - modelConfig
+    - qaKnowledgeBaseConfig
+    - qaRerankConfig
     - ragId
     - rerankConfig
     type: object
@@ -2927,6 +3041,28 @@ definitions:
     - id
     - knowledgeBaseIds
     - name
+    type: object
+  request.UpdateKnowledgeQAPairReq:
+    properties:
+      answer:
+        description: 答案
+        type: string
+      qaPairId:
+        type: string
+      question:
+        description: 问题
+        type: string
+    required:
+    - qaPairId
+    type: object
+  request.UpdateKnowledgeQAPairSwitchReq:
+    properties:
+      qaPairId:
+        type: string
+      switch:
+        type: boolean
+    required:
+    - qaPairId
     type: object
   request.UpdateKnowledgeReq:
     properties:
@@ -3175,6 +3311,13 @@ definitions:
       picNum:
         description: 视觉配置图片数量
         type: integer
+    type: object
+  request.WorkflowConvertReq:
+    properties:
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
     type: object
   request.WorkflowIDReq:
     properties:
@@ -3544,7 +3687,7 @@ definitions:
           type: number
         type: array
       contentType:
-        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
+        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）
         type: string
       knowledgeName:
         type: string
@@ -3727,6 +3870,11 @@ definitions:
         type: boolean
       video_understanding:
         type: boolean
+    type: object
+  response.CreateKnowledgeQAPairResp:
+    properties:
+      qaPairId:
+        type: string
     type: object
   response.CreateKnowledgeResp:
     properties:
@@ -4294,6 +4442,9 @@ definitions:
     type: object
   response.KnowledgeInfo:
     properties:
+      category:
+        description: '0: 知识库; 1: 问答库'
+        type: integer
       createAt:
         description: 创建时间
         type: string
@@ -4320,6 +4471,9 @@ definitions:
         items:
           $ref: '#/definitions/response.KnowledgeTag'
         type: array
+      llmModelId:
+        description: 知识图谱模型id
+        type: string
       name:
         description: 知识库名称
         type: string
@@ -4335,6 +4489,9 @@ definitions:
       share:
         description: 是分享，还是私有
         type: boolean
+      updatedAt:
+        description: 更新时间
+        type: string
     type: object
   response.KnowledgeListResp:
     properties:
@@ -4375,6 +4532,47 @@ definitions:
         type: array
       metaValueType:
         type: string
+    type: object
+  response.KnowledgeQAExportRecordPageResult:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ListKnowledgeQAExportRecordResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.KnowledgeQAHitResp:
+    properties:
+      score:
+        description: 打分信息
+        items:
+          type: number
+        type: array
+      searchList:
+        description: 种种结果
+        items:
+          $ref: '#/definitions/response.QAHitSearchList'
+        type: array
+    type: object
+  response.KnowledgeQAPairPageResult:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ListKnowledgeQAPairResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      qaKnowledgeInfo:
+        $ref: '#/definitions/response.QAKnowledgeInfo'
+      total:
+        type: integer
     type: object
   response.KnowledgeReportInfo:
     properties:
@@ -4539,6 +4737,62 @@ definitions:
       status:
         description: 处理状态
         type: integer
+      uploadTime:
+        description: 上传时间
+        type: string
+    type: object
+  response.ListKnowledgeQAExportRecordResp:
+    properties:
+      author:
+        description: 导出人
+        type: string
+      errorMsg:
+        description: 导出状态错误信息
+        type: string
+      exportTime:
+        description: 导出时间
+        type: string
+      filePath:
+        description: 导出文件路径
+        type: string
+      qaExportRecordId:
+        description: 问答库导出记录id
+        type: string
+      status:
+        description: 状态
+        type: integer
+    type: object
+  response.ListKnowledgeQAPairResp:
+    properties:
+      answer:
+        description: 答案
+        type: string
+      author:
+        description: 作者
+        type: string
+      errorMsg:
+        description: 处理错误信息
+        type: string
+      knowledgeId:
+        description: 问答库id
+        type: string
+      metaDataList:
+        description: 元数据
+        items:
+          $ref: '#/definitions/response.DocMetaData'
+        type: array
+      qaPairId:
+        description: 问答对id
+        type: string
+      question:
+        description: 问题
+        type: string
+      status:
+        description: 处理状态
+        type: integer
+      switch:
+        description: 启停开关
+        type: boolean
       uploadTime:
         description: 上传时间
         type: string
@@ -5083,6 +5337,31 @@ definitions:
         description: 上传文件链接
         type: string
     type: object
+  response.QAHitSearchList:
+    properties:
+      answer:
+        type: string
+      contentType:
+        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）
+        type: string
+      qaBase:
+        type: string
+      qaId:
+        type: string
+      qaPairId:
+        type: string
+      question:
+        type: string
+      title:
+        type: string
+    type: object
+  response.QAKnowledgeInfo:
+    properties:
+      knowledgeId:
+        type: string
+      knowledgeName:
+        type: string
+    type: object
   response.RagInfo:
     properties:
       avatar:
@@ -5103,6 +5382,14 @@ definitions:
       name:
         description: 名称
         type: string
+      qaKnowledgeBaseConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppQAKnowledgebaseConfig'
+        description: 问答库
+      qaRerankConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 问答库Rerank模型
       ragId:
         type: string
       rerankConfig:
@@ -5117,6 +5404,8 @@ definitions:
     - knowledgeBaseConfig
     - modelConfig
     - name
+    - qaKnowledgeBaseConfig
+    - qaRerankConfig
     - ragId
     - rerankConfig
     type: object
@@ -6082,6 +6371,30 @@ paths:
       summary: 创建Chatflow
       tags:
       - chatflow
+  /appspace/chatflow/convert:
+    post:
+      consumes:
+      - application/json
+      description: chatflow转为workflow
+      parameters:
+      - description: 对话流工作流转换参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowConvertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: chatflow转为workflow
+      tags:
+      - chatflow
   /appspace/chatflow/copy:
     post:
       consumes:
@@ -6335,6 +6648,30 @@ paths:
       security:
       - JWT: []
       summary: 创建Workflow
+      tags:
+      - workflow
+  /appspace/workflow/convert:
+    post:
+      consumes:
+      - application/json
+      description: workflow转为chatflow
+      parameters:
+      - description: 对话流工作流转换参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowConvertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: workflow转为chatflow
       tags:
       - workflow
   /appspace/workflow/copy:
@@ -8567,6 +8904,280 @@ paths:
       summary: 知识库组织列表
       tags:
       - knowledge.permission
+  /knowledge/qa/export:
+    get:
+      consumes:
+      - application/json
+      description: 问答库文档导出
+      parameters:
+      - description: 问答库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 问答库文档导出
+      tags:
+      - knowledge.qa
+  /knowledge/qa/export/record:
+    delete:
+      consumes:
+      - application/json
+      description: 删除问答库导出记录
+      parameters:
+      - description: 删除问答库导出记录请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeQAExportRecordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除问答库导出记录
+      tags:
+      - knowledge.qa
+  /knowledge/qa/export/record/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取问答库导出记录列表
+      parameters:
+      - description: 问答库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeQAExportRecordPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取问答库导出记录列表
+      tags:
+      - knowledge.qa
+  /knowledge/qa/hit:
+    post:
+      consumes:
+      - application/json
+      description: 问答库命中测试
+      parameters:
+      - description: 问答库命中测试请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeHitReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeQAHitResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 问答库命中测试
+      tags:
+      - knowledge
+  /knowledge/qa/pair:
+    delete:
+      consumes:
+      - application/json
+      description: 刪除问答对
+      parameters:
+      - description: 刪除问答对请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeQAPairReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 刪除问答对
+      tags:
+      - knowledge.qa
+    post:
+      consumes:
+      - application/json
+      description: 新增问答对
+      parameters:
+      - description: 新增问答对请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateKnowledgeQAPairReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateKnowledgeQAPairResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 新增问答对
+      tags:
+      - knowledge.qa
+    put:
+      consumes:
+      - application/json
+      description: 编辑问答对
+      parameters:
+      - description: 编辑问答对请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateKnowledgeQAPairReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑问答对
+      tags:
+      - knowledge.qa
+  /knowledge/qa/pair/import:
+    post:
+      consumes:
+      - application/json
+      description: 问答库文档导入
+      parameters:
+      - description: 问答库文档导入请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeQAPairImportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 问答库文档导入
+      tags:
+      - knowledge.qa
+  /knowledge/qa/pair/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取问答对列表
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: name
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      - in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeQAPairPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取问答对列表
+      tags:
+      - knowledge.qa
+  /knowledge/qa/pair/switch:
+    put:
+      consumes:
+      - application/json
+      description: 启停问答对
+      parameters:
+      - description: 启停问答对请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateKnowledgeQAPairSwitchReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 启停问答对
+      tags:
+      - knowledge.qa
   /knowledge/report/add:
     post:
       consumes:
@@ -9831,6 +10442,32 @@ paths:
       summary: 导入模型列表
       tags:
       - model
+  /model/select/asr:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: asr语音识别模型列表展示
+      tags:
+      - model
   /model/select/embedding:
     get:
       consumes:
@@ -9985,6 +10622,32 @@ paths:
       security:
       - JWT: []
       summary: rerank模型列表
+      tags:
+      - model
+  /model/select/text2image:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 文生图模型列表展示
       tags:
       - model
   /model/status:
@@ -10146,46 +10809,6 @@ paths:
       security:
       - JWT: []
       summary: 更新OAuth应用状态
-      tags:
-      - oauth
-  /oauth/code/authorize:
-    get:
-      consumes:
-      - application/json
-      description: 授权码方式-获取授权码
-      parameters:
-      - description: 备案ID
-        in: query
-        name: client_id
-        required: true
-        type: string
-      - description: 重定向URI
-        in: query
-        name: redirect_uri
-        required: true
-        type: string
-      - description: 响应类型
-        in: query
-        name: response_type
-        required: true
-        type: string
-      - description: 权限范围
-        in: query
-        name: scope
-        type: string
-      - description: 状态参数
-        in: query
-        name: state
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "302":
-          description: 重定向到指定URI
-          schema:
-            type: string
-      summary: 授权码方式
       tags:
       - oauth
   /org:

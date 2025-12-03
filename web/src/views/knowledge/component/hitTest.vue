@@ -7,13 +7,13 @@
         style="margin-right: 10px; font-size: 20px; cursor: pointer"
       >
       </i>
-      {{$t('knowledgeManage.hitTest.name')}}
+      {{ $t("knowledgeManage.hitTest.name") }}
       <LinkIcon type="knowledge-hit" />
     </div>
     <div class="block wrap-fullheight">
       <div class="test-left test-box">
         <div class="hitTest_input">
-          <h3>{{$t('knowledgeManage.hitTest.title')}}</h3>
+          <h3>{{ $t("knowledgeManage.hitTest.title") }}</h3>
           <el-input
             type="textarea"
             :rows="4"
@@ -21,93 +21,137 @@
             class="test_ipt"
           />
           <div class="test_btn">
-            <el-button
-              type="primary"
-              size="small"
-              @click="startTest"
-            >{{$t('knowledgeManage.startTest')}}<span class="el-icon-caret-right"></span></el-button>
+            <el-button type="primary" size="small" @click="startTest">
+              {{ $t("knowledgeManage.startTest") }}
+              <span class="el-icon-caret-right"></span>
+            </el-button>
           </div>
         </div>
-         <div class="hitTest_input meta_box">
-          <h3>{{$t('knowledgeManage.hitTest.metaDataFilter')}}</h3>
+        <div class="hitTest_input meta_box">
+          <h3>{{ $t("knowledgeManage.hitTest.metaDataFilter") }}</h3>
           <metaSet ref="metaSet" class="metaSet" :knowledgeId="knowledgeId" />
         </div>
         <div class="test_form">
-          <searchConfig ref="searchConfig" @sendConfigInfo="sendConfigInfo" :showGraphSwitch="graphSwitch"/>
+          <searchConfig
+            ref="searchConfig"
+            @sendConfigInfo="sendConfigInfo"
+            :showGraphSwitch="graphSwitch"
+          />
         </div>
       </div>
       <div class="test-right test-box">
         <div class="result_title">
-          <h3>{{$t('knowledgeManage.hitResult')}}</h3>
-          <img
-            src="@/assets/imgs/nodata_2x.png"
-            v-if="searchList.length >0"
-          />
+          <h3>{{ $t("knowledgeManage.hitResult") }}</h3>
+          <img src="@/assets/imgs/nodata_2x.png" v-if="searchList.length > 0" />
         </div>
-        <div
-          class="result"
-          v-loading="resultLoading"
-        >
-          <div
-            v-if="searchList.length >0"
-            class="result_box"
-          >
+        <div class="result" v-loading="resultLoading">
+          <div v-if="searchList.length > 0" class="result_box">
             <div
-              v-for="(item,index) in searchList"
-              :key="'result'+index"
+              v-for="(item, index) in searchList"
+              :key="'result' + index"
               class="resultItem"
             >
               <div class="resultTitle">
                 <span>
-                  <span class="tag"  @click="showSectionDetail(index)">{{$t('knowledgeManage.section')}}#{{index+1}}</span>
-                  <span v-if="['graph','community_report'].includes(item.contentType)" class="segment-type">
-                    {{ item.contentType === 'graph' ? '#' + $t('knowledgeManage.graphTag') : '#' + $t('knowledgeManage.communityReportTag') }}
+                  <span class="tag" @click="showSectionDetail(index)">
+                    {{ $t("knowledgeManage.section") }}#{{ index + 1 }}
+                  </span>
+                  <span
+                    v-if="
+                      ['graph', 'community_report','qa'].includes(item.contentType)
+                    "
+                    class="segment-type"
+                  >
+                    {{ getTitle(item.contentType)}}
                   </span>
                   <span v-else>
                     <span class="segment-type">
-                      {{ item.childContentList && item.childContentList.length > 0 ? '#' + $t('knowledgeManage.config.parentSonSegment') : '#' + $t('knowledgeManage.config.commonSegment') }}
+                      {{
+                        item.childContentList &&
+                        item.childContentList.length > 0
+                          ? "#" + $t("knowledgeManage.config.parentSonSegment")
+                          : "#" + $t("knowledgeManage.config.commonSegment")
+                      }}
                     </span>
                     <span
                       class="segment-length"
-                      v-if="item.childContentList && item.childContentList.length > 0"
+                      v-if="
+                        item.childContentList &&
+                        item.childContentList.length > 0
+                      "
                       @click="showSectionDetail(index)"
                     >
-                      {{$t('knowledgeManage.childSegmentCount',{count: item.childContentList.length || 0})}}
+                      {{
+                        $t("knowledgeManage.hitTest.childSegmentCount", {
+                          count: item.childContentList.length || 0,
+                        })
+                      }}
                     </span>
                   </span>
                 </span>
-                <span class="score">{{$t('knowledgeManage.hitScore')}}: {{(formatScore(score[index]))}}</span>
+                <span class="score">
+                  {{ $t("knowledgeManage.hitScore") }}:
+                  {{ formatScore(score[index]) }}
+                </span>
               </div>
               <div>
                 <div class="resultContent">
-                  {{item.snippet.slice(0,100)}}...
+                  <template v-if="item.contentType !== 'qa'">
+                    {{ item.snippet.slice(0, 100) }}...
+                  </template>
+                  <template v-else>
+                    <div>
+                      <span>{{$t('knowledgeManage.qaDatabase.question')}} :</span>
+                      {{item.question}}
+                    </div>
+                    <div>
+                      <span>{{$t('knowledgeManage.qaDatabase.answer')}} :</span>
+                      {{item.answer}}
+                    </div>
+                  </template>
                 </div>
-                <div class="resultChildContent" v-if="item.childContentList.length > 0">
-                  <el-collapse 
-                    v-model="activeNames" 
+                <div
+                  class="resultChildContent"
+                  v-if="item.childContentList && item.childContentList.length > 0"
+                >
+                  <el-collapse
+                    v-model="activeNames"
                     class="section-collapse"
                     :accordion="false"
                   >
-                    <el-collapse-item 
+                    <el-collapse-item
                       :name="`${index}`"
                       class="segment-collapse-item"
                     >
                       <template slot="title">
-                        <span class="sub-badge">{{$t('knowledgeManage.hitChildSegments',{count:item.childContentList.length})}}</span>
+                        <span class="sub-badge">
+                          {{
+                            $t("knowledgeManage.hitTest.hitChildSegment", {
+                              count: item.childContentList.length,
+                            })
+                          }}
+                        </span>
                       </template>
                       <div class="segment-content">
-                        <div 
-                          v-for="(child, childIndex) in item.childContentList" 
+                        <div
+                          v-for="(child, childIndex) in item.childContentList"
                           :key="childIndex"
                           class="child-item"
                         >
                           <div class="child-header">
                             <span class="child-header-content">
-                              <span class="segment-badge">C-{{ childIndex + 1 }}</span>
-                              <span class="segment-content">{{child.childSnippet}}</span>
+                              <span class="segment-badge"
+                                >C-{{ childIndex + 1 }}</span
+                              >
+                              <span class="segment-content">
+                                {{ child.childSnippet }}
+                              </span>
                             </span>
                             <span class="segment-score">
-                              <span class="score-value">{{$t('knowledgeManage.hitScore')}}: {{ formatScore(item.childScore[childIndex]) }}</span>
+                              <span class="score-value">
+                                {{ $t("knowledgeManage.hitScore") }}:
+                                {{ formatScore(item.childScore[childIndex]) }}
+                              </span>
                             </span>
                           </div>
                         </div>
@@ -115,16 +159,15 @@
                     </el-collapse-item>
                   </el-collapse>
                 </div>
-                <div class="file_name">{{$t('knowledgeManage.fileName')}}：{{item.title}}</div>
+                <div class="file_name">
+                  {{ $t("knowledgeManage.fileName") }}：{{ item.title }}
+                </div>
               </div>
             </div>
           </div>
-          <div
-            v-else
-            class="nodata"
-          >
+          <div v-else class="nodata">
             <img src="@/assets/imgs/nodata_2x.png" />
-            <p class="nodata_tip">{{$t('knowledgeManage.noData')}}</p>
+            <p class="nodata_tip">{{ $t("knowledgeManage.noData") }}</p>
           </div>
         </div>
         <!-- 分段详情区域 -->
@@ -135,68 +178,102 @@
 </template>
 <script>
 import { hitTest } from "@/api/knowledge";
+import { qaHitTest } from "@/api/qaDatabase";
 import { md } from "@/mixins/marksown-it";
 import { formatScore } from "@/utils/util";
-import searchConfig from '@/components/searchConfig.vue';
+import searchConfig from "@/components/searchConfig.vue";
 import LinkIcon from "@/components/linkIcon.vue";
 import metaSet from "@/components/metaSet";
 import sectionShow from "./sectionShow.vue";
 export default {
-  components:{LinkIcon, searchConfig, metaSet, sectionShow}, 
+  components: { LinkIcon, searchConfig, metaSet, sectionShow },
   data() {
     return {
       md: md,
       question: "",
       resultLoading: false,
-      knowledgeIdList:{},
+      knowledgeIdList: {},
       searchList: [],
       score: [],
-      formInline:null,
-      knowledgeId:this.$route.query.knowledgeId,
-      name:this.$route.query.name,
-      graphSwitch:this.$route.query.graphSwitch || false,
-      activeNames: []
+      formInline: null,
+      knowledgeId: this.$route.query.knowledgeId,
+      name: this.$route.query.name,
+      graphSwitch: this.$route.query.graphSwitch || false,
+      type:this.$route.query.type || '',
+      activeNames: [],
     };
+  },
+  mounted(){
+    this.$nextTick(() =>{
+       const config = this.$refs.searchConfig.formInline;
+       this.formInline = config;
+    })
   },
   methods: {
     formatScore,
     goBack() {
       this.$router.go(-1);
     },
-    sendConfigInfo(data){
+    getTitle(contentType) {
+      const map = {
+        qa: this.$t("knowledgeManage.qaDatabase.name"),
+        graph: this.$t("knowledgeManage.hitTest.graph"),
+        community_report: this.$t("knowledgeManage.hitTest.communityReport"),
+      };
+      return "#" + map[contentType];
+    },
+    sendConfigInfo(data) {
       this.formInline = data;
     },
     startTest() {
-      const metaData  = this.$refs.metaSet.getMetaData();
+      const metaData = this.$refs.metaSet.getMetaData();
       this.knowledgeIdList = {
         ...metaData,
-        id:this.knowledgeId,
-        name:this.name
-      }
+        id: this.knowledgeId,
+        name: this.name,
+      };
 
       if (this.question === "") {
-        this.$message.warning(this.$t('knowledgeManage.inputTestContent'));
+        this.$message.warning(this.$t("knowledgeManage.inputTestContent"));
         return;
       }
-      if(this.formInline === null){
-        this.$message.warning(this.$t('knowledgeManage.selectSearchType'));
+      if (this.formInline === null) {
+        this.$message.warning(
+          this.$t("knowledgeManage.hitTest.selectSearchType")
+        );
         return;
       }
-      const { matchType, priorityMatch, rerankModelId } = this.formInline.knowledgeMatchParams;
-      if ((matchType !== 'mix' || priorityMatch !== 1) && !rerankModelId) {
-        this.$message.warning(this.$t('knowledgeManage.selectRerankModel'));
+      
+      const { matchType, priorityMatch, rerankModelId } =
+        this.formInline.knowledgeMatchParams;
+      if(matchType === ''){
+        this.$message.warning(
+          this.$t("knowledgeManage.hitTest.selectSearchType")
+        );
         return;
       }
-      if(matchType === 'mix' && priorityMatch === 1){
-        this.formInline.knowledgeMatchParams.rerankModelId = '';
+      if ((matchType !== "mix" || priorityMatch !== 1) && !rerankModelId) {
+        this.$message.warning(
+          this.$t("knowledgeManage.hitTest.selectRerankModel")
+        );
+        return;
       }
-      if(this.$refs.metaSet.validateRequiredFields(this.knowledgeIdList['metaDataFilterParams']['metaFilterParams'])){
-        this.$message.warning(this.$t('knowledgeManage.metaInfoIncomplete'))
-        return
+      if (matchType === "mix" && priorityMatch === 1) {
+        this.formInline.knowledgeMatchParams.rerankModelId = "";
+      }
+      if (
+        this.$refs.metaSet.validateRequiredFields(
+          this.knowledgeIdList["metaDataFilterParams"]["metaFilterParams"]
+        )
+      ) {
+        this.$message.warning(
+          this.$t("knowledgeManage.meta.metaInfoIncomplete")
+        );
+        return;
       }
       const data = {
         ...this.formInline,
-        knowledgeList:[this.knowledgeIdList],
+        knowledgeList: [this.knowledgeIdList],
         question: this.question,
       };
       this.test(data);
@@ -205,36 +282,61 @@ export default {
       this.resultLoading = true;
       this.searchList = [];
       this.score = [];
-      hitTest(data).then((res) => {
-        if (res.code === 0) {
-          this.searchList = res.data !== null ? res.data.searchList : [];
-          this.score = res.data !== null ? res.data.score : [];
-          // 设置所有子分段默认展开
-          this.activeNames = [];
-          this.searchList.forEach((item, index) => {
-            if (item.childContentList && item.childContentList.length > 0) {
-              this.activeNames.push(`${index}`);
-            }
-          });
-
-          this.resultLoading = false;
-        } else {
+      if (this.type === "qa") {
+        this.qaHitTest(data);
+      } else {
+        this.knowledgeHitTest(data);
+      }
+    },
+    qaHitTest(data){
+      qaHitTest(data)
+        .then((res) => {
+          if (res.code === 0) {
+            this.searchList = res.data !== null ? res.data.searchList : [];
+            this.score = res.data !== null ? res.data.score : [];
+            this.resultLoading = false;
+          }else{
+            this.searchList = [];
+            this.resultLoading = false;
+          }
+        })
+        .catch(() => {
           this.searchList = [];
           this.resultLoading = false;
-        }
-      }).catch(() =>{
-        this.resultLoading = false;
-      })
+        });
     },
-    
+    knowledgeHitTest(data) {
+      hitTest(data)
+        .then((res) => {
+          if (res.code === 0) {
+            this.searchList = res.data !== null ? res.data.searchList : [];
+            this.score = res.data !== null ? res.data.score : [];
+            // 设置所有子分段默认展开
+            this.activeNames = [];
+            this.searchList.forEach((item, index) => {
+              if (item.childContentList && item.childContentList.length > 0) {
+                this.activeNames.push(`${index}`);
+              }
+            });
+
+            this.resultLoading = false;
+          } else {
+            this.searchList = [];
+            this.resultLoading = false;
+          }
+        })
+        .catch(() => {
+          this.resultLoading = false;
+      });
+    },
     // 显示分段详情弹框
     showSectionDetail(index) {
       const currentItem = this.searchList[index];
       const currentScore = parseFloat(this.score[index]) || 0;
       const data = {
-        searchList:currentItem,
-        score:currentScore,
-      }
+        searchList: currentItem,
+        score: currentScore,
+      };
       this.$refs.sectionShow.showDiaglog(data);
     },
   },
@@ -253,9 +355,9 @@ export default {
     height: calc(100% - 123px);
     gap: 20px;
     .test-box {
-       flex:1;
-       height:100%;
-       overflow-y:auto;
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
       .hitTest_input {
         background: #fff;
         border-radius: 6px;
@@ -289,7 +391,7 @@ export default {
       border: 1px solid #e9ecef;
       height: 100%;
       padding: 20px;
-      box-sizing:border-box;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       .result_title {
@@ -303,9 +405,9 @@ export default {
           width: 150px;
         }
       }
-      .resultContent{
-        img{
-          width:100%;
+      .resultContent {
+        img {
+          width: 100%;
         }
       }
       .result {
@@ -341,10 +443,10 @@ export default {
               .segment-type {
                 padding: 0 5px;
               }
-              .segment-length{
+              .segment-length {
                 cursor: pointer;
               }
-              .segment-length:hover{
+              .segment-length:hover {
                 color: $color;
               }
               .segment-type,
@@ -365,46 +467,45 @@ export default {
             }
             .resultChildContent {
               margin-top: 10px;
-              
-              
+
               .section-collapse {
                 border: none !important;
                 background: transparent !important;
-                
+
                 /deep/ .el-collapse-item__arrow {
                   display: none !important;
                 }
-                
+
                 /deep/ .el-collapse-item__header {
                   background: transparent !important;
                   border: none !important;
                   padding: 0 !important;
                 }
-                
+
                 /deep/ .el-collapse-item__wrap {
                   background: transparent !important;
                   border: none !important;
                 }
-                
+
                 /deep/ .el-collapse-item__content {
                   background: transparent !important;
                   border: none !important;
                   padding: 0 !important;
                 }
-                
+
                 .segment-collapse-item {
                   .sub-badge {
                     color: #666666;
                     font-size: 14px;
                     font-weight: 800;
                   }
-                  
+
                   .segment-content {
                     .child-item {
                       padding: 10px 0;
                       background: #f9f9f9;
                       border-radius: 4px;
-                      
+
                       .child-header {
                         display: flex;
                         justify-content: space-between;
@@ -415,7 +516,7 @@ export default {
                           display: flex;
                           align-items: center;
                           min-width: 0;
-                          
+
                           .segment-content {
                             flex: 1;
                             min-width: 0;
@@ -439,11 +540,11 @@ export default {
                           margin-right: 8px;
                           flex-shrink: 0;
                         }
-                        
+
                         .segment-score {
                           flex-shrink: 0;
                           margin-left: 12px;
-                          
+
                           .score-value {
                             color: $color;
                             font-weight: 500;
@@ -456,7 +557,6 @@ export default {
                   }
                 }
               }
-              
             }
           }
         }
@@ -475,15 +575,15 @@ export default {
         }
       }
     }
-    .meta_box{
-      margin-top:20px;
+    .meta_box {
+      margin-top: 20px;
       padding: 0 20px 20px 20px !important;
-      .metaSet{
-        width:100%;
+      .metaSet {
+        width: 100%;
       }
     }
-    .graph_box{
-      margin-top:20px;
+    .graph_box {
+      margin-top: 20px;
     }
   }
 }

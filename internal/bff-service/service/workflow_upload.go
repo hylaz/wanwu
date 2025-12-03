@@ -66,7 +66,11 @@ func UploadFileBase64ToWorkflow(ctx *gin.Context, fileName, file string) (*respo
 		Post(url); err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_upload_file", err.Error())
 	} else if resp.StatusCode() >= 300 {
-		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_upload_file", fmt.Sprintf("[%v] %v", resp.StatusCode(), resp.String()))
+		b, err := io.ReadAll(resp.RawResponse.Body)
+		if err != nil {
+			return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_upload_file", fmt.Sprintf("[%v] %v", resp.StatusCode(), err))
+		}
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_upload_file", fmt.Sprintf("[%v] %v", resp.StatusCode(), string(b)))
 	}
 	return ret, nil
 }

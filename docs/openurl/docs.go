@@ -817,6 +817,10 @@ const docTemplate = `{
         "request.AppKnowledgebaseParams": {
             "type": "object",
             "properties": {
+                "chiChat": {
+                    "description": "闲聊开关",
+                    "type": "boolean"
+                },
                 "keywordPriority": {
                     "description": "关键词权重",
                     "type": "number"

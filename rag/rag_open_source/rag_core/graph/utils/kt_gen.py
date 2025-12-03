@@ -10,9 +10,9 @@ import networkx as nx
 import tiktoken
 import json_repair
 
-from config import get_config
-from utils import call_llm_api, graph_processor
-from utils.logger import logger
+from graph.config import get_config
+from graph.utils import call_llm_api, graph_processor
+from graph.utils.logger import logger
 
 
 class KTBuilder:

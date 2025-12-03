@@ -6,13 +6,13 @@ from typing import Callable
 from dataclasses import dataclass
 import networkx as nx
 import pandas as pd
-from config.prompt_templates import COMMUNITY_REPORT_PROMPT
-from utils import leiden
-from utils.leiden import add_community_info2graph
-from config import get_config
-from utils import call_llm_api
+from graph.config.prompt_templates import COMMUNITY_REPORT_PROMPT, ATTRIBUTE_PROMPT
+from graph.utils import leiden
+from graph.utils.leiden import add_community_info2graph
+from graph.config import get_config
+from graph.utils import call_llm_api
 from concurrent import futures
-from utils.logger import logger
+from graph.utils.logger import logger
 
 def perform_variable_replacements(
     input: str, history: list[dict] | None = None, variables: dict | None = None
@@ -90,6 +90,42 @@ class CommunityReportsExtractor:
         communities: dict[str, dict[str, list]] = leiden.run(graph, {})
         res_str = []
         res_dict = []
+
+        def extract_report_from_response(response: str, entities: list):
+            nonlocal res_str, res_dict
+            response = re.sub(r"^[^\{]*", "", response)
+            response = re.sub(r"[^\}]*$", "", response)
+            response = re.sub(r"\{\{", "{", response)
+            response = re.sub(r"\}\}", "}", response)
+            logger.debug(response)
+            try:
+                response = json.loads(response)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response: {e}")
+                logger.error(f"Response content: {response}")
+                return
+            if not dict_has_keys_with_types(response, [
+                        ("title", str),
+                        ("summary", str),
+                        ("findings", list),
+                        ("rating", float),
+                        ("rating_explanation", str),
+                    ]):
+                return
+            response["entities"] = entities
+            add_community_info2graph(graph, entities, response["title"])
+            res_str.append(self._get_text_output(response))
+            res_dict.append(response)
+
+        def extract_community_report_by_attr(community):
+            attribute, cm = community
+            entities = cm["nodes"]
+            # 将 PROMPT 与具体输入合并为一个字符串
+            user_content = ATTRIBUTE_PROMPT + "\n\n" + "输入：\n" + f"entities = {json.dumps(entities, ensure_ascii=False)}\n" + f'attribute = "{attribute}"'
+
+            response = self._llm_client.call_api(user_content)
+            extract_report_from_response(response, entities)
+
         def extract_community_report(community):
             nonlocal res_str, res_dict
             cm_id, cm = community
@@ -131,35 +167,34 @@ class CommunityReportsExtractor:
             }
             text = perform_variable_replacements(self._extraction_prompt, variables=prompt_variables)
             response = self._llm_client.call_api(text)
-            response = re.sub(r"^[^\{]*", "", response)
-            response = re.sub(r"[^\}]*$", "", response)
-            response = re.sub(r"\{\{", "{", response)
-            response = re.sub(r"\}\}", "}", response)
-            logger.debug(response)
-            try:
-                response = json.loads(response)
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON response: {e}")
-                logger.error(f"Response content: {response}")
-                return
-            if not dict_has_keys_with_types(response, [
-                        ("title", str),
-                        ("summary", str),
-                        ("findings", list),
-                        ("rating", float),
-                        ("rating_explanation", str),
-                    ]):
-                return
-            response["entities"] = ents
-            add_community_info2graph(graph, ents, response["title"])
-            res_str.append(self._get_text_output(response))
-            res_dict.append(response)
+            extract_report_from_response(response, ents)
+
+        attribute_comm = {}
+        for edge in graph.edges(data=True):
+            if edge[2]["relation"] == "has_attribute":
+                target_node = edge[1]
+                source_node = edge[0]
+                if target_node not in attribute_comm:
+                    attribute_comm[target_node] = [source_node, target_node]  # 直接加上自身
+                else:
+                    attribute_comm[target_node].append(source_node)
+
+        # 过滤掉节点数量<=2的社区
+        attribute_comm = {k: {"nodes": v} for k, v in attribute_comm.items() if len(v) > 2}
+        logger.info(f"attribute_comm: {attribute_comm}")
+
+        with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            all_futures = [executor.submit(extract_community_report_by_attr, community) for community in attribute_comm.items()]
+            for i, future in enumerate(futures.as_completed(all_futures)):
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.info(f"extract_community_report_by_attr Failed, error: {e}")
 
         for level, comm in communities.items():
+            if int(level) > 0:
+                continue
             logger.info(f"Level {level}: Community: {len(comm.keys())}")
-            # for community in comm.items():
-            #     extract_community_report(community)
-
             with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
                 all_futures = [executor.submit(extract_community_report, community) for community in comm.items()]
                 for i, future in enumerate(futures.as_completed(all_futures)):

@@ -31,7 +31,8 @@ func (c *Client) DeleteRag(ctx context.Context, req *rag_service.RagDeleteReq) *
 }
 func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*rag_service.RagInfo, *err_code.Status) {
 	info := &model.RagInfo{}
-
+	rerankConfig := &common.AppModelConfig{}
+	qaRerankConfig := &common.AppModelConfig{}
 	// 获取 rag 信息
 	err := sqlopt.WithRagID(req.RagId).Apply(c.db.WithContext(ctx)).First(info).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -48,6 +49,7 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 			return nil, toErrStatus("rag_get_err", "sensitive "+err.Error())
 		}
 	}
+
 	knowledgeConfig := info.KnowledgeBaseConfig
 	kbGlobalConfig := &rag_service.RagGlobalConfig{
 		MaxHistory:        int32(knowledgeConfig.MaxHistory),
@@ -60,13 +62,61 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 		TermWeightEnable:  knowledgeConfig.TermWeightEnable,
 		TermWeight:        float32(knowledgeConfig.TermWeight),
 		UseGraph:          knowledgeConfig.UseGraph,
+		ChiChat:           knowledgeConfig.ChiChat,
 	}
 
+	// 反序列化 - 知识库元数据
 	var perKbConfig []*rag_service.RagPerKnowledgeConfig
 	if info.KnowledgeBaseConfig.MetaParams != "" {
 		err = json.Unmarshal([]byte(info.KnowledgeBaseConfig.MetaParams), &perKbConfig)
 		if err != nil {
 			return nil, toErrStatus("rag_get_err", "kb_meta "+err.Error())
+		}
+	}
+
+	// 反序列化 - 问答库配置
+	qaConfig := &rag_service.RagQAKnowledgeBaseConfig{}
+	if info.QAKnowledgebaseConfig != "" {
+		if err := json.Unmarshal([]byte(info.QAKnowledgebaseConfig), qaConfig); err != nil {
+			return nil, toErrStatus("rag_get_err", "kb_qa "+err.Error())
+		}
+	}
+
+	// 设置检索方式默认值
+	if kbGlobalConfig.MatchType == "" || len(perKbConfig) == 0 {
+		kbGlobalConfig.KeywordPriority = model.KeywordPriorityDefault
+		kbGlobalConfig.MatchType = model.MatchTypeDefault
+		kbGlobalConfig.PriorityMatch = model.KnowledgePriorityDefault
+		kbGlobalConfig.Threshold = model.ThresholdDefault
+		kbGlobalConfig.SemanticsPriority = model.SemanticsPriorityDefault
+		kbGlobalConfig.TopK = model.TopKDefault
+	} else {
+		rerankConfig = &common.AppModelConfig{
+			Model:     info.RerankConfig.Model,
+			ModelId:   info.RerankConfig.ModelId,
+			Provider:  info.RerankConfig.Provider,
+			ModelType: info.RerankConfig.ModelType,
+			Config:    info.RerankConfig.Config,
+		}
+	}
+
+	if qaConfig.GlobalConfig == nil {
+		qaConfig.GlobalConfig = &rag_service.RagQAGlobalConfig{}
+	}
+	if qaConfig.GlobalConfig.MatchType == "" || len(qaConfig.PerKnowledgeConfigs) == 0 {
+		qaConfig.GlobalConfig.KeywordPriority = model.KeywordPriorityDefault
+		qaConfig.GlobalConfig.MatchType = model.MatchTypeDefault
+		qaConfig.GlobalConfig.PriorityMatch = model.QAPriorityDefault
+		qaConfig.GlobalConfig.Threshold = model.ThresholdDefault
+		qaConfig.GlobalConfig.SemanticsPriority = model.SemanticsPriorityDefault
+		qaConfig.GlobalConfig.TopK = model.TopKDefault
+	} else {
+		qaRerankConfig = &common.AppModelConfig{
+			Model:     info.QARerankConfig.Model,
+			ModelId:   info.QARerankConfig.ModelId,
+			Provider:  info.QARerankConfig.Provider,
+			ModelType: info.QARerankConfig.ModelType,
+			Config:    info.QARerankConfig.Config,
 		}
 	}
 
@@ -85,23 +135,18 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 			ModelType: info.ModelConfig.ModelType,
 			Config:    info.ModelConfig.Config,
 		},
-		RerankConfig: &common.AppModelConfig{
-			Model:     info.RerankConfig.Model,
-			ModelId:   info.RerankConfig.ModelId,
-			Provider:  info.RerankConfig.Provider,
-			ModelType: info.RerankConfig.ModelType,
-			Config:    info.RerankConfig.Config,
-		},
+		RerankConfig:   rerankConfig,
+		QArerankConfig: qaRerankConfig,
 		KnowledgeBaseConfig: &rag_service.RagKnowledgeBaseConfig{
 			PerKnowledgeConfigs: perKbConfig,
 			GlobalConfig:        kbGlobalConfig,
 		},
+		QAknowledgeBaseConfig: qaConfig,
 		SensitiveConfig: &rag_service.RagSensitiveConfig{
 			Enable:   info.SensitiveConfig.Enable,
 			TableIds: sensitiveIds,
 		},
 	}
-
 	return resp, nil
 }
 
@@ -253,6 +298,12 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"rerank_model_type": rag.RerankConfig.ModelType,
 				"rerank_config":     rag.RerankConfig.Config,
 
+				"qa_rerank_provider":   rag.QARerankConfig.Provider,
+				"qa_rerank_model":      rag.QARerankConfig.Model,
+				"qa_rerank_model_id":   rag.QARerankConfig.ModelId,
+				"qa_rerank_model_type": rag.QARerankConfig.ModelType,
+				"qa_rerank_config":     rag.QARerankConfig.Config,
+
 				"kb_know_id":     rag.KnowledgeBaseConfig.KnowId,
 				"kb_max_history": rag.KnowledgeBaseConfig.MaxHistory,
 				"kb_threshold":   rag.KnowledgeBaseConfig.Threshold,
@@ -266,6 +317,9 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"kb_term_weight":        rag.KnowledgeBaseConfig.TermWeight,
 				"kb_term_weight_enable": rag.KnowledgeBaseConfig.TermWeightEnable,
 				"kb_use_graph":          rag.KnowledgeBaseConfig.UseGraph,
+				"kb_chi_chat":           rag.KnowledgeBaseConfig.ChiChat,
+
+				"qa_knowledgebase_config": rag.QAKnowledgebaseConfig,
 
 				"sensitive_enable":    rag.SensitiveConfig.Enable,
 				"sensitive_table_ids": rag.SensitiveConfig.TableIds,

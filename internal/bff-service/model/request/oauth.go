@@ -6,9 +6,22 @@ type OAuthRequest struct {
 	ClientID     string   `form:"client_id" validate:"required"`
 	Scopes       []string `form:"scope"`
 	State        string   `form:"state" validate:"required"`
+	JwtToken     string   `form:"jwt_token" validate:"required"`
 }
 
 func (t *OAuthRequest) Check() error {
+	return nil
+}
+
+type OAuthLoginRequest struct {
+	ResponseType string   `form:"response_type" validate:"required,eq=code"`
+	RedirectURI  string   `form:"redirect_uri"`
+	ClientID     string   `form:"client_id" validate:"required"`
+	Scopes       []string `form:"scope"`
+	State        string   `form:"state" validate:"required"`
+}
+
+func (t *OAuthLoginRequest) Check() error {
 	return nil
 }
 

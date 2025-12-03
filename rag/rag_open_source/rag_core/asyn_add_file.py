@@ -1,5 +1,6 @@
 import os
 import nltk
+import copy
 # 设置NLTK数据路径
 # 获取当前文件的绝对路径
 current_file_path = os.path.abspath(__file__)
@@ -191,6 +192,18 @@ def pre_process_text(text: str, pre_processing_rules: list[str]) -> str:
     return text
 
 
+def retype_meta_datas(meta_datas: list):
+    result = []
+    for item in meta_datas:
+        new_item = copy.deepcopy(item)
+        if item["value_type"] == "string":
+            new_item["string_value"] = str(item["value"])
+        elif item["value_type"] == "number" or item["value_type"] == "time":
+            new_item["int_value"] = int(item["value"])
+        result.append(new_item)
+    return result
+
+
 def parse_meta_data(docs, parse_rules):
     result = []
 
@@ -226,6 +239,10 @@ def parse_meta_data(docs, parse_rules):
         # 预处理：处理一些特殊情况
         processed_str = date_str.strip()
         processed_str = processed_str.replace(" ", "")
+        for suffix in ["发布", "实施"]:
+            if processed_str.endswith(suffix):
+                processed_str = processed_str[:-len(suffix)]
+                break
 
         # 尝试每种格式
         for fmt in date_formats:
@@ -268,7 +285,7 @@ def parse_meta_data(docs, parse_rules):
         # 如果item["rule"] 为空，item["value"]是固定值
         result.append(item)
 
-    return result
+    return retype_meta_datas(result)
 
 
 def add_files(user_id, kb_name, file_name, object_name, file_id,
@@ -528,7 +545,7 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
 
     logger.info("user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name) + '===== 文档上传成功且完成')
     master_control_logger.info("user_id=%s,kb_name=%s,file_name=%s,kb_id=%s" % (user_id, kb_name, file_name, kb_id) + '===== 文档上传成功且完成')
-    mq_rel_utils.update_doc_status(file_id, status=10)
+    mq_rel_utils.update_doc_status(file_id, status=10, meta_datas=meta_parsed)
 
 
 if __name__ == "__main__":

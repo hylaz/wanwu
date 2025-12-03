@@ -80,3 +80,4 @@ knowledge:
 ragServer:
   chatEndpoint: http://bff-service:6668
   chatUrl: /callback/v1/rag/knowledge/stream/search
+  qaSearchUrl: /callback/v1/rag/search-QA-base

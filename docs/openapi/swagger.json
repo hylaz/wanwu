@@ -289,6 +289,72 @@
                 }
             }
         },
+        "/oauth/code/authorize": {
+            "get": {
+                "description": "授权码方式-获取授权码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "oauth"
+                ],
+                "summary": "授权码方式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "备案ID",
+                        "name": "client_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "重定向URI",
+                        "name": "redirect_uri",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "响应类型",
+                        "name": "response_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限范围",
+                        "name": "scope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态参数",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "jwt_token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "重定向到指定URI",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/code/token": {
             "post": {
                 "description": "授权码方式-获取Token",
@@ -670,9 +736,17 @@
         },
         "request.OpenAPIChatflowChatRequest": {
             "type": "object",
+            "required": [
+                "conversation_id",
+                "query"
+            ],
             "properties": {
                 "conversation_id": {
                     "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
                 },
                 "query": {
                     "type": "string"

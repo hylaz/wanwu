@@ -52,6 +52,9 @@ type KnowledgeInfo struct {
 	Share              bool                `json:"share"`          //是分享，还是私有
 	RagName            string              `json:"ragName"`        //rag名称
 	GraphSwitch        int32               `json:"graphSwitch"`    //图谱开关
+	Category           int32               `json:"category"`       // 0: 知识库; 1: 问答库
+	LlmModelId         string              `json:"llmModelId"`     // 知识图谱模型id
+	UpdatedAt          string              `json:"updatedAt"`      // 更新时间
 }
 
 type KnowledgeMetaData struct {
@@ -65,7 +68,7 @@ type ChunkSearchList struct {
 	KnowledgeName    string          `json:"knowledgeName"`
 	ChildContentList []*ChildContent `json:"childContentList"`
 	ChildScore       []float64       `json:"childScore"`
-	ContentType      string          `json:"contentType"` // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
+	ContentType      string          `json:"contentType"` // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）
 }
 
 type ChildContent struct {

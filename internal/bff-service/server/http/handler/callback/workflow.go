@@ -28,6 +28,26 @@ func GetWorkflowList(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
+// GetChatflowList
+//
+//	@Tags			callback
+//	@Summary		根据userId和spaceId获取Chatflow
+//	@Description	根据userId和spaceId获取Chatflow
+//	@Accept			json
+//	@Produce		json
+//	@Param			userId	query		string	true	"获取工作流参数userId"
+//	@Param			orgId	query		string	true	"获取工作流参数orgId"
+//	@Success		200		{object}	response.Response
+//	@Router			/chatflow/list [get]
+func GetChatflowList(ctx *gin.Context) {
+	var req request.GetWorkflowListReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetAppList(ctx, req.UserId, req.OrgId, constant.AppTypeChatflow)
+	gin_util.Response(ctx, resp, err)
+}
+
 // GetWorkflowCustomTool
 //
 //	@Tags			callback

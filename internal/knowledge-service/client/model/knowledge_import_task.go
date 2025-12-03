@@ -67,8 +67,8 @@ type KnowledgeImportTask struct {
 	OcrModelId    string `gorm:"column:ocr_model_id;type:varchar(64);not null;default:'';comment:'ocr模型id'" json:"ocrModelId"`
 	DocPreProcess string `gorm:"column:doc_pre_process;type:text;not null;comment:'文档预处理规则: replace_symbols,delete_links'" json:"docPreProcess"`
 	MetaData      string `gorm:"column:meta_data;type:text;not null;comment:'元数据列表'" json:"metaData"`
-	CreatedAt     int64  `gorm:"column:create_at;type:bigint(20);not null;" json:"createAt"` // Create Time
-	UpdatedAt     int64  `gorm:"column:update_at;type:bigint(20);not null;" json:"updateAt"` // Update Time
+	CreatedAt     int64  `gorm:"column:create_at;type:bigint(20);autoCreateTime:milli;not null;" json:"createAt"` // Create Time
+	UpdatedAt     int64  `gorm:"column:update_at;type:bigint(20);autoUpdateTime:milli;not null;" json:"updateAt"` // Update Time
 	UserId        string `gorm:"column:user_id;type:varchar(64);not null;default:'';" json:"userId"`
 	OrgId         string `gorm:"column:org_id;type:varchar(64);not null;default:''" json:"orgId"`
 }

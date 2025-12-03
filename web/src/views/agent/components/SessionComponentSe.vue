@@ -6,20 +6,11 @@
       v-loading="loading"
       ref="timeScroll"
     >
-      <div
-        v-for="(n,i) in session_data.history"
-        :key="`${i}sdhs`"
-      >
+      <div v-for="(n, i) in session_data.history" :key="`${i}sdhs`">
         <!--问题-->
-        <div
-          v-if="n.query"
-          class="session-question"
-        >
-          <div :class="['session-item','rl']">
-            <img
-              class="logo"
-              :src="userAvatarSrc"
-            />
+        <div v-if="n.query" class="session-question">
+          <div :class="['session-item', 'rl']">
+            <img class="logo" :src="userAvatarSrc" />
             <div class="answer-content">
               <div class="answer-content-query">
                 <!-- <span
@@ -37,37 +28,64 @@
                     class="query-copy"
                     @click="queryCopy(n.query)"
                     style="cursor: pointer"
-                  ><i class="el-icon-s-order"></i>&nbsp;{{$t('agent.copyToInput')}}</p>
+                  >
+                    <i class="el-icon-s-order"></i>
+                    &nbsp;
+                    {{ $t("agent.copyToInput") }}
+                  </p>
                   <span
                     slot="reference"
                     class="answer-text"
-                    style="display:inline-block;margin-top:5px;"
-                  >{{n.query}}</span>
+                    style="display: inline-block; margin-top: 5px"
+                  >
+                    {{ n.query }}
+                  </span>
                 </el-popover>
-                <div
-                  class="echo-doc-box"
-                  v-if="hasFiles(n)"
-                >
-                <el-button v-show="canScroll(i,n.showScrollBtn)" icon="el-icon-arrow-left " @click="prev($event,i)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
-                 <div class="imgList" :ref="`imgList-${i}`">
-                 <div v-for="(file,j) in n.fileList" :key="`${j}sdsl`" class="docInfo-img-container">
-                      <img v-if="hasImgs(n,file)"
+                <div class="echo-doc-box" v-if="hasFiles(n)">
+                  <el-button
+                    v-show="canScroll(i, n.showScrollBtn)"
+                    icon="el-icon-arrow-left "
+                    @click="prev($event, i)"
+                    circle
+                    class="scroll-btn left"
+                    size="mini"
+                    type="primary"
+                  ></el-button>
+                  <div class="imgList" :ref="`imgList-${i}`">
+                    <div
+                      v-for="(file, j) in n.fileList"
+                      :key="`${j}sdsl`"
+                      class="docInfo-img-container"
+                    >
+                      <img
+                        v-if="hasImgs(n, file)"
                         :src="file.fileUrl"
-                        class="docIcon imgIcon" />
-                  <div v-else class="docInfo-container">
-                  <img
-                    :src="require('@/assets/imgs/fileicon.png')"
-                    class="docIcon"
-                    style="width:30px!important;"
-                  />
-                  <div class="docInfo">
-                    <p class="docInfo_name">文件名称：{{file.name}}</p>
-                    <p class="docInfo_size">文件大小:{{getFileSizeDisplay(file.size)}}</p>
+                        class="docIcon imgIcon"
+                      />
+                      <div v-else class="docInfo-container">
+                        <img
+                          :src="require('@/assets/imgs/fileicon.png')"
+                          class="docIcon"
+                          style="width: 30px !important"
+                        />
+                        <div class="docInfo">
+                          <p class="docInfo_name">文件名称：{{ file.name }}</p>
+                          <p class="docInfo_size">
+                            文件大小:{{ getFileSizeDisplay(file.size) }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  </div>
-                 </div>
-                 </div>
-                 <el-button v-show="canScroll(i,n.showScrollBtn)" icon="el-icon-arrow-right" @click="next($event,i)" circle class="scroll-btn right" size="mini" type="primary"></el-button>
+                  <el-button
+                    v-show="canScroll(i, n.showScrollBtn)"
+                    icon="el-icon-arrow-right"
+                    @click="next($event, i)"
+                    circle
+                    class="scroll-btn right"
+                    size="mini"
+                    type="primary"
+                  ></el-button>
                 </div>
               </div>
 
@@ -78,102 +96,80 @@
           </div>
         </div>
         <!--loading-->
-        <div
-          v-if="n.responseLoading"
-          class="session-answer"
-        >
+        <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
-        <div
-          v-if="n.pendingResponse"
-          class="session-answer"
-        >
+        <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
-            <div
-              class="answer-content"
-              style="padding:10px;color:#E6A23C;"
-            >{{n.pendingResponse}}</div>
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <div class="answer-content" style="padding: 10px; color: #e6a23c">
+              {{ n.pendingResponse }}
+            </div>
           </div>
         </div>
 
         <!-- 回答故障  code:7-->
-        <div
-          class="session-error"
-          v-if="n.error"
-        ><i class="el-icon-warning"></i>&nbsp;{{n.response}}</div>
+        <div class="session-error" v-if="n.error">
+          <i class="el-icon-warning"></i>&nbsp;{{ n.response }}
+        </div>
 
         <!--回答 文字+图片-->
         <div
-          v-if="(n.response && !n.error)"
+          v-if="n.response && !n.error"
           class="session-answer"
-          :id="'message-container'+i"
+          :id="'message-container' + i"
         >
           <div
-            v-if="[0,1,2,3,4,6,20,21,10].includes(n.qa_type)"
+            v-if="[0, 1, 2, 3, 4, 6, 20, 21, 10].includes(n.qa_type)"
             class="session-answer-wrapper"
           >
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
-            <div
-              class="session-wrap"
-              style="width:calc(100% - 30px);"
-            >
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <div class="session-wrap" style="width: calc(100% - 30px)">
               <div
                 v-if="showDSBtn(n.response)"
                 class="deepseek"
-                @click="toggle($event,i)"
+                @click="toggle($event, i)"
               >
                 <template v-if="n.qa_type === 20">
                   <img
                     :src="require('@/assets/imgs/tool-icon.png')"
                     class="think_icon"
-                  />{{n.toolText}}
+                  />{{ n.toolText }}
                 </template>
                 <template v-else>
                   <img
                     :src="require('@/assets/imgs/think-icon.png')"
                     class="think_icon"
-                  />{{n.thinkText}}
+                  />{{ n.thinkText }}
                 </template>
-                <i v-bind:class="{'el-icon-arrow-down': !n.isOpen,'el-icon-arrow-up': n.isOpen}"></i>
+                <i
+                  v-bind:class="{
+                    'el-icon-arrow-down': !n.isOpen,
+                    'el-icon-arrow-up': n.isOpen,
+                  }"
+                ></i>
               </div>
               <div
                 class="answer-content"
-                v-bind:class="{'ds-res':showDSBtn(n.response)}"
-                v-html="showDSBtn(n.response)?replaceHTML(n.response,n):n.response"
+                v-bind:class="{ 'ds-res': showDSBtn(n.response) }"
+                v-html="
+                  showDSBtn(n.response)
+                    ? replaceHTML(n.response, n)
+                    : n.response
+                "
               ></div>
             </div>
           </div>
-          <div
-            v-else
-            class="session-answer-wrapper"
-          >
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
-            <div
-              v-if="n.code === 7"
-              class="answer-content session-error"
-            ><i class="el-icon-warning"></i> &nbsp;{{n.response}}</div>
-            <div
-              v-else
-              class="answer-content"
-              v-html="(n.response)"
-            ></div>
+          <div v-else class="session-answer-wrapper">
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <div v-if="n.code === 7" class="answer-content session-error">
+              <i class="el-icon-warning"></i> &nbsp;{{ n.response }}
+            </div>
+            <div v-else class="answer-content" v-html="n.response"></div>
           </div>
           <!--文件-->
           <div
@@ -181,9 +177,9 @@
             class="file-path response-file"
           >
             <el-image
-              v-for="(g,k) in n.gen_file_url_list"
+              v-for="(g, k) in n.gen_file_url_list"
               :key="k"
-              :src='g'
+              :src="g"
               :preview-src-list="[g]"
             ></el-image>
           </div>
@@ -193,37 +189,49 @@
             class="search-list"
           >
             <div
-              v-for="(m,j) in n.searchList"
+              v-for="(m, j) in n.searchList"
               :key="`${j}sdsl`"
               class="search-list-item"
             >
               <div
                 class="serach-list-item"
-                v-if="showSearchList(j,n.qa_type,n.citations)"
+                v-if="showSearchList(j, n.qa_type, n.citations)"
               >
-                <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
+                <span @click="collapseClick(n, m, j)">
+                  <i
+                    :class="[
+                      '',
+                      m.collapse
+                        ? 'el-icon-caret-bottom'
+                        : 'el-icon-caret-right',
+                    ]"
+                  >
+                  </i>
+                  出处：
+                </span>
                 <a
                   v-if="m.link"
                   :href="m.link"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="link"
-                >{{m.link}}</a>
+                >
+                  {{ m.link }}
+                </a>
                 <span v-if="m.title">
                   <sub
                     class="subTag"
                     :data-parents-index="i"
-                    :data-collapse="m.collapse?'true':'false'"
+                    :data-collapse="m.collapse ? 'true' : 'false'"
                     v-if="n.qa_type === 1"
-                  >{{j + 1}}</sub> {{m.title}}
+                    >{{ j + 1 }}</sub
+                  >
+                  {{ m.title }}
                 </span>
                 <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
               </div>
               <el-collapse-transition>
-                <div
-                  v-show="m.collapse?true:false"
-                  class="snippet"
-                >
+                <div v-show="m.collapse ? true : false" class="snippet">
                   <p v-html="m.snippet"></p>
                 </div>
               </el-collapse-transition>
@@ -231,7 +239,11 @@
           </div>
           <!--loading-->
           <div
-            v-if="n.finish === 0 && sessionStatus == 0 && i === session_data.history.length - 1"
+            v-if="
+              n.finish === 0 &&
+              sessionStatus == 0 &&
+              i === session_data.history.length - 1
+            "
             class="text-loading"
           >
             <div></div>
@@ -242,7 +254,7 @@
           <div class="answer-operation">
             <div class="opera-left">
               <span
-                v-if="i===(session_data.history.length-1)"
+                v-if="i === session_data.history.length - 1"
                 class="restart"
                 @click="refresh"
               >
@@ -253,38 +265,41 @@
             </div>
             <div
               class="opera-right"
-              style="flex:0;"
-              @click="()=>{copy(n.oriResponse) && copycb()}"
+              style="flex: 0"
+              @click="
+                () => {
+                  copy(n.oriResponse) && copycb();
+                }
+              "
             >
               <img :src="require('@/assets/imgs/copy-icon.png')" />
               <!-- <i class="el-icon-copy-document copy-icon" style="padding: 0 6px;margin: 0;" :title="$t('agent.clickCopy')" @click="()=>{copy(n.oriResponse) && copycb()}"></i> -->
             </div>
             <!--提示话术-->
             <div class="answer-operation-tip">
-              {{$t('agent.answerOperationTip')}}
+              {{ $t("agent.answerOperationTip") }}
             </div>
           </div>
         </div>
 
         <!-- 回答 仅图片-->
         <div
-          v-if="!n.response && n.gen_file_url_list && n.gen_file_url_list.length"
+          v-if="
+            !n.response && n.gen_file_url_list && n.gen_file_url_list.length
+          "
           class="session-answer"
         >
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
             <div class="answer-content">
               <div
                 v-if="n.gen_file_url_list && n.gen_file_url_list.length"
                 class="file-path response-file no-response"
               >
                 <el-image
-                  v-for="(g,k) in n.gen_file_url_list"
+                  v-for="(g, k) in n.gen_file_url_list"
                   :key="k"
-                  :src='g'
+                  :src="g"
                   :preview-src-list="[g]"
                 ></el-image>
               </div>
@@ -293,13 +308,12 @@
           <!--仅图片时只有 重新生成-->
           <div class="answer-operation">
             <div class="opera-left">
-              <span
-                v-if="i===(session_data.history.length-1)"
-                class="restart"
-              ><i
-                  class="el-icon-refresh"
-                  @click="refresh"
-                >&nbsp;{{$t('agent.refresh')}}</i></span>
+              <span v-if="i === session_data.history.length - 1" class="restart"
+                ><i class="el-icon-refresh" @click="refresh">
+                  &nbsp;
+                  {{ $t("agent.refresh") }}
+                </i>
+              </span>
             </div>
           </div>
         </div>
@@ -377,41 +391,41 @@ export default {
       audioConfig: ["mp3", "wav"],
       fileScrollStateMap: {},
       resizeTimer: null,
-      scrollContainerId:`timeScroll-${this._uid}`
+      scrollContainerId: `timeScroll-${this._uid}`,
     };
   },
   computed: {
-    ...mapGetters('user', ['userAvatar']),
-    userAvatarSrc(){
-      return this.userAvatar 
-      ? '/user/api/' + this.userAvatar 
-      : require('@/assets/imgs/robot-icon.png');
-    }
+    ...mapGetters("user", ["userAvatar"]),
+    userAvatarSrc() {
+      return this.userAvatar
+        ? "/user/api/" + this.userAvatar
+        : require("@/assets/imgs/robot-icon.png");
+    },
   },
   watch: {
     sessionStatus: {
       handler(val, oldVal) {},
       immediate: true,
     },
-    'session_data.history':{
-      handler(){
+    "session_data.history": {
+      handler() {
         this.$nextTick(() => {
           this.updateAllFileScrollStates();
         });
       },
-      deep:true
-    }
+      deep: true,
+    },
   },
   mounted() {
     this.setupScrollListener();
     smoothscroll.polyfill();
-    document.addEventListener('click', this.handleCitationClick);
-    window.addEventListener('resize', this.handleWindowResize);
+    document.addEventListener("click", this.handleCitationClick);
+    window.addEventListener("resize", this.handleWindowResize);
     this.updateAllFileScrollStates();
   },
   beforeDestroy() {
-    if(this.handleCitationClick) {
-      document.removeEventListener('click', this.handleCitationClick);
+    if (this.handleCitationClick) {
+      document.removeEventListener("click", this.handleCitationClick);
     }
     const container = document.getElementById(this.scrollContainerId);
     if (container) {
@@ -419,11 +433,11 @@ export default {
     }
     clearTimeout(this.scrollTimeout);
 
-    window.removeEventListener('resize', this.handleWindowResize);
+    window.removeEventListener("resize", this.handleWindowResize);
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
     }
-    
+
     // 移除图片错误事件监听器
     if (this.imageErrorHandler) {
       document.body.removeEventListener("error", this.imageErrorHandler, true);
@@ -446,7 +460,11 @@ export default {
         const container = containerArray[0];
         const canScroll = container.scrollWidth > container.clientWidth;
         if (this.session_data.history[index]) {
-          this.$set(this.session_data.history[index], 'showScrollBtn', canScroll);
+          this.$set(
+            this.session_data.history[index],
+            "showScrollBtn",
+            canScroll
+          );
         }
         this.$set(this.fileScrollStateMap, index, canScroll);
       }
@@ -459,15 +477,15 @@ export default {
         this.updateAllFileScrollStates();
       }, 200);
     },
-    canScroll(i,showScrollBtn) {
+    canScroll(i, showScrollBtn) {
       if (showScrollBtn !== null && showScrollBtn !== undefined) {
         return showScrollBtn;
       }
       // 否则从 fileScrollStateMap 中获取
       return this.fileScrollStateMap[i] || false;
     },
-    prev(e,i){
-      e.stopPropagation()
+    prev(e, i) {
+      e.stopPropagation();
       const refKey = `imgList-${i}`;
       const containerArray = this.$refs[refKey];
       if (containerArray && containerArray.length > 0) {
@@ -478,8 +496,8 @@ export default {
         });
       }
     },
-    next(e,i){
-      e.stopPropagation()
+    next(e, i) {
+      e.stopPropagation();
       const refKey = `imgList-${i}`;
       const containerArray = this.$refs[refKey];
       if (containerArray && containerArray.length > 0) {
@@ -490,25 +508,25 @@ export default {
         });
       }
     },
-    hasFiles(n){
-       return n.fileList && n.fileList.length > 0;
+    hasFiles(n) {
+      return n.fileList && n.fileList.length > 0;
     },
-    hasImgs(n,file){
+    hasImgs(n, file) {
       if (!n.fileList || n.fileList.length === 0 || !file || !file.name) {
         return false;
       }
-      let type = file.name.split('.').pop().toLowerCase();
-      return this.imgConfig.map(t => t.toLowerCase()).includes(type);
+      let type = file.name.split(".").pop().toLowerCase();
+      return this.imgConfig.map((t) => t.toLowerCase()).includes(type);
     },
     handleCitationClick(e) {
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
         sessionData: this.session_data,
-        citationSelector: '.citation',
+        citationSelector: ".citation",
         scrollElementId: this.scrollContainerId,
         onToggleCollapse: (item, collapse) => {
-          this.$set(item, 'collapse', collapse);
-        }
+          this.$set(item, "collapse", collapse);
+        },
       });
     },
     showSearchList(j, qa_type, citations) {
@@ -568,7 +586,7 @@ export default {
         }
       }
       if (openUrl !== "") {
-        window.open(openUrl, "_blank","noopener,noreferrer");
+        window.open(openUrl, "_blank", "noopener,noreferrer");
       } else {
         this.$message.warning("暂不支持此格式查看");
       }
@@ -988,10 +1006,11 @@ export default {
     img {
       width: 80% !important;
     }
-    section li,li {
+    section li,
+    li {
       list-style-position: inside !important; /* 将标记符号放在内容框内 */
     }
-   
+
     .citation {
       display: inline-flex;
       color: $color;
@@ -1054,8 +1073,8 @@ export default {
           color: #fff;
           padding: 8px 10px 8px 20px;
           border-radius: 10px 0 10px 10px;
-          margin:0!important;
-          line-height:1.5;
+          margin: 0 !important;
+          line-height: 1.5;
         }
         .session-setting-id {
           color: rgba(98, 98, 98, 0.5);
@@ -1067,31 +1086,31 @@ export default {
           width: 100%;
           max-width: 100%;
           display: flex;
-          gap:8px;
+          gap: 8px;
           justify-content: space-between;
           align-items: center;
           position: relative;
-          .scroll-btn{
-            position:absolute;
-            top:50%;
+          .scroll-btn {
+            position: absolute;
+            top: 50%;
             transform: translateY(-15px);
-            &.left{
-                left:5px;
+            &.left {
+              left: 5px;
             }
-            &.right{
-                right:5px;
+            &.right {
+              right: 5px;
             }
           }
-          .imgList{
-            width:100%;
+          .imgList {
+            width: 100%;
             gap: 10px;
-            overflow-x:hidden;
+            overflow-x: hidden;
             scroll-behavior: smooth;
-            display:flex;
+            display: flex;
             flex-wrap: nowrap;
             flex-direction: row-reverse;
           }
-          .docInfo-container{
+          .docInfo-container {
             display: flex;
             align-items: center;
             background: #fff;
@@ -1099,10 +1118,10 @@ export default {
             padding: 5px 10px 5px 5px;
             border-radius: 5px;
           }
-          .docInfo-img-container{
-            flex-shrink: 0;  /* 防止图片被压缩 */
-            width: auto;  /* 或固定宽度 */
-            p{
+          .docInfo-img-container {
+            flex-shrink: 0; /* 防止图片被压缩 */
+            width: auto; /* 或固定宽度 */
+            p {
               text-align: center;
               color: $color;
               font-size: 12px;
@@ -1113,10 +1132,10 @@ export default {
             height: 30px;
           }
           .imgIcon {
-            width:auto!important;
-            height:70px!important;
-            display:block;
-            border-radius:6px;
+            width: auto !important;
+            height: 70px !important;
+            display: block;
+            border-radius: 6px;
           }
           .docInfo {
             margin-left: 5px;
@@ -1229,8 +1248,8 @@ export default {
           color: #33a4df;
         }
       }
-      .answer-operation-tip{
-        padding:0 0 4px 10px;
+      .answer-operation-tip {
+        padding: 0 0 4px 10px;
         font-size: 12px;
         color: #999;
       }
@@ -1341,7 +1360,7 @@ export default {
     font-size: 13px;
     color: #8b8b8b;
     font-weight: bold;
-    margin:0 0 10px 6px;
+    margin: 0 0 10px 6px;
     cursor: pointer;
   }
 }
@@ -1363,7 +1382,7 @@ export default {
     padding: 20px 20px 0 20px;
     min-height: 80px;
     background: none; /* 确保外层容器无背景色 */
-    
+
     .logo {
       width: 30px;
       height: 30px;
@@ -1372,13 +1391,13 @@ export default {
       flex-shrink: 0; /* 防止头像被压缩 */
       background: none; /* 头像无背景色 */
     }
-    
+
     .answer-content {
       flex: 1;
       background-color: #eceefe; /* 只有内容区域有背景色 */
       border-radius: 0 10px 10px 10px;
       padding: 20px;
-      line-height:1.6;
+      line-height: 1.6;
     }
   }
 }

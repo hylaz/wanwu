@@ -25,7 +25,8 @@
 </template>
 
 <script>
-import {codeOAuth} from "@/api/permission/oauth"
+import {OAUTH_API} from "@/utils/requestConstants";
+import {store} from "@/store";
 
 export default {
   data() {
@@ -37,7 +38,8 @@ export default {
         response_type: '',
         state: '',
         client_name: ''
-      }
+      },
+      token: store.getters['user/token'],
     }
   },
   watch: {
@@ -58,11 +60,8 @@ export default {
       window.open("about:blank", "_top")
     },
     handleConfirm() {
-      codeOAuth(this.params).then(res => {
-        if (res.code === 0) {
-          window.open("about:blank", "_top")
-        }
-      })
+      const authorizeUrl = `${OAUTH_API}/oauth/code/authorize${window.location.search}&jwt_token=${this.token}`
+      window.location.href = authorizeUrl
     }
   }
 };

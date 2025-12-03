@@ -45,3 +45,11 @@ type WorkflowUploadFileByBase64Req struct {
 func (u *WorkflowUploadFileByBase64Req) Check() error {
 	return nil
 }
+
+type WorkflowConvertReq struct {
+	WorkflowID string `json:"workflow_id" validate:"required"`
+}
+
+func (r *WorkflowConvertReq) Check() error {
+	return nil
+}

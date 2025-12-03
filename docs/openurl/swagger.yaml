@@ -288,6 +288,9 @@ definitions:
     type: object
   request.AppKnowledgebaseParams:
     properties:
+      chiChat:
+        description: 闲聊开关
+        type: boolean
       keywordPriority:
         description: 关键词权重
         type: number

@@ -5,7 +5,6 @@ import (
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/model"
-
 	"gorm.io/gorm"
 )
 

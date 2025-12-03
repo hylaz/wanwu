@@ -666,6 +666,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/appspace/chatflow/convert": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "chatflow转为workflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "chatflow转为workflow",
+                "parameters": [
+                    {
+                        "description": "对话流工作流转换参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowConvertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/appspace/chatflow/copy": {
             "post": {
                 "security": [
@@ -1102,6 +1141,45 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/workflow/convert": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "workflow转为chatflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "workflow转为chatflow",
+                "parameters": [
+                    {
+                        "description": "对话流工作流转换参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowConvertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -4872,6 +4950,465 @@ const docTemplate = `{
                 }
             }
         },
+        "/knowledge/qa/export": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "问答库文档导出",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "问答库文档导出",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "问答库id",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/export/record": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除问答库导出记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "删除问答库导出记录",
+                "parameters": [
+                    {
+                        "description": "删除问答库导出记录请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteKnowledgeQAExportRecordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/export/record/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取问答库导出记录列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "获取问答库导出记录列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "问答库id",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeQAExportRecordPageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/hit": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "问答库命中测试",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge"
+                ],
+                "summary": "问答库命中测试",
+                "parameters": [
+                    {
+                        "description": "问答库命中测试请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.KnowledgeHitReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeQAHitResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/pair": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "编辑问答对",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "编辑问答对",
+                "parameters": [
+                    {
+                        "description": "编辑问答对请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateKnowledgeQAPairReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "新增问答对",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "新增问答对",
+                "parameters": [
+                    {
+                        "description": "新增问答对请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateKnowledgeQAPairReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CreateKnowledgeQAPairResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "刪除问答对",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "刪除问答对",
+                "parameters": [
+                    {
+                        "description": "刪除问答对请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteKnowledgeQAPairReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/pair/import": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "问答库文档导入",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "问答库文档导入",
+                "parameters": [
+                    {
+                        "description": "问答库文档导入请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.KnowledgeQAPairImportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/pair/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取问答对列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "获取问答对列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeQAPairPageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/qa/pair/switch": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "启停问答对",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.qa"
+                ],
+                "summary": "启停问答对",
+                "parameters": [
+                    {
+                        "description": "启停问答对请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateKnowledgeQAPairSwitchReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge/report/add": {
             "post": {
                 "security": [
@@ -6983,6 +7520,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/select/asr": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "summary": "asr语音识别模型列表展示",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/response.ModelInfo"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/model/select/embedding": {
             "get": {
                 "security": [
@@ -7289,6 +7877,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/select/text2image": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "summary": "文生图模型列表展示",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/response.ModelInfo"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/model/status": {
             "put": {
                 "security": [
@@ -7551,65 +8190,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/oauth/code/authorize": {
-            "get": {
-                "description": "授权码方式-获取授权码",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "oauth"
-                ],
-                "summary": "授权码方式",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "备案ID",
-                        "name": "client_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "重定向URI",
-                        "name": "redirect_uri",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "响应类型",
-                        "name": "response_type",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "权限范围",
-                        "name": "scope",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "状态参数",
-                        "name": "state",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "302": {
-                        "description": "重定向到指定URI",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -12314,6 +12894,10 @@ const docTemplate = `{
         "request.AppKnowledgebaseParams": {
             "type": "object",
             "properties": {
+                "chiChat": {
+                    "description": "闲聊开关",
+                    "type": "boolean"
+                },
                 "keywordPriority": {
                     "description": "关键词权重",
                     "type": "number"
@@ -12389,6 +12973,77 @@ const docTemplate = `{
                 "provider": {
                     "description": "模型供应商",
                     "type": "string"
+                }
+            }
+        },
+        "request.AppQAKnowledgeBase": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "metaDataFilterParams": {
+                    "$ref": "#/definitions/request.MetaDataFilterParams"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AppQAKnowledgebaseConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "问答库参数",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseParams"
+                        }
+                    ]
+                },
+                "knowledgebases": {
+                    "description": "问答库id、名字",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.AppQAKnowledgeBase"
+                    }
+                }
+            }
+        },
+        "request.AppQAKnowledgebaseParams": {
+            "type": "object",
+            "properties": {
+                "keywordPriority": {
+                    "description": "关键词权重",
+                    "type": "number"
+                },
+                "matchType": {
+                    "description": "matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）",
+                    "type": "string"
+                },
+                "maxHistory": {
+                    "description": "最长上下文",
+                    "type": "integer"
+                },
+                "priorityMatch": {
+                    "description": "权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1",
+                    "type": "integer"
+                },
+                "semanticsPriority": {
+                    "description": "语义权重",
+                    "type": "number"
+                },
+                "threshold": {
+                    "description": "过滤阈值",
+                    "type": "number"
+                },
+                "topK": {
+                    "description": "知识条数",
+                    "type": "integer"
                 }
             }
         },
@@ -13232,14 +13887,36 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateKnowledgeQAPairReq": {
+            "type": "object",
+            "required": [
+                "knowledgeId"
+            ],
+            "properties": {
+                "answer": {
+                    "description": "答案",
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "question": {
+                    "description": "问题",
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateKnowledgeReq": {
             "type": "object",
             "required": [
                 "embeddingModelInfo",
-                "knowledgeGraph",
                 "name"
             ],
             "properties": {
+                "category": {
+                    "description": "0:知识库，1:问答库",
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -13721,6 +14398,34 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeleteKnowledgeQAExportRecordReq": {
+            "type": "object",
+            "required": [
+                "knowledgeId",
+                "qaExportRecordId"
+            ],
+            "properties": {
+                "knowledgeId": {
+                    "description": "问答库id",
+                    "type": "string"
+                },
+                "qaExportRecordId": {
+                    "description": "问答库导出记录id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteKnowledgeQAPairReq": {
+            "type": "object",
+            "required": [
+                "qaPairId"
+            ],
+            "properties": {
+                "qaPairId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.DeleteKnowledgeSplitterReq": {
             "type": "object",
             "required": [
@@ -13909,6 +14614,9 @@ const docTemplate = `{
         },
         "request.DocMetaDataReq": {
             "type": "object",
+            "required": [
+                "knowledgeId"
+            ],
             "properties": {
                 "docId": {
                     "type": "string"
@@ -14221,6 +14929,26 @@ const docTemplate = `{
                 }
             }
         },
+        "request.KnowledgeQAPairImportReq": {
+            "type": "object",
+            "required": [
+                "docInfoList",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docInfoList": {
+                    "description": "上传文档列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocInfo"
+                    }
+                },
+                "knowledgeId": {
+                    "description": "问答库id",
+                    "type": "string"
+                }
+            }
+        },
         "request.KnowledgeReportAddReq": {
             "type": "object",
             "required": [
@@ -14307,6 +15035,10 @@ const docTemplate = `{
         "request.KnowledgeSelectReq": {
             "type": "object",
             "properties": {
+                "category": {
+                    "description": "0:知识库，1:问答库",
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -14972,6 +15704,8 @@ const docTemplate = `{
             "required": [
                 "knowledgeBaseConfig",
                 "modelConfig",
+                "qaKnowledgeBaseConfig",
+                "qaRerankConfig",
                 "ragId",
                 "rerankConfig"
             ],
@@ -14992,11 +15726,27 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "qaKnowledgeBaseConfig": {
+                    "description": "问答库（不用传知识图谱开关）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseConfig"
+                        }
+                    ]
+                },
+                "qaRerankConfig": {
+                    "description": "问答库Rerank模型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
                 "ragId": {
                     "type": "string"
                 },
                 "rerankConfig": {
-                    "description": "Rerank模型",
+                    "description": "知识库Rerank模型",
                     "allOf": [
                         {
                             "$ref": "#/definitions/request.AppModelConfig"
@@ -15351,6 +16101,39 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateKnowledgeQAPairReq": {
+            "type": "object",
+            "required": [
+                "qaPairId"
+            ],
+            "properties": {
+                "answer": {
+                    "description": "答案",
+                    "type": "string"
+                },
+                "qaPairId": {
+                    "type": "string"
+                },
+                "question": {
+                    "description": "问题",
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateKnowledgeQAPairSwitchReq": {
+            "type": "object",
+            "required": [
+                "qaPairId"
+            ],
+            "properties": {
+                "qaPairId": {
+                    "type": "string"
+                },
+                "switch": {
+                    "type": "boolean"
+                }
+            }
+        },
         "request.UpdateKnowledgeReq": {
             "type": "object",
             "required": [
@@ -15702,6 +16485,17 @@ const docTemplate = `{
                 "picNum": {
                     "description": "视觉配置图片数量",
                     "type": "integer"
+                }
+            }
+        },
+        "request.WorkflowConvertReq": {
+            "type": "object",
+            "required": [
+                "workflow_id"
+            ],
+            "properties": {
+                "workflow_id": {
+                    "type": "string"
                 }
             }
         },
@@ -16250,7 +17044,7 @@ const docTemplate = `{
                     }
                 },
                 "contentType": {
-                    "description": "graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）",
+                    "description": "graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）",
                     "type": "string"
                 },
                 "knowledgeName": {
@@ -16542,6 +17336,14 @@ const docTemplate = `{
                 },
                 "video_understanding": {
                     "type": "boolean"
+                }
+            }
+        },
+        "response.CreateKnowledgeQAPairResp": {
+            "type": "object",
+            "properties": {
+                "qaPairId": {
+                    "type": "string"
                 }
             }
         },
@@ -17409,6 +18211,10 @@ const docTemplate = `{
         "response.KnowledgeInfo": {
             "type": "object",
             "properties": {
+                "category": {
+                    "description": "0: 知识库; 1: 问答库",
+                    "type": "integer"
+                },
                 "createAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -17447,6 +18253,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.KnowledgeTag"
                     }
                 },
+                "llmModelId": {
+                    "description": "知识图谱模型id",
+                    "type": "string"
+                },
                 "name": {
                     "description": "知识库名称",
                     "type": "string"
@@ -17466,6 +18276,10 @@ const docTemplate = `{
                 "share": {
                     "description": "是分享，还是私有",
                     "type": "boolean"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
                 }
             }
         },
@@ -17527,6 +18341,68 @@ const docTemplate = `{
                 },
                 "metaValueType": {
                     "type": "string"
+                }
+            }
+        },
+        "response.KnowledgeQAExportRecordPageResult": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ListKnowledgeQAExportRecordResp"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.KnowledgeQAHitResp": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "description": "打分信息",
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "searchList": {
+                    "description": "种种结果",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.QAHitSearchList"
+                    }
+                }
+            }
+        },
+        "response.KnowledgeQAPairPageResult": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ListKnowledgeQAPairResp"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "qaKnowledgeInfo": {
+                    "$ref": "#/definitions/response.QAKnowledgeInfo"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -17762,6 +18638,83 @@ const docTemplate = `{
                 "status": {
                     "description": "处理状态",
                     "type": "integer"
+                },
+                "uploadTime": {
+                    "description": "上传时间",
+                    "type": "string"
+                }
+            }
+        },
+        "response.ListKnowledgeQAExportRecordResp": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "导出人",
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "description": "导出状态错误信息",
+                    "type": "string"
+                },
+                "exportTime": {
+                    "description": "导出时间",
+                    "type": "string"
+                },
+                "filePath": {
+                    "description": "导出文件路径",
+                    "type": "string"
+                },
+                "qaExportRecordId": {
+                    "description": "问答库导出记录id",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ListKnowledgeQAPairResp": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "description": "答案",
+                    "type": "string"
+                },
+                "author": {
+                    "description": "作者",
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "description": "处理错误信息",
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "description": "问答库id",
+                    "type": "string"
+                },
+                "metaDataList": {
+                    "description": "元数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DocMetaData"
+                    }
+                },
+                "qaPairId": {
+                    "description": "问答对id",
+                    "type": "string"
+                },
+                "question": {
+                    "description": "问题",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "处理状态",
+                    "type": "integer"
+                },
+                "switch": {
+                    "description": "启停开关",
+                    "type": "boolean"
                 },
                 "uploadTime": {
                     "description": "上传时间",
@@ -18583,12 +19536,52 @@ const docTemplate = `{
                 }
             }
         },
+        "response.QAHitSearchList": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "contentType": {
+                    "description": "graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）",
+                    "type": "string"
+                },
+                "qaBase": {
+                    "type": "string"
+                },
+                "qaId": {
+                    "type": "string"
+                },
+                "qaPairId": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.QAKnowledgeInfo": {
+            "type": "object",
+            "properties": {
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "knowledgeName": {
+                    "type": "string"
+                }
+            }
+        },
         "response.RagInfo": {
             "type": "object",
             "required": [
                 "knowledgeBaseConfig",
                 "modelConfig",
                 "name",
+                "qaKnowledgeBaseConfig",
+                "qaRerankConfig",
                 "ragId",
                 "rerankConfig"
             ],
@@ -18624,6 +19617,22 @@ const docTemplate = `{
                 "name": {
                     "description": "名称",
                     "type": "string"
+                },
+                "qaKnowledgeBaseConfig": {
+                    "description": "问答库",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseConfig"
+                        }
+                    ]
+                },
+                "qaRerankConfig": {
+                    "description": "问答库Rerank模型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
                 },
                 "ragId": {
                     "type": "string"

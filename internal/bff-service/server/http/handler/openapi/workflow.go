@@ -86,7 +86,7 @@ func ChatflowChat(ctx *gin.Context) {
 	appID := getAppID(ctx)
 
 	// 流式处理 - 直接操作响应流
-	err := service.ChatflowChat(ctx, userID, orgID, appID, req.ConversationId, req.Query)
+	err := service.ChatflowChat(ctx, userID, orgID, appID, req.ConversationId, req.Query, req.Parameters)
 	if err != nil {
 		gin_util.Response(ctx, nil, err)
 		return

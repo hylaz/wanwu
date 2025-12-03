@@ -163,6 +163,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatflow/list": {
+            "get": {
+                "description": "根据userId和spaceId获取Chatflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "根据userId和spaceId获取Chatflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "获取工作流参数userId",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "获取工作流参数orgId",
+                        "name": "orgId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/file/url/base64": {
             "post": {
                 "consumes": [
@@ -246,6 +285,51 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/model/{modelId}/asr": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "Model Asr",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模型ID",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "语音文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "请求参数",
+                        "name": "config",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.AsrResp"
                         }
                     }
                 }
@@ -494,6 +578,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/{modelId}/text2image": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "Model Text-to-Image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模型ID",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.Text2ImageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.Text2ImageResp"
+                        }
+                    }
+                }
+            }
+        },
         "/rag/knowledge/stream/search": {
             "post": {
                 "description": "知识库流式问答",
@@ -557,6 +682,97 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/rag/search-qa-base": {
+            "post": {
+                "description": "查询问答列表（命中测试）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "查询问答列表（命中测试）",
+                "parameters": [
+                    {
+                        "description": "查询知识库列表请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RagSearchQABaseReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tool/builtin/asr": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "语音文件（base64格式）转文本内置工具服务",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "语音文件 base64",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "请求参数",
+                        "name": "config",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "api token",
+                        "name": "apiKey",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -910,10 +1126,53 @@ const docTemplate = `{
                 }
             }
         },
-        "mp_common.Document": {
+        "mp_common.AsrResp": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/mp_common.AsrResult"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.AsrResult": {
+            "type": "object",
+            "properties": {
+                "diarization": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mp_common.DiarizationObj"
+                    }
+                }
+            }
+        },
+        "mp_common.DiarizationObj": {
+            "type": "object",
+            "properties": {
+                "end": {
+                    "type": "number"
+                },
+                "speaker": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "number"
+                },
                 "text": {
+                    "type": "string"
+                },
+                "trans": {
                     "type": "string"
                 }
             }
@@ -1647,9 +1906,7 @@ const docTemplate = `{
                 "relevance_score"
             ],
             "properties": {
-                "document": {
-                    "$ref": "#/definitions/mp_common.Document"
-                },
+                "document": {},
                 "index": {
                     "type": "integer"
                 },
@@ -1669,11 +1926,63 @@ const docTemplate = `{
                 }
             }
         },
+        "mp_common.T2IUsage": {
+            "type": "object",
+            "properties": {
+                "total_patches": {
+                    "type": "integer"
+                }
+            }
+        },
         "mp_common.Tag": {
             "type": "object",
             "properties": {
                 "text": {
                     "type": "string"
+                }
+            }
+        },
+        "mp_common.Text2ImageReq": {
+            "type": "object",
+            "required": [
+                "prompt"
+            ],
+            "properties": {
+                "advanced_opt": {
+                    "description": "高级选项参数 json, {\"height\": 512, \"width\": 512, \"num_images_per_prompt\": 1, \"style\": \"摄影\"}",
+                    "type": "string"
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "report_url": {
+                    "description": "参考",
+                    "type": "string"
+                },
+                "response_format": {
+                    "description": "“url” or “b64_json”,默认b64_json",
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.Text2ImageResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "usage": {
+                    "$ref": "#/definitions/mp_common.T2IUsage"
                 }
             }
         },
@@ -2468,6 +2777,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.QAMetadataFilterItem": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetaItem"
+                    }
+                },
+                "filtering_qa_base_name": {
+                    "type": "string"
+                },
+                "logical_operator": {
+                    "type": "string"
+                }
+            }
+        },
         "request.RagKnowledgeChatReq": {
             "type": "object",
             "properties": {
@@ -2593,6 +2919,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.RagQaInfo": {
+            "type": "object",
+            "properties": {
+                "QABase": {
+                    "type": "string"
+                },
+                "QAId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.RagSearchKnowledgeBaseReq": {
             "type": "object",
             "required": [
@@ -2666,6 +3003,66 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.WeightParams"
                         }
                     ]
+                }
+            }
+        },
+        "request.RagSearchQABaseReq": {
+            "type": "object",
+            "required": [
+                "knowledgeIdList",
+                "userId"
+            ],
+            "properties": {
+                "QABaseInfo": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/request.RagQaInfo"
+                        }
+                    }
+                },
+                "knowledgeIdList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "metadataFiltering": {
+                    "type": "boolean"
+                },
+                "metadataFilteringConditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.QAMetadataFilterItem"
+                    }
+                },
+                "question": {
+                    "type": "string"
+                },
+                "rerankMod": {
+                    "type": "string"
+                },
+                "rerankModelId": {
+                    "type": "string"
+                },
+                "retrieveMethod": {
+                    "type": "string"
+                },
+                "returnMeta": {
+                    "type": "boolean"
+                },
+                "threshold": {
+                    "type": "number"
+                },
+                "topK": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "weights": {
+                    "$ref": "#/definitions/request.WeightParams"
                 }
             }
         },

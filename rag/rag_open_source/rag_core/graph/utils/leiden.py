@@ -5,7 +5,7 @@ from graspologic.utils import largest_connected_component
 import networkx as nx
 from networkx import is_empty
 
-from utils.logger import logger
+from graph.utils.logger import logger
 
 
 def _stabilize_graph(graph: nx.Graph) -> nx.Graph:
@@ -79,7 +79,7 @@ def _compute_leiden_communities(
     if graph.is_directed():
         graph = graph.to_undirected()
     community_mapping = hierarchical_leiden(
-        graph, max_cluster_size=max_cluster_size, random_seed=seed, resolution=0.5
+        graph, max_cluster_size=max_cluster_size, random_seed=seed, resolution=0.7
     )
     for partition in community_mapping:
         results[partition.level] = results.get(partition.level, {})
@@ -90,7 +90,7 @@ def _compute_leiden_communities(
 
 def run(graph: nx.MultiDiGraph, args: dict[str, Any]) -> dict[int, dict[str, dict]]:
     """Run method definition."""
-    max_cluster_size = args.get("max_cluster_size", 12)
+    max_cluster_size = args.get("max_cluster_size", 24)
     use_lcc = args.get("use_lcc", True)
     if args.get("verbose", False):
         logger.debug(

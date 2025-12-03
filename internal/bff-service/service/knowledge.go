@@ -31,6 +31,7 @@ func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.Kn
 		OrgId:     orgId,
 		Name:      req.Name,
 		TagIdList: req.TagIdList,
+		Category:  req.Category,
 	})
 	if err != nil {
 		return nil, err
@@ -50,6 +51,20 @@ func RagSearchKnowledgeBase(ctx *gin.Context, req *request.RagSearchKnowledgeBas
 	req.KnowledgeUser = buildUserKnowledgeList(list)
 	// 构建 rag 请求
 	return requestRagSearchKnowledgeBase(ctx, req)
+}
+
+// RagSearchQABase 查询问答列表（命中测试）
+func RagSearchQABase(ctx *gin.Context, req *request.RagSearchQABaseReq) ([]byte, int) {
+	list, err := selectKnowledgeListByIdList(ctx, &request.KnowledgeBatchSelectReq{UserId: req.UserId, KnowledgeIdList: req.KnowledgeIdList})
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	if len(list.KnowledgeList) == 0 {
+		return response.CommonRagKnowledgeError(errors.New("no knowledge permit"))
+	}
+	req.QAUser = buildUserQAList(list)
+	// 构建 rag 请求
+	return requestRagSearchQABase(ctx, req)
 }
 
 // KnowledgeStreamSearch 知识库流式问答
@@ -91,10 +106,15 @@ func GetDeployInfo(ctx *gin.Context) (interface{}, error) {
 
 // CreateKnowledge 创建知识库
 func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKnowledgeReq) (*response.CreateKnowledgeResp, error) {
-	var llmModelId, schemaUrl string
-	if r.KnowledgeGraph.Switch {
-		llmModelId = r.KnowledgeGraph.LLMModelId
-		schemaUrl = r.KnowledgeGraph.SchemaUrl
+	knowledgeGraph := &knowledgebase_service.KnowledgeGraph{}
+	if r.Category == request.CategoryKnowledge {
+		if r.KnowledgeGraph.Switch {
+			knowledgeGraph = &knowledgebase_service.KnowledgeGraph{
+				Switch:     r.KnowledgeGraph.Switch,
+				LlmModelId: r.KnowledgeGraph.LLMModelId,
+				SchemaUrl:  r.KnowledgeGraph.SchemaUrl,
+			}
+		}
 	}
 	resp, err := knowledgeBase.CreateKnowledge(ctx.Request.Context(), &knowledgebase_service.CreateKnowledgeReq{
 		Name:        r.Name,
@@ -104,11 +124,8 @@ func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKn
 		EmbeddingModelInfo: &knowledgebase_service.EmbeddingModelInfo{
 			ModelId: r.EmbeddingModel.ModelId,
 		},
-		KnowledgeGraph: &knowledgebase_service.KnowledgeGraph{
-			Switch:     r.KnowledgeGraph.Switch,
-			LlmModelId: llmModelId,
-			SchemaUrl:  schemaUrl,
-		},
+		KnowledgeGraph: knowledgeGraph,
+		Category:       r.Category,
 	})
 	if err != nil {
 		return nil, err
@@ -201,6 +218,7 @@ func UpdateKnowledgeMetaValue(ctx *gin.Context, userId, orgId string, r *request
 		ApplyToSelected: r.ApplyToSelected,
 		DocIdList:       r.DocIdList,
 		MetaList:        buildKnowledgeMetaValueReqList(r.MetaValueList),
+		KnowledgeId:     r.KnowledgeId,
 	})
 	if err != nil {
 		return err
@@ -248,6 +266,22 @@ func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[strin
 		knowledgeInfos = append(knowledgeInfos, &request.RagKnowledgeInfo{
 			KnowledgeId:   knowledge.KnowledgeId,
 			KnowledgeName: knowledge.RagName,
+		})
+		retMap[knowledge.CreateUserId] = knowledgeInfos
+	}
+	return retMap
+}
+
+func buildUserQAList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagQaInfo {
+	retMap := make(map[string][]*request.RagQaInfo)
+	for _, knowledge := range knowledgeList.KnowledgeList {
+		knowledgeInfos, exist := retMap[knowledge.CreateUserId]
+		if !exist {
+			knowledgeInfos = make([]*request.RagQaInfo, 0)
+		}
+		knowledgeInfos = append(knowledgeInfos, &request.RagQaInfo{
+			QaBaseId:   knowledge.KnowledgeId,
+			QaBaseName: knowledge.RagName,
 		})
 		retMap[knowledge.CreateUserId] = knowledgeInfos
 	}
@@ -321,6 +355,9 @@ func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_s
 			Share:            share, //数量大于1才是分享，因为权限记录中有一条是记录创建者权限
 			RagName:          knowledge.RagName,
 			GraphSwitch:      knowledge.GraphSwitch,
+			Category:         knowledge.Category,
+			LlmModelId:       knowledge.LlmModelId,
+			UpdatedAt:        knowledge.UpdatedAt,
 		})
 	}
 	return &response.KnowledgeListResp{KnowledgeList: list}
@@ -467,6 +504,29 @@ func requestRagSearchKnowledgeBase(ctx context.Context, req *request.RagSearchKn
 		Url:        url,
 		Body:       paramsByte,
 		MonitorKey: "rag_search_knowledge_base",
+		LogLevel:   http_client.LogAll,
+	})
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	body, err := http_client.ReadHttpResp(result)
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	return body, result.StatusCode
+}
+
+// requestRagSearchQABase 请求rag
+func requestRagSearchQABase(ctx context.Context, req *request.RagSearchQABaseReq) ([]byte, int) {
+	url := config.Cfg().RagKnowledgeConfig.Endpoint + config.Cfg().RagKnowledgeConfig.SearchQABaseUri
+	paramsByte, err := json.Marshal(req)
+	if err != nil {
+		return response.CommonRagKnowledgeError(err)
+	}
+	result, err := knowHttp.PostJsonOriResp(ctx, &http_client.HttpRequestParams{
+		Url:        url,
+		Body:       paramsByte,
+		MonitorKey: "rag_search_qa_base",
 		LogLevel:   http_client.LogAll,
 	})
 	if err != nil {

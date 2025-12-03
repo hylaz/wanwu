@@ -26,12 +26,14 @@ type ModelValidator func(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 // 校验器注册表
 var validators = sync.OnceValue(func() map[string]ModelValidator {
 	return map[string]ModelValidator{
-		mp.ModelTypeLLM:       ValidateLLMModel,
-		mp.ModelTypeRerank:    ValidateRerankModel,
-		mp.ModelTypeEmbedding: ValidateEmbeddingModel,
-		mp.ModelTypeOcr:       ValidateOcrModel,
-		mp.ModelTypeGui:       ValidateGuideModel,
-		mp.ModelTypePdfParser: ValidatePdfParserModel,
+		mp.ModelTypeLLM:        ValidateLLMModel,
+		mp.ModelTypeRerank:     ValidateRerankModel,
+		mp.ModelTypeEmbedding:  ValidateEmbeddingModel,
+		mp.ModelTypeOcr:        ValidateOcrModel,
+		mp.ModelTypeGui:        ValidateGuideModel,
+		mp.ModelTypePdfParser:  ValidatePdfParserModel,
+		mp.ModelTypeAsr:        ValidateAsrModel,
+		mp.ModelTypeText2Image: ValidateText2ImageModel,
 	}
 })
 
@@ -132,6 +134,9 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 	if err != nil {
 		if visionSupportFlag {
 			return fmt.Errorf("model API call failed: %v, maybe model does not support vision functionality", err)
+		}
+		if toolCallFlag {
+			return fmt.Errorf("model API call failed: %v, maybe model does not support toolcall functionality", err)
 		}
 		return fmt.Errorf("model API call failed: %v", err)
 	}
@@ -337,6 +342,70 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	return nil
 }
 
+func ValidateAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	asr, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iAsr, ok := asr.(mp.IAsr)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	// mock  request
+	file, err := os.Open(config.Cfg().Model.AsrTestFilePath)
+	if err != nil {
+		return fmt.Errorf("open file failed: %v", err)
+	}
+	defer file.Close()
+
+	// 创建内存缓冲区
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// 创建表单文件字段
+	part, err := writer.CreateFormFile("file", file.Name())
+	if err != nil {
+		return fmt.Errorf("create form file failed: %v", err)
+	}
+
+	// 复制文件内容
+	if _, err := io.Copy(part, file); err != nil {
+		return fmt.Errorf("copy file content failed: %v", err)
+	}
+	writer.Close()
+
+	// 模拟HTTP请求
+	mockReq, _ := http.NewRequest("POST", "", body)
+	mockReq.Header.Set("Content-Type", writer.FormDataContentType())
+	ctx.Request = mockReq
+	// 获取FileHeader对象
+	_, fileH, err := ctx.Request.FormFile("file")
+	if err != nil {
+		return fmt.Errorf("get file header failed: %v", err)
+	}
+	req := &mp_common.AsrReq{
+		File: fileH,
+		Config: mp_common.AsrConfigOut{
+			Config: mp_common.AsrConfig{
+				SessionId: "f6b70f86-5171-48d6-b66b-8cf9797bc859",
+			},
+		},
+	}
+	asrReq, err := iAsr.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iAsr.Asr(ctx, asrReq)
+	if err != nil {
+		return fmt.Errorf("model API call failed: %v", err)
+	}
+	_, ok = resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	return nil
+}
+
 func ValidateGuideModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
 	gui, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
@@ -371,6 +440,44 @@ func ValidateGuideModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) er
 		return err
 	}
 	resp, err := iGui.Gui(ctx.Request.Context(), guiReq)
+	if err != nil {
+		return fmt.Errorf("model API call failed: %v", err)
+	}
+	_, ok = resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	return nil
+}
+
+func ValidateText2ImageModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	text2Image, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iText2Image, ok := text2Image.(mp.IText2Image)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	// mock  request
+	advOpt := mp_common.AdvancedOptJson{
+		Height:             512,
+		Width:              512,
+		NumImagesPerPrompt: 1,
+		Style:              "摄影",
+	}
+	advOptByte, _ := json.Marshal(advOpt)
+
+	req := &mp_common.Text2ImageReq{
+		Prompt:         "小丑",
+		ResponseFormat: "url",
+		AdvancedOpt:    string(advOptByte),
+	}
+	text2ImageReq, err := iText2Image.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iText2Image.Text2Image(ctx, text2ImageReq)
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}

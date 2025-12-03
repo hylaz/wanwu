@@ -72,7 +72,7 @@
 <script>
 import dialog2FA from './2FADialog'
 import overview from '@/views/auth/layout'
-import {mapActions, mapState} from 'vuex'
+import {mapActions, mapMutations, mapState} from 'vuex'
 import {getImgVerCode} from "@/api/user"
 import {urlEncrypt} from "@/utils/crypto";
 import {redirectUrl} from "@/utils/util";
@@ -102,6 +102,10 @@ export default {
     }
   },
   created() {
+    // 如果token过期，清空token
+    if (localStorage.getItem("access_cert") && this.$store.state.user.expiresAt <= Date.now()) {
+      this.setToken('')
+    }
     // 如果已登录，重定向到有权限的页面
     // if (this.$store.state.user.token && localStorage.getItem("access_cert") && !this.$store.state.user.is2FA) redirectUrl()
 
@@ -142,7 +146,8 @@ export default {
     ...mapState('login', ['commonInfo'])
   },
   methods: {
-    ...mapActions('user', ['LoginIn','LoginIn2FA1']),
+    ...mapActions('user', ['LoginIn', 'LoginIn2FA1']),
+    ...mapMutations('user', ['setToken']),
     isDisabled() {
       const {username, password, code} = this.form
       return !(username && password && code)
@@ -171,7 +176,7 @@ export default {
         if (this.commonInfo.loginEmail.email.status) {
           const {isEmailCheck, isUpdatePassword} = await this.LoginIn2FA1(data)
           this.$refs.dialog2FA.showDialog(isEmailCheck, isUpdatePassword, this.params)
-        } else await this.LoginIn({ loginInfo: data, params: this.params })
+        } else await this.LoginIn({loginInfo: data, params: this.params})
       } catch (e) {
         await this.getImgCode()
       }

@@ -23,6 +23,7 @@ type Config struct {
 type RagServerConfig struct {
 	ChatEndpoint string `mapstructure:"chatEndpoint" json:"chatEndpoint"`
 	ChatUrl      string `mapstructure:"chatUrl" json:"chatUrl"`
+	QASearchUrl  string `mapstructure:"qaSearchUrl" json:"qaSearchUrl"`
 }
 
 type Knowledge struct {

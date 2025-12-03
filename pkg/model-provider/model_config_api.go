@@ -45,6 +45,18 @@ type IPdfParser interface {
 	PdfParser(ctx *gin.Context, req mp_common.IPdfParserReq, headers ...mp_common.Header) (mp_common.IPdfParserResp, error)
 }
 
+type IAsr interface {
+	Tags() []mp_common.Tag
+	NewReq(req *mp_common.AsrReq) (mp_common.IAsrReq, error)
+	Asr(ctx *gin.Context, req mp_common.IAsrReq, headers ...mp_common.Header) (mp_common.IAsrResp, error)
+}
+
+type IText2Image interface {
+	Tags() []mp_common.Tag
+	NewReq(req *mp_common.Text2ImageReq) (mp_common.IText2ImageReq, error)
+	Text2Image(ctx *gin.Context, req mp_common.IText2ImageReq, headers ...mp_common.Header) (mp_common.IText2ImageResp, error)
+}
+
 type IGui interface {
 	Tags() []mp_common.Tag
 	NewReq(req *mp_common.GuiReq) (mp_common.IGuiReq, error)
@@ -119,6 +131,18 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = pdfParser.Tags()
+		case ModelTypeAsr:
+			asr := &mp_yuanjing.Asr{}
+			if err := json.Unmarshal([]byte(cfg), asr); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = asr.Tags()
+		case ModelTypeText2Image:
+			text2Image := &mp_yuanjing.Text2Image{}
+			if err := json.Unmarshal([]byte(cfg), text2Image); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = text2Image.Tags()
 		default:
 			return nil, fmt.Errorf("ToModelTags:invalid provider %v model type %v", provider, modelType)
 		}
@@ -240,6 +264,11 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 			ret = &mp_yuanjing.Gui{}
 		case ModelTypePdfParser:
 			ret = &mp_yuanjing.PdfParser{}
+		case ModelTypeAsr:
+			ret = &mp_yuanjing.Asr{}
+		case ModelTypeText2Image:
+			ret = &mp_yuanjing.Text2Image{}
+
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
 		}

@@ -37,7 +37,7 @@ service.interceptors.request.use(
   },
   error => {
     console.log(error)
-    return Promise.reject(error)
+    return Promise.resolve(error)
   }
 )
 
@@ -58,7 +58,7 @@ service.interceptors.response.use(
     if (res.code) res.code = res.code * 1
     if (res.code !== 0) {
       Message.error(res.msg || 'Error', 5 * 1000)
-      return Promise.reject(res)
+      return Promise.resolve(res)
     } else {
       return res
     }
@@ -91,7 +91,7 @@ service.interceptors.response.use(
     } else {
       Message.error(error.message || errMessage[500])
     }
-    return Promise.reject(error)
+    return Promise.resolve(error)
   }
 )
 

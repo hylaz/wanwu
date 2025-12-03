@@ -321,7 +321,7 @@ export default {
                                             finish:worldObj.finish,
                                             searchList:(search_list && search_list.length) ? search_list.map(n => ({
                                                   ...n,
-                                                  snippet: md.render(n.snippet)
+                                                  snippet: n.snippet ? md.render(n.snippet) : ''
                                                 }))
                                             : []
                                         }

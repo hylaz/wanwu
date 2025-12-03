@@ -162,33 +162,27 @@ def add_es(user_id, kb_name, docs, file_name, kb_id=""):
     return response_info
 
 
-def get_weighted_rerank(user_id, kb_names, query, weights, milvus_list, es_list, top_k):
-    raw_search_list = []
-    tmp_content = []
+def get_weighted_rerank(query, weights, search_list, top_k):
+    search_list_infos = {}
+    for item in search_list:
+        base_name = item["kb_name"]
+        user_id = item["user_id"]
 
-    for i in milvus_list:
-        if i["content"] in tmp_content: continue
-        raw_search_list.append(
-            {"title": i["file_name"], "snippet": i["content"], "kb_name": i["kb_name"], "content_id": i["content_id"],"meta_data": i["meta_data"]})
-        tmp_content.append(i["content"])
+        if user_id not in search_list_infos:
+            search_list_infos[user_id] = {
+                "base_names": [],
+                "search_list": []
+            }
 
-    for i in es_list:
-        if i["snippet"] in tmp_content: continue
-        raw_search_list.append(i)
-        tmp_content.append(i["snippet"])
+        search_list_infos[user_id]["base_names"].append(base_name)
+        search_list_infos[user_id]["search_list"].append(item)
 
-    return combine_rescore_es(user_id, kb_names, query, weights, top_k, raw_search_list)
-
-
-def combine_rescore_es(user_id, kb_names, query, weights, top_k, search_list = []):
     rescored_search_list = []
     sorted_score_list = []
     es_data = {}
-    es_data['user_id'] = user_id
     es_data['query'] = query
-    es_data['search_list'] = search_list
     es_data["weights"] = weights
-    es_data["kb_names"] = kb_names
+    es_data["search_list_infos"] = search_list_infos
     es_url = ES_BASE_URL + "/api/v1/rag/es/rescore"
     headers = {'Content-Type': 'application/json'}
     try:
@@ -199,11 +193,11 @@ def combine_rescore_es(user_id, kb_names, query, weights, top_k, search_list = [
             result_data = json.loads(response.text)
             rescored_search_list = result_data['result']['search_list'][:top_k]
             sorted_score_list = result_data['result']['scores'][:top_k]
-            logger.info("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求成功")
+            logger.info("query：" + repr(query) + ", es重评分请求成功")
         else:
-            logger.error("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求失败" + repr(response.text))
+            logger.error("query：" + repr(query) + ", es重评分请求失败" + repr(response.text))
     except Exception as e:
-        logger.error("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求异常：" + repr(e))
+        logger.error(" query：" + repr(query) + ", es重评分请求异常：" + repr(e))
     return sorted_score_list, rescored_search_list
 
 
@@ -405,6 +399,347 @@ def add_es_bak(user_id, kb_name, docs, file_name):
         print("====> add_es error %s" % e)
         print(traceback.format_exc())
         return False
+
+def init_qa_base(user_id, qa_base_name, qa_base_id, embedding_model_id):
+    response_info = {'code': 0, "message": '成功'}
+    url = ES_BASE_URL + '/api/v1/rag/es/init_QA_base'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "embedding_model_id": embedding_model_id
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"es问答库初始化请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        init_response = json.loads(response.text)
+        if init_response['code'] != 0:
+            logger.error(f"es问答库初始化请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {init_response}")
+            raise RuntimeError(init_response['message'])
+
+        logger.info("es问答库初始化请求成功")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es问答库初始化请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+def del_qa_base(user_id, qa_base_name, qa_base_id):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/delete_QA_base'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"es问答库删除请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es问答库删除请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+
+def del_qas(user_id, qa_base_name, qa_base_id, qa_pair_ids):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/batch-delete-QAs'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "QAPairIds": qa_pair_ids
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"es删除问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"es删除问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"es删除问答对请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es删除问答对请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+def add_qas(user_id, qa_base_name, qa_base_id, qa_list):
+    batch_size = 1000
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/add-QAs'
+    headers = {'Content-Type': 'application/json'}
+
+    batch_count = 0
+    qa_pair_ids = []
+
+    try:
+        for i in range(0, len(qa_list), batch_size):
+            es_data = {"userId": user_id, "QABase": qa_base_name, "QAId": qa_base_id, 'data': []}
+
+            for qa in qa_list[i:i + batch_size]:
+                qa_dict = {
+                    "qa_pair_id": qa["qa_pair_id"],
+                    "question": qa["question"],
+                    "answer": qa["answer"],
+                    "QABase": qa_base_name,
+                    "QAId": qa_base_id,
+                    "status": True
+                }
+
+                es_data['data'].append(qa_dict)
+                qa_pair_ids.append(qa["qa_pair_id"])
+
+            batch_count = batch_count + 1
+            response = requests.post(url, headers=headers, json=es_data, timeout=TIME_OUT)
+            logger.info('问答对分批写入es请求结果：' + repr(batch_count) + repr(response.text))
+            if response.status_code != 200:
+                logger.error(
+                    f"问答对分批写入es请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+                raise RuntimeError(str(response.text))
+
+            result_data = json.loads(response.text)
+            if result_data['code'] != 0:
+                logger.error(
+                    f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {result_data}")
+                raise RuntimeError(result_data['message'])
+
+            logger.info(f"问答对分批添加es请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}, batch_count: {batch_count}")
+
+    except Exception as e:
+        logger.error(f"问答对分批添加es请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        # 回滚
+        del_res = del_qas(user_id, qa_base_name, qa_base_id, qa_pair_ids)
+        if del_res["code"] != 0:
+            del_err_msg = del_res["message"]
+            logger.error(f"问答对分批部分添加es失败后, 数据回滚也失败, user_id: {user_id}, qa_base_name: {qa_base_name}, "
+                         f"qa_pair_ids: {qa_pair_ids}, error: {del_err_msg}")
+
+    return response_info
+
+
+def update_qa_data(user_id, qa_base_name, qa_base_id, qa_pair_id, update_data):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/update_QA'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "QAPairId": qa_pair_id,
+        "data": update_data
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"更新问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"es更新问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"es更新问答对请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es更新问答对请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+
+def get_qa_list(user_id, qa_base_name, qa_base_id, page_size, search_after):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/get_QA_list'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "page_size": page_size,
+        "search_after": search_after
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"问答对分页请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"问答对分页请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"问答对分页请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return del_response
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"问答对分页请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+def update_qa_metas(user_id, qa_base_name, qa_base_id, metas, update_type):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/update_QA_metas'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "metas": metas,
+        "update_type": update_type
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"es更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"es更新问答对元数据请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es更新问答对元数据请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+def vector_search(user_id, base_names, question, top_k, threshold=0.0, metadata_filtering_conditions = [], base_type="qa"):
+    response_info = {'code': 0, "message": "成功", "data": {}}
+    url = ES_BASE_URL + '/api/v1/rag/es/vector_search'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "base_names": base_names,
+        "topk": top_k,
+        "question": question,
+        "threshold": threshold,
+        "metadata_filtering_conditions": metadata_filtering_conditions,
+        "base_type": base_type
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
+                                 timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(
+                f"问答对向量检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        result_data = json.loads(response.text)
+        if result_data['code'] != 0:
+            logger.error(
+                f"问答对向量检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {result_data}")
+            raise RuntimeError(result_data['message'])
+
+        logger.info(f"问答对向量检索请求成功, user_id: {user_id}, base_names: {base_names}")
+        return result_data
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"问答对向量检索请求异常, user_id: {user_id}, base_names: {base_names}, exception: {repr(e)}")
+        return response_info
+
+def full_text_search(user_id, base_names, question, top_k, search_by = "question", threshold=0.0, metadata_filtering_conditions=[], base_type="qa"):
+    response_info = {'code': 0, "message": "成功", "data": {}}
+    url = ES_BASE_URL + '/api/v1/rag/es/text_search'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "base_names": base_names,
+        "topk": top_k,
+        "question": question,
+        "threshold": threshold,
+        "metadata_filtering_conditions": metadata_filtering_conditions,
+        "base_type": base_type
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
+                                 timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(
+                f"问答对全文检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        result_data = json.loads(response.text)
+        if result_data['code'] != 0:
+            logger.error(
+                f"问答对全文检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {result_data}")
+            raise RuntimeError(result_data['message'])
+
+        logger.info(f"问答对全文检索请求成功, user_id: {user_id}, base_names: {base_names}")
+        return result_data
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"问答对全文检索请求异常, user_id: {user_id}, base_names: {base_names}, exception: {repr(e)}")
+        return response_info
+
+def qa_weighted_rerank(query, weights, top_k, search_list_infos):
+    response_info = {'code': 0, "message": "成功", "data": {"search_list":[], "scores": []}}
+    es_data = {
+        "query": query,
+        "search_list_infos": search_list_infos,
+        "weights": weights
+    }
+
+    es_url = ES_BASE_URL + "/api/v1/rag/es/qa_rescore"
+    headers = {'Content-Type': 'application/json'}
+
+    if not search_list_infos:
+        return response_info
+    response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
+    if response.status_code != 200:
+        logger.error(f"问答对权重重排序请求失败, search_list_infos: {search_list_infos}, response: {repr(response.text)}")
+        raise RuntimeError(str(response.text))
+
+    result_data = json.loads(response.text)
+    if result_data['code'] != 0:
+        logger.error(f"问答对权重重排序请求失败, search_list_infos: {search_list_infos}, response: {result_data}")
+        raise RuntimeError(result_data['message'])
+
+    sorted_search_list= result_data['data']['search_list'][:top_k]
+    sorted_scores = result_data['data']['scores'][:top_k]
+    logger.info(f"问答对权重重排序请求成功, sorted_search_list: {sorted_search_list}, sorted_scores: {sorted_scores}")
+    return sorted_scores, sorted_search_list
+
 
 
 if __name__ == '__main__':

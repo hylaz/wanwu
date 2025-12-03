@@ -168,6 +168,12 @@ doc-center:
     - key: workflow-1059
       val: 6.工作流/JSON反序列化.md
 
+models :
+  - model_id: "Asr"
+    model_type: "asr"
+    provider: "YuanJing"
+    endpoint: "https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr"
+
 workflow-template:
   server_mode: local
   configPath: configs/microservice/bff-service/configs/workflow_template_config.yaml
@@ -179,7 +185,7 @@ workflow-template:
 
 prompt-template:
   configPath: configs/microservice/bff-service/configs/prompt_template_config.yaml
-  
+
 # --- middleware ---
 
 minio:
@@ -207,6 +213,7 @@ model:
   host: model-service:8989
   png_test_file_path: "configs/microservice/bff-service/static/model/test.png"
   pdf_test_file_path: "configs/microservice/bff-service/static/model/test.pdf"
+  asr_test_file_path: "configs/microservice/bff-service/static/model/test.m4a"
 
 mcp:
   host: mcp-service:9898
@@ -234,6 +241,7 @@ rag-knowledge:
   chat-endpoint: 'http://rag-wanwu:10891'
   search-knowledge-base-uri: '/rag/search-knowledge-base'
   knowledge-chat-uri: '/rag/knowledge/stream/search'
+  search-qa-base-uri: '/rag/search-QA-base'
 
 workflow:
   endpoint: http://workflow-wanwu:8999
@@ -245,6 +253,7 @@ workflow:
   copy_uri: /api/workflow_api/copy
   export_uri: /api/workflow_api/export
   import_uri: /api/workflow_api/import
+  convert_uri: /api/workflow_api/update_meta_by_wanwu
   test_run_uri: /v1/workflow/%v/run_by_wanwu
   create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
   chatflow_run_uri: /v1/workflow/chat_by_wanwu

@@ -232,3 +232,37 @@ func ListGuiModels(ctx *gin.Context) {
 	})
 	gin_util.Response(ctx, resp, err)
 }
+
+// ListAsrModels
+//
+//	@Tags		model
+//	@Summary	asr语音识别模型列表展示
+//	@Description
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
+//	@Router		/model/select/asr [get]
+func ListAsrModels(ctx *gin.Context) {
+	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
+		ModelType: mp.ModelTypeAsr,
+	})
+	gin_util.Response(ctx, resp, err)
+}
+
+// ListText2ImageModels
+//
+//	@Tags		model
+//	@Summary	文生图模型列表展示
+//	@Description
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
+//	@Router		/model/select/text2image [get]
+func ListText2ImageModels(ctx *gin.Context) {
+	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
+		ModelType: mp.ModelTypeText2Image,
+	})
+	gin_util.Response(ctx, resp, err)
+}

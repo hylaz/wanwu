@@ -150,12 +150,13 @@ func Gui(ctx context.Context, provider, apiKey, url string, req *GuiReq, headers
 	resp, err := request.Post(url)
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v gui err: %v", url, provider, err)
-	} else if resp.StatusCode() >= 300 {
-		return nil, fmt.Errorf("request %v %v gui http status %v msg: %v", url, provider, resp.StatusCode(), resp.String())
 	}
 	b, err := io.ReadAll(resp.RawResponse.Body)
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v gui read response body err: %v", url, provider, err)
+	}
+	if resp.StatusCode() >= 300 {
+		return nil, fmt.Errorf("request %v %v gui http status %v msg: %v", url, provider, resp.StatusCode(), string(b))
 	}
 	return b, nil
 }

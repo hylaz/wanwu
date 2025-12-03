@@ -14,6 +14,7 @@ import time
 import re
 import uuid
 import copy
+import traceback
 
 from easyofd.ofd import OFD
 from ofdparser import OfdParser
@@ -514,42 +515,38 @@ def update_kb_name(user_id: str, old_kb_name: str, new_kb_name: str):
     return response_info
 
 
-def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_conent, chunk_size, return_meta=False,
+def get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk_conent, chunk_size, return_meta=False,
                                prompt_template='', search_field='content', default_answer='根据已知信息，无法回答您的问题。',
-                               auto_citation=False, retrieve_method="hybrid_search", kb_ids=[],
+                               auto_citation=False, retrieve_method="hybrid_search",
                                filter_file_name_list=[], rerank_model_id='', rerank_mod="rerank_model",
-                               weights: Optional[dict] | None = None, term_weight_coefficient=1,
-                               metadata_filtering_conditions=[], knowledge_base_info={}, use_graph=False):
+                               weights: Optional[dict] | None = None,
+                               metadata_filtering_conditions=[], use_graph=False):
     """ knowledge_base_info: {"user_id1": [{ "kb_id": "","kb_name": ""}, { "kb_id": "","kb_name": ""}]}"""
+    response_info = {'code': 0, "message": "成功", "data": {"prompt": "", "searchList": [], "score": []}}
     try:
         if search_field == 'emc':
             search_field = 'embedding_content'
         else:
             search_field = 'content'
 
-        # 向量召回
-        response_info = {'code': 0, "message": "成功", "data": {"prompt": "", "searchList": []}}
-
         if top_k == 0:
             response_info['data']["prompt"] = question
             response_info['data']["searchList"] = []
             return response_info
-        if knowledge_base_info:  # 整理格式
-            for user_id, kb_info_list in knowledge_base_info.items():
-                knowledge_base_info[user_id] = [kb_info["kb_name"] for kb_info in kb_info_list]
-        else:
-            knowledge_base_info = {user_id: kb_names}
-        milvus_useful_list = []  # 后过滤有效的知识片段
-        es_useful_list = []  # 后过滤有效的知识片段
+
+        duplicate_set = set()
+        vector_text_search_list = []
         label_useful_list = []  # 后过滤有效的知识片段
-        graph_search_list = []  # 知识图谱关联增强片段
         graph_data_list = []  # SPO及社区报告置顶片段
 
-        for user_id, kb_names in knowledge_base_info.items():
+        for user_id, base_info_list in knowledge_base_info.items():
+            temp_duplicate_set = set()
+            user_search_list = []
+            kb_names = [kb_info["kb_name"] for kb_info in base_info_list]
+            kb_ids = [kb_info["kb_id"] for kb_info in base_info_list]
             if retrieve_method in {"semantic_search", "hybrid_search"}:
-                # 向量召回
                 search_result = milvus_utils.search_milvus(user_id, kb_names, top_k, question, threshold=rate,
-                                                           search_field=search_field, kb_ids=[],
+                                                           search_field=search_field, kb_ids=kb_ids,
                                                            filter_file_name_list=filter_file_name_list,
                                                            metadata_filtering_conditions = metadata_filtering_conditions)
 
@@ -560,36 +557,34 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
                     response_info['message'] = search_result['message']
                     return response_info
                 milvus_search_list = search_result['data']["search_list"]
-                if retrieve_method == "semantic_search" and search_field == "content":  # 只召回向量库
-                    tmp_content = []
-                    search_list = []
-                    for i in milvus_search_list:  # 去重
-                        if i["content"] in tmp_content:
-                            continue
-                        search_list.append(i)
-                        tmp_content.append(i["content"])
-                    milvus_search_list = search_list[:top_k]
-            else:
-                milvus_search_list = []
-            # es召回
+
+                for item in milvus_search_list:
+                    if item["content"] in temp_duplicate_set: continue
+                    content = {
+                        "title": item["file_name"],
+                        "snippet": item["content"],
+                        "kb_name": item["kb_name"],
+                        "content_id": item["content_id"],
+                        "meta_data": item["meta_data"],
+                        "user_id": user_id
+                    }
+                    if "is_parent" in item:
+                        content["is_parent"] = item["is_parent"]
+                    user_search_list.append(content)
+                    temp_duplicate_set.add(item["content"])
+
             if retrieve_method in {"full_text_search", "hybrid_search"}:
                 # es召回
-                es_search_list = []
                 es_search_list = es_utils.search_es(user_id, kb_names, question, top_k, kb_ids=[],
                                                     filter_file_name_list=filter_file_name_list,
                                                     metadata_filtering_conditions=metadata_filtering_conditions)
                 logger.info(repr(user_id) + repr(kb_names) + repr(question) + '问题es库查询结果：' + json.dumps(repr(es_search_list), ensure_ascii=False))
-                if retrieve_method == "full_text_search" and search_field == "content":  # 只召回es库
-                    tmp_content = []
-                    search_list = []
-                    for i in es_search_list:  # 去重
-                        if i["snippet"] in tmp_content:
-                            continue
-                        search_list.append(i)
-                        tmp_content.append(i["snippet"])
-                    es_search_list = search_list[:top_k]
-            else:
-                es_search_list = []
+                for item in es_search_list:
+                    if item["snippet"] in temp_duplicate_set: continue
+                    item["user_id"] = user_id
+                    user_search_list.append(item)
+                    temp_duplicate_set.add(item["snippet"])
+
             # ========== 标签召回通道判断及调用==========
             unique_labels = set()   # 获取到所有的chunk标签
             for kb_name in kb_names:
@@ -602,78 +597,72 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
             for label in unique_labels_list:
                 if label in question:
                     label_counts[label] = question.count(label)
+
             # 开始调用标签召回
+            label_search_list = []
             if label_counts:
-                label_scores = []
-                # label_search_list = []
                 label_search_list = es_utils.search_keyword(user_id, kb_names, label_counts, top_k,
                                                             metadata_filtering_conditions=metadata_filtering_conditions)
-            else:
-                label_scores = []
-                label_search_list = []
 
+            # 后过滤 status
+            user_post_search_list = []
             if USE_POST_FILTER:
-                # **************************** 后过滤 ******************************
-                try:
-                    logger.info(f"user_id: {user_id}, kb_names: {kb_names}, question: {question}, 后过滤start")
-                    # 向量召回和es召回做启停用后过滤,注意多个kb_names时，需要做区分
-                    content_status_json = {}
-                    search_lists = [milvus_search_list, es_search_list, label_search_list]
-                    for search_list in search_lists:
-                        for i in search_list:
-                            content_status_json[i["kb_name"]] = content_status_json.get(i["kb_name"], [])
-                            if i['content_id'] not in content_status_json[i["kb_name"]]:
-                                content_status_json[i["kb_name"]].append(i['content_id'])
-                    for k in content_status_json:  # 多个kb_names时，需要做区分
-                        useful_content_id_list = milvus_utils.get_milvus_content_status(user_id, k, content_status_json[k])
-                        logger.info(
-                            repr(user_id) + repr(k) + repr(content_status_json[k]) + '======== get_milvus_content_status：' + repr(
-                                useful_content_id_list))
-                        for c in milvus_search_list:
-                            if c['kb_name'] == k and c['content_id'] in useful_content_id_list:
-                                milvus_useful_list.append(c)
-                        for c in es_search_list:
-                            if c['kb_name'] == k and c['content_id'] in useful_content_id_list:
-                                es_useful_list.append(c)
-                        for c in label_search_list:
-                            if c['kb_name'] == k and c['content_id'] in useful_content_id_list:
-                                label_useful_list.append(c)
-                    logger.info(f"question: {question}, es_useful_list: {es_useful_list}")
-                    logger.info(f"question: {question}, milvus_useful_list: {milvus_useful_list}")
-                    logger.info(f"question: {question}, label_counts:{label_counts}, label_useful_list: {label_useful_list}")
-                except Exception as e:
-                    logger.info(repr(user_id) + repr(kb_names) + repr(question) + '后过滤 == have err：' + repr(e))
-                    milvus_useful_list.extend(milvus_search_list)
-                    es_useful_list.extend(es_search_list)
-                    label_useful_list.extend(label_search_list)
-                # **************************** 后过滤 ******************************
+                logger.info(f"user_id: {user_id}, kb_names: {kb_names}, question: {question}, 后过滤start")
+                # 向量召回和es召回做启停用后过滤,注意多个kb_names时，需要做区分
+                content_status_json = {}
+                search_lists = [user_search_list, label_search_list]
+                for search_list in search_lists:
+                    for i in search_list:
+                        content_status_json[i["kb_name"]] = content_status_json.get(i["kb_name"], [])
+                        if i['content_id'] not in content_status_json[i["kb_name"]]:
+                            content_status_json[i["kb_name"]].append(i['content_id'])
+                for kb_name in content_status_json:  # 多个kb_names时，需要做区分
+                    useful_content_id_list = milvus_utils.get_milvus_content_status(user_id, kb_name, content_status_json[kb_name])
+                    logger.info(
+                        repr(user_id) + repr(kb_name) + repr(content_status_json[kb_name]) + '======== get_milvus_content_status：' + repr(
+                            useful_content_id_list))
+                    for item in user_search_list:
+                        if item['kb_name'] == kb_name and item['content_id'] in useful_content_id_list:
+                            user_post_search_list.append(item)
+                    for c in label_search_list:
+                        if c['kb_name'] == kb_name and c['content_id'] in useful_content_id_list:
+                            label_useful_list.append(c)
+                logger.info(f"question: {question}, user_id: {user_id}, user_post_search_list: {user_post_search_list}")
+                logger.info(f"question: {question}, user_id: {user_id}, label_counts:{label_counts}, label_useful_list: {label_useful_list}")
             else:
-                milvus_useful_list.extend(milvus_search_list)
-                es_useful_list.extend(es_search_list)
+                user_post_search_list = user_search_list
                 label_useful_list.extend(label_search_list)
+
+            #去重合并
+            for item in user_post_search_list:
+                if item["snippet"] in duplicate_set: continue
+                vector_text_search_list.append(item)
+                duplicate_set.add(item["snippet"])
 
             # ========= 图谱召回---增强关联片段以及三元组以及社区报告 start =========
             if use_graph:  # 如果使用图检索
                 # ======== 将graph检索的结果 和 两路检索的结果进行融合，并重新再过一遍rerank ========
                 temp_graph_search_list, temp_graph_dat_list = graph_utils.get_graph_search_list(user_id, kb_names, question, top_k,
-                                                                             kb_ids=[],
+                                                                             kb_ids=[], threshold=rate,
                                                                              filter_file_name_list=filter_file_name_list)
-                graph_search_list.extend(temp_graph_search_list)  # 直接放进去先
                 graph_data_list.extend(temp_graph_dat_list)  # 直接放进去先
 
         # 多路召回融合
         # reank重排
-        if not milvus_useful_list and not es_useful_list:  # 都为空不走重排,直接返回
+        if not vector_text_search_list:  # 都为空不走重排,直接返回
             response_info = {'code': 0, "message": "成功", "data": {"prompt": question, "searchList": [], "score": []}}
             logger.info('useful_list is None 重排结果：' + json.dumps(repr(response_info),ensure_ascii=False))
             return response_info
+
         if rerank_mod == "rerank_model":
-            sorted_scores, sorted_search_list = rerank_utils.get_model_rerank(question, top_k, milvus_useful_list,
-                                                                              es_useful_list, rerank_model_id,
-                                                                              term_weight_coefficient=term_weight_coefficient)
+            documents = [{"text": item["snippet"]} for item in vector_text_search_list]
+            sorted_scores, sorted_search_list = rerank_utils.get_model_rerank(question, top_k,
+                                                                              documents,
+                                                                              vector_text_search_list,
+                                                                              rerank_model_id)
         elif rerank_mod == "weighted_score":
-            sorted_scores, sorted_search_list = es_utils.get_weighted_rerank(user_id, kb_names, question, weights,
-                                                                             milvus_useful_list, es_useful_list, top_k)
+            sorted_scores, sorted_search_list = es_utils.get_weighted_rerank(question, weights,
+                                                                             vector_text_search_list, top_k)
         else:
             raise Exception("rerank_mod is not valid")
 
@@ -706,7 +695,7 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
                 sorted_scores = sorted_scores[:top_k]
         # ========= 标签召回的结果需要置顶到最前面---去重并取topK  end =========
 
-        sorted_scores, sorted_search_list, has_child = aggregate_chunks(user_id, sorted_scores, sorted_search_list)
+        sorted_scores, sorted_search_list, has_child = aggregate_chunks(sorted_scores, sorted_search_list)
         logger.info(f"aggregate_chunks result, has_child: {has_child}, sorted_scores: {sorted_scores}, sorted_search_list: {sorted_search_list}")
         # ======= 将SPO及社区报告置顶 start =======
         if graph_data_list:
@@ -724,26 +713,26 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
         rerank_result = rerank_utils.rerank_search(question, sorted_scores, sorted_search_list, rate, return_meta,
                                                    prompt_template, default_answer, auto_citation)
 
-        rerank_result = replace_minio_ip(rerank_result)
-        logger.info('重排结果：' + repr(rerank_result))
+        response_info = replace_minio_ip(rerank_result)
+        logger.info('重排结果：' + repr(response_info))
 
-        if rerank_result['code'] != 0:
-            response_info['code'] = rerank_result['code']
-            response_info['message'] = rerank_result['message']
-            return response_info
-        if len(rerank_result['data']['searchList']) == 0:
+        if response_info['code'] != 0:
+            raise RuntimeError(response_info['message'])
+
+        if len(response_info['data']['searchList']) == 0:
             response_info['data']["prompt"] = question
             response_info['data']["searchList"] = []
-            return response_info
-    except Exception as err:
-        logger.warn(f"------>knowledge-file Failed: {err}")
-        import traceback
+
+        return response_info
+    except Exception as e:
+        logger.warn(f"get_knowledge_based_answer Failed: {e}")
         logger.error(traceback.format_exc())
+        response_info["code"] = 1
+        response_info["message"] = str(e)
+        return response_info
 
-    return rerank_result
 
-
-def aggregate_chunks(user_id, sorted_scores, sorted_search_list):
+def aggregate_chunks(sorted_scores, sorted_search_list):
     """
     聚合子片段到父片段中
     """
@@ -775,6 +764,7 @@ def aggregate_chunks(user_id, sorted_scores, sorted_search_list):
             continue
         # 获取父片段信息
         kb_name = children["search_list"][0]["kb_name"]
+        user_id = children["search_list"][0]["user_id"]
         content_response = milvus_utils.get_content_by_ids(user_id, kb_name, [content_id])
         logger.info(f"获取父分段 content_id: {content_id}, 结果: {content_response}")
         if content_response['code'] != 0:
