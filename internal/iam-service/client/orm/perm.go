@@ -30,16 +30,19 @@ func (c *Client) CheckUserOK(ctx context.Context, userID uint32, genTokenAt int6
 			needLogin = true
 			return toErrStatus("iam_perm_relogin")
 		}
+
 		// check status
 		if !user.Status {
 			return toErrStatus("iam_perm_user_disable")
 		}
+
 		// last_exec_at
 		if err := tx.Model(user).Updates(map[string]interface{}{
 			"last_exec_at": time.Now().UnixMilli(),
 		}).Error; err != nil {
 			return toErrStatus("iam_perm_check_user_ok", util.Int2Str(userID), err.Error())
 		}
+
 		language = user.Language
 		lastUpdatePasswordAt = user.LastUpdatePasswordAt
 		return nil
@@ -73,6 +76,7 @@ func (c *Client) CheckUserPerm(ctx context.Context, userID uint32, genTokenAt in
 			return toErrStatus("iam_perm_check_user_perm", util.Int2Str(userID),
 				util.Int2Str(orgID), fmt.Sprintf("%v", oneOfPerms), err.Error())
 		}
+
 		// check org user 用户在组织中的状态校验
 		orgUser := &model.OrgUser{}
 		if err := sqlopt.SQLOptions(
@@ -86,6 +90,7 @@ func (c *Client) CheckUserPerm(ctx context.Context, userID uint32, genTokenAt in
 		} else if orgUser.Status == sqlopt.OrgUserStatusDisabled {
 			return toErrStatus("iam_perm_user_disable")
 		}
+
 		// check if user is org admin
 		var userRoles []*model.UserRole
 		var err error

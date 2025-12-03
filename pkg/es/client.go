@@ -223,7 +223,7 @@ func (c *client) SearchByFields(ctx context.Context, index string, fieldConditio
 	return documents, int64(totalValue), nil
 }
 
-// 创建索引模板
+// CreateIndexTemplate 创建索引模板
 func (c *client) CreateIndexTemplate(ctx context.Context, templateName string, templateBody string) error {
 	res, err := c.cli.Indices.PutIndexTemplate(
 		templateName,

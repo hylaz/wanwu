@@ -3,11 +3,10 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/ThinkInAIXYZ/go-mcp/protocol"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
+	"os"
+	"path/filepath"
 )
 
 type ToolConfig struct {
@@ -46,7 +45,6 @@ func (tool *ToolConfig) load(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("schema2protocol tool %v err: %v", tool.ToolSquareId, err)
 	}
-
 	tool.Tools = tools
 	return nil
 }

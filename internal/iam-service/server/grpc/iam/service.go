@@ -43,6 +43,7 @@ func (s *Service) InitData() error {
 	} else if err != nil {
 		return err
 	}
+
 	config.InitTopOrgID(topOrgID)
 	log.Infof("system top org: %v", config.TopOrgID())
 	// 系统顶级组织内置管理员角色
@@ -51,6 +52,7 @@ func (s *Service) InitData() error {
 	}
 	config.InitAdminRoleID(adminRoleID)
 	log.Infof("system admin role: %v", config.AdminRoleID())
+
 	// 系统内置管理员
 	if adminUserID, err = s.cli.GetAdminUser(ctx); err == gorm.ErrRecordNotFound {
 		if adminUserID, status = s.cli.CreateUser(ctx, &model.User{

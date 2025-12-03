@@ -2,18 +2,16 @@ package smtp_util
 
 import (
 	"errors"
-
 	"gopkg.in/gomail.v2"
 )
 
 // Config 邮件服务器配置
 type Config struct {
-	Host     string `json:"host" mapstructure:"host"`
-	Port     int    `json:"port" mapstructure:"port"`
-	Username string `json:"username" mapstructure:"username"`
-	Password string `json:"password" mapstructure:"password"`
-
-	DefaultFrom From `json:"default_from" mapstructure:"default_from"`
+	Host        string `json:"host" mapstructure:"host"`
+	Port        int    `json:"port" mapstructure:"port"`
+	Username    string `json:"username" mapstructure:"username"`
+	Password    string `json:"password" mapstructure:"password"`
+	DefaultFrom From   `json:"default_from" mapstructure:"default_from"`
 }
 
 type From struct {

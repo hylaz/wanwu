@@ -12,11 +12,11 @@ const (
 
 // model provider
 const (
-	ProviderOpenAICompatible = "OpenAI-API-compatible"
-	ProviderYuanJing         = "YuanJing"
-	ProviderHuoshan          = "Huoshan"
+	ProviderOpenAICompatible = "OpenAI-API-compatible" // openai
+	ProviderYuanJing         = "YuanJing"              //
+	ProviderHuoshan          = "Huoshan"               //火山
 	ProviderOllama           = "Ollama"
-	ProviderQwen             = "Qwen"
+	ProviderQwen             = "Qwen" //通义大模型
 	ProviderInfini           = "Infini"
 )
 

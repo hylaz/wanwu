@@ -25,15 +25,13 @@ type Config struct {
 type SubscribeHandle func(ctx context.Context, msg *redis.Message) error
 
 type client struct {
-	ctx context.Context
-	cli *redis.Client
-
+	ctx        context.Context
+	cli        *redis.Client
 	mutex      sync.Mutex
 	subscribes map[string]struct{} // channel -> handle
-
-	wg      sync.WaitGroup
-	stopped bool
-	stop    chan struct{}
+	wg         sync.WaitGroup
+	stopped    bool
+	stop       chan struct{}
 }
 
 func newClient(ctx context.Context, c Config, db int) (*client, error) {

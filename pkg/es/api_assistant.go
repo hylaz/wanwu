@@ -34,6 +34,7 @@ func Assistant() *client {
 	return _esAssistant
 }
 
+// InitESIndexTemplate 初始化模版
 func InitESIndexTemplate(ctx context.Context) error {
 	templateName := "conversation_detail_infos_template"
 
@@ -210,7 +211,6 @@ func InitESIndexTemplate(ctx context.Context) error {
 	if err := Assistant().CreateIndexTemplate(ctx, templateName, template); err != nil {
 		return fmt.Errorf("创建ES索引模板失败: %v", err)
 	}
-
 	log.Infof("成功创建ES索引模板: %s", templateName)
 	return nil
 }

@@ -177,8 +177,7 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
 	ctx := stream.Context()
 	reqUserId := req.Identity.UserId
-	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s",
-		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
+	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s", req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
 
 	// 用于跟踪流式响应状态的变量
 	var fullResponse strings.Builder
@@ -189,6 +188,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 
 	// 使用defer统一处理上下文取消的情况
 	defer func() {
+
 		// 只有在上下文被手动取消且还未保存过对话时，才保存"已被终止"消息
 		if ctx.Err() != nil && !req.Trial && !conversationSaved {
 			var terminationMessage string
@@ -224,8 +224,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		return errStatus(errs.Code_AssistantConversationErr, status)
 	}
 
-	log.Debugf("Assistant服务获取到智能体信息，assistantId: %s, 名称: %s, Scope: %d, userId: %s, orgId: %s",
-		req.AssistantId, assistant.Name, assistant.Scope, assistant.UserId, assistant.OrgId)
+	log.Debugf("Assistant服务获取到智能体信息，assistantId: %s, 名称: %s, Scope: %d, userId: %s, orgId: %s", req.AssistantId, assistant.Name, assistant.Scope, assistant.UserId, assistant.OrgId)
 
 	// 获取Assistant配置
 	assistantConfig := config.Cfg().Assistant
@@ -295,6 +294,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		saveConversation(ctx, req, "请求参数错误", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "请求参数错误")
 	}
+
 	if err = json.Unmarshal(reqBytes, &requestBody); err != nil {
 		log.Errorf("Assistant服务反序列化请求体到map失败，assistantId: %s, error: %v", req.AssistantId, err)
 		SSEError(stream, "请求参数错误")
@@ -322,8 +322,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	// xuid通过智能体传给RAG使用，要求xuid和知识库创建人userId一致，当前版本智能体创建人userId和知识库创建人userId一致。后面做了知识库分享之后这里可能需要改造。
 	xuid := assistant.UserId
 
-	log.Infof("Assistant服务开始调用HttpRequestLlmStream，uuid: %s, assistantId: %s, url: %s, userId: %s, timeout: %v, body: %s",
-		id, req.AssistantId, assistantConfig.SseUrl, reqUserId, timeout, string(requestBodyBytes))
+	log.Infof("Assistant服务开始调用HttpRequestLlmStream，uuid: %s, assistantId: %s, url: %s, userId: %s, timeout: %v, body: %s", id, req.AssistantId, assistantConfig.SseUrl, reqUserId, timeout, string(requestBodyBytes))
 	sseResp, err := HttpRequestLlmStream(ctx, assistantConfig.SseUrl, reqUserId, xuid, bytes.NewReader(requestBodyBytes), timeout)
 	if err != nil {
 		log.Errorf("Assistant服务调用智能体能力接口失败，assistantId: %s, uuid: %s, error: %v", req.AssistantId, id, err)
@@ -369,6 +368,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 			log.Debugf("Assistant服务流式响应正常结束，assistantId: %s, 总处理行数: %d", req.AssistantId, lineCount)
 			return nil
 		}
+
 		if err != nil && err == io.ErrUnexpectedEOF { //异常結束
 			// 真正的SSE读取错误，保存"已中断"消息
 			log.Errorf("Assistant服务读取流式响应失败，assistantId: %s, error: %v, 已处理行数: %d", req.AssistantId, err, lineCount)
@@ -384,6 +384,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 			SSEError(stream, "本次回答已中断")
 			return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "本次回答已中断")
 		}
+
 		strLine := string(line)
 		lineCount++
 		if len(strLine) >= 5 && strLine[:5] == "data:" {
@@ -470,7 +471,6 @@ func (s *Service) setModelConfigParams(sseReq *config.AgentSSERequest, assistant
 	if modelParams != nil {
 		sseReq.ModelParams = modelParams
 	}
-
 	return modelConfig, nil
 }
 
@@ -480,7 +480,6 @@ func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.Age
 	if assistant.KnowledgebaseConfig == "" {
 		return nil
 	}
-
 	if err := json.Unmarshal([]byte(assistant.KnowledgebaseConfig), knowledgeBaseConfig); err != nil {
 		log.Errorf("Assistant服务解析智能体知识库配置失败，assistantId: %s, error: %v, knowledgebaseConfigRaw: %s", req.AssistantId, err, assistant.KnowledgebaseConfig)
 		return err
@@ -1007,6 +1006,7 @@ func SSEError(stream assistant_service.AssistantService_AssistantConversionStrea
 	}
 }
 
+// HttpRequestLlmStream 组件请求参数
 func HttpRequestLlmStream(ctx context.Context, url, userId, xuid string, body io.Reader, timeout time.Duration) (*http.Response, error) {
 	requestCtx, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
 	if err != nil {
@@ -1017,9 +1017,7 @@ func HttpRequestLlmStream(ctx context.Context, url, userId, xuid string, body io
 	// 设置请求头
 	requestCtx.Header.Set("Content-Type", "application/json")
 	requestCtx.Header.Set("X-Uid", xuid)
-
-	log.Debugf("HttpRequestLlmStream请求详情，url: %s, userId: %s, method: %s, headers: %+v",
-		url, userId, requestCtx.Method, requestCtx.Header)
+	log.Debugf("HttpRequestLlmStream请求详情，url: %s, userId: %s, method: %s, headers: %+v", url, userId, requestCtx.Method, requestCtx.Header)
 
 	// 创建客户端并发送请求
 	client := &http.Client{
@@ -1028,15 +1026,12 @@ func HttpRequestLlmStream(ctx context.Context, url, userId, xuid string, body io
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-
 	response, err := client.Do(requestCtx)
 	if err != nil {
 		log.Errorf("HttpRequestLlmStream发送HTTP请求失败，url: %s, userId: %s, error: %v", url, userId, err)
 		return nil, err
 	}
-
-	log.Debugf("HttpRequestLlmStream收到HTTP响应，url: %s, userId: %s, statusCode: %d, responseHeaders: %+v",
-		url, userId, response.StatusCode, response.Header)
+	log.Debugf("HttpRequestLlmStream收到HTTP响应，url: %s, userId: %s, statusCode: %d, responseHeaders: %+v", url, userId, response.StatusCode, response.Header)
 
 	return response, err
 }
@@ -1067,9 +1062,7 @@ func saveConversationDetailToES(ctx context.Context, req *assistant_service.Assi
 	if err := es.Assistant().IndexDocument(ctx, indexName, conversationDetail); err != nil {
 		return fmt.Errorf("写入ES失败: %v", err)
 	}
-
-	log.Infof("成功保存聊天记录到ES，索引: %s, assistantId: %s, conversationId: %s",
-		indexName, req.AssistantId, req.ConversationId)
+	log.Infof("成功保存聊天记录到ES，索引: %s, assistantId: %s, conversationId: %s", indexName, req.AssistantId, req.ConversationId)
 	return nil
 }
 

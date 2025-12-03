@@ -19,9 +19,8 @@ import (
 )
 
 var (
-	configFile string
-	isVersion  bool
-
+	configFile   string
+	isVersion    bool
 	buildTime    string //编译时间
 	buildVersion string //编译版本
 	gitCommitID  string //git的commit id
@@ -33,15 +32,11 @@ func main() {
 	flag.StringVar(&configFile, "config", "configs/microservice/iam-service/configs/config.yaml", "conf yaml file")
 	flag.BoolVar(&isVersion, "v", false, "build message")
 	flag.Parse()
-
 	if isVersion {
 		versionPrint()
 		return
 	}
-
 	ctx := context.Background()
-
-	flag.Parse()
 	if err := config.LoadConfig(configFile); err != nil {
 		log.Fatalf("init cfg err: %v", err)
 	}

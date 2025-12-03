@@ -24,7 +24,6 @@ import (
 type Server struct {
 	cfg  *config.Config
 	serv *grpc.Server
-
 	iam  *iam.Service
 	perm *perm.Service
 }
@@ -35,7 +34,6 @@ func NewServer(cfg *config.Config, cli client.IClient) (*Server, error) {
 		iam:  iam.NewService(cli),
 		perm: perm.NewService(cli),
 	}
-	// init data
 	if err := s.iam.InitData(); err != nil {
 		return nil, err
 	}

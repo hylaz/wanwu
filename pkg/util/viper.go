@@ -1,9 +1,8 @@
 package util
 
 import (
-	"strings"
-
 	"github.com/spf13/viper"
+	"strings"
 )
 
 func LoadConfig(in string, cfg interface{}) error {
@@ -14,6 +13,5 @@ func LoadConfig(in string, cfg interface{}) error {
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
-
 	return viper.Unmarshal(cfg)
 }

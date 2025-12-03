@@ -23,6 +23,7 @@ const (
 	redisLoginEmailExpire = 5 * time.Minute
 )
 
+// Login 登录
 func (c *Client) Login(ctx context.Context, username, password, language string) (*UserInfo, *Permission, *errs.Status) {
 	var userInfo *UserInfo
 	var permission *Permission
