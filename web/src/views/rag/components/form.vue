@@ -47,17 +47,17 @@
         <div class="popover-operation" v-if="showOperation">
           <div>
             <el-radio :label="'private'" v-model="scope">
-              {{ $t("rag.publishType.private") }}
+              {{  $t("agent.form.publishType") }}
             </el-radio>
           </div>
           <div>
             <el-radio :label="'organization'" v-model="scope">
-              {{ $t("rag.publishType.organization") }}
+              {{ $t("agent.form.publishType1") }}
             </el-radio>
           </div>
           <div>
             <el-radio :label="'public'" v-model="scope">
-              {{ $t("rag.publishType.public") }}
+              {{ $t("agent.form.publishType2") }}
             </el-radio>
           </div>
           <div class="saveBtn">
@@ -477,19 +477,22 @@ export default {
     },
     savePublish() {
       const { matchType, priorityMatch, rerankModelId } =
-        this.editForm.knowledgeConfig;
+        this.editForm.qaKnowledgeBaseConfig.config;
       const isMixPriorityMatch = matchType === "mix" && priorityMatch;
+
       if (this.editForm.modelParams === "") {
         this.$message.warning(this.$t("agent.form.selectModel"));
-        return false;
-      }
-      if (!isMixPriorityMatch && !rerankModelId) {
-        this.$message.warning(this.$t("app.selectRerank"));
         return false;
       }
       if (this.editForm.knowledgeBaseConfig.knowledgebases.length === 0 && this.editForm.qaKnowledgeBaseConfig.knowledgebases.length === 0) {
         this.$message.warning(this.$t("app.selectKnowledge"));
         return false;
+      }
+      if(!this.editForm.knowledgeBaseConfig.knowledgebases.length && this.editForm.qaKnowledgeBaseConfig.knowledgebases.length > 0){
+        if (!isMixPriorityMatch && !rerankModelId) {
+          this.$message.warning(this.$t("app.selectRerank"));
+          return false;
+        }
       }
       const data = {
         appId: this.editForm.appId,

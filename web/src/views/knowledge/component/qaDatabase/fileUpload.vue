@@ -117,7 +117,7 @@ export default {
           if (res.code === 0) {
             this.$message.success(this.$t("app.qaUplodFileTips"));
             this.handleClose();
-            this.$emit("reloadData");
+            this.$emit("updateData",'fileUpload');
           }
         })
         .catch(() => {})

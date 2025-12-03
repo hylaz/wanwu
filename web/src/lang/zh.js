@@ -139,6 +139,7 @@ export default {
       cancel: "取 消",
       create: "创 建",
       save: "保 存",
+      restore: "重 置",
       edit: "编辑",
       delete: "删除",
       copy: "复制",
@@ -692,6 +693,7 @@ export default {
     checkFail: "审核未通过",
     operateSuccess: "操作成功",
     deleteTips: "确定要删除此条数据吗?",
+    deleteBatchTips: "确定要删除这些数据吗?",
     tip: "提示",
     refreshTips:
       "您导入的文件正在异步处理中，请耐心等待，您可以尝试，刷新列表获取导入结果。",
@@ -706,9 +708,27 @@ export default {
     splitOptionsTips:
       "按照所选的标识符切分文本。切分后，按设置的切片最大长度对切分后的文本组合成单一切片内容",
     splitMax: "可分割最大值",
+    splitMaxMsg: "请输入有效范围内的数值",
     splitMaxTips: "可填写范围最小为200 tokens，最大为4000 tokens",
     overLapNum: "可重叠值",
+    overLapNumMsg: "请输入有效范围内的数值",
     overLapNumTips: "请输入可重叠值",
+    overLapNumPlaceholder: "数值范围0-0.25",
+    textPreprocessing: "文本预处理规则",
+    replaceSymbols: "替换掉连续的空格、换行符和制表符",
+    deleteLinks: "删除所有URL和电子邮件地址",
+    parsingMethod: "解析方式",
+    parsingMethodMsg: "请选择模型",
+    metadataManagement: "元数据管理",
+    prevStep: "上一步",
+    nextStep: "下一步",
+    placeholderText: "搜索分隔符",
+    titleText: "创建分隔符",
+    childSegmentMaxAdjusted: "子分段最大值已调整为 {parentMaxValue}，不能超过父分段的最大值",
+    childSegmentMaxAdjustedTips: "子分段最大值不能超过父分段的最大值 {parentMaxValue}",
+    metadataRequired: "元数据管理存在未填写的必填字段",
+    fileNotFoundOrServerError: "文件不存在或服务器错误",
+    fileDownloadFailed: "文件下载失败，请稍后重试！",
     inputErrorTips:
       "知识库名称格式错误,只能包含小写英文、中文、数字、特殊符号-_",
     zh_exclamationMark: "中文叹号",
@@ -887,6 +907,7 @@ export default {
       failed: "处理失败",
       graphStatus: "图谱解析状态",
       useGraph: "是否使用图谱",
+      successGraphTips:"若schema文件内容与上传的文档内容无法匹配，则知识图谱无法解析出内容"
     },
     communityReport: {
       name: "名称",
@@ -960,6 +981,27 @@ export default {
       communityReportTips:
         "社区报告在上传文件或删除文件时不会自动触发构建,如需更新报告需要点击生成/重新生成构建",
     },
+    knowledgeDatabase: {
+      fileUpload: {
+        addFile: "新增文件",
+        fileUpload: "文件上传",
+        paramSetting: "参数设置",
+        file: "从文件上传",
+        fileUrl: "url文件上传",
+        url: "url单条上传",
+        clickText: "将文件拖到此处，或",
+        clickUpload: "点击上传",
+        uploadTips1: "您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制",
+        uploadTips2: "如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待",
+        uploadTips3: "批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb ",
+        uploadTips4: "当前内容不自动更新",
+        segmentSetting: "分段设置",
+        segmentTips: "分段标识",
+        segmentTipsSetting: " + 分段标识设置",
+        deleteSplitterConfirm: "删除分隔符{splitterName}",
+        deleteSplitterTitle: "确认要删除当前分隔符？",
+      },
+    },
     qaDatabase: {
       name: "问答库",
       editInfo: "编辑问答库",
@@ -1017,6 +1059,7 @@ export default {
   },
   metaData: {
     batchEdit: "批量编辑元数据值",
+    batchDelete: "批量删除文档",
     selected: "已选择",
   },
   metaSet: {
@@ -1326,6 +1369,7 @@ export default {
       modelSearchPlaceholder: "可输入模型名称搜索",
       visionModelTips:
         "*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具",
+      functionCallTips:"*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择",
       prologue: "开场白",
       prologuePlaceholder: "请输入开场白",
       recommendQuestion: "推荐问题",

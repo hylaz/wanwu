@@ -499,6 +499,7 @@ export default {
         .weightType {
           border: 1px solid #c0c4cc;
           border-radius: 4px;
+          flex: 1 1 220px;
           .weightType-name {
             text-align: center;
             font-weight: bold;

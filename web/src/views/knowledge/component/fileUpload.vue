@@ -5,7 +5,7 @@
         class="el-icon-arrow-left back"
         @click="goBack"
       ></span>
-      新增文件
+      {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile') }}
       <LinkIcon type="knowledge" />
     </div>
     <div class="table-box">
@@ -15,8 +15,8 @@
           class="fileStep"
           align-center
         >
-          <el-step title="文件上传"></el-step>
-          <el-step title="参数设置"></el-step>
+          <el-step :title="$t('knowledgeManage.knowledgeDatabase.fileUpload.fileUpload')"></el-step>
+          <el-step :title="$t('knowledgeManage.knowledgeDatabase.fileUpload.paramSetting')"></el-step>
         </el-steps>
 
         <!-- 文件上传 -->
@@ -26,9 +26,9 @@
               v-model="fileType"
               @change="fileTypeChage"
             >
-              <el-radio-button label="file">从文件上传</el-radio-button>
-              <el-radio-button label="fileUrl">url文件上传</el-radio-button>
-              <el-radio-button label="url">url单条上传</el-radio-button>
+              <el-radio-button label="file">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}</el-radio-button>
+              <el-radio-button label="fileUrl">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUrl') }}</el-radio-button>
+              <el-radio-button label="url">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.url') }}</el-radio-button>
             </el-radio-group>
           </div>
           <div
@@ -42,7 +42,6 @@
                 action=""
                 :show-file-list="false"
                 :auto-upload="false"
-                :limit="5"
                 multiple
                 accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
                 :file-list="fileList"
@@ -54,17 +53,17 @@
                       :src="require('@/assets/imgs/uploadImg.png')"
                       class="upload-img"
                     />
-                    <p class="click-text">将文件拖到此处，或<span class="clickUpload">点击上传</span></p>
+                    <p class="click-text">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickText') }}<span class="clickUpload">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickUpload') }}</span></p>
                   </div>
                   <div class="tips">
-                    <p v-if="fileType === 'file'"><span class="red">*</span>您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制</p>
-                    <p v-if="fileType === 'file'"><span class="red">*</span>非压缩包文件，一次可传5个文件，如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待</p>
-                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb <a
+                    <p v-if="fileType === 'file'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips1') }}</p>
+                    <p v-if="fileType === 'file'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips2') }}</p>
+                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips3') }}<a
                         class="template_downLoad"
                         href="#"
                         @click.prevent.stop="downloadTemplate"
-                      >模版下载</a></p>
-                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>当前内容不自动更新</p>
+                      >{{ $t('common.fileUpload.templateClick') }}</a></p>
+                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips4') }}</p>
                   </div>
                 </div>
               </el-upload>
@@ -98,7 +97,7 @@
             @submit.native.prevent
             label-position="left"
           >
-            <el-form-item label="分段设置">
+            <el-form-item :label="$t('knowledgeManage.knowledgeDatabase.fileUpload.segmentSetting')">
               <div class="segmentList">
                 <div
                   v-for="segmentItem in segmentList"
@@ -141,7 +140,7 @@
                   : []"
                 >
                   <template #label>
-                    <span>分段标识</span>
+                    <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
                     <el-tooltip
                       :content="$t('knowledgeManage.splitOptionsTips')"
                       placement="right"
@@ -161,14 +160,14 @@
                     class="button-new-tag"
                     size="small"
                     @click="showSplitterSet('splitter')"
-                  > + 分段标识设置</el-button>
+                  >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}</el-button>
                 </el-form-item>
                 <el-form-item
                   v-if="ruleForm.docSegment.segmentType == '1'"
                   prop="docSegment.maxSplitter"
                   :rules="[
                   { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
-                  { type:'number',min:200,max:4000,message:'请输入有效范围内的数值',trigger: 'blur'}
+                  { type:'number',min:200,max:4000,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
                   ]"
                 >
                   <template #label>
@@ -190,7 +189,7 @@
                   prop="docSegment.overlap"
                   :rules="[
                     { required: true, message:$t('knowledgeManage.overLapNumTips'),trigger:'blur'},
-                    { type:'number',min:0,max:1,message:'请输入有效范围内的数值',trigger: 'blur'}
+                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumTipsMsg'),trigger: 'blur'}
                   ]"
                 >
                   <el-input
@@ -199,7 +198,7 @@
                     :step="0.01"
                     type="number" 
                     v-model.number="ruleForm.docSegment.overlap" 
-                    placeholder="数值范围0-0.25" 
+                    :placeholder="$t('knowledgeManage.overLapNumPlaceholder')"
                     ></el-input>
                 </el-form-item>
               </template>
@@ -217,7 +216,7 @@
                     ]"
                   >
                     <template #label>
-                      <span>分段标识</span>
+                      <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
                       <el-tooltip
                         :content="$t('knowledgeManage.splitOptionsTips')"
                         placement="right"
@@ -237,17 +236,17 @@
                       class="button-new-tag"
                       size="small"
                       @click="showSplitterSet(item.key)"
-                    > + 分段标识设置</el-button>
+                    >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}</el-button>
                   </el-form-item>
                   <el-form-item
                     :prop="item.maxSplitterProp"
                     :rules="[
                     { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
-                    { type:'number',min:200,max:item.maxSplitterNum,message:'请输入有效范围内的数值',trigger: 'blur'}
+                    { type:'number',min:200,max:item.maxSplitterNum,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
                     ]"
                   >
                     <template #label>
-                      <span>可分割最大值</span>
+                      <span>{{ $t('knowledgeManage.splitMax') }}</span>
                       <el-tooltip
                         :content="$t('knowledgeManage.splitMaxTips')"
                         placement="right"
@@ -260,17 +259,17 @@
                 </div>
               </template>
               <el-form-item
-                label="文本预处理规则"
+                :label="$t('knowledgeManage.textPreprocessing')"
                 prop="docPreprocess"
                 v-if="ruleForm.docSegment.segmentType == '1'"
               >
                 <el-checkbox-group v-model="ruleForm.docPreprocess">
-                  <el-checkbox label="replaceSymbols">替换掉连续的空格、换行符和制表符</el-checkbox>
-                  <el-checkbox label="deleteLinks">删除所有URL和电子邮件地址</el-checkbox>
+                  <el-checkbox label="replaceSymbols">{{ $t('knowledgeManage.replaceSymbols') }}</el-checkbox>
+                  <el-checkbox label="deleteLinks">{{ $t('knowledgeManage.deleteLinks') }}</el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item
-                label="解析方式"
+                :label="$t('knowledgeManage.parsingMethod')"
                 prop="docAnalyzer"
               >
                 <el-checkbox-group
@@ -293,7 +292,7 @@
                 prop="parserModelId"
                 v-if="ruleForm.docAnalyzer.includes('ocr')||ruleForm.docAnalyzer.includes('model')"
                 :rules="[
-                    { required: true, message:'请选择模型',trigger:'blur'}
+                    { required: true, message:$t('knowledgeManage.parsingMethodMsg'),trigger:'blur'}
                 ]"
               >
               <template #label>
@@ -307,7 +306,7 @@
               </template>
                 <el-select
                   v-model="ruleForm.parserModelId"
-                  placeholder="请选择"
+                  :placeholder="$t('common.select.placeholder')"
                   class="width100"
                 >
                   <el-option
@@ -320,7 +319,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item
-                label="元数据管理"
+                :label="$t('knowledgeManage.metadataManagement')"
                 prop="docAnalyzer"
               >
                 <mataData
@@ -396,25 +395,25 @@
             size="mini"
             @click="preStep"
             v-if="active === 2"
-          >上一步</el-button>
+          >{{ $t('knowledgeManage.prevStep') }}</el-button>
           <el-button
             type="primary"
             size="mini"
             @click="nextStep"
             v-if="active === 1"
             :loading="urlLoading"
-          >下一步</el-button>
+          >{{ $t('knowledgeManage.nextStep') }}</el-button>
           <el-button
             type="primary"
             size="mini"
             @click="submitInfo"
             v-if="active === 2"
-          >确 定</el-button>
+          >{{ $t('common.button.confirm') }}</el-button>
           <el-button
             size="mini"
             @click="formReset"
             v-if="active === 2"
-          >重 置</el-button>
+          >{{ $t('common.button.restore') }}</el-button>
         </div>
       </div>
     </div>
@@ -470,8 +469,8 @@ export default {
     };
     return {
       validateSplitter: validateSplitter,
-      placeholderText: "搜索分隔符",
-      titleText: "创建分隔符",
+      placeholderText: this.$t("knowledgeManage.placeholderText"),
+      titleText: this.$t("knowledgeManage.titleText"),
       splitterValue: "",
       tableData: [],
       modelOptions: [],
@@ -530,7 +529,7 @@ export default {
           sonBlock.maxSplitterNum = parentMaxValue;
           if (this.ruleForm.docSegment.subMaxSplitter > parentMaxValue) {
             this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-            this.$message.warning(`子分段最大值已调整为 ${parentMaxValue}，不能超过父分段的最大值`);
+            this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjusted', { parentMaxValue }));
           }
         }
       }else if(item.level === 'son'){
@@ -538,7 +537,7 @@ export default {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
         if (sonMaxValue > parentMaxValue) {
           this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-          this.$message.warning(`子分段最大值不能超过父分段的最大值 ${parentMaxValue}`);
+          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxExceeded', { parentMaxValue }));
         }
       }
     },
@@ -601,7 +600,7 @@ export default {
         return isMetaKeyEmpty || isMetaRuleEmpty;
       });
       if (hasEmptyField) {
-        this.$message.error("元数据管理存在未填写的必填字段");
+        this.$message.error(this.$t("knowledgeManage.metadataRequired"));
         return false;
       }
       return true;
@@ -652,11 +651,11 @@ export default {
     },
     async delSplitterItem(item) {
       this.$confirm(
-        `删除分隔符${item.splitterName}`,
-        "确认要删除当前分隔符？",
+        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterConfirm', { splitterName: item.splitterName }),
+        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterTitle'),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
           type: "warning",
         }
       )
@@ -700,7 +699,7 @@ export default {
       const fileName = "url_import_template.xlsx";
       try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error("文件不存在或服务器错误");
+        if (!response.ok) throw new Error(this.$t("knowledgeManage.fileNotFoundOrServerError"));
 
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
@@ -712,7 +711,7 @@ export default {
 
         URL.revokeObjectURL(blobUrl); // 释放内存
       } catch (error) {
-        alert("文件下载失败，请稍后重试！");
+        this.$message.error(this.$t("knowledgeManage.fileDownloadFailed"));
       }
     },
     handleLoading(val, result) {
@@ -779,7 +778,7 @@ export default {
     delfile(data) {
       delfile(data).then((res) => {
         if (res.code === 0) {
-          this.$message.success("删除成功");
+          this.$message.success(this.$t("common.info.delete"));
         }
       });
     },

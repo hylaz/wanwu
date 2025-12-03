@@ -90,3 +90,12 @@ export const qaHitTest = (data) => {
     data,
   });
 };
+
+//问答库异步上传任务提示
+export const qaTips = (data) => {
+  return service({
+    url: `${USER_API}/knowledge/qa/pair/import/tip`,
+    method: "get",
+    params: data,
+  });
+};

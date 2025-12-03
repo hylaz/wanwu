@@ -60,8 +60,12 @@ export default {
       window.open("about:blank", "_top")
     },
     handleConfirm() {
-      const authorizeUrl = `${OAUTH_API}/oauth/code/authorize${window.location.search}&jwt_token=${this.token}`
-      window.location.href = authorizeUrl
+      const queryParams = new URLSearchParams({
+        ...this.params,
+        jwt_token: this.token
+      }).toString();
+
+      window.location.href = `${OAUTH_API}/oauth/code/authorize?${queryParams}`;
     }
   }
 };

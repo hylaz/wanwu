@@ -54,7 +54,7 @@
                   :label="$t('keyword.linkKnowledge')"
                 >
                 <template slot-scope="scope">
-                  <span>{{scope.row.knowledgeBaseNames.join(',')}}</span>
+                  <span>{{scope.row.knowledgeBaseNames ? scope.row.knowledgeBaseNames.join(',') : ''}}</span>
                 </template>
                 </el-table-column>
                 <el-table-column

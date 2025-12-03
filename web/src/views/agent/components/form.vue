@@ -180,6 +180,9 @@
               >
                 {{ $t("agent.form.visionModelTips") }}
               </div>
+              <div class="model-select-tips" v-if="editForm.functionCalling === 'noSupport' && editForm.newAgent ">
+                {{ $t("agent.form.functionCallTips") }}
+              </div>
             </div>
           </div>
           <div class="block prompt-box">
@@ -602,6 +605,8 @@ export default {
       rerankOptions: [],
       initialEditForm: null,
       editForm: {
+        newAgent:false,
+        functionCalling:"",
         visionsupport: "",
         assistantId: "",
         avatar: {},
@@ -779,6 +784,7 @@ export default {
       );
       if (selectedModel) {
         this.editForm.visionsupport = selectedModel.config.visionSupport;
+        this.editForm.functionCalling = selectedModel.config.functionCalling;
         const maxTokens = selectedModel.config.maxTokens;
         this.limitMaxTokens = maxTokens && maxTokens > 0 ? maxTokens : 4096;
       }
@@ -1134,6 +1140,7 @@ export default {
         }
         this.editForm = {
           ...this.editForm,
+          newAgent:data.newAgent,
           avatar: data.avatar || {},
           prologue: data.prologue || "", //开场白
           name: data.name || "",
