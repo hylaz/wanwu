@@ -8,27 +8,27 @@
       :close-on-click-modal="false"
     >
       <el-form ref="form" :model="form" label-width="120px" :rules="rules">
-         <el-form-item :label="$t('agentDiglog.agentLogo')+ ':'" prop="avatar.path">
-            <el-upload
-                class="logo-upload"
-                action=""
-                multiple
-                :show-file-list="false"
-                :auto-upload="false"
-                :limit="2"
-                accept="image/*"
-                :file-list="logoFileList"
-                :on-change="uploadOnChange"
-                >
+        <el-form-item :label="$t('agentDiglog.agentLogo')+ ':'" prop="avatar.path">
+          <el-upload
+            class="logo-upload"
+            action=""
+            multiple
+            :show-file-list="false"
+            :auto-upload="false"
+            :limit="2"
+            accept="image/*"
+            :file-list="logoFileList"
+            :on-change="uploadOnChange"
+          >
             <div class="echo-img">
-                <img :src="getImageSrc()" />
-                <p class="echo-img-tip" v-if="isLoading">
-                  {{$t('common.fileUpload.imgUploading')}}
-                  <span class="el-icon-loading"></span>
-                </p>
-                <p class="echo-img-tip" v-else>{{$t('common.fileUpload.clickUploadImg')}}</p>
+              <img :src="getImageSrc()" />
+              <p class="echo-img-tip" v-if="isLoading">
+                {{$t('common.fileUpload.imgUploading')}}
+                <span class="el-icon-loading"></span>
+              </p>
+              <p class="echo-img-tip" v-else>{{$t('common.fileUpload.clickUploadImg')}}</p>
             </div>
-            </el-upload>
+          </el-upload>
         </el-form-item>
         <el-form-item :label="$t('agentDiglog.agentName')+':'" prop="name">
           <el-input
@@ -239,36 +239,36 @@ export default {
 
 <style lang="scss" scoped>
 .logo-upload {
-    width: 100px;
-    height: 100px;
-    margin-top: 3px;
-    /deep/ {
-      .el-upload {
-        width: 100%;
+  width: 100px;
+  height: 100px;
+  margin-top: 3px;
+  /deep/ {
+    .el-upload {
+      width: 100%;
+      height: 100%;
+      border-radius:6px;
+      border:1px solid #DCDFE6;
+      overflow:hidden;
+    }
+    .echo-img {
+      width: 100%;
+      height: 100%;
+      position:relative;
+      img {
+        object-fit: cover;
         height: 100%;
-        border-radius:6px;
-        border:1px solid #DCDFE6;
-        overflow:hidden;
       }
-      .echo-img {
+      .echo-img-tip {
+        position: absolute;
         width: 100%;
-        height: 100%;
-        position:relative;
-        img {
-          object-fit: cover;
-          height: 100%;
-        }
-        .echo-img-tip {
-          position: absolute;
-          width: 100%;
-          bottom: 0;
-          background: $color_opacity;
-          color: $color  !important;
-          font-size: 12px;
-          line-height: 26px;
-          z-index: 10;
-        }
+        bottom: 0;
+        background: $color_opacity;
+        color: $color  !important;
+        font-size: 12px;
+        line-height: 26px;
+        z-index: 10;
       }
     }
   }
+}
 </style>

@@ -14,21 +14,21 @@ import { config, basePath } from './utils/config'
 import {guid} from '@/utils/util'
 
 Vue.use(ElementUi, {
-    i18n: (key, value) => i18n.t(key, value), // 根据选的语言切换 Element-ui 的语言
+  i18n: (key, value) => i18n.t(key, value), // 根据选的语言切换 Element-ui 的语言
 })
 
 Vue.prototype.$config = config
 Vue.prototype.$basePath = basePath
 Vue.prototype.$guid = guid
 Vue.prototype.$copy = function copy(text){
-    var textareaEl = document.createElement('textarea');
-    textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
-    textareaEl.value = text;
-    document.body.appendChild(textareaEl);
-    textareaEl.select();
-    var res = document.execCommand('copy');
-    document.body.removeChild(textareaEl);
-    return res;
+  var textareaEl = document.createElement('textarea');
+  textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
+  textareaEl.value = text;
+  document.body.appendChild(textareaEl);
+  textareaEl.select();
+  var res = document.execCommand('copy');
+  document.body.removeChild(textareaEl);
+  return res;
 }
 
 Vue.config.productionTip = false

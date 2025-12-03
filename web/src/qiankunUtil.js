@@ -4,13 +4,13 @@ import { basePath } from "@/utils/config"
 
 export const useQiankun = () => {
   const apps = [
-      {
-          name: 'test', // 子应用名称
-          entry: process.env.NODE_ENV === 'development'?'http://localhost:8081/' : window.location.origin + basePath + '/sub/test/', // 子应用入口
-          container: '#container', // 子应用所在容器
-          props: () => ({ user: store.state.user }), // 传参给子应用
-          activeRule: basePath + '/aibase/portal/test', // 子应用触发规则（路径）
-      },
+    {
+      name: 'test', // 子应用名称
+      entry: process.env.NODE_ENV === 'development'?'http://localhost:8081/' : window.location.origin + basePath + '/sub/test/', // 子应用入口
+      container: '#container', // 子应用所在容器
+      props: () => ({ user: store.state.user }), // 传参给子应用
+      activeRule: basePath + '/aibase/portal/test', // 子应用触发规则（路径）
+    },
   ]
 
   registerMicroApps(apps, {
