@@ -108,6 +108,7 @@
                 <el-table-column
                   type="selection"
                   reserve-selection
+                  :key="'selection-' + hasManagePerm"
                   v-if="hasManagePerm"
                   width="55"
                 >
@@ -115,7 +116,7 @@
                 <el-table-column
                   prop="question"
                   :label="$t('knowledgeManage.qaDatabase.question')"
-                  min-width="180"
+                  min-width="100"
                 >
                   <template slot-scope="scope">
                     <el-popover
@@ -136,6 +137,7 @@
                 <el-table-column
                   prop="answer"
                   :label="$t('knowledgeManage.qaDatabase.answer')"
+                  width="180"
                 >
                 <template slot-scope="scope">
                     <el-popover
