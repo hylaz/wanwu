@@ -4277,18 +4277,6 @@ definitions:
         - $ref: '#/definitions/response.User'
         description: 作者信息
     type: object
-  response.ExplorationWorkflowRunResp:
-    properties:
-      code:
-        type: integer
-      data:
-        type: string
-      msg:
-        type: string
-      terminate_plan:
-        description: useAnswerContent(文本) 或 returnVariables(变量)
-        type: string
-    type: object
   response.GetKnowledgeKeywordListResp:
     properties:
       list:
@@ -12622,7 +12610,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.ExplorationWorkflowRunResp'
+            $ref: '#/definitions/response.Response'
       security:
       - JWT: []
       summary: 工作流运行接口

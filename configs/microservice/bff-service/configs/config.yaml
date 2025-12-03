@@ -256,6 +256,8 @@ workflow:
   import_uri: /api/workflow_api/import
   convert_uri: /api/workflow_api/update_meta_by_wanwu
   test_run_uri: /v1/workflow/%v/run_by_wanwu
+  test_run_web_uri: /api/workflow_api/test_run
+  get_process_uri: /api/workflow_api/get_process
   create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
   chatflow_run_uri: /v1/workflow/chat_by_wanwu
   upload_action_uri: /api/common/upload/apply_upload_action

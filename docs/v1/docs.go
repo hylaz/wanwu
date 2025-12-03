@@ -11238,7 +11238,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ExplorationWorkflowRunResp"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -17994,24 +17994,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.User"
                         }
                     ]
-                }
-            }
-        },
-        "response.ExplorationWorkflowRunResp": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "msg": {
-                    "type": "string"
-                },
-                "terminate_plan": {
-                    "description": "useAnswerContent(文本) 或 returnVariables(变量)",
-                    "type": "string"
                 }
             }
         },
