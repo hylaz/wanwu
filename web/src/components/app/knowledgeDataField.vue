@@ -66,7 +66,6 @@
       ref="knowledgeSelect" 
       :category="category" 
       @getKnowledgeData="getKnowledgeData" 
-      :setType="setType"
     />
     <metaDataFilterField 
       ref="metaDataFilterField" 
@@ -119,10 +118,6 @@ export default {
       default: '',
       require: true
     },
-    setType: {
-      type: String,
-      default: '',
-    }
   },
   data() {
     return {

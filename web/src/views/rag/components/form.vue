@@ -134,7 +134,6 @@
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
-            :setType="'rag'"
             :labelText="$t('app.linkQaDatabase')"
             :type="'qaKnowledgeBaseConfig'"
           />
@@ -148,7 +147,6 @@
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
-            :setType="'rag'"
             :labelText="$t('agent.form.linkKnowledge')"
             :type="'knowledgeBaseConfig'"
           />
