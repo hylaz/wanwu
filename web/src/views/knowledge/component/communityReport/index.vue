@@ -26,11 +26,14 @@
           {{ formatDate(res.createdAt) }}
         </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentType')">{{
-         communityReportStatus[res.status]
-        }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.lastImportStatus')" v-if="res.status === STATUS_FINISHED">{{
-         communityImportStatus[res.lastImportStatus]
-        }}</el-descriptions-item>
+            communityReportStatus[res.status]
+          }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('knowledgeManage.communityReport.lastImportStatus')"
+                              v-if="res.status === STATUS_FINISHED">{{
+            communityImportStatus[res.lastImportStatus]
+          }}
+        </el-descriptions-item>
       </el-descriptions>
 
       <div class="btn">
@@ -40,21 +43,24 @@
           @click="refreshData"
           size="mini"
           :loading="loading.itemStatus"
-        >{{ $t('common.gpuDialog.reload') }}</el-button>
+        >{{ $t('common.gpuDialog.reload') }}
+        </el-button>
         <el-button
-            type="primary"
-            @click="generateReport"
-            size="mini"
-            :loading="loading.stop"
-            :disabled="!res.canGenerate || permissionType === POWER_TYPE_READ"
-            >{{ res.generateLabel === '' ? $t('knowledgeManage.communityReport.generate') : res.generateLabel }}</el-button>
+          type="primary"
+          @click="generateReport"
+          size="mini"
+          :loading="loading.stop"
+          :disabled="!res.canGenerate || permissionType === POWER_TYPE_READ"
+        >{{ res.generateLabel === '' ? $t('knowledgeManage.communityReport.generate') : res.generateLabel }}
+        </el-button>
         <el-button
           type="primary"
           @click="createReport"
           size="mini"
           :loading="loading.stop"
           :disabled="!res.canAddReport || permissionType === POWER_TYPE_READ"
-          >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}</el-button>
+        >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}
+        </el-button>
       </div>
 
       <div class="card">
@@ -77,8 +83,8 @@
                     </span>
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item class="card-delete" :command="{type: 'delete', item}">
-                        <i class="el-icon-delete card-opera-icon" />
-                        {{$t('common.button.delete')}}
+                        <i class="el-icon-delete card-opera-icon"/>
+                        {{ $t('common.button.delete') }}
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -111,8 +117,8 @@
   </div>
 </template>
 <script>
-import { getCommunityReportList,delCommunityReport,generateCommunityReport} from "@/api/knowledge";
-import { COMMUNITY_REPORT_STATUS,COMMUNITY_IMPORT_STATUS } from "@/views/knowledge/config";
+import {getCommunityReportList, delCommunityReport, generateCommunityReport} from "@/api/knowledge";
+import {COMMUNITY_REPORT_STATUS, COMMUNITY_IMPORT_STATUS} from "@/views/knowledge/config";
 import {mapGetters} from 'vuex';
 import commonMixin from "@/mixins/common";
 import createReport from "./create.vue";
@@ -126,7 +132,7 @@ import {
 } from "@/views/knowledge/constants";
 
 export default {
-  components:{createReport},
+  components: {createReport},
   mixins: [commonMixin],
   data() {
     return {
@@ -160,17 +166,17 @@ export default {
     this.obj = this.$route.query;
     this.getList();
     if (this.permissionType === INITIAL || this.permissionType === null || this.permissionType === undefined) {
-        const savedData = localStorage.getItem('permission_data')
-        if (savedData) {
-            try {
-                const parsed = JSON.parse(savedData)
-                const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
-                if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-                    this.$store.dispatch('app/setPermissionType', savedPermissionType)
-                }
-            } catch(e) {
-            }
+      const savedData = localStorage.getItem('permission_data')
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData)
+          const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
+          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
+            this.$store.dispatch('app/setPermissionType', savedPermissionType)
+          }
+        } catch (e) {
         }
+      }
     }
   },
   methods: {
@@ -194,30 +200,30 @@ export default {
     refreshData() {
       setTimeout(() => {
         this.getList();
-      },500);
+      }, 500);
     },
-    createReport(){
-      this.$refs.createReport.showDialog(this.obj.knowledgeId,'add');
+    createReport() {
+      this.$refs.createReport.showDialog(this.obj.knowledgeId, 'add');
     },
-    generateReport(){
-      generateCommunityReport({knowledgeId:this.obj.knowledgeId}).then(res =>{
-        if(res.code === 0){
+    generateReport() {
+      generateCommunityReport({knowledgeId: this.obj.knowledgeId}).then(res => {
+        if (res.code === 0) {
           this.$message.success(this.$t('knowledgeManage.communityReport.generateSuccess'));
           this.getList();
         }
       })
     },
-    handleCommand(value){
+    handleCommand(value) {
       const {type, item} = value || {}
-       switch (type) {
-          case 'delete':
-            this.delReport(item)
-            break
-        }
+      switch (type) {
+        case 'delete':
+          this.delReport(item)
+          break
+      }
     },
-    delReport(item){
-      delCommunityReport({contentId:item.contentId,knowledgeId:this.obj.knowledgeId}).then(res =>{
-        if(res.code === 0){
+    delReport(item) {
+      delCommunityReport({contentId: item.contentId, knowledgeId: this.obj.knowledgeId}).then(res => {
+        if (res.code === 0) {
           this.$message.success(this.$t('knowledgeManage.communityReport.deleteSuccess'));
           this.getList();
         }
@@ -228,13 +234,13 @@ export default {
       getCommunityReportList({
         knowledgeId: this.obj.knowledgeId,
         pageNo: this.page.pageNo,
-        pageSize:this.page.pageSize
+        pageSize: this.page.pageSize
       })
         .then((res) => {
           this.loading.itemStatus = false;
           this.res = res.data;
           this.page.total = this.res.total;
-          if((!this.res.list || this.res.list.length === 0) && this.page.pageNo > 1){
+          if ((!this.res.list || this.res.list.length === 0) && this.page.pageNo > 1) {
             this.page.pageNo = 1;
             this.getList();
           }
@@ -244,7 +250,7 @@ export default {
         });
     },
     handleClick(item, index) {
-      if(this.permissionType === 0) return;
+      if (this.permissionType === 0) return;
       // 点击卡片事件，可根据需求添加功能
       this.$refs.createReport.showDialog(this.obj.knowledgeId, 'edit', item)
     },
@@ -261,23 +267,24 @@ export default {
 </script>
 <style lang="scss">
 .dialog-content {
-  max-height:55vh!important;
+  max-height: 55vh !important;
   overflow-y: auto;
 }
+
 .segment-list {
   margin-top: 10px;
-  
+
   .section-collapse {
     background-color: #f7f8fa;
     border-radius: 6px;
     border: 1px solid $color;
     overflow: hidden;
-    
+
     /deep/ .el-collapse {
       border: none;
       border-radius: 6px;
     }
-    
+
     /deep/ .el-collapse-item__header {
       background-color: #f7f8fa;
       border-bottom: 1px solid #e4e7ed;
@@ -291,12 +298,12 @@ export default {
       justify-content: space-between !important;
       width: 100%;
       position: relative;
-      
+
       &:hover {
         background-color: #f0f2f5;
       }
     }
-    
+
     /deep/ .el-collapse-item__content {
       padding: 15px 20px;
       background-color: #fff;
@@ -315,12 +322,12 @@ export default {
     /deep/ .el-collapse-item:last-child .el-collapse-item__content {
       border-bottom: none;
     }
-    
-    
+
+
     /deep/ .el-collapse-item__header::after {
       display: none !important;
     }
-     
+
     .segment-badge {
       color: $color;
       font-size: 12px;
@@ -329,61 +336,63 @@ export default {
       font-weight: 500;
       margin-right: 120px;
     }
+
     .segment-actions {
-        display: flex;
-        gap: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+      margin-right: 10px;
+
+      .action-btn {
+        display: inline-flex;
         align-items: center;
-        flex: 1;
-        justify-content: flex-end;
-        margin-right: 10px;
-        .action-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 8px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          transition: all 0.3s ease;
-          
-          i {
-            font-size: 14px;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+
+        i {
+          font-size: 14px;
+        }
+
+        &.edit-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.edit-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
+        }
+
+        &.delete-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.delete-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
+        }
+
+        &.save-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.save-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
-          }
-          
-          &.cancel-btn {
-            color: #909399;
-            
-            &:hover {
-              color: #606266;
-            }
+        }
+
+        &.cancel-btn {
+          color: #909399;
+
+          &:hover {
+            color: #606266;
           }
         }
       }
-    
+    }
+
     .segment-score {
       display: flex;
       align-items: center;
@@ -391,14 +400,14 @@ export default {
       right: 20px;
       top: 50%;
       transform: translateY(-50%);
-      
+
       .score-label {
         font-size: 12px;
         color: $color;
         font-weight: bold;
         margin-right: 5px;
       }
-      
+
       .score-value {
         font-size: 14px;
         color: $color;
@@ -406,16 +415,16 @@ export default {
         font-family: 'Courier New', monospace;
       }
     }
-    
+
     .segment-content {
       padding: 10px;
       text-align: left;
-      
+
       .content-display {
         word-wrap: break-word;
         line-height: 1.5;
       }
-      
+
       .content-edit {
         .edit-input {
           /deep/ .el-textarea__inner {
@@ -426,7 +435,7 @@ export default {
         }
       }
     }
-    
+
     /deep/ .el-collapse-item__content {
       font-size: 14px;
       color: #333;
@@ -435,60 +444,68 @@ export default {
       word-wrap: break-word;
       word-break: break-all;
       overflow-wrap: break-word;
-      
+
       .segment-action {
         color: #999;
         font-size: 12px;
         margin-left: 8px;
       }
-      
+
       .auto-save {
         color: #666;
         font-size: 12px;
         margin-left: 8px;
         font-style: italic;
       }
-      
+
     }
   }
 }
 
-  .smartDate{
-      padding-top:3px;
-      color:#888888;
-  }
-  .tagList{
-    cursor: pointer;
-    .icon-tag{
-      transform: rotate(-40deg);
-      margin-right:3px;
-    }
-    .tagList-item{
-      color:#888;
-    }
-  }
-  .tagList > .tagList-item:hover{
-      color:$color;
-  }
-.showMore{
-  margin-left:5px;
-  background:$color_opacity;
-  padding:2px;
-  border-radius:4px;
+.smartDate {
+  padding-top: 3px;
+  color: #888888;
 }
-.metaItem{
-  margin-left:5px;
-  background:$color_opacity;
-  padding:2px;
-  border-radius:4px;
-}
-.editIcon{
+
+.tagList {
   cursor: pointer;
-  color:$color;
-  font-size:16px;
-  display: inline-block;
-  margin-left:5px;
+
+  .icon-tag {
+    transform: rotate(-40deg);
+    margin-right: 3px;
+  }
+
+  .tagList-item {
+    color: #888;
+  }
 }
+
+.tagList > .tagList-item:hover {
+  color: $color;
+}
+
+.showMore {
+  margin-left: 5px;
+  background: $color_opacity;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.metaItem {
+  margin-left: 5px;
+  background: $color_opacity;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.editIcon {
+  cursor: pointer;
+  color: $color;
+  font-size: 16px;
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .section {
   width: 100%;
   height: 100%;
@@ -499,6 +516,7 @@ export default {
   .el-divider--horizontal {
     margin: 30px 0;
   }
+
   .title {
     font-size: 18px;
     font-weight: bold;
@@ -519,8 +537,10 @@ export default {
       &:nth-child(even) {
         width: 25%;
       }
+
       padding: 10px;
     }
+
     .btn {
       padding: 10px 0;
       text-align: right;
@@ -528,9 +548,11 @@ export default {
 
     .card {
       flex-wrap: wrap;
+
       .el-row {
         margin: 0 !important;
       }
+
       .text {
         font-size: 14px;
       }
@@ -545,11 +567,12 @@ export default {
         text-overflow: ellipsis;
       }
 
-      .clearfix{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
+      .clearfix {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
+
       .card-box {
         margin-bottom: 10px;
 
@@ -558,26 +581,27 @@ export default {
             cursor: pointer;
             transform: scale(1.03);
           }
-          .more{
-            margin-left:5px;
+
+          .more {
+            margin-left: 5px;
             cursor: pointer;
             transform: rotate(90deg);
             font-size: 16px;
             color: #8c8c8f;
           }
         }
-        
+
         .segment-type {
           margin: 0 5px;
           color: #999;
           font-size: 12px;
         }
-        
+
         .segment-length {
           color: #999;
           font-size: 12px;
         }
-        
+
         .segment-child {
           color: #999;
           font-size: 12px;

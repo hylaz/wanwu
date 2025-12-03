@@ -52,7 +52,7 @@
               <span class="type-value">[{{ item.metaValueType }}]</span>
             </div>
 
-            <el-divider direction="vertical" class="field-divider" />
+            <el-divider direction="vertical" class="field-divider"/>
 
             <div class="field-group">
               <label class="field-label">Value:</label>
@@ -93,7 +93,7 @@
               </template>
             </div>
 
-            <el-divider direction="vertical" class="field-divider" />
+            <el-divider direction="vertical" class="field-divider"/>
 
             <div class="field-group delete-group">
               <el-button
@@ -137,7 +137,8 @@
 </template>
 
 <script>
-import { metaSelect, getDocMetaList, updateMetaData } from "@/api/knowledge";
+import {metaSelect, getDocMetaList, updateMetaData} from "@/api/knowledge";
+
 export default {
   name: "BatchMetaData",
   props: ["selectedDocIds", "type"],
@@ -151,7 +152,8 @@ export default {
       keyOptions: [],
     };
   },
-  created() {},
+  created() {
+  },
   methods: {
     handleMetaKeyChange(val, item) {
       item.metaValueType = this.keyOptions
@@ -189,7 +191,7 @@ export default {
           this.docLoading = false;
         });
     },
-    handleMataData(data){
+    handleMataData(data) {
       this.metaDataList = data.map(
         (item) => ({
           ...item,
@@ -197,8 +199,8 @@ export default {
             item.metaValue.length > 1
               ? item.metaValue
               : item.metaValueType === "time"
-              ? Number(item.metaValue[0])
-              : item.metaValue[0],
+                ? Number(item.metaValue[0])
+                : item.metaValue[0],
           option: "existing",
           originalMetaValue: item.metaValue,
         })
@@ -206,15 +208,16 @@ export default {
     },
     getList() {
       const knowledgeId = this.$route.params.id;
-      metaSelect({ knowledgeId })
+      metaSelect({knowledgeId})
         .then((res) => {
           if (res.code === 0) {
             this.keyOptions = res.data.knowledgeMetaList || [];
           }
         })
-        .catch(() => {});
+        .catch(() => {
+        });
     },
-    showDialog(row=null) {
+    showDialog(row = null) {
       this.dialogVisible = true;
       this.applyToSelected = false;
       this.getList();
@@ -280,7 +283,8 @@ export default {
             this.loading = false;
           }
         })
-        .catch(() => {});
+        .catch(() => {
+        });
     },
     handleConfirm() {
       if (this.metaDataList.length === 0) {
@@ -497,6 +501,7 @@ export default {
     align-items: center;
     margin-top: 20px;
     padding: 0 10px 10px 0;
+
     .apply-checkbox {
       /deep/ .el-checkbox__label {
         color: #606266;

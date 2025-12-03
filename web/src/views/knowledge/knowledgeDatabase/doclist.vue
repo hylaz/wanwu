@@ -337,7 +337,7 @@ import {
   uploadFileTips,
   updateDocMeta,
 } from "@/api/knowledge";
-import { mapGetters } from "vuex";
+import {mapGetters} from "vuex";
 import {KNOWLEDGE_GRAPH_STATUS, KNOWLEDGE_STATUS_OPTIONS} from "../config";
 import {
   INITIAL,
@@ -444,7 +444,8 @@ export default {
           if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
             this.$store.dispatch("app/setPermissionType", savedPermissionType);
           }
-        } catch (e) {}
+        } catch (e) {
+        }
       }
     }
   },
@@ -521,11 +522,11 @@ export default {
       this.isDisabled = true;
       const metaList = this.metaData
         .filter((item) => item.option !== "")
-        .map(({ metaId, metaKey, metaValueType, option }) => ({
+        .map(({metaId, metaKey, metaValueType, option}) => ({
           metaKey,
-          ...(option === "add" ? { metaValueType } : {}),
+          ...(option === "add" ? {metaValueType} : {}),
           option,
-          ...(option === "update" || option === "delete" ? { metaId } : {}),
+          ...(option === "update" || option === "delete" ? {metaId} : {}),
         }));
       const data = {
         docId: "",
@@ -573,7 +574,7 @@ export default {
       }
     },
     goBack() {
-      this.$router.push({ path: "/knowledge" });
+      this.$router.push({path: "/knowledge"});
     },
     reload() {
       this.getTableData(this.docQuery);
@@ -633,7 +634,8 @@ export default {
         }
       ).then(() => {
         this.handleDelete([data.docId]);
-      }).catch(() => {});
+      }).catch(() => {
+      });
     },
     handleBatchDelete() {
       this.$confirm(
@@ -646,7 +648,8 @@ export default {
         }
       ).then(() => {
         this.handleDelete(this.selectedDocIds);
-      }).catch(() => {});
+      }).catch(() => {
+      });
     },
     async getTableData(data) {
       this.tableLoading = true;
@@ -655,7 +658,7 @@ export default {
       this.getTips();
     },
     getTips() {
-      uploadFileTips({ knowledgeId: this.docQuery.knowledgeId }).then((res) => {
+      uploadFileTips({knowledgeId: this.docQuery.knowledgeId}).then((res) => {
         if (res.code === 0) {
           if (res.data.uploadstatus === 1) {
             this.showTips = true;
@@ -673,7 +676,7 @@ export default {
     changeOption(data) {
       //通过文档状态查找
       this.docQuery.status = data;
-      this.getTableData({ ...this.docQuery, pageNo: 1 });
+      this.getTableData({...this.docQuery, pageNo: 1});
     },
     filterStatus(status) {
       const statusOption = KNOWLEDGE_STATUS_OPTIONS.find(option => option.value === status);
@@ -694,7 +697,7 @@ export default {
     handleUpload() {
       this.$router.push({
         path: "/knowledge/fileUpload",
-        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
+        query: {id: this.docQuery.knowledgeId, name: this.knowledgeName},
       });
     },
     refreshData(data, tableInfo) {
@@ -717,15 +720,18 @@ export default {
   max-height: 400px;
   overflow-y: auto;
 }
+
 .edit-icon {
   color: $color;
   cursor: pointer;
   font-size: 16px;
   margin-left: 5px;
 }
+
 .doc_tag {
   margin: 0 2px;
 }
+
 /deep/ {
   .el-button.is-disabled,
   .el-button--info.is-disabled {
@@ -733,49 +739,62 @@ export default {
     background-color: #fff !important;
     border-color: #ebeef5 !important;
   }
+
   .el-tree--highlight-current
-    .el-tree-node.is-current
-    > .el-tree-node__content {
+  .el-tree-node.is-current
+  > .el-tree-node__content {
     background: #ffefef;
   }
+
   .el-tabs__item.is-active {
     color: #e60001 !important;
   }
+
   .el-tabs__active-bar {
     background-color: #e60001 !important;
   }
+
   .el-tabs__content {
     width: 100%;
     height: calc(100% - 40px);
   }
+
   .el-tab-pane {
     width: 100%;
     height: 100%;
   }
+
   .el-tree .el-tree-node__content {
     height: 40px;
   }
+
   .custom-tree-node {
     padding: 0 10px;
   }
+
   .el-tree .el-tree-node__content:hover {
     background: #ffefef;
   }
+
   .el-tree-node__expand-icon {
     display: none;
   }
+
   .el-button.is-round {
     border-color: #dcdfe6;
     color: #606266;
   }
+
   .el-upload-list {
     max-height: 200px;
     overflow-y: auto;
   }
+
   .el-dialog__body {
     padding: 10px 20px;
   }
 }
+
 .fileNumber {
   margin-left: 10px;
   display: inline-block;
@@ -784,24 +803,31 @@ export default {
   background: rgb(243, 243, 243);
   border-radius: 8px;
 }
+
 .defalutColor {
   color: #e7e7e7 !important;
 }
+
 .border {
   border: 1px solid #e4e7ed;
 }
+
 .noPadding {
   padding: 0 10px;
 }
+
 .activeColor {
   color: #e60001;
 }
+
 .error {
   color: #e60001;
 }
+
 .marginRight {
   margin-right: 10px;
 }
+
 .full-content {
   //padding: 20px 20px 30px 20px;
   margin: auto;
@@ -813,36 +839,45 @@ export default {
     color: #333;
     padding: 10px 0;
   }
+
   .tips {
     font-size: 14px;
     color: #aaabb0;
     margin-bottom: 10px;
   }
+
   .block {
     width: 100%;
     height: calc(100% - 58px);
+
     .el-tabs {
       width: 100%;
       height: 100%;
+
       .konw_container {
         width: 100%;
         height: 100%;
+
         .tree {
           height: 100%;
           background: none;
+
           .custom-tree-node {
             width: 100%;
             display: flex;
             justify-content: space-between;
+
             .icon {
               font-size: 16px;
               transform: rotate(90deg);
               color: #aaabb0;
             }
+
             .nodeLabel {
               color: #e60001;
               display: flex;
               align-items: center;
+
               .tag {
                 display: block;
                 width: 5px;
@@ -856,14 +891,17 @@ export default {
         }
       }
     }
+
     .classifyTitle {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 10px;
+
       h2 {
         font-size: 16px;
       }
+
       .content_title {
         display: flex;
         align-items: center;
@@ -871,13 +909,16 @@ export default {
       }
     }
   }
+
   .uploadTips {
     color: #aaabb0;
     font-size: 12px;
     height: 30px;
   }
+
   .document_lise {
     list-style: none;
+
     li {
       display: flex;
       justify-content: space-between;
@@ -885,12 +926,15 @@ export default {
       padding: 7px;
       border-radius: 3px;
       line-height: 1;
+
       .el-icon-success {
         display: block;
       }
+
       .el-icon-error {
         display: none;
       }
+
       &:hover {
         cursor: pointer;
         background: #eee;
@@ -898,10 +942,12 @@ export default {
         .el-icon-success {
           display: none;
         }
+
         .el-icon-error {
           display: block;
         }
       }
+
       &.document_loading {
         &:hover {
           cursor: pointer;
@@ -910,11 +956,13 @@ export default {
           .el-icon-success {
             display: none;
           }
+
           .el-icon-error {
             display: none;
           }
         }
       }
+
       .el-icon-success {
         color: #67c23a;
       }
@@ -922,10 +970,12 @@ export default {
       .result_icon {
         float: right;
       }
+
       .size {
         font-weight: bold;
       }
     }
+
     .document_error {
       color: red;
     }
@@ -938,9 +988,11 @@ export default {
   background-color: #fff; /* 设置背景颜色 */
   color: #666; /* 设置文字颜色 */
 }
+
 .custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
   border-top-color: #fff !important;
 }
+
 .custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
   border-top-color: #ccc !important;
 }

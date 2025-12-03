@@ -17,29 +17,34 @@
         border
       >
         <el-descriptions-item :label="$t('knowledgeManage.fileName')">{{
-          res.fileName
-        }}</el-descriptions-item>
+            res.fileName
+          }}
+        </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.splitNum')">
           {{ res.segmentTotalNum }}
         </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.importTime')">{{
-          res.uploadTime
-        }}</el-descriptions-item>
+            res.uploadTime
+          }}
+        </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.chunkType')">{{
-          Number(res.segmentType) === 0 ? $t('knowledgeManage.autoChunk') : $t('knowledgeManage.autoConfigChunk')
-        }}</el-descriptions-item>
+            Number(res.segmentType) === 0 ? $t('knowledgeManage.autoChunk') : $t('knowledgeManage.autoConfigChunk')
+          }}
+        </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.setMaxLength')">{{
-          String(res.maxSegmentSize)
-        }}</el-descriptions-item>
+            String(res.maxSegmentSize)
+          }}
+        </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.markSplit')">{{
-          String(res.splitter).replace(/\n/g, '\\n')
-        }}</el-descriptions-item>
+            String(res.splitter).replace(/\n/g, '\\n')
+          }}
+        </el-descriptions-item>
         <el-descriptions-item label="元数据">
           <template v-if="metaDataList && metaDataList.length > 0">
             <span
-                v-for="(item, index) in metaDataList.slice(0, 3)"
-                :key="index"
-                class="metaItem"
+              v-for="(item, index) in metaDataList.slice(0, 3)"
+              :key="index"
+              class="metaItem"
             >
               {{ item.metaKey }}: {{ item.metaValueType === 'time' ? formatTimestamp(item.metaValue) : item.metaValue }}
             </span>
@@ -48,7 +53,8 @@
             </el-tooltip>
           </template>
           <span v-else>无数据</span>
-          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])" v-if="metaDataList && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"></span>
+          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])"
+                v-if="metaDataList && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"></span>
         </el-descriptions-item>
         <el-descriptions-item label="元数据规则">
           <template v-if="metaRuleList && metaRuleList.length > 0">
@@ -62,18 +68,19 @@
           <span v-else>无数据</span>
         </el-descriptions-item>
         <el-descriptions-item label="批量新增分段状态">
-          <span>{{res.segmentImportStatus}}</span>
+          <span>{{ res.segmentImportStatus }}</span>
         </el-descriptions-item>
       </el-descriptions>
 
       <div class="btn">
-         <el-button
+        <el-button
           type="primary"
           @click="createChunk(false)"
           size="mini"
           :loading="loading.start"
           v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-          >新增分段</el-button
+        >新增分段
+        </el-button
         >
         <el-button
           type="primary"
@@ -81,7 +88,8 @@
           size="mini"
           :loading="loading.start"
           v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-          >{{$t('knowledgeManage.allRun')}}</el-button
+        >{{ $t('knowledgeManage.allRun') }}
+        </el-button
         >
         <el-button
           type="primary"
@@ -89,7 +97,8 @@
           size="mini"
           :loading="loading.stop"
           v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-          >{{$t('knowledgeManage.allStop')}}</el-button
+        >{{ $t('knowledgeManage.allStop') }}
+        </el-button
         >
       </div>
 
@@ -104,9 +113,11 @@
             <el-card class="box-card">
               <div slot="header" class="clearfix">
                 <span>
-                  {{ $t('knowledgeManage.split')+":" + item.contentNum }}
-                  <span class="segment-type">#{{ item.isParent?"父子分段":"通用分段" }}</span>
-                  <span class="segment-length" v-if="!item.isParent">#{{ item.content.length }}{{$t('knowledgeManage.character')}}</span>
+                  {{ $t('knowledgeManage.split') + ":" + item.contentNum }}
+                  <span class="segment-type">#{{ item.isParent ? "父子分段" : "通用分段" }}</span>
+                  <span class="segment-length" v-if="!item.isParent">#{{
+                      item.content.length
+                    }}{{ $t('knowledgeManage.character') }}</span>
                   <span class="segment-child" v-if="item.childNum">#{{ item.childNum || 0 }}个子分段</span>
                 </span>
                 <div>
@@ -118,14 +129,15 @@
                     @change="handleStatusChange(item, index)"
                   >
                   </el-switch>
-                  <el-dropdown @command="handleCommand" placement="bottom" v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
+                  <el-dropdown @command="handleCommand" placement="bottom"
+                               v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item class="card-delete" :command="{type: 'delete', item}">
-                        <i class="el-icon-delete card-opera-icon" />
-                        {{$t('common.button.delete')}}
+                        <i class="el-icon-delete card-opera-icon"/>
+                        {{ $t('common.button.delete') }}
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -134,12 +146,15 @@
               <div class="text item" @click="handleClick(item, index)">
                 {{ item.content }}
               </div>
-              <div class="tagList" v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
-                <span :class="['smartDate','tagList']" @click.stop="addTag(item.labels,item.contentId)" v-if="item.labels.length === 0">
+              <div class="tagList"
+                   v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
+                <span :class="['smartDate','tagList']" @click.stop="addTag(item.labels,item.contentId)"
+                      v-if="item.labels.length === 0">
                   <span class="el-icon-price-tag icon-tag"></span>
                   创建关键词
                 </span>
-                <span class="tagList-item" @click.stop="addTag(item.labels,item.contentId)" v-else>{{formattedTagNames(item.labels) }}</span>
+                <span class="tagList-item" @click.stop="addTag(item.labels,item.contentId)"
+                      v-else>{{ formattedTagNames(item.labels) }}</span>
               </div>
             </el-card>
           </el-col>
@@ -172,7 +187,7 @@
       class="section-dialog"
     >
       <div slot="title">
-        <span style="font-size: 16px">{{$t('knowledgeManage.detailView')}}</span>
+        <span style="font-size: 16px">{{ $t('knowledgeManage.detailView') }}</span>
         <el-switch
           @change="handleDetailStatusChange"
           style="float: right; padding: 3px 0"
@@ -197,25 +212,28 @@
             align="center"
             :render-header="renderHeader"
           >
-          <template slot-scope="scope">
-              <el-input 
+            <template slot-scope="scope">
+              <el-input
                 type="textarea"
                 v-model="scope.row.content"
                 :autosize="{ minRows: 3, maxRows: 5}"
                 class="full-width-textarea"
                 :disabled="[POWER_TYPE_READ].includes(permissionType)"
-                >
+              >
               </el-input>
-              <div  v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)" style="display: flex;justify-content: flex-end;padding: 10px 0;">
-                <el-button type="primary" @click="handleSubmit"  :loading="submitLoading">保存并重新解析子分段</el-button>
+              <div
+                v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
+                style="display: flex;justify-content: flex-end;padding: 10px 0;">
+                <el-button type="primary" @click="handleSubmit" :loading="submitLoading">保存并重新解析子分段
+                </el-button>
               </div>
               <div class="segment-list" v-if="scope.row.childContent.length > 0">
-                <el-collapse 
-                  v-model="activeNames" 
+                <el-collapse
+                  v-model="activeNames"
                   class="section-collapse"
                 >
-                  <el-collapse-item 
-                    v-for="(segment, index) in scope.row.childContent" 
+                  <el-collapse-item
+                    v-for="(segment, index) in scope.row.childContent"
                     :key="index"
                     :name="index"
                     class="segment-collapse-item"
@@ -223,16 +241,22 @@
                     <template slot="title">
                       <span class="segment-badge">C-{{ index + 1 }}</span>
                       <div class="segment-actions">
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)" class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
+                        <span
+                          v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
+                          class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
                           <i class="el-icon-edit-outline"></i>编辑
                         </span>
-                        <span v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)" class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
+                        <span
+                          v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
+                          class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
                           <i class="el-icon-delete"></i>删除
                         </span>
-                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn save-btn" @click.stop="confirmEdit(scope.row, index)">
+                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn save-btn"
+                              @click.stop="confirmEdit(scope.row, index)">
                           <i class="el-icon-check"></i>保存
                         </span>
-                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn cancel-btn" @click.stop="cancelEdit(scope.row, index)">
+                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn cancel-btn"
+                              @click.stop="cancelEdit(scope.row, index)">
                           <i class="el-icon-close"></i>取消
                         </span>
                       </div>
@@ -254,24 +278,37 @@
                   </el-collapse-item>
                 </el-collapse>
               </div>
-          </template>
+            </template>
           </el-table-column>
         </el-table>
       </div>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit" :loading="submitLoading" v-if="!cardObj[0]['isParent']">确定</el-button>
-        <el-button type="primary" @click="createChunk(true)" v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"" :disabled="submitLoading">新增子分段</el-button>
-        <el-button type="primary" @click="handleClose" :disabled="submitLoading">{{$t('knowledgeManage.close')}}</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitLoading"
+                   v-if="!cardObj[0]['isParent']">确定</el-button>
+        <el-button type="primary" @click="createChunk(true)"
+                   v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"" :disabled="submitLoading">新增子分段</el-button>
+        <el-button type="primary" @click="handleClose"
+                   :disabled="submitLoading">{{ $t('knowledgeManage.close') }}</el-button>
       </span>
     </el-dialog>
     <dataBaseDialog ref="dataBase" @updateData="updateData" :knowledgeId="obj.knowledgeId" :name="obj.knowledgeName"/>
-    <tagDialog ref="tagDialog" type="section" :title="title" :currentList="currentList" @sendList="sendList" />
-    <createChunk ref="createChunk"  @updateDataBatch="updateDataBatch" @updateData="updateData" :parentId="cardObj[0]['contentId']" @updateChildData="updateChildData"/>
+    <tagDialog ref="tagDialog" type="section" :title="title" :currentList="currentList" @sendList="sendList"/>
+    <createChunk ref="createChunk" @updateDataBatch="updateDataBatch" @updateData="updateData"
+                 :parentId="cardObj[0]['contentId']" @updateChildData="updateChildData"/>
   </div>
 </template>
 <script>
-import { getSectionList,setSectionStatus,sectionLabels,delSegment,editSegment,getSegmentChild,delSegmentChild,updateSegmentChild } from "@/api/knowledge";
+import {
+  getSectionList,
+  setSectionStatus,
+  sectionLabels,
+  delSegment,
+  editSegment,
+  getSegmentChild,
+  delSegmentChild,
+  updateSegmentChild
+} from "@/api/knowledge";
 import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue'
@@ -285,12 +322,12 @@ import {
 } from "@/views/knowledge/constants";
 
 export default {
-  components:{dataBaseDialog,tagDialog,createChunk},
+  components: {dataBaseDialog, tagDialog, createChunk},
   data() {
     return {
-      submitLoading:false,
-      oldContent:'',
-      title:'创建关键词',
+      submitLoading: false,
+      oldContent: '',
+      title: '创建关键词',
       dialogVisible: false,
       editingSegments: {},
       editingContent: {},
@@ -299,14 +336,14 @@ export default {
         {
           available: false,
           content: "",
-          childContent:[],
+          childContent: [],
           contentId: "",
           len: 20,
         },
       ],
       value: true,
       activeStatus: false,
-      activeNames: [], 
+      activeNames: [],
       page: {
         pageNo: 1,
         pageSize: 8,
@@ -324,10 +361,10 @@ export default {
       },
       metaDataList: [],
       metaRuleList: [],
-      currentList:[],
-      contentId:'',
-      timer:null,
-      refreshCount:0,
+      currentList: [],
+      contentId: '',
+      timer: null,
+      refreshCount: 0,
       INITIAL,
       POWER_TYPE_READ,
       POWER_TYPE_EDIT,
@@ -342,27 +379,27 @@ export default {
     this.obj = this.$route.query;
     this.getList();
     if (this.permissionType === INITIAL || this.permissionType === null || this.permissionType === undefined) {
-        const savedData = localStorage.getItem('permission_data')
-        if (savedData) {
-            try {
-                const parsed = JSON.parse(savedData)
-                const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
-                if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-                    this.$store.dispatch('app/setPermissionType', savedPermissionType)
-                }
-            } catch(e) {
-            }
+      const savedData = localStorage.getItem('permission_data')
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData)
+          const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
+          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
+            this.$store.dispatch('app/setPermissionType', savedPermissionType)
+          }
+        } catch (e) {
         }
+      }
     }
   },
-  beforeDestroy(){
+  beforeDestroy() {
     this.clearTimer()
   },
   methods: {
-    createChunk(isChildChunk){
-      this.$refs.createChunk.showDiglog(this.obj.id,isChildChunk)
+    createChunk(isChildChunk) {
+      this.$refs.createChunk.showDiglog(this.obj.id, isChildChunk)
     },
-    updateChildData(){
+    updateChildData() {
       setTimeout(() => {
         this.handleParse();
       }, 1000);
@@ -377,7 +414,7 @@ export default {
       const key = `${row.contentId}-${index}`;
       this.$set(this.editingSegments, key, true);
       this.$set(this.editingContent, key, row.childContent[index].content);
-      
+
       this.$nextTick(() => {
         if (!this.activeNames.includes(index)) {
           this.activeNames.push(index);
@@ -392,15 +429,15 @@ export default {
     confirmEdit(row, index) {
       const key = `${row.contentId}-${index}`;
       const newContent = this.editingContent[key];
-      
+
       if (!newContent || newContent.trim() === '') {
         this.$message.warning('内容不能为空');
         return;
       }
       updateSegmentChild({
-        childChunk:{
+        childChunk: {
           content: newContent.trim(),
-          chunkNo:row['childContent'][index].childNum
+          chunkNo: row['childContent'][index].childNum
         },
         docId: this.obj.id,
         parentChunkNo: row.contentNum,
@@ -418,13 +455,14 @@ export default {
         this.$message.error('更新失败');
       });
     },
-    handleParse(){
-      getSegmentChild({contentId:this.cardObj[0]['contentId'],docId:this.obj.id}).then(res =>{
-        if(res.code === 0){
+    handleParse() {
+      getSegmentChild({contentId: this.cardObj[0]['contentId'], docId: this.obj.id}).then(res => {
+        if (res.code === 0) {
           this.cardObj[0].childContent = res.data.contentList || [];
           this.activeNames = this.cardObj[0].childContent.map((_, index) => index);
         }
-      }).catch(() =>{})
+      }).catch(() => {
+      })
     },
     deleteSegment(row, index) {
       this.$confirm('确定要删除这个子分段吗？', '提示', {
@@ -432,8 +470,13 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delSegmentChild({docId:this.obj.id,parentId:row['childContent'][index].parentId,parentChunkNo:row.contentNum,ChildChunkNoList:[row['childContent'][index].childNum]}).then(res =>{
-          if(res.code === 0){
+        delSegmentChild({
+          docId: this.obj.id,
+          parentId: row['childContent'][index].parentId,
+          parentChunkNo: row.contentNum,
+          ChildChunkNoList: [row['childContent'][index].childNum]
+        }).then(res => {
+          if (res.code === 0) {
             this.$message.success('删除成功');
             this.handleParse();
           }
@@ -442,20 +485,20 @@ export default {
         });
       });
     },
-    updateDataBatch(){
+    updateDataBatch() {
       this.startTimer();
     },
-    startTimer(){
+    startTimer() {
       this.clearTimer();
       if (this.refreshCount >= 2) {
         return;
       }
       const delay = this.refreshCount === 0 ? 1000 : 3000;
-      this.timer = setTimeout(() =>{
+      this.timer = setTimeout(() => {
         this.getList()
         this.refreshCount++;
         this.startTimer()
-      },delay)
+      }, delay)
     },
     clearTimer() {
       if (this.timer) {
@@ -463,84 +506,90 @@ export default {
         this.timer = null;
       }
     },
-    handleSubmit(){
+    handleSubmit() {
       const hasChanges = this.oldContent !== this.cardObj[0]['content'];
-      
-      if(!hasChanges){
+
+      if (!hasChanges) {
         this.$message.warning('无修改')
         return false;
       }
-      
+
       this.submitLoading = true;
-      editSegment({content:this.cardObj[0]['content'],contentId:this.cardObj[0]['contentId'],docId:this.obj.id}).then(res =>{
-        if(res.code === 0){
+      editSegment({
+        content: this.cardObj[0]['content'],
+        contentId: this.cardObj[0]['contentId'],
+        docId: this.obj.id
+      }).then(res => {
+        if (res.code === 0) {
           this.$message.success('操作成功');
-            this.dialogVisible = false;
-            this.submitLoading = false;
-            this.getList();
+          this.dialogVisible = false;
+          this.submitLoading = false;
+          this.getList();
         }
-      }).catch(() =>{
+      }).catch(() => {
         this.submitLoading = false;
       })
     },
-    handleCommand(value){
+    handleCommand(value) {
       const {type, item} = value || {}
-       switch (type) {
-          case 'delete':
-            this.delSection(item)
-            break
-        }
+      switch (type) {
+        case 'delete':
+          this.delSection(item)
+          break
+      }
     },
-    delSection(item){
-      delSegment({contentId:item.contentId,docId:this.obj.id}).then(res =>{
-        if(res.code === 0){
+    delSection(item) {
+      delSegment({contentId: item.contentId, docId: this.obj.id}).then(res => {
+        if (res.code === 0) {
           this.$message.success('删除成功');
           this.getList();
         }
-      }).catch(() =>{})
+      }).catch(() => {
+      })
     },
-    sendList(data){
+    sendList(data) {
       const labels = data.map(item => item.tagName)
-      sectionLabels({contentId:this.contentId,docId:this.obj.id,labels}).then(res =>{
-        if(res.code === 0){
+      sectionLabels({contentId: this.contentId, docId: this.obj.id, labels}).then(res => {
+        if (res.code === 0) {
           this.getList();
           this.$refs.tagDialog.handleClose();
         }
-      }).catch(err =>{})
+      }).catch(err => {
+      })
     },
-    addTag(data,id){
-      if(data.length > 0){
-          this.currentList = data.map(item =>({
-          tagName:item,
+    addTag(data, id) {
+      if (data.length > 0) {
+        this.currentList = data.map(item => ({
+          tagName: item,
           checked: false,
           showDel: false,
           showIpt: false
         }))
-      }else{
+      } else {
         this.currentList = []
       }
       this.contentId = id
       this.$refs.tagDialog.showDiaglog();
     },
-    formattedTagNames(data){
+    formattedTagNames(data) {
       let tags = ''
-      if(!Array.isArray(data) || data.length === 0){
+      if (!Array.isArray(data) || data.length === 0) {
         return '';
       }
-      if(data.length > 3){
+      if (data.length > 3) {
         tags = data.slice(0, 3).join(', ') + (data.length > 3 ? '...' : '');
-      }else{
+      } else {
         tags = data.join(', ');
       }
       return tags;
     },
-    updateData(){
+    updateData() {
       this.getList();
     },
-    showDatabase(data){
-      this.$refs.dataBase.showDiglog(data,this.obj.id)
+    showDatabase(data) {
+      this.$refs.dataBase.showDiglog(data, this.obj.id)
     },
-    filterData(data){
+    filterData(data) {
       return data.map(item => {
         let value = item.metaValue;
         if (item.metaValueType === 'time') {
@@ -560,7 +609,7 @@ export default {
       const seconds = String(date.getSeconds()).padStart(2, '0');
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
-    filterRule(rule){
+    filterRule(rule) {
       return rule.map(item => `${item.metaKey}:${item.metaRule}`).join(", ")
     },
     getList() {
@@ -568,7 +617,7 @@ export default {
       getSectionList({
         docId: this.obj.id,
         pageNo: this.page.pageNo,
-        pageSize:this.page.pageSize
+        pageSize: this.page.pageSize
       })
         .then((res) => {
           this.loading.itemStatus = false;
@@ -586,9 +635,9 @@ export default {
       this.oldContent = item.content;
       const obj = JSON.parse(JSON.stringify(item));
       this.$nextTick(() => {
-        this.$set(obj,'childContent',[]);
+        this.$set(obj, 'childContent', []);
         this.cardObj = [obj];
-        if(this.cardObj[0].isParent){
+        if (this.cardObj[0].isParent) {
           this.handleParse();
         }
         this.activeStatus = obj.available;
@@ -609,7 +658,7 @@ export default {
         docId: this.obj.id,
         contentStatus: String(val),
         contentId: this.cardObj[0].contentId,
-        all:false,
+        all: false,
       })
         .then((res) => {
           this.loading.dialog = false;
@@ -651,9 +700,9 @@ export default {
       this.loading.itemStatus = true;
       setSectionStatus({
         docId: this.obj.id,
-        contentStatus: type==='start' ? "true" :"false",
+        contentStatus: type === 'start' ? "true" : "false",
         contentId: "",
-        all:true,
+        all: true,
       })
         .then((res) => {
           this.loading.itemStatus = false;
@@ -666,11 +715,11 @@ export default {
           this.loading.itemStatus = false;
         });
     },
-    renderHeader(h, { column, $index }) {
+    renderHeader(h, {column, $index}) {
       const columnHtml =
         this.$t('knowledgeManage.section') +
         this.cardObj[0].contentNum +
-        this.$t('knowledgeManage.length')+ " :" +
+        this.$t('knowledgeManage.length') + " :" +
         this.cardObj[0].content.length +
         this.$t('knowledgeManage.character');
       return h("span", {
@@ -689,23 +738,24 @@ export default {
 </script>
 <style lang="scss">
 .dialog-content {
-  max-height:55vh!important;
+  max-height: 55vh !important;
   overflow-y: auto;
 }
+
 .segment-list {
   margin-top: 10px;
-  
+
   .section-collapse {
     background-color: #f7f8fa;
     border-radius: 6px;
     border: 1px solid $color;
     overflow: hidden;
-    
+
     /deep/ .el-collapse {
       border: none;
       border-radius: 6px;
     }
-    
+
     /deep/ .el-collapse-item__header {
       background-color: #f7f8fa;
       border-bottom: 1px solid #e4e7ed;
@@ -719,12 +769,12 @@ export default {
       justify-content: space-between !important;
       width: 100%;
       position: relative;
-      
+
       &:hover {
         background-color: #f0f2f5;
       }
     }
-    
+
     /deep/ .el-collapse-item__content {
       padding: 15px 20px;
       background-color: #fff;
@@ -743,12 +793,12 @@ export default {
     /deep/ .el-collapse-item:last-child .el-collapse-item__content {
       border-bottom: none;
     }
-    
-    
+
+
     /deep/ .el-collapse-item__header::after {
       display: none !important;
     }
-     
+
     .segment-badge {
       color: $color;
       font-size: 12px;
@@ -757,61 +807,63 @@ export default {
       font-weight: 500;
       margin-right: 120px;
     }
+
     .segment-actions {
-        display: flex;
-        gap: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+      margin-right: 10px;
+
+      .action-btn {
+        display: inline-flex;
         align-items: center;
-        flex: 1;
-        justify-content: flex-end;
-        margin-right: 10px;
-        .action-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 8px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          transition: all 0.3s ease;
-          
-          i {
-            font-size: 14px;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+
+        i {
+          font-size: 14px;
+        }
+
+        &.edit-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.edit-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
+        }
+
+        &.delete-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.delete-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
+        }
+
+        &.save-btn {
+          color: $btn_bg;
+
+          &:hover {
+            color: #2a3cc7;
           }
-          
-          &.save-btn {
-            color: $btn_bg;
-            
-            &:hover {
-              color: #2a3cc7;
-            }
-          }
-          
-          &.cancel-btn {
-            color: #909399;
-            
-            &:hover {
-              color: #606266;
-            }
+        }
+
+        &.cancel-btn {
+          color: #909399;
+
+          &:hover {
+            color: #606266;
           }
         }
       }
-    
+    }
+
     .segment-score {
       display: flex;
       align-items: center;
@@ -819,14 +871,14 @@ export default {
       right: 20px;
       top: 50%;
       transform: translateY(-50%);
-      
+
       .score-label {
         font-size: 12px;
         color: $color;
         font-weight: bold;
         margin-right: 5px;
       }
-      
+
       .score-value {
         font-size: 14px;
         color: $color;
@@ -834,16 +886,16 @@ export default {
         font-family: 'Courier New', monospace;
       }
     }
-    
+
     .segment-content {
       padding: 10px;
       text-align: left;
-      
+
       .content-display {
         word-wrap: break-word;
         line-height: 1.5;
       }
-      
+
       .content-edit {
         .edit-input {
           /deep/ .el-textarea__inner {
@@ -854,7 +906,7 @@ export default {
         }
       }
     }
-    
+
     /deep/ .el-collapse-item__content {
       font-size: 14px;
       color: #333;
@@ -863,60 +915,68 @@ export default {
       word-wrap: break-word;
       word-break: break-all;
       overflow-wrap: break-word;
-      
+
       .segment-action {
         color: #999;
         font-size: 12px;
         margin-left: 8px;
       }
-      
+
       .auto-save {
         color: #666;
         font-size: 12px;
         margin-left: 8px;
         font-style: italic;
       }
-      
+
     }
   }
 }
 
-  .smartDate{
-      padding-top:3px;
-      color:#888888;
-  }
-  .tagList{
-    cursor: pointer;
-    .icon-tag{
-      transform: rotate(-40deg);
-      margin-right:3px;
-    }
-    .tagList-item{
-      color:#888;
-    }
-  }
-  .tagList > .tagList-item:hover{
-      color:$color;
-  }
-.showMore{
-  margin-left:5px;
-  background:$color_opacity;
-  padding:2px;
-  border-radius:4px;
+.smartDate {
+  padding-top: 3px;
+  color: #888888;
 }
-.metaItem{
-  margin-left:5px;
-  background:$color_opacity;
-  padding:2px;
-  border-radius:4px;
-}
-.editIcon{
+
+.tagList {
   cursor: pointer;
-  color:$color;
-  font-size:16px;
-  display: inline-block;
-  margin-left:5px;
+
+  .icon-tag {
+    transform: rotate(-40deg);
+    margin-right: 3px;
+  }
+
+  .tagList-item {
+    color: #888;
+  }
 }
+
+.tagList > .tagList-item:hover {
+  color: $color;
+}
+
+.showMore {
+  margin-left: 5px;
+  background: $color_opacity;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.metaItem {
+  margin-left: 5px;
+  background: $color_opacity;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.editIcon {
+  cursor: pointer;
+  color: $color;
+  font-size: 16px;
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .section {
   width: 100%;
   height: 100%;
@@ -927,6 +987,7 @@ export default {
   .el-divider--horizontal {
     margin: 30px 0;
   }
+
   .title {
     font-size: 18px;
     font-weight: bold;
@@ -947,8 +1008,10 @@ export default {
       &:nth-child(even) {
         width: 25%;
       }
+
       padding: 10px;
     }
+
     .btn {
       padding: 10px 0;
       text-align: right;
@@ -956,9 +1019,11 @@ export default {
 
     .card {
       flex-wrap: wrap;
+
       .el-row {
         margin: 0 !important;
       }
+
       .text {
         font-size: 14px;
       }
@@ -973,11 +1038,12 @@ export default {
         text-overflow: ellipsis;
       }
 
-      .clearfix{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
+      .clearfix {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
+
       .card-box {
         margin-bottom: 10px;
 
@@ -986,26 +1052,27 @@ export default {
             cursor: pointer;
             transform: scale(1.03);
           }
-          .more{
-            margin-left:5px;
+
+          .more {
+            margin-left: 5px;
             cursor: pointer;
             transform: rotate(90deg);
             font-size: 16px;
             color: #8c8c8f;
           }
         }
-        
+
         .segment-type {
           margin: 0 5px;
           color: #999;
           font-size: 12px;
         }
-        
+
         .segment-length {
           color: #999;
           font-size: 12px;
         }
-        
+
         .segment-child {
           color: #999;
           font-size: 12px;

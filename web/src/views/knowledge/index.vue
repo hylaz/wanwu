@@ -1,7 +1,7 @@
 <template>
   <div class="page-wrapper">
     <div class="page-title">
-      <img class="page-title-img" src="@/assets/imgs/knowledge.svg" alt="" />
+      <img class="page-title-img" src="@/assets/imgs/knowledge.svg" alt=""/>
       <span class="page-title-name">{{ $t("knowledgeManage.knowledge") }}</span>
     </div>
     <div style="padding: 20px">
@@ -84,12 +84,13 @@
   </div>
 </template>
 <script>
-import { getKnowledgeList, tagList } from "@/api/knowledge";
+import {getKnowledgeList, tagList} from "@/api/knowledge";
 import SearchInput from "@/components/searchInput.vue";
 import knowledgeList from "./component/knowledgeList.vue";
 import createKnowledge from "./component/create.vue";
+
 export default {
-  components: { SearchInput, knowledgeList, createKnowledge },
+  components: {SearchInput, knowledgeList, createKnowledge},
   provide() {
     return {
       reloadKnowledgeData: this.getTableData,
@@ -114,10 +115,10 @@ export default {
     this.getList();
   },
   methods: {
-    handleRouteFrom(from){
-      if(from.path.includes('/qa/docList')){
+    handleRouteFrom(from) {
+      if (from.path.includes('/qa/docList')) {
         this.category = 1
-      }else{
+      } else {
         this.category = 0
       }
     },
@@ -126,7 +127,7 @@ export default {
       this.getTableData();
     },
     getList() {
-      tagList({ knowledgeId: "", tagName: "" }).then((res) => {
+      tagList({knowledgeId: "", tagName: ""}).then((res) => {
         if (res.code === 0) {
           this.tagOptions = res.data.knowledgeTagList || [];
         }
@@ -182,13 +183,16 @@ export default {
     background: none !important;
   }
 }
+
 .active {
   background: #333;
   color: #fff;
   font-weight: bold;
 }
+
 .knowledge-tabs {
   margin-bottom: 20px;
+
   .knowledge-tab {
     display: inline-block;
     vertical-align: middle;

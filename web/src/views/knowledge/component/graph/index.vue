@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { getGraphDetail } from "@/api/knowledge";
+import {getGraphDetail} from "@/api/knowledge";
 import graphMap from "@/components/graphMap.vue";
 
 export default {
@@ -42,9 +42,9 @@ export default {
     },
     getGraphData() {
       if (!this.knowledgeId) return;
-      
+
       this.loading = true;
-      getGraphDetail({ knowledgeId: this.knowledgeId })
+      getGraphDetail({knowledgeId: this.knowledgeId})
         .then((res) => {
           this.loading = false;
           if (res.code === 0 && res.data) {

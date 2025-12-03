@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { addQaPair, editQaPair } from "@/api/qaDatabase";
+import {addQaPair, editQaPair} from "@/api/qaDatabase";
 
 export default {
   name: "CreateQa",
@@ -158,8 +158,8 @@ export default {
           };
 
           const apiCall = this.isEdit
-            ? editQaPair({ ...baseData, qaPairId: this.editId })
-            : addQaPair({ ...baseData, knowledgeId: this.knowledgeId });
+            ? editQaPair({...baseData, qaPairId: this.editId})
+            : addQaPair({...baseData, knowledgeId: this.knowledgeId});
 
           apiCall
             .then((res) => {
@@ -173,7 +173,8 @@ export default {
                 this.$emit("updateData");
               }
             })
-            .catch(() => {})
+            .catch(() => {
+            })
             .finally(() => {
               this.loading = false;
             });

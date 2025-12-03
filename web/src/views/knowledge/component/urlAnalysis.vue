@@ -7,7 +7,7 @@
       size="mini"
       class="urlAnalysisForm"
     >
-      <p class="urlTips">{{$t('knowledgeManage.addLimitTips')}}</p>
+      <p class="urlTips">{{ $t('knowledgeManage.addLimitTips') }}</p>
       <el-form-item
         v-for="(domain, index) in dynamicValidateForm.domains"
         label="url地址"
@@ -54,21 +54,24 @@
           icon="el-icon-plus"
           size="mini"
           :disabled="loading.url"
-          >{{$t('knowledgeManage.addOnePiece')}}</el-button
+        >{{ $t('knowledgeManage.addOnePiece') }}
+        </el-button
         >
         <el-button
           @click="submitForm('dynamicValidateForm')"
           type="primary"
           size="mini"
           :loading="loading.url"
-          >{{$t('knowledgeManage.startAnalysis')}}</el-button
+        >{{ $t('knowledgeManage.startAnalysis') }}
+        </el-button
         >
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
-import { setUploadURL,setAnalysis } from "@/api/knowledge";
+import {setUploadURL, setAnalysis} from "@/api/knowledge";
+
 export default {
   props: {
     categoryId: {
@@ -83,7 +86,7 @@ export default {
       loading: {
         url: false,
       },
-      oldList: [{ value: "" }], //保存上一次url结果
+      oldList: [{value: ""}], //保存上一次url结果
       dynamicValidateForm: {
         domains: [
           {
@@ -95,10 +98,11 @@ export default {
       },
     };
   },
-  mounted() {},
-  methods: {   
+  mounted() {
+  },
+  methods: {
     handleChange(item, index) {
-      if ( this.oldList[index].value && item.value !== this.oldList[index].value) {
+      if (this.oldList[index].value && item.value !== this.oldList[index].value) {
         this.dynamicValidateForm.domains[index].back = null;
       }
     },
@@ -112,11 +116,11 @@ export default {
               this.loading.url = false;
               if (res.length > 0) {
                 this.backResult = res;
-                this.$emit('handleSetData',this.backResult)
+                this.$emit('handleSetData', this.backResult)
               }
             }).catch((err) => {
-              this.loading.url = false;
-            });
+            this.loading.url = false;
+          });
           this.oldList = JSON.parse(
             JSON.stringify(this.dynamicValidateForm.domains)
           );
@@ -173,6 +177,7 @@ export default {
             request();
           }
         }
+
         const times = Math.min(maxNum, urls.length);
         for (let i = 0; i < times; i++) {
           request();
@@ -189,10 +194,10 @@ export default {
           },
         ],
       };
-      this.oldList = [{ value: "" }];
+      this.oldList = [{value: ""}];
       this.urlConut = 1;
       this.loading.url = false;
-    },    
+    },
     removeDomain(item) {
       var index = this.dynamicValidateForm.domains.indexOf(item);
       if (index !== -1) {
@@ -210,7 +215,7 @@ export default {
           back: null,
           urlLoading: false,
         });
-        this.oldList.push({ value: "" });
+        this.oldList.push({value: ""});
         this.urlConut += 1;
       }
     },
@@ -251,6 +256,7 @@ export default {
           return false;
         }
       }
+
       if (!isValidUrl(value)) {
         callback(new Error(this.$t('knowledgeManage.urlTest')));
       } else {
@@ -291,52 +297,63 @@ export default {
 </script>
 <style lang="scss">
 .urlAnalysisForm {
-  max-height:300px;
-  overflow-y:auto;
-  .urlTips{
-    padding:10px 0;
-    text-align:left;
-    font-size:14px;
+  max-height: 300px;
+  overflow-y: auto;
+
+  .urlTips {
+    padding: 10px 0;
+    text-align: left;
+    font-size: 14px;
   }
+
   .url_txt {
     width: 85%;
   }
+
   .el-form-item__content {
-    display:flex !important;
-    justify-content:flex-start!important;
-    align-items:center!important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+
     &:hover {
       cursor: pointer;
+
       .el-icon-error {
         display: inline-block;
       }
+
       .el-icon-success {
         display: none;
       }
+
       .el-icon-warning {
         display: none;
       }
     }
   }
+
   .el-icon-warning {
     line-height: 30px;
     display: inline-block;
     color: #e60001;
     font-size: 16px;
   }
+
   .el-icon-success {
     line-height: 30px;
     display: inline-block;
     color: #67c23a;
     font-size: 16px;
   }
+
   .el-icon-error {
     line-height: 30px;
     display: none;
     font-size: 16px;
   }
-  .el-icon-loading{
-    margin-left:5px;
+
+  .el-icon-loading {
+    margin-left: 5px;
   }
 }
 </style>

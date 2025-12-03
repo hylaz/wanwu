@@ -19,8 +19,8 @@
           @input="typeChange($event)"
           v-if="type === 'add'"
         >
-          <el-radio-button :label="'single'">{{$t('knowledgeManage.create.single')}}</el-radio-button>
-          <el-radio-button :label="'file'">{{$t('knowledgeManage.create.file')}}</el-radio-button>
+          <el-radio-button :label="'single'">{{ $t('knowledgeManage.create.single') }}</el-radio-button>
+          <el-radio-button :label="'file'">{{ $t('knowledgeManage.create.file') }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item
@@ -66,7 +66,8 @@
             <el-checkbox
               label="more"
               name="type"
-            >{{$t('knowledgeManage.create.continue')}}</el-checkbox>
+            >{{ $t('knowledgeManage.create.continue') }}
+            </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </template>
@@ -85,15 +86,16 @@
   </el-dialog>
 </template>
 <script>
-import { createBatchCommunityReport,createCommunityReport,editCommunityReportList} from "@/api/knowledge";
+import {createBatchCommunityReport, createCommunityReport, editCommunityReportList} from "@/api/knowledge";
 import fileUpload from "@/components/fileUpload";
 import {
   createSegment,
   createBatchSegment,
   createSegmentChild,
 } from "@/api/knowledge";
+
 export default {
-  components: { fileUpload },
+  components: {fileUpload},
   data() {
     return {
       btnLoading: false,
@@ -104,10 +106,10 @@ export default {
         content: "",
         knowledgeId: "",
         title: "",
-        fileUploadId:"",
+        fileUploadId: "",
         contentId: ""
       },
-      type:'add',
+      type: 'add',
       dialogVisible: false,
       templateUrl: "/user/api/v1/static/docs/report.csv",
       title: ""
@@ -161,26 +163,26 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.btnLoading = true;
-          if(this.type === 'add'){
+          if (this.type === 'add') {
             this.createCommunityReport()
-          }else{
+          } else {
             this.editCommunityReportList()
           }
-          
+
         } else {
           return false;
         }
       });
     },
-    editCommunityReportList(){
-       const data = {
+    editCommunityReportList() {
+      const data = {
         content: this.ruleForm.content,
         knowledgeId: this.ruleForm.knowledgeId,
         title: this.ruleForm.title,
         contentId: this.ruleForm.contentId
       };
-      editCommunityReportList(data).then(res =>{
-        if(res.code === 0){
+      editCommunityReportList(data).then(res => {
+        if (res.code === 0) {
           this.$message.success(this.$t('knowledgeManage.create.editSuccess'));
           this.clearForm();
           this.$emit("refreshData");
@@ -199,15 +201,15 @@ export default {
       };
       createCommunityReport(data).then((res) => {
         if (res.code === 0) {
-            this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
-            if (!this.checkType.length) {
-              this.dialogVisible = false;
-            } else {
-              this.clearForm();
-            }
-            this.$emit("refreshData");
-            this.btnLoading = false;
+          this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
+          if (!this.checkType.length) {
+            this.dialogVisible = false;
+          } else {
+            this.clearForm();
           }
+          this.$emit("refreshData");
+          this.btnLoading = false;
+        }
       }).catch(() => {
         this.btnLoading = false;
       });
@@ -246,24 +248,29 @@ export default {
 .itemCenter {
   display: flex;
   justify-content: center;
-  /deep/.el-form-item__content {
+
+  /deep/ .el-form-item__content {
     margin-left: 0 !important;
   }
 }
+
 .el-tag {
   margin-right: 5px;
   color: #3848f7;
   border-color: #3848f7;
   background: $color_opacity;
 }
+
 /deep/ {
   .el-tag .el-tag__close {
     color: #3848f7 !important;
   }
+
   .el-tag .el-tag__close:hover {
     color: #fff !important;
     background: #3848f7;
   }
+
   .el-checkbox__input.is-checked + .el-checkbox__label {
     color: #3848f7;
   }

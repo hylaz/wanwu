@@ -7,9 +7,9 @@
         style="margin-right: 10px; font-size: 20px; cursor: pointer"
       >
       </i>
-      {{$t('knowledgeManage.keyWordManage')}}
-      <LinkIcon type="knowledge-keywords" />
-      <div class="keyWordTip">{{$t('knowledgeManage.keyWordTip')}}</div>
+      {{ $t('knowledgeManage.keyWordManage') }}
+      <LinkIcon type="knowledge-keywords"/>
+      <div class="keyWordTip">{{ $t('knowledgeManage.keyWordTip') }}</div>
     </div>
     <div class="block table-wrap list-common wrap-fullheight">
       <el-container class="konw_container">
@@ -17,10 +17,13 @@
           <el-container>
             <el-header class="classifyTitle">
               <div class="searchInfo">
-                <search-input class="cover-input-icon" :placeholder="$t('knowledgeManage.keyWordPlaceholder')" ref="searchInput" @handleSearch="handleSearch" style="width:300px;"/>
+                <search-input class="cover-input-icon" :placeholder="$t('knowledgeManage.keyWordPlaceholder')"
+                              ref="searchInput" @handleSearch="handleSearch" style="width:300px;"/>
               </div>
               <div class="content_title">
-                <el-button size="mini" type="primary" icon="el-icon-plus" @click="create">{{$t('knowledgeManage.newKeyWord')}}</el-button>
+                <el-button size="mini" type="primary" icon="el-icon-plus" @click="create">
+                  {{ $t('knowledgeManage.newKeyWord') }}
+                </el-button>
               </div>
             </el-header>
             <el-main
@@ -53,9 +56,9 @@
                   prop="knowledgeBaseNames"
                   :label="$t('keyword.linkKnowledge')"
                 >
-                <template slot-scope="scope">
-                  <span>{{scope.row.knowledgeBaseNames ? scope.row.knowledgeBaseNames.join(',') : ''}}</span>
-                </template>
+                  <template slot-scope="scope">
+                    <span>{{ scope.row.knowledgeBaseNames ? scope.row.knowledgeBaseNames.join(',') : '' }}</span>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="updatedAt"
@@ -71,12 +74,14 @@
                       size="mini"
                       round
                       @click="editItem(scope.row)"
-                    >{{$t('common.button.edit')}}</el-button>
+                    >{{ $t('common.button.edit') }}
+                    </el-button>
                     <el-button
                       size="mini"
                       round
                       @click="handleDel(scope.row)"
-                    >{{$t('common.button.delete')}}</el-button>
+                    >{{ $t('common.button.delete') }}
+                    </el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -101,57 +106,58 @@
 import Pagination from "@/components/pagination.vue";
 import SearchInput from "@/components/searchInput.vue";
 import {delDocItem} from "@/api/knowledge";
-import {getKeyWord,delKeyWord} from "@/api/keyword";
+import {getKeyWord, delKeyWord} from "@/api/keyword";
 import createKeyWords from './create.vue';
 import LinkIcon from "@/components/linkIcon.vue";
+
 export default {
-  components: {LinkIcon, Pagination,SearchInput,createKeyWords},
+  components: {LinkIcon, Pagination, SearchInput, createKeyWords},
   data() {
     return {
-      tableLoading:false,
+      tableLoading: false,
       docQuery: {
-        name:''
+        name: ''
       },
       listApi: getKeyWord,
-      title_tips:'',
-      showTips:false,
+      title_tips: '',
+      showTips: false,
       tableData: [],
       keyWordeData: []
     };
   },
-  mounted(){
+  mounted() {
     this.getTableData(this.docQuery)
   },
   methods: {
-    refreshData(data){
+    refreshData(data) {
       this.tableData = data
     },
-    updateData(){
+    updateData() {
       this.getTableData(this.docQuery)
     },
-    create(){
+    create() {
       this.$refs.createKeyWords.showDialog()
     },
-    editItem(item){
+    editItem(item) {
       this.$refs.createKeyWords.showDialog(item)
     },
-    goBack(){
-      this.$router.push({path:'/knowledge'})
+    goBack() {
+      this.$router.push({path: '/knowledge'})
     },
-    handleSearch(val){
+    handleSearch(val) {
       this.docQuery.name = val;
       this.getTableData(this.docQuery)
     },
-    handleDel(data){
-       this.$confirm('确定要删除当前数据吗？',this.$t('knowledgeManage.tip'),
+    handleDel(data) {
+      this.$confirm('确定要删除当前数据吗？', this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText:  this.$t('common.button.confirm'),
+          confirmButtonText: this.$t('common.button.confirm'),
           cancelButtonText: this.$t('common.button.cancel'),
           type: "warning"
         }
       )
         .then(async () => {
-          let jsondata = {id:data.id}
+          let jsondata = {id: data.id}
           this.tableLoading = true;
           let res = await delKeyWord(jsondata);
           if (res.code === 0) {
@@ -164,10 +170,10 @@ export default {
           this.getTableData(this.docQuery)
         });
     },
-    async getTableData(data){
-       this.tableLoading = true;
-       this.tableData = await this.$refs["pagination"].getTableData(data);
-       this.tableLoading = false;
+    async getTableData(data) {
+      this.tableLoading = true;
+      this.tableData = await this.$refs["pagination"].getTableData(data);
+      this.tableLoading = false;
     }
   }
 };
@@ -180,15 +186,18 @@ export default {
     background-color: #fff !important;
     border-color: #ebeef5 !important;
   }
+
   .el-button.is-round {
     border-color: #dcdfe6;
     color: #606266;
   }
+
   .el-upload-list {
     max-height: 200px;
     overflow-y: auto;
   }
 }
+
 .fileNumber {
   margin-left: 10px;
   display: inline-block;
@@ -197,70 +206,87 @@ export default {
   background: rgb(243, 243, 243);
   border-radius: 8px;
 }
+
 .defalutColor {
   color: #e7e7e7 !important;
 }
+
 .border {
   border: 1px solid #e4e7ed;
 }
+
 .noPadding {
   padding: 0 10px;
 }
+
 .activeColor {
   color: #e60001;
 }
+
 .error {
   color: #e60001;
 }
+
 .marginRight {
   margin-right: 10px;
 }
+
 .full-content {
   //padding: 20px 20px 30px 20px;
   margin: auto;
   overflow: auto;
   //background: #fafafa;
-  .keyWordTip{
-    padding-top:15px;
-    color:#888888;
+  .keyWordTip {
+    padding-top: 15px;
+    color: #888888;
     font-weight: normal;
   }
+
   .title {
     font-size: 18px;
     font-weight: bold;
     color: #333;
     padding: 10px 0;
   }
+
   .tips {
     font-size: 14px;
     color: #aaabb0;
     margin-bottom: 10px;
   }
+
   .block {
     width: 100%;
     height: calc(100% - 58px);
+
     .el-tabs {
       width: 100%;
       height: 100%;
+
       .konw_container {
         width: 100%;
         height: 100%;
+
         .tree {
           height: 100%;
           background: none;
+
           .custom-tree-node {
             width: 100%;
             display: flex;
             justify-content: space-between;
+
             .icon {
               font-size: 16px;
               transform: rotate(90deg);
               color: #aaabb0;
             }
+
             .nodeLabel {
               color: #e60001;
               display: flex;
               align-items: center;
+
               .tag {
                 display: block;
                 width: 5px;
@@ -274,14 +300,17 @@ export default {
         }
       }
     }
+
     .classifyTitle {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 10px;
+
       h2 {
         font-size: 16px;
       }
+
       .content_title {
         display: flex;
         align-items: center;
@@ -289,13 +318,16 @@ export default {
       }
     }
   }
+
   .uploadTips {
     color: #aaabb0;
     font-size: 12px;
     height: 30px;
   }
+
   .document_lise {
     list-style: none;
+
     li {
       display: flex;
       justify-content: space-between;
@@ -303,12 +335,15 @@ export default {
       padding: 7px;
       border-radius: 3px;
       line-height: 1;
+
       .el-icon-success {
         display: block;
       }
+
       .el-icon-error {
         display: none;
       }
+
       &:hover {
         cursor: pointer;
         background: #eee;
@@ -316,10 +351,12 @@ export default {
         .el-icon-success {
           display: none;
         }
+
         .el-icon-error {
           display: block;
         }
       }
+
       &.document_loading {
         &:hover {
           cursor: pointer;
@@ -328,11 +365,13 @@ export default {
           .el-icon-success {
             display: none;
           }
+
           .el-icon-error {
             display: none;
           }
         }
       }
+
       .el-icon-success {
         color: #67c23a;
       }
@@ -340,10 +379,12 @@ export default {
       .result_icon {
         float: right;
       }
+
       .size {
         font-weight: bold;
       }
     }
+
     .document_error {
       color: red;
     }
@@ -356,9 +397,11 @@ export default {
   background-color: #fff; /* 设置背景颜色 */
   color: #666; /* 设置文字颜色 */
 }
+
 .custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
   border-top-color: #fff !important;
 }
+
 .custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
   border-top-color: #ccc !important;
 }

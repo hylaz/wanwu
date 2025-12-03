@@ -6,7 +6,7 @@
         @click="goBack"
       ></span>
       {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile') }}
-      <LinkIcon type="knowledge" />
+      <LinkIcon type="knowledge"/>
     </div>
     <div class="table-box">
       <div class="fileUpload">
@@ -26,9 +26,18 @@
               v-model="fileType"
               @change="fileTypeChage"
             >
-              <el-radio-button label="file">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}</el-radio-button>
-              <el-radio-button label="fileUrl">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUrl') }}</el-radio-button>
-              <el-radio-button label="url">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.url') }}</el-radio-button>
+              <el-radio-button label="file">{{
+                  $t('knowledgeManage.knowledgeDatabase.fileUpload.file')
+                }}
+              </el-radio-button>
+              <el-radio-button label="fileUrl">{{
+                  $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUrl')
+                }}
+              </el-radio-button>
+              <el-radio-button label="url">{{
+                  $t('knowledgeManage.knowledgeDatabase.fileUpload.url')
+                }}
+              </el-radio-button>
             </el-radio-group>
           </div>
           <div
@@ -53,17 +62,23 @@
                       :src="require('@/assets/imgs/uploadImg.png')"
                       class="upload-img"
                     />
-                    <p class="click-text">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickText') }}<span class="clickUpload">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickUpload') }}</span></p>
+                    <p class="click-text">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickText') }}<span
+                      class="clickUpload">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickUpload') }}</span>
+                    </p>
                   </div>
                   <div class="tips">
-                    <p v-if="fileType === 'file'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips1') }}</p>
-                    <p v-if="fileType === 'file'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips2') }}</p>
-                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips3') }}<a
-                        class="template_downLoad"
-                        href="#"
-                        @click.prevent.stop="downloadTemplate"
-                      >{{ $t('common.fileUpload.templateClick') }}</a></p>
-                    <p v-if="fileType === 'fileUrl'"><span class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips4') }}</p>
+                    <p v-if="fileType === 'file'"><span
+                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips1') }}</p>
+                    <p v-if="fileType === 'file'"><span
+                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips2') }}</p>
+                    <p v-if="fileType === 'fileUrl'"><span
+                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips3') }}<a
+                      class="template_downLoad"
+                      href="#"
+                      @click.prevent.stop="downloadTemplate"
+                    >{{ $t('common.fileUpload.templateClick') }}</a></p>
+                    <p v-if="fileType === 'fileUrl'"><span
+                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips4') }}</p>
                   </div>
                 </div>
               </el-upload>
@@ -107,37 +122,115 @@
                   @click="segmentSetClick(segmentItem.label)"
                 >
                   <div class="itemImg">
-                    <img :src="require(`@/assets/imgs/${segmentItem.img}`)" />
+                    <img :src="require(`@/assets/imgs/${segmentItem.img}`)"/>
                   </div>
                   <div>
-                    <p class="analyzerItem_text">{{segmentItem.text}}</p>
-                    <h3 class="analyzerItem_desc">{{segmentItem.desc}}</h3>
+                    <p class="analyzerItem_text">{{ segmentItem.text }}</p>
+                    <h3 class="analyzerItem_desc">{{ segmentItem.desc }}</h3>
                   </div>
                 </div>
               </div>
             </el-form-item>
-              <template v-if="this.ruleForm.docSegment.segmentMethod === '0'">
-                <el-form-item :label="$t('knowledgeManage.chunkTypeSet')">
-                  <div class="segmentList">
-                    <div
-                      v-for="segmentCommon in segmentCommonList"
-                      :key="segmentCommon.text"
-                      :class="['segmentItem',ruleForm.docSegment.segmentType === segmentCommon.label ? 'activeAnalyzer' : '']"
-                      @click="segmentClick(segmentCommon.label)"
-                    >
-                      <div>
-                        <p class="analyzerItem_text">{{segmentCommon.text}}</p>
-                        <h3 class="analyzerItem_desc">{{segmentCommon.desc}}</h3>
-                      </div>
+            <template v-if="this.ruleForm.docSegment.segmentMethod === '0'">
+              <el-form-item :label="$t('knowledgeManage.chunkTypeSet')">
+                <div class="segmentList">
+                  <div
+                    v-for="segmentCommon in segmentCommonList"
+                    :key="segmentCommon.text"
+                    :class="['segmentItem',ruleForm.docSegment.segmentType === segmentCommon.label ? 'activeAnalyzer' : '']"
+                    @click="segmentClick(segmentCommon.label)"
+                  >
+                    <div>
+                      <p class="analyzerItem_text">{{ segmentCommon.text }}</p>
+                      <h3 class="analyzerItem_desc">{{ segmentCommon.desc }}</h3>
                     </div>
                   </div>
-                </el-form-item>
-                <el-form-item
-                  v-if="ruleForm.docSegment.segmentType == '1'"
-                  prop="docSegment.splitter"
-                  :rules="ruleForm.docSegment.segmentType === '1' 
+                </div>
+              </el-form-item>
+              <el-form-item
+                v-if="ruleForm.docSegment.segmentType == '1'"
+                prop="docSegment.splitter"
+                :rules="ruleForm.docSegment.segmentType === '1'
                   ? [{ required: true,validator: validateSplitter('splitter'), message: $t('knowledgeManage.markTips'), trigger: 'blur' }] 
                   : []"
+              >
+                <template #label>
+                  <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
+                  <el-tooltip
+                    :content="$t('knowledgeManage.splitOptionsTips')"
+                    placement="right"
+                  >
+                    <span class="el-icon-question question"></span>
+                  </el-tooltip>
+                </template>
+                <el-tag
+                  v-for="(tag,index) in checkSplitter['splitter']"
+                  :key="'tag'+index"
+                  :disable-transitions="false"
+                  class="splitterTag"
+                >
+                  {{ tag.splitterName.replace(/\n/g, '\\n') }}
+                </el-tag>
+                <el-button
+                  class="button-new-tag"
+                  size="small"
+                  @click="showSplitterSet('splitter')"
+                >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}
+                </el-button>
+              </el-form-item>
+              <el-form-item
+                v-if="ruleForm.docSegment.segmentType == '1'"
+                prop="docSegment.maxSplitter"
+                :rules="[
+                  { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
+                  { type:'number',min:200,max:4000,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
+                  ]"
+              >
+                <template #label>
+                  <span>{{ $t('knowledgeManage.splitMax') }}</span>
+                  <el-tooltip
+                    :content="$t('knowledgeManage.splitMaxTips')"
+                    placement="right"
+                  >
+                    <span class="el-icon-question question"></span>
+                  </el-tooltip>
+                </template>
+                <div :class="[['0','1','3','4'].includes(ruleForm.docSegment.segmentType)?'':'set']">
+                  <el-input type="number" v-model.number="ruleForm.docSegment.maxSplitter"
+                            :placeholder="$t('knowledgeManage.splitMax')"></el-input>
+                </div>
+              </el-form-item>
+              <el-form-item
+                v-if="ruleForm.docSegment.segmentType == '1'"
+                :label="$t('knowledgeManage.overLapNum')"
+                prop="docSegment.overlap"
+                :rules="[
+                    { required: true, message:$t('knowledgeManage.overLapNumTips'),trigger:'blur'},
+                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumTipsMsg'),trigger: 'blur'}
+                  ]"
+              >
+                <el-input
+                  :min="0"
+                  :max="0.25"
+                  :step="0.01"
+                  type="number"
+                  v-model.number="ruleForm.docSegment.overlap"
+                  :placeholder="$t('knowledgeManage.overLapNumPlaceholder')"
+                ></el-input>
+              </el-form-item>
+            </template>
+            <template v-if="this.ruleForm.docSegment.segmentMethod === '1'">
+              <div
+                v-for="item in fatSonBlock"
+                :key="item.level"
+                class="commonSet"
+              >
+                <h3 class="title"><span class="bar"></span>{{ item.title }}</h3>
+                <el-form-item
+                  :prop="item.splitterProp"
+                  :rules="[
+                    { required: true,validator: validateSplitter(item.key), message: $t('knowledgeManage.markTips'), trigger: 'blur' }
+                    ]"
                 >
                   <template #label>
                     <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
@@ -149,154 +242,82 @@
                     </el-tooltip>
                   </template>
                   <el-tag
-                    v-for="(tag,index) in checkSplitter['splitter']"
+                    v-for="(tag,index) in checkSplitter[item.key]"
                     :key="'tag'+index"
                     :disable-transitions="false"
                     class="splitterTag"
                   >
-                    {{tag.splitterName.replace(/\n/g, '\\n')}}
+                    {{ tag.splitterName.replace(/\n/g, '\\n') }}
                   </el-tag>
                   <el-button
                     class="button-new-tag"
                     size="small"
-                    @click="showSplitterSet('splitter')"
-                  >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}</el-button>
+                    @click="showSplitterSet(item.key)"
+                  >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}
+                  </el-button>
                 </el-form-item>
                 <el-form-item
-                  v-if="ruleForm.docSegment.segmentType == '1'"
-                  prop="docSegment.maxSplitter"
+                  :prop="item.maxSplitterProp"
                   :rules="[
-                  { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
-                  { type:'number',min:200,max:4000,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
-                  ]"
-                >
-                  <template #label>
-                      <span>{{$t('knowledgeManage.splitMax')}}</span>
-                      <el-tooltip
-                        :content="$t('knowledgeManage.splitMaxTips')"
-                        placement="right"
-                      >
-                        <span class="el-icon-question question"></span>
-                      </el-tooltip>
-                  </template>
-                  <div :class="[['0','1','3','4'].includes(ruleForm.docSegment.segmentType)?'':'set']">
-                    <el-input type="number" v-model.number="ruleForm.docSegment.maxSplitter" :placeholder="$t('knowledgeManage.splitMax')"></el-input>
-                  </div>
-                </el-form-item>
-                <el-form-item
-                  v-if="ruleForm.docSegment.segmentType == '1'"
-                  :label="$t('knowledgeManage.overLapNum')"
-                  prop="docSegment.overlap"
-                  :rules="[
-                    { required: true, message:$t('knowledgeManage.overLapNumTips'),trigger:'blur'},
-                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumTipsMsg'),trigger: 'blur'}
-                  ]"
-                >
-                  <el-input
-                    :min="0"
-                    :max="0.25"
-                    :step="0.01"
-                    type="number" 
-                    v-model.number="ruleForm.docSegment.overlap" 
-                    :placeholder="$t('knowledgeManage.overLapNumPlaceholder')"
-                    ></el-input>
-                </el-form-item>
-              </template>
-              <template v-if="this.ruleForm.docSegment.segmentMethod === '1'">
-                <div
-                  v-for="item in fatSonBlock"
-                  :key="item.level"
-                  class="commonSet"
-                >
-                  <h3 class="title"><span class="bar"></span>{{item.title}}</h3>
-                  <el-form-item
-                    :prop="item.splitterProp"
-                    :rules="[
-                    { required: true,validator: validateSplitter(item.key), message: $t('knowledgeManage.markTips'), trigger: 'blur' }
-                    ]"
-                  >
-                    <template #label>
-                      <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
-                      <el-tooltip
-                        :content="$t('knowledgeManage.splitOptionsTips')"
-                        placement="right"
-                      >
-                        <span class="el-icon-question question"></span>
-                      </el-tooltip>
-                    </template>
-                    <el-tag
-                      v-for="(tag,index) in checkSplitter[item.key]"
-                      :key="'tag'+index"
-                      :disable-transitions="false"
-                      class="splitterTag"
-                    >
-                      {{tag.splitterName.replace(/\n/g, '\\n')}}
-                    </el-tag>
-                    <el-button
-                      class="button-new-tag"
-                      size="small"
-                      @click="showSplitterSet(item.key)"
-                    >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}</el-button>
-                  </el-form-item>
-                  <el-form-item
-                    :prop="item.maxSplitterProp"
-                    :rules="[
                     { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
                     { type:'number',min:200,max:item.maxSplitterNum,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
                     ]"
-                  >
-                    <template #label>
-                      <span>{{ $t('knowledgeManage.splitMax') }}</span>
-                      <el-tooltip
-                        :content="$t('knowledgeManage.splitMaxTips')"
-                        placement="right"
-                      >
-                        <span class="el-icon-question question"></span>
-                      </el-tooltip>
-                    </template>
-                    <el-input type="number" :min="200" :max="item.maxSplitterNum" v-model.number="ruleForm.docSegment[item.maxSplitter]" :placeholder="$t('knowledgeManage.splitMax')" @change="maxSplitterChange(item)"></el-input>
-                  </el-form-item>
-                </div>
-              </template>
-              <el-form-item
-                :label="$t('knowledgeManage.textPreprocessing')"
-                prop="docPreprocess"
-                v-if="ruleForm.docSegment.segmentType == '1'"
-              >
-                <el-checkbox-group v-model="ruleForm.docPreprocess">
-                  <el-checkbox label="replaceSymbols">{{ $t('knowledgeManage.replaceSymbols') }}</el-checkbox>
-                  <el-checkbox label="deleteLinks">{{ $t('knowledgeManage.deleteLinks') }}</el-checkbox>
-                </el-checkbox-group>
-              </el-form-item>
-              <el-form-item
-                :label="$t('knowledgeManage.parsingMethod')"
-                prop="docAnalyzer"
-              >
-                <el-checkbox-group
-                  v-model="ruleForm.docAnalyzer"
-                  @change="docAnalyzerChange($event)"
                 >
-                  <div
-                    v-for="analyzerItem in docAnalyzerList"
-                    :class="['docAnalyzerList',ruleForm.docAnalyzer.includes(analyzerItem.label) ? 'activeAnalyzer' : '']"
-                  >
-                    <el-checkbox
-                      :label="analyzerItem.label"
-                      :disabled="analyzerDisabled(analyzerItem.label)"
-                    >{{analyzerItem.text}}</el-checkbox>
-                    <h3 class="analyzerItem_desc">{{analyzerItem.desc}}</h3>
-                  </div>
-                </el-checkbox-group>
-              </el-form-item>
-              <el-form-item
-                prop="parserModelId"
-                v-if="ruleForm.docAnalyzer.includes('ocr')||ruleForm.docAnalyzer.includes('model')"
-                :rules="[
+                  <template #label>
+                    <span>{{ $t('knowledgeManage.splitMax') }}</span>
+                    <el-tooltip
+                      :content="$t('knowledgeManage.splitMaxTips')"
+                      placement="right"
+                    >
+                      <span class="el-icon-question question"></span>
+                    </el-tooltip>
+                  </template>
+                  <el-input type="number" :min="200" :max="item.maxSplitterNum"
+                            v-model.number="ruleForm.docSegment[item.maxSplitter]"
+                            :placeholder="$t('knowledgeManage.splitMax')" @change="maxSplitterChange(item)"></el-input>
+                </el-form-item>
+              </div>
+            </template>
+            <el-form-item
+              :label="$t('knowledgeManage.textPreprocessing')"
+              prop="docPreprocess"
+              v-if="ruleForm.docSegment.segmentType == '1'"
+            >
+              <el-checkbox-group v-model="ruleForm.docPreprocess">
+                <el-checkbox label="replaceSymbols">{{ $t('knowledgeManage.replaceSymbols') }}</el-checkbox>
+                <el-checkbox label="deleteLinks">{{ $t('knowledgeManage.deleteLinks') }}</el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item
+              :label="$t('knowledgeManage.parsingMethod')"
+              prop="docAnalyzer"
+            >
+              <el-checkbox-group
+                v-model="ruleForm.docAnalyzer"
+                @change="docAnalyzerChange($event)"
+              >
+                <div
+                  v-for="analyzerItem in docAnalyzerList"
+                  :class="['docAnalyzerList',ruleForm.docAnalyzer.includes(analyzerItem.label) ? 'activeAnalyzer' : '']"
+                >
+                  <el-checkbox
+                    :label="analyzerItem.label"
+                    :disabled="analyzerDisabled(analyzerItem.label)"
+                  >{{ analyzerItem.text }}
+                  </el-checkbox>
+                  <h3 class="analyzerItem_desc">{{ analyzerItem.desc }}</h3>
+                </div>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item
+              prop="parserModelId"
+              v-if="ruleForm.docAnalyzer.includes('ocr')||ruleForm.docAnalyzer.includes('model')"
+              :rules="[
                     { required: true, message:$t('knowledgeManage.parsingMethodMsg'),trigger:'blur'}
                 ]"
-              >
+            >
               <template #label>
-                <span>{{modelTypeTip[ruleForm.docAnalyzer[1]]['label']}}</span>
+                <span>{{ modelTypeTip[ruleForm.docAnalyzer[1]]['label'] }}</span>
                 <el-tooltip
                   :content="modelTypeTip[ruleForm.docAnalyzer[1]]['desc']"
                   placement="right"
@@ -304,30 +325,30 @@
                   <span class="el-icon-question question"></span>
                 </el-tooltip>
               </template>
-                <el-select
-                  v-model="ruleForm.parserModelId"
-                  :placeholder="$t('common.select.placeholder')"
-                  class="width100"
-                >
-                  <el-option
-                    v-for="item in modelOptions"
-                    :key="item.modelId"
-                    :label="item.displayName"
-                    :value="item.modelId"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item
-                :label="$t('knowledgeManage.metadataManagement')"
-                prop="docAnalyzer"
+              <el-select
+                v-model="ruleForm.parserModelId"
+                :placeholder="$t('common.select.placeholder')"
+                class="width100"
               >
-                <mataData
-                  ref="mataData"
-                  @updateMeata="updateMeata"
-                  :knowledgeId="knowledgeId"
-                />
-              </el-form-item>
+                <el-option
+                  v-for="item in modelOptions"
+                  :key="item.modelId"
+                  :label="item.displayName"
+                  :value="item.modelId"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item
+              :label="$t('knowledgeManage.metadataManagement')"
+              prop="docAnalyzer"
+            >
+              <mataData
+                ref="mataData"
+                @updateMeata="updateMeata"
+                :knowledgeId="knowledgeId"
+              />
+            </el-form-item>
           </el-form>
         </div>
         <!-- 上传文件的列表 -->
@@ -347,7 +368,7 @@
                   class="lise_item_box"
                 >
                   <span class="size">
-                    <img :src="require('@/assets/imgs/fileicon.png')" />
+                    <img :src="require('@/assets/imgs/fileicon.png')"/>
                     {{ file.name }}
                     <span class="file-size">
                       {{ filterSize(file.size) }}
@@ -395,25 +416,29 @@
             size="mini"
             @click="preStep"
             v-if="active === 2"
-          >{{ $t('knowledgeManage.prevStep') }}</el-button>
+          >{{ $t('knowledgeManage.prevStep') }}
+          </el-button>
           <el-button
             type="primary"
             size="mini"
             @click="nextStep"
             v-if="active === 1"
             :loading="urlLoading"
-          >{{ $t('knowledgeManage.nextStep') }}</el-button>
+          >{{ $t('knowledgeManage.nextStep') }}
+          </el-button>
           <el-button
             type="primary"
             size="mini"
             @click="submitInfo"
             v-if="active === 2"
-          >{{ $t('common.button.confirm') }}</el-button>
+          >{{ $t('common.button.confirm') }}
+          </el-button>
           <el-button
             size="mini"
             @click="formReset"
             v-if="active === 2"
-          >{{ $t('common.button.restore') }}</el-button>
+          >{{ $t('common.button.restore') }}
+          </el-button>
         </div>
       </div>
     </div>
@@ -442,7 +467,7 @@ import {
   editSplitter,
   parserSelect,
 } from "@/api/knowledge";
-import { delfile } from "@/api/chunkFile";
+import {delfile} from "@/api/chunkFile";
 import LinkIcon from "@/components/linkIcon.vue";
 import splitterDialog from "../component/splitterDialog.vue";
 import mataData from "../component/metadata.vue";
@@ -454,12 +479,13 @@ import {
   FAT_SON_BLOCK,
   MODEL_TYPE_TIP
 } from "../config";
+
 export default {
-  components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
+  components: {LinkIcon, urlAnalysis, splitterDialog, mataData},
   mixins: [uploadChunk],
   data() {
     const validateSplitter = (type) => {
-      return (rule, value, callback) =>{
+      return (rule, value, callback) => {
         if (this.checkSplitter[type].length === 0) {
           callback(new Error(this.$t("knowledgeManage.splitterRequired")));
         } else {
@@ -482,7 +508,7 @@ export default {
       fileList: [],
       fileUrl: "",
       docInfoList: [],
-      segmentType:'',
+      segmentType: '',
       ruleForm: {
         docAnalyzer: ["text"],
         docMetaData: [], //元数据管理数据
@@ -490,30 +516,30 @@ export default {
         docSegment: {
           segmentType: "0",
           // splitter: ["！", "。", "？", "?", "!", ".", "......"],
-          splitter:["\n\n"],
+          splitter: ["\n\n"],
           maxSplitter: 1024,
           overlap: 0.2,
-          segmentMethod:"0",//0是通用分段，1是父子分段
-          subMaxSplitter:200,//父子分段必填
+          segmentMethod: "0",//0是通用分段，1是父子分段
+          subMaxSplitter: 200,//父子分段必填
           // subSplitter:["！", "。", "？", "?", "!", ".", "......"]//父子分段必填
-          subSplitter:["\n"]
+          subSplitter: ["\n"]
         },
         docInfoList: [],
         docImportType: 0,
         knowledgeId: this.$route.query.id,
         parserModelId: "",
       },
-      checkSplitter:{
-        splitter:[],
-        subSplitter:[]
+      checkSplitter: {
+        splitter: [],
+        subSplitter: []
       },
       splitOptions: [],
       urlLoading: false,
       segmentCommonList: SEGMENT_COMMON_LIST,
       segmentList: SEGMENT_LIST,
       docAnalyzerList: DOC_ANALYZER_LIST,
-      fatSonBlock:FAT_SON_BLOCK,
-      modelTypeTip:MODEL_TYPE_TIP
+      fatSonBlock: FAT_SON_BLOCK,
+      modelTypeTip: MODEL_TYPE_TIP
     };
   },
   async created() {
@@ -521,23 +547,23 @@ export default {
     await this.custom();
   },
   methods: {
-    maxSplitterChange(item){
-      if(item.level === 'parent'){
+    maxSplitterChange(item) {
+      if (item.level === 'parent') {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
         const sonBlock = this.fatSonBlock.find(block => block.level === 'son');
         if (sonBlock) {
           sonBlock.maxSplitterNum = parentMaxValue;
           if (this.ruleForm.docSegment.subMaxSplitter > parentMaxValue) {
             this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-            this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjusted', { parentMaxValue }));
+            this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjusted', {parentMaxValue}));
           }
         }
-      }else if(item.level === 'son'){
+      } else if (item.level === 'son') {
         const sonMaxValue = this.ruleForm.docSegment.subMaxSplitter;
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
         if (sonMaxValue > parentMaxValue) {
           this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxExceeded', { parentMaxValue }));
+          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxExceeded', {parentMaxValue}));
         }
       }
     },
@@ -548,13 +574,14 @@ export default {
             this.modelOptions = res.data.list || [];
           }
         })
-        .catch(() => {});
+        .catch(() => {
+        });
     },
     docAnalyzerChange(val) {
       this.ruleForm.parserModelId = "";
       this.modelOptions = [];
-      if(val.length === 3){
-        this.ruleForm.docAnalyzer = [val[0],val[2]]
+      if (val.length === 3) {
+        this.ruleForm.docAnalyzer = [val[0], val[2]]
       }
       if (this.ruleForm.docAnalyzer.includes("ocr")) {
         this.getOcrList();
@@ -573,9 +600,9 @@ export default {
     },
     custom() {
       this.$nextTick(() => {
-        const { splitter, subSplitter } = this.ruleForm.docSegment;
-        const filterByType = (values) => 
-          this.splitOptions.filter(item => 
+        const {splitter, subSplitter} = this.ruleForm.docSegment;
+        const filterByType = (values) =>
+          this.splitOptions.filter(item =>
             values.includes(item.splitterValue) && item.type === "preset"
           );
         this.checkSplitter = {
@@ -615,7 +642,7 @@ export default {
       this.getSplitterList(name);
     },
     async getSplitterList(splitterName) {
-      const res = await getSplitter({ splitterName });
+      const res = await getSplitter({splitterName});
       if (res.code === 0) {
         this.splitOptions = (res.data.knowledgeSplitterList || []).map(
           (item) => ({
@@ -651,7 +678,7 @@ export default {
     },
     async delSplitterItem(item) {
       this.$confirm(
-        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterConfirm', { splitterName: item.splitterName }),
+        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterConfirm', {splitterName: item.splitterName}),
         this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterTitle'),
         {
           confirmButtonText: this.$t('common.confirm.confirm'),
@@ -660,7 +687,7 @@ export default {
         }
       )
         .then(async () => {
-          const res = await delSplitter({ splitterId: item.splitterId });
+          const res = await delSplitter({splitterId: item.splitterId});
           if (res.code === 0) {
             this.getSplitterList("");
           }
@@ -742,7 +769,7 @@ export default {
           }
         });
         if (ids.length > 0) {
-          this.deleteData({ id: ids }); //取消时删除文件
+          this.deleteData({id: ids}); //取消时删除文件
         }
       }
       this.$refs["uplodForm"].resetFields();
@@ -751,13 +778,13 @@ export default {
       this.resultDisabled = true;
       this.source = [];
       this.fileUuid = "";
-      this.$emit("handleSetOpen", { isShow: false, knowValue: null });
+      this.$emit("handleSetOpen", {isShow: false, knowValue: null});
       this.uploading = false;
     },
     // 删除已上传文件
     handleRemove(item, index) {
-      if(item.percentage < 100){
-        this.fileList.splice(index,1);
+      if (item.percentage < 100) {
+        this.fileList.splice(index, 1);
         this.cancelAllRequests();//取消所有请求
         return;
       }
@@ -772,7 +799,7 @@ export default {
         this.fileIndex--;
       }
       if (this.docInfoList.length > 0) {
-        this.docInfoList.splice(index,1);
+        this.docInfoList.splice(index, 1);
       }
     },
     delfile(data) {
@@ -796,7 +823,7 @@ export default {
     fileTypeChage() {
       // 取消所有正在进行的上传请求
       this.cancelAllRequests();
-      
+
       // 重置上传相关状态
       this.fileIndex = 0;
       this.file = null;
@@ -806,7 +833,7 @@ export default {
       this.fileList = [];
     },
     submitInfo() {
-      const { segmentMethod,segmentType, splitter,subSplitter } = this.ruleForm.docSegment;
+      const {segmentMethod, segmentType, splitter, subSplitter} = this.ruleForm.docSegment;
       if (
         (segmentMethod === '1' && (splitter.length === 0 || subSplitter.length === 0)) ||
         (segmentMethod !== '1' && segmentType === '1' && splitter.length === 0)
@@ -814,7 +841,7 @@ export default {
         this.$refs.ruleForm.validate();
         return false;
       }
-      this.$refs.ruleForm.clearValidate(["docSegment.splitter","docSegment.subSplitter"]);
+      this.$refs.ruleForm.clearValidate(["docSegment.splitter", "docSegment.subSplitter"]);
 
       if (!this.validateMetaData()) {
         return;
@@ -845,7 +872,7 @@ export default {
         if (res.code === 0) {
           this.$router.push({
             path: `/knowledge/doclist/${this.knowledgeId}`,
-            query: { name: this.knowledgeName, done: "fileUpload" },
+            query: {name: this.knowledgeName, done: "fileUpload"},
           });
         }
       });
@@ -867,8 +894,8 @@ export default {
         ocrModelId: "",
       };
       this.checkSplitter = {
-        splitter:[],
-        subSplitter:[]
+        splitter: [],
+        subSplitter: []
       };
       this.splitOptions = this.splitOptions.map((item) => ({
         ...item,
@@ -1088,17 +1115,21 @@ export default {
 .red {
   color: red;
 }
-.width100{
-  width:100%;
+
+.width100 {
+  width: 100%;
 }
+
 .activeAnalyzer {
   border-color: $color !important;
 }
+
 .question {
   cursor: pointer;
   color: #aaadcc;
   margin-left: 5px;
 }
+
 .splitterTag {
   margin-right: 10px;
   border: none;
@@ -1106,66 +1137,82 @@ export default {
   color: $color;
   border-radius: 3px;
 }
+
 .optionInput {
   width: 90%;
   margin: 10px;
 }
+
 .splitterOption {
   margin-top: 5px;
 }
+
 .el-input-number {
   line-height: 28px !important;
 }
-/deep/.el-input-number.is-controls-right .el-input-number__decrease,
-/deep/.el-input-number.is-controls-right .el-input-number__increase {
+
+/deep/ .el-input-number.is-controls-right .el-input-number__decrease,
+/deep/ .el-input-number.is-controls-right .el-input-number__increase {
   line-height: 14px !important;
   border: 0;
 }
+
 /deep/ {
   .el-upload {
     width: 100%;
   }
+
   .el-upload-dragger {
     width: 100%;
   }
 }
+
 .fileUpload {
   width: 80%;
   padding-top: 30px;
   margin: 0 auto;
+
   .fileStep {
     width: 40%;
     margin: 0 auto;
   }
+
   .fileBtn {
     padding: 20px 0 15px 0;
     display: flex;
     justify-content: center;
   }
+
   .dialog-body {
     padding: 0 20px;
     width: 100%;
+
     .upload-title {
       text-align: center;
       font-size: 18px;
       margin-bottom: 20px;
     }
+
     .upload-box {
       height: auto;
       min-height: 190px;
       width: 100% !important;
+
       .upload-img {
         width: 56px;
         height: 56px;
         margin-top: 30px;
       }
+
       .click-text {
         margin-top: 10px;
+
         .clickUpload {
           color: $color;
           font-weight: bold;
         }
       }
+
       .el-upload-dragger {
         .el-icon-upload {
           margin: 46px 0 10px 0 !important;
@@ -1173,13 +1220,16 @@ export default {
           line-height: 36px !important;
           color: $color;
         }
+
         .el-upload__text {
           margin-top: -10px;
         }
       }
+
       .size {
         margin-right: 10px;
       }
+
       .file-size {
         margin-left: 10px;
       }
@@ -1187,6 +1237,7 @@ export default {
 
     .echo-img-box {
       background-color: transparent !important;
+
       .echo-img {
         img,
         video {
@@ -1196,12 +1247,14 @@ export default {
           border-radius: 4px;
           background-color: transparent;
         }
+
         audio {
           width: 300px;
           height: 54px;
           margin: 50px auto;
         }
       }
+
       .docFile {
         img {
           margin: 0;
@@ -1210,10 +1263,13 @@ export default {
         }
       }
     }
+
     .tips {
       padding: 20px 20px;
+
       p {
         color: #9d8d8d !important;
+
         .template_downLoad {
           color: $color;
           cursor: pointer;
@@ -1221,9 +1277,11 @@ export default {
       }
     }
   }
+
   .el-upload-url {
     width: 100%;
     padding: 0 20px;
+
     .upload-url {
       background-color: #fff;
       border: 1px solid #d4d6d9;
@@ -1235,16 +1293,19 @@ export default {
       overflow: hidden;
       padding: 20px;
     }
+
     .upload-url:hover {
       border-color: $color;
     }
   }
 }
+
 .next {
   padding: 20px;
   display: flex;
   justify-content: flex-end;
 }
+
 .params_form {
   margin-top: 10px;
   background: #fff;
@@ -1252,50 +1313,60 @@ export default {
   border-radius: 6px;
   max-height: 65vh;
   overflow-y: auto;
+
   .el-form {
-    padding:30px;
+    padding: 30px;
+
     .commonSet {
       background: #f6f7fe;
       padding: 15px;
       border-radius: 6px;
-      .title{
-        font-size:14px;
-        border-bottom: 1px solid #dee1fe ;
-        padding-bottom:10px;
+
+      .title {
+        font-size: 14px;
+        border-bottom: 1px solid #dee1fe;
+        padding-bottom: 10px;
         display: flex;
         align-items: center;
-        .bar{
-          display:inline-block;
-          width:4px;
-          height:14px;
+
+        .bar {
+          display: inline-block;
+          width: 4px;
+          height: 14px;
           background: $color;
-          margin-right:5px;
+          margin-right: 5px;
         }
       }
     }
-    .commonSet:nth-child(1){
-      margin-bottom:15px;
+
+    .commonSet:nth-child(1) {
+      margin-bottom: 15px;
     }
+
     .el-form-item {
       display: flex;
       flex-direction: column;
+
       /deep/ {
         .el-form-item__content {
           margin: 0 !important;
         }
       }
     }
+
     .el-checkbox-group,
     .radioGroup {
       display: flex;
       justify-content: flex-start;
       gap: 15px;
+
       .docAnalyzerList {
         flex: 1;
         border: 1px solid #ddd;
         padding: 0 10px 10px 10px;
         border-radius: 6px;
         cursor: pointer;
+
         .analyzerItem_desc {
           display: block;
           color: #b4b3b3;
@@ -1305,9 +1376,11 @@ export default {
         }
       }
     }
+
     .segmentList {
       display: flex;
       gap: 15px;
+
       .segmentItem {
         display: flex;
         align-items: center;
@@ -1316,7 +1389,8 @@ export default {
         padding: 10px;
         border-radius: 6px;
         gap: 15px;
-        width:50%;
+        width: 50%;
+
         .itemImg {
           width: 45px;
           height: 45px;
@@ -1326,16 +1400,19 @@ export default {
           justify-content: center;
           align-items: center;
           box-shadow: 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+
           img {
             width: 25px;
             height: fit-content;
           }
         }
+
         .analyzerItem_text {
           font-size: 14px;
           font-weight: 600;
           line-height: 1.8;
         }
+
         .analyzerItem_desc {
           line-height: 1.2;
           color: #b4b3b3;
@@ -1345,6 +1422,7 @@ export default {
     }
   }
 }
+
 .page-title {
   .back {
     font-size: 18px;
@@ -1352,8 +1430,10 @@ export default {
     cursor: pointer;
   }
 }
+
 .file-list {
   padding: 20px;
+
   .document_lise_item {
     cursor: pointer;
     padding: 5px 10px;
@@ -1364,33 +1444,40 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+
     .lise_item_box {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       .size {
         display: flex;
         align-items: center;
+
         .progress {
           width: 400px;
           margin-left: 30px;
         }
+
         img {
           width: 18px;
           height: 18px;
           margin-bottom: -3px;
         }
+
         .file-size {
           margin-left: 10px;
         }
       }
     }
   }
+
   .document_lise_item:hover {
     background: #eceefe;
   }
 }
+
 .table-opera-icon {
   font-size: 18px;
 }

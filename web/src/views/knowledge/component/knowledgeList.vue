@@ -141,16 +141,16 @@
       type="knowledge"
       :title="title"
     />
-    <PowerManagement ref="powerManagement" />
+    <PowerManagement ref="powerManagement"/>
   </div>
 </template>
 
 <script>
-import { delKnowledgeItem } from "@/api/knowledge";
-import { AppType } from "@/utils/commonSet";
+import {delKnowledgeItem} from "@/api/knowledge";
+import {AppType} from "@/utils/commonSet";
 import tagDialog from "./tagDialog.vue";
 import PowerManagement from "./power/index.vue";
-import { mapActions } from "vuex";
+import {mapActions} from "vuex";
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -160,7 +160,7 @@ import {
 } from "@/views/knowledge/constants";
 
 export default {
-  components: { tagDialog, PowerManagement },
+  components: {tagDialog, PowerManagement},
   props: {
     appData: {
       type: Array,
@@ -253,7 +253,7 @@ export default {
           beforeClose: (action, instance, done) => {
             if (action === "confirm") {
               instance.confirmButtonLoading = true;
-              delKnowledgeItem({ knowledgeId })
+              delKnowledgeItem({knowledgeId})
                 .then((res) => {
                   if (res.code === 0) {
                     this.$message.success(
@@ -262,7 +262,8 @@ export default {
                     this.$emit("reloadData", this.category);
                   }
                 })
-                .catch(() => {})
+                .catch(() => {
+                })
                 .finally(() => {
                   done();
                   setTimeout(() => {
@@ -274,13 +275,14 @@ export default {
             }
           },
         }
-      ).then(() => {});
+      ).then(() => {
+      });
     },
     toDocList(n) {
       if (this.category === 0) {
-        this.$router.push({ path: `/knowledge/doclist/${n.knowledgeId}` });
+        this.$router.push({path: `/knowledge/doclist/${n.knowledgeId}`});
       } else {
-        this.$router.push({ path: `/knowledge/qa/docList/${n.knowledgeId}` });
+        this.$router.push({path: `/knowledge/qa/docList/${n.knowledgeId}`});
       }
 
       this.setPermissionType(n.permissionType);
@@ -297,20 +299,25 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/style/appCard.scss";
+
 .app-card {
   .smart {
     height: 152px;
+
     .smartDate {
       // text-align:center;
       padding-top: 3px;
       color: #888888;
     }
+
     .info {
       padding-right: 0;
     }
+
     .desc {
       padding-top: 5px;
     }
+
     .logo {
       border-radius: 50%;
       background: #f1f4ff;
@@ -319,16 +326,20 @@ export default {
       width: 65px !important;
       height: 65px !important;
     }
+
     .tagList {
       cursor: pointer;
+
       .icon-tag {
         transform: rotate(-40deg);
         margin-right: 3px;
       }
     }
+
     .tagList:hover {
       color: $color;
     }
+
     .tag-knowledge {
       background: #826fff !important;
     }

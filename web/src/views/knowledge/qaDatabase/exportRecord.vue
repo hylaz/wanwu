@@ -89,7 +89,7 @@
 
 <script>
 import commonMixin from "@/mixins/common";
-import { getQaExportRecordList, delQaRecord } from "@/api/qaDatabase";
+import {getQaExportRecordList, delQaRecord} from "@/api/qaDatabase";
 import {
   STATUS_FAILED,
   STATUS_FINISHED,
@@ -159,7 +159,8 @@ export default {
             this.pagination.total = data.total || 0;
           }
         })
-        .catch(() => {})
+        .catch(() => {
+        })
         .finally(() => {
           this.tableLoading = false;
         });
@@ -177,7 +178,7 @@ export default {
     },
     handleDelete(row) {
       const data = {
-        qaExportRecordId:row.qaExportRecordId,
+        qaExportRecordId: row.qaExportRecordId,
         knowledgeId: this.knowledgeId,
       }
       this.$confirm(
@@ -198,12 +199,14 @@ export default {
                 this.fetchRecordList();
               }
             })
-            .catch(() => {})
+            .catch(() => {
+            })
             .finally(() => {
               this.tableLoading = false;
             });
         })
-        .catch(() => {});
+        .catch(() => {
+        });
     },
   },
 };
@@ -224,7 +227,8 @@ export default {
     padding: 10px 20px 20px;
     border-top: 1px solid #f0f0f0;
   }
-  /deep/ .el-button.is-disabled{
+
+  /deep/ .el-button.is-disabled {
     background: transparent;
   }
 }
@@ -233,12 +237,14 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
+
   h1 {
     font-size: 18px;
     font-weight: bold;
     margin: 0;
     color: #1f2329;
   }
+
   .title-tip {
     color: $color;
   }
@@ -254,9 +260,11 @@ export default {
   &.success {
     color: #67c23a;
   }
+
   &.error {
     color: #f56c6c;
   }
+
   &.pending {
     color: #909399;
   }

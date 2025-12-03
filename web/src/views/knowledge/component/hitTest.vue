@@ -8,7 +8,7 @@
       >
       </i>
       {{ $t("knowledgeManage.hitTest.name") }}
-      <LinkIcon type="knowledge-hit" />
+      <LinkIcon type="knowledge-hit"/>
     </div>
     <div class="block wrap-fullheight">
       <div class="test-left test-box">
@@ -29,7 +29,7 @@
         </div>
         <div class="hitTest_input meta_box">
           <h3>{{ $t("knowledgeManage.hitTest.metaDataFilter") }}</h3>
-          <metaSet ref="metaSet" class="metaSet" :knowledgeId="knowledgeId" />
+          <metaSet ref="metaSet" class="metaSet" :knowledgeId="knowledgeId"/>
         </div>
         <div class="test_form">
           <searchConfig
@@ -43,7 +43,7 @@
       <div class="test-right test-box">
         <div class="result_title">
           <h3>{{ $t("knowledgeManage.hitResult") }}</h3>
-          <img src="@/assets/imgs/nodata_2x.png" v-if="searchList.length > 0" />
+          <img src="@/assets/imgs/nodata_2x.png" v-if="searchList.length > 0"/>
         </div>
         <div class="result" v-loading="resultLoading">
           <div v-if="searchList.length > 0" class="result_box">
@@ -63,7 +63,7 @@
                     "
                     class="segment-type"
                   >
-                    {{ getTitle(item.contentType)}}
+                    {{ getTitle(item.contentType) }}
                   </span>
                   <span v-else>
                     <span class="segment-type">
@@ -102,12 +102,12 @@
                   </template>
                   <template v-else>
                     <div>
-                      <span>{{$t('knowledgeManage.qaDatabase.question')}} :</span>
-                      {{item.question}}
+                      <span>{{ $t('knowledgeManage.qaDatabase.question') }} :</span>
+                      {{ item.question }}
                     </div>
                     <div>
-                      <span>{{$t('knowledgeManage.qaDatabase.answer')}} :</span>
-                      {{item.answer}}
+                      <span>{{ $t('knowledgeManage.qaDatabase.answer') }} :</span>
+                      {{ item.answer }}
                     </div>
                   </template>
                 </div>
@@ -142,7 +142,7 @@
                           <div class="child-header">
                             <span class="child-header-content">
                               <span class="segment-badge"
-                                >C-{{ childIndex + 1 }}</span
+                              >C-{{ childIndex + 1 }}</span
                               >
                               <span class="segment-content">
                                 {{ child.childSnippet }}
@@ -167,27 +167,28 @@
             </div>
           </div>
           <div v-else class="nodata">
-            <img src="@/assets/imgs/nodata_2x.png" />
+            <img src="@/assets/imgs/nodata_2x.png"/>
             <p class="nodata_tip">{{ $t("knowledgeManage.noData") }}</p>
           </div>
         </div>
         <!-- 分段详情区域 -->
-        <sectionShow ref="sectionShow" />
+        <sectionShow ref="sectionShow"/>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { hitTest } from "@/api/knowledge";
-import { qaHitTest } from "@/api/qaDatabase";
-import { md } from "@/mixins/marksown-it";
-import { formatScore } from "@/utils/util";
+import {hitTest} from "@/api/knowledge";
+import {qaHitTest} from "@/api/qaDatabase";
+import {md} from "@/mixins/marksown-it";
+import {formatScore} from "@/utils/util";
 import searchConfig from "@/components/searchConfig.vue";
 import LinkIcon from "@/components/linkIcon.vue";
 import metaSet from "@/components/metaSet";
 import sectionShow from "./sectionShow.vue";
+
 export default {
-  components: { LinkIcon, searchConfig, metaSet, sectionShow },
+  components: {LinkIcon, searchConfig, metaSet, sectionShow},
   data() {
     return {
       md: md,
@@ -210,14 +211,14 @@ export default {
       knowledgeId: this.$route.query.knowledgeId,
       name: this.$route.query.name,
       graphSwitch: this.$route.query.graphSwitch || false,
-      type:this.$route.query.type || '',
+      type: this.$route.query.type || '',
       activeNames: [],
     };
   },
-  mounted(){
-    this.$nextTick(() =>{
-       const config = this.$refs.searchConfig.formInline;
-       this.formInline = JSON.parse(JSON.stringify(config));
+  mounted() {
+    this.$nextTick(() => {
+      const config = this.$refs.searchConfig.formInline;
+      this.formInline = JSON.parse(JSON.stringify(config));
     })
   },
   methods: {
@@ -256,8 +257,8 @@ export default {
       }
 
       const params = this.formInline.knowledgeMatchParams || this.formInline;
-      const { matchType, priorityMatch, rerankModelId } = params;
-      if(matchType === ''){
+      const {matchType, priorityMatch, rerankModelId} = params;
+      if (matchType === '') {
         this.$message.warning(
           this.$t("knowledgeManage.hitTest.selectSearchType")
         );
@@ -284,7 +285,7 @@ export default {
       }
       const data = {
         ...this.formInline,
-        knowledgeMatchParams: params, 
+        knowledgeMatchParams: params,
         knowledgeList: [this.knowledgeIdList],
         question: this.question,
       };
@@ -300,14 +301,14 @@ export default {
         this.knowledgeHitTest(data);
       }
     },
-    qaHitTest(data){
+    qaHitTest(data) {
       qaHitTest(data)
         .then((res) => {
           if (res.code === 0) {
             this.searchList = res.data !== null ? res.data.searchList : [];
             this.score = res.data !== null ? res.data.score : [];
             this.resultLoading = false;
-          }else{
+          } else {
             this.searchList = [];
             this.resultLoading = false;
           }
@@ -339,7 +340,7 @@ export default {
         })
         .catch(() => {
           this.resultLoading = false;
-      });
+        });
     },
     // 显示分段详情弹框
     showSectionDetail(index) {
@@ -358,37 +359,45 @@ export default {
 .full-content {
   display: flex;
   flex-direction: column;
+
   .page-title {
     border-bottom: 1px solid #d9d9d9;
   }
+
   .block {
     margin: 30px 10px;
     display: flex;
     height: calc(100% - 123px);
     gap: 20px;
+
     .test-box {
       flex: 1;
       height: 100%;
       overflow-y: auto;
+
       .hitTest_input {
         background: #fff;
         border-radius: 6px;
         border: 1px solid #e9ecef;
         padding: 0 20px;
+
         h3 {
           padding: 30px 0 10px 0;
           font-size: 14px;
           font-weight: bold;
         }
+
         .test_ipt {
           padding-bottom: 10px;
         }
+
         .test_btn {
           padding: 10px 0;
           display: flex;
           justify-content: flex-end;
         }
       }
+
       .test_form {
         margin-top: 20px;
         padding: 20px;
@@ -397,6 +406,7 @@ export default {
         border: 1px solid #e9ecef;
       }
     }
+
     .test-right {
       background: #fff;
       border-radius: 6px;
@@ -406,32 +416,39 @@ export default {
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
+
       .result_title {
         display: flex;
         justify-content: space-between;
+
         h3 {
           padding: 10px 0 10px 0;
           font-size: 14px;
         }
+
         img {
           width: 150px;
         }
       }
+
       .resultContent {
         img {
           width: 100%;
         }
       }
+
       .result {
         flex: 1;
         width: 100%;
         display: flex;
         flex-direction: column;
         min-height: 0;
+
         .result_box {
           width: 100%;
           flex: 1;
           overflow-y: scroll;
+
           .resultItem {
             background: #f7f8fa;
             border-radius: 6px;
@@ -439,11 +456,13 @@ export default {
             padding: 20px;
             color: #666666;
             line-height: 1.8;
+
             .resultTitle {
               display: flex;
               align-items: center;
               justify-content: space-between;
               padding: 10px 0;
+
               .tag {
                 color: $color;
                 display: inline-block;
@@ -452,31 +471,38 @@ export default {
                 border-radius: 4px;
                 cursor: pointer;
               }
+
               .segment-type {
                 padding: 0 5px;
               }
+
               .segment-length {
                 cursor: pointer;
               }
+
               .segment-length:hover {
                 color: $color;
               }
+
               .segment-type,
               .segment-length {
                 color: #999;
                 font-size: 12px;
               }
+
               .score {
                 color: $color;
                 font-weight: bold;
               }
             }
+
             .file_name {
               border-top: 1px dashed #d9d9d9;
               margin: 10px 0;
               padding-top: 10px;
               font-weight: bold;
             }
+
             .resultChildContent {
               margin-top: 10px;
 
@@ -523,6 +549,7 @@ export default {
                         justify-content: space-between;
                         align-items: center;
                         margin-bottom: 8px;
+
                         .child-header-content {
                           flex: 1;
                           display: flex;
@@ -540,6 +567,7 @@ export default {
                             line-height: 1.4;
                           }
                         }
+
                         .segment-badge {
                           background-color: #eaecf9;
                           padding: 6px 12px;
@@ -572,6 +600,7 @@ export default {
             }
           }
         }
+
         .nodata {
           width: 100%;
           height: 100%;
@@ -587,13 +616,16 @@ export default {
         }
       }
     }
+
     .meta_box {
       margin-top: 20px;
       padding: 0 20px 20px 20px !important;
+
       .metaSet {
         width: 100%;
       }
     }
+
     .graph_box {
       margin-top: 20px;
     }

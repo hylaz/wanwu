@@ -19,8 +19,8 @@
           v-model="createType"
           @input="typeChange($event)"
         >
-          <el-radio-button :label="'single'">{{$t('knowledgeManage.create.single')}}</el-radio-button>
-          <el-radio-button :label="'file'">{{$t('knowledgeManage.create.file')}}</el-radio-button>
+          <el-radio-button :label="'single'">{{ $t('knowledgeManage.create.single') }}</el-radio-button>
+          <el-radio-button :label="'file'">{{ $t('knowledgeManage.create.file') }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item
@@ -61,7 +61,7 @@
             :disable-transitions="false"
             @close="handleTagClose(index)"
           >
-            {{tag}}
+            {{ tag }}
           </el-tag>
           <el-input
             class="input-new-tag"
@@ -78,14 +78,16 @@
             class="button-new-tag"
             size="small"
             @click="showInput"
-          >+ {{$t('knowledgeManage.create.chunkKeywords')}}</el-button>
+          >+ {{ $t('knowledgeManage.create.chunkKeywords') }}
+          </el-button>
         </el-form-item>
         <el-form-item :label="$t('knowledgeManage.create.typeTitle')">
           <el-checkbox-group v-model="checkType">
             <el-checkbox
               label="more"
               name="type"
-            >{{$t('knowledgeManage.create.continue')}}</el-checkbox>
+            >{{ $t('knowledgeManage.create.continue') }}
+            </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </template>
@@ -111,8 +113,9 @@ import {
   createBatchSegment,
   createSegmentChild,
 } from "@/api/knowledge";
+
 export default {
-  components: { fileUpload },
+  components: {fileUpload},
   props: {
     parentId: {
       type: String,
@@ -205,12 +208,12 @@ export default {
     },
     createParentChunk() {
       const data = this.isChildChunk
-        ? { content: this.ruleForm.content, docId: this.ruleForm.docId }
+        ? {content: this.ruleForm.content, docId: this.ruleForm.docId}
         : {
-            content: this.ruleForm.content,
-            docId: this.ruleForm.docId,
-            labels: this.ruleForm.labels,
-          };
+          content: this.ruleForm.content,
+          docId: this.ruleForm.docId,
+          labels: this.ruleForm.labels,
+        };
       createSegment(data)
         .then((res) => {
           if (res.code === 0) {
@@ -237,15 +240,15 @@ export default {
       };
       createSegmentChild(data).then((res) => {
         if (res.code === 0) {
-            this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
-            if (!this.checkType.length) {
-              this.dialogVisible = false;
-            } else {
-              this.clearForm();
-            }
-            this.$emit("updateChildData");
-            this.btnLoading = false;
+          this.$message.success(this.$t('knowledgeManage.create.createSuccess'));
+          if (!this.checkType.length) {
+            this.dialogVisible = false;
+          } else {
+            this.clearForm();
           }
+          this.$emit("updateChildData");
+          this.btnLoading = false;
+        }
       }).catch(() => {
         this.btnLoading = false;
       });
@@ -283,24 +286,29 @@ export default {
 .itemCenter {
   display: flex;
   justify-content: center;
-  /deep/.el-form-item__content {
+
+  /deep/ .el-form-item__content {
     margin-left: 0 !important;
   }
 }
+
 .el-tag {
   margin-right: 5px;
   color: #3848f7;
   border-color: #3848f7;
   background: $color_opacity;
 }
+
 /deep/ {
   .el-tag .el-tag__close {
     color: #3848f7 !important;
   }
+
   .el-tag .el-tag__close:hover {
     color: #fff !important;
     background: #3848f7;
   }
+
   .el-checkbox__input.is-checked + .el-checkbox__label {
     color: #3848f7;
   }

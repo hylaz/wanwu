@@ -36,10 +36,10 @@
           </div>
 
           <div class="el-upload__tip" slot="tip" style="color: red">
-            {{$t('knowledgeManage.clickUploadTips')}}&nbsp;&nbsp;
+            {{ $t('knowledgeManage.clickUploadTips') }}&nbsp;&nbsp;
             <a :href="templateUrl">{{ $t('common.fileUpload.templateClick') }}</a>
-            <br />
-            {{$t('knowledgeManage.notReshContent')}}
+            <br/>
+            {{ $t('knowledgeManage.notReshContent') }}
           </div>
         </el-upload>
         <div
@@ -51,38 +51,40 @@
             :loading="loading.start"
             v-if="fileList[0].agin !== true"
             @click="handleClick('start')"
-            >{{$t('knowledgeManage.startAnalysis')}}</el-button
+          >{{ $t('knowledgeManage.startAnalysis') }}
+          </el-button
           >
           <el-button
             type="primary"
             :loading="loading.agin"
             v-if="fileList[0].agin === true"
             @click="handleClick('agin')"
-            >{{$t('knowledgeManage.refreshAnalysis')}}</el-button
+          >{{ $t('knowledgeManage.refreshAnalysis') }}
+          </el-button
           >
           <div>
-            {{$t('knowledgeManage.total')}}<span>{{
+            {{ $t('knowledgeManage.total') }}<span>{{
               Number(batchRes.fail_count) + Number(batchRes.success_count) || 0
             }}</span
-            >{{$t('knowledgeManage.Piece')}}，<span>{{ batchRes.success_count || 0 }}</span>
-           {{$t('knowledgeManage.analysisFinish')}}，<span>{{ batchRes.fail_count || 0 }}</span>
-            {{$t('knowledgeManage.analysisFail')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          >{{ $t('knowledgeManage.Piece') }}，<span>{{ batchRes.success_count || 0 }}</span>
+            {{ $t('knowledgeManage.analysisFinish') }}，<span>{{ batchRes.fail_count || 0 }}</span>
+            {{ $t('knowledgeManage.analysisFail') }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <!-- v-if="fileList.length > 0 && fileList[0].agin === true" -->
 
             <a
               href="#"
               v-if="fileList.length > 0 && fileList[0].agin === true"
               @click.prevent="drawer = true"
-              >{{$t('knowledgeManage.viewDetail')}}</a
+            >{{ $t('knowledgeManage.viewDetail') }}</a
             >
           </div>
-          <div>{{$t('knowledgeManage.analysisFailTips')}}</div>
+          <div>{{ $t('knowledgeManage.analysisFailTips') }}</div>
         </div>
         <div
           class="aginUp"
           v-if="fileList.length > 0 && fileList[0].back === 'error'"
         >
-          <el-button type="primary" @click="submitVisible">{{$t('knowledgeManage.reUpload')}}</el-button>
+          <el-button type="primary" @click="submitVisible">{{ $t('knowledgeManage.reUpload') }}</el-button>
         </div>
         <transition name="el-zoom-in-top">
           <ul class="document_lises">
@@ -105,8 +107,10 @@
                   <i class="el-icon-warning" v-if="item.back === 'error'"></i>
                 </span>
               </div>
-            </li></ul
-        ></transition>
+            </li>
+          </ul
+          >
+        </transition>
       </el-form-item>
     </el-form>
 
@@ -121,7 +125,7 @@
     >
       <div class="content">
         <div class="item">
-          <h4>{{$t('knowledgeManage.analysisSuccess')}}</h4>
+          <h4>{{ $t('knowledgeManage.analysisSuccess') }}</h4>
           <el-table
             border
             :data="batchRes.success"
@@ -144,7 +148,7 @@
           </el-table>
         </div>
         <div class="item">
-          <h4>{{$t('knowledgeManage.fail')}}</h4>
+          <h4>{{ $t('knowledgeManage.fail') }}</h4>
           <el-table
             border
             :data="batchRes.error"
@@ -173,16 +177,17 @@
         </div>
       </div>
       <div class="demo-drawer__footer">
-        <el-button @click="handleClose">{{$t('knowledgeManage.backAnalysis')}}</el-button>
+        <el-button @click="handleClose">{{ $t('knowledgeManage.backAnalysis') }}</el-button>
         <el-button type="primary" @click="handleSave" :loading="loading.btn"
-          >{{$t('knowledgeManage.saveIntoData')}}</el-button
+        >{{ $t('knowledgeManage.saveIntoData') }}
+        </el-button
         >
       </div>
     </el-drawer>
   </div>
 </template>
 <script>
-import { batchurl, batchUrlTaskStatus, importBatchUrl } from "@/api/knowledge";
+import {batchurl, batchUrlTaskStatus, importBatchUrl} from "@/api/knowledge";
 import axios from "axios";
 
 export default {
@@ -213,7 +218,7 @@ export default {
         agin: false,
         btn: false,
       },
-      oldList: [{ value: "" }], //保存上一次url结果
+      oldList: [{value: ""}], //保存上一次url结果
     };
   },
   created() {
@@ -249,35 +254,35 @@ export default {
       batchUrlTaskStatus({
         taskId: this.backId,
       }).then((res) => {
-          if (res.code === 0) {
-            if (res.data.completed !== true) {
-              setTimeout(() => {
-                this.startPolling();
-              }, 5000);
-              return;
-            } else {
-              this.batchRes = res.data;
-              this.batchRes.success = this.batchRes.url_list.filter((item) => {
-                return item.status === 10;
-              });
-              this.batchRes.error = this.batchRes.url_list.filter((item) => {
-                return item.status === 57;
-              });
-              console.log(this.batchRes);
-              this.$emit("handleSetBatchDisabled", false);
-            }
+        if (res.code === 0) {
+          if (res.data.completed !== true) {
+            setTimeout(() => {
+              this.startPolling();
+            }, 5000);
+            return;
           } else {
-            this.$emit("handleSetBatchDisabled", true);
+            this.batchRes = res.data;
+            this.batchRes.success = this.batchRes.url_list.filter((item) => {
+              return item.status === 10;
+            });
+            this.batchRes.error = this.batchRes.url_list.filter((item) => {
+              return item.status === 57;
+            });
+            console.log(this.batchRes);
+            this.$emit("handleSetBatchDisabled", false);
           }
-          this.loading.start = false;
-          this.$set(this.fileList[0], "agin", true);
-          this.$set(this.fileList[0], "loading", false);
-        }).catch((err) => {
-          this.loading.start = false;
-          this.$set(this.fileList[0], "agin", true);
-          this.$set(this.fileList[0], "loading", false);
+        } else {
           this.$emit("handleSetBatchDisabled", true);
-        });
+        }
+        this.loading.start = false;
+        this.$set(this.fileList[0], "agin", true);
+        this.$set(this.fileList[0], "loading", false);
+      }).catch((err) => {
+        this.loading.start = false;
+        this.$set(this.fileList[0], "agin", true);
+        this.$set(this.fileList[0], "loading", false);
+        this.$emit("handleSetBatchDisabled", true);
+      });
     },
     aginPolling() {
       batchUrlTaskStatus({
@@ -424,8 +429,8 @@ export default {
     },
     handleSave(type) {
       this.loading.btn = true;
-      this.$emit("handleSetBatchStatus", { type: "loading", value: true });
-      importBatchUrl({ taskId: this.backId })
+      this.$emit("handleSetBatchStatus", {type: "loading", value: true});
+      importBatchUrl({taskId: this.backId})
         .then((res) => {
           this.drawer = false;
           this.loading.btn = false;
@@ -444,8 +449,8 @@ export default {
     },
     handlebtnSave() {
       this.loading.btn = true;
-      this.$emit("handleSetBatchStatus", { type: "loading", value: true });
-      importBatchUrl({ taskId: this.backId })
+      this.$emit("handleSetBatchStatus", {type: "loading", value: true});
+      importBatchUrl({taskId: this.backId})
         .then((res) => {
           this.drawer = false;
           this.loading.btn = false;
@@ -493,6 +498,7 @@ export default {
     height: 50px;
     text-align: center;
   }
+
   .content {
     display: flex;
     height: calc(100% - 50px);
@@ -509,6 +515,7 @@ export default {
       &:last-child {
         border-right: 0;
       }
+
       h4 {
         padding-bottom: 10px;
         font-size: 16px;
@@ -517,14 +524,17 @@ export default {
     }
   }
 }
+
 .urlBatch {
   .el-upload {
     width: 100%;
+
     em {
       color: #f72324;
       font-weight: bold;
     }
   }
+
   .el-upload-dragger {
     background-color: #fff !important;
     border: 1px dashed #d9d9d9 !important;
@@ -534,6 +544,7 @@ export default {
     height: 160px !important;
     margin: 0 auto;
   }
+
   .aginUp {
     position: absolute;
     top: 0;
@@ -544,6 +555,7 @@ export default {
     z-index: 1;
     padding-top: 110px;
   }
+
   .start {
     position: absolute;
     top: 0;
@@ -556,13 +568,16 @@ export default {
 
     .el-button {
       margin-bottom: 5px;
+
       &.el-button--mini {
         height: auto;
       }
+
       span {
         font-size: 12px;
       }
     }
+
     div {
       margin: 0;
       padding: 0;
@@ -578,12 +593,14 @@ export default {
         font-size: 18px;
         font-weight: bold;
       }
+
       a {
         color: #f72324;
         font-size: 12px;
       }
     }
   }
+
   .el-upload-dragger .el-icon-refresh {
     font-size: 50px;
     color: #f72324 !important;
@@ -594,6 +611,7 @@ export default {
       animation: infinite-rotation 1.3s linear infinite;
     }
   }
+
   @keyframes infinite-rotation {
     from {
       transform: rotate(0deg);
@@ -602,9 +620,11 @@ export default {
       transform: rotate(-360deg);
     }
   }
+
   .el-upload-dragger .el-upload__text {
     color: #afafaf !important;
   }
+
   .document_lises {
     list-style: none;
 
@@ -619,9 +639,11 @@ export default {
       .el-icon-success {
         display: block;
       }
+
       .el-icon-error {
         display: none;
       }
+
       &:hover {
         cursor: pointer;
         background: #eee;
@@ -629,28 +651,35 @@ export default {
         .el-icon-success {
           display: none;
         }
+
         .el-icon-warning {
           display: none;
         }
+
         .el-icon-error {
           display: block;
         }
       }
+
       &.document_loading {
         .el-icon-error {
           display: none;
         }
+
         .el-icon-success {
           display: none;
         }
+
         .el-icon-warning {
           display: none;
         }
+
         &:hover {
           cursor: pointer;
           background: #eee;
         }
       }
+
       .el-icon-success {
         color: #67c23a;
       }
@@ -658,10 +687,12 @@ export default {
       .result_icon {
         float: right;
       }
+
       .size {
         font-weight: bold;
       }
     }
+
     .document_error {
       color: #e60001;
     }

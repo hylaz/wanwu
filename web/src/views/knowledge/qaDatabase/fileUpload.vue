@@ -51,8 +51,8 @@
 
 <script>
 import fileUpload from "@/components/fileUpload.vue";
-import { qaDocImport } from "@/api/qaDatabase";
-import { USER_API } from "@/utils/requestConstants";
+import {qaDocImport} from "@/api/qaDatabase";
+import {USER_API} from "@/utils/requestConstants";
 
 export default {
   name: "QaFileUpload",
@@ -117,10 +117,11 @@ export default {
           if (res.code === 0) {
             this.$message.success(this.$t("app.qaUplodFileTips"));
             this.handleClose();
-            this.$emit("updateData",'fileUpload');
+            this.$emit("updateData", 'fileUpload');
           }
         })
-        .catch(() => {})
+        .catch(() => {
+        })
         .finally(() => {
           this.loading = false;
         });
@@ -166,8 +167,9 @@ export default {
     padding: 10px 20px 20px;
     border-top: 1px solid #f0f0f0;
   }
-  /deep/ .el-form-item__content{
-    margin-left:0 !important;
+
+  /deep/ .el-form-item__content {
+    margin-left: 0 !important;
   }
 }
 

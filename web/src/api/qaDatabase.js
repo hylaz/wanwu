@@ -1,5 +1,5 @@
 import service from "@/utils/request";
-import { USER_API } from "@/utils/requestConstants";
+import {USER_API} from "@/utils/requestConstants";
 
 //问答库文档导出
 export const qaDocExport = (data) => {

@@ -117,7 +117,7 @@
                     v-for="(tag, tagIdx) in item.tags"
                     :key="tagIdx"
                     class="model-select-tag"
-                    >{{ tag.text }}</span
+                  >{{ tag.text }}</span
                   >
                 </div>
               </div>
@@ -161,7 +161,7 @@
                     class="template_downLoad"
                     href="#"
                     @click.prevent.stop="downloadTemplate"
-                    >{{ $t("knowledgeManage.create.templateDownload") }}</a
+                  >{{ $t("knowledgeManage.create.templateDownload") }}</a
                   >
                 </p>
                 <p>
@@ -182,7 +182,7 @@
                 >
                   <div style="padding: 8px 0" class="lise_item_box">
                     <span class="size">
-                      <img :src="require('@/assets/imgs/fileicon.png')" />
+                      <img :src="require('@/assets/imgs/fileicon.png')"/>
                       {{ file.name }}
                       <span class="file-size">
                         {{ filterSize(file.size) }}
@@ -237,12 +237,13 @@
   </div>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
-import { createKnowledgeItem, editKnowledgeItem } from "@/api/knowledge";
-import { selectModelList } from "@/api/modelAccess";
-import { KNOWLEDGE_GRAPH_TIPS } from "../config";
+import {mapActions, mapGetters} from "vuex";
+import {createKnowledgeItem, editKnowledgeItem} from "@/api/knowledge";
+import {selectModelList} from "@/api/modelAccess";
+import {KNOWLEDGE_GRAPH_TIPS} from "../config";
 import uploadChunk from "@/mixins/uploadChunk";
-import { delfile } from "@/api/chunkFile";
+import {delfile} from "@/api/chunkFile";
+
 export default {
   props: {
     category: {
@@ -286,7 +287,7 @@ export default {
             message: this.$t("knowledgeManage.knowledgeNameRules"),
             trigger: "blur",
           },
-          { validator: checkName, trigger: "blur" },
+          {validator: checkName, trigger: "blur"},
         ],
         description: [
           {
@@ -654,6 +655,7 @@ export default {
     overflow-y: auto;
     padding: 20px;
   }
+
   /deep/ .el-form-item {
     .el-select {
       width: 100%;
@@ -686,12 +688,15 @@ export default {
 
   .tips {
     padding: 0 20px;
+
     p {
       line-height: 1.6;
       color: #666666 !important;
+
       .red {
         color: #f56c6c;
       }
+
       .template_downLoad {
         margin-left: 5px;
         color: $color;
@@ -703,11 +708,13 @@ export default {
 
 .file-list {
   padding: 20px 0;
+
   .document_lise {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+
   .document_lise_item {
     cursor: pointer;
     padding: 5px 10px;
@@ -718,36 +725,45 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+
     .lise_item_box {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       .size {
         display: flex;
         align-items: center;
+
         .progress {
           width: 400px;
           margin-left: 30px;
         }
+
         img {
           width: 18px;
           height: 18px;
           margin-bottom: -3px;
         }
+
         .file-size {
           margin-left: 10px;
         }
       }
+
       .handleBtn {
         display: flex;
         align-items: center;
+
         .check.success {
           color: #67c23a;
         }
+
         .close.fail {
           color: #f56c6c;
         }
+
         .error {
           color: #f56c6c;
           cursor: pointer;
@@ -756,6 +772,7 @@ export default {
       }
     }
   }
+
   .document_lise_item:hover {
     background: #eceefe;
   }

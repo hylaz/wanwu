@@ -18,24 +18,28 @@
           <span class="knowledge-name">[ {{ knowledgeName }} ]</span>
         </div>
       </div>
-        <div class="list-header" v-if="currentView === 'list'">
-         <el-input placeholder="输入成员名称搜索" v-model="userName" style="width:200px;margin-right:10px;"></el-input>
-           <el-button
-            type="primary"
-            size="small"
-            @click="confirmSearch"
-          >确定</el-button>
-          <el-button
-            type="primary"
-            size="small"
-            icon="el-icon-plus"
-            @click="showCreate"
-            :disabled="[POWER_TYPE_READ, POWER_TYPE_EDIT].includes(permissionType)"
-          >新增</el-button>
-        </div>
-        <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId" :permissionType="permissionType" />
-        <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId" />
-        <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true" :knowledgeId="knowledgeId" />
+      <div class="list-header" v-if="currentView === 'list'">
+        <el-input placeholder="输入成员名称搜索" v-model="userName" style="width:200px;margin-right:10px;"></el-input>
+        <el-button
+          type="primary"
+          size="small"
+          @click="confirmSearch"
+        >确定
+        </el-button>
+        <el-button
+          type="primary"
+          size="small"
+          icon="el-icon-plus"
+          @click="showCreate"
+          :disabled="[POWER_TYPE_READ, POWER_TYPE_EDIT].includes(permissionType)"
+        >新增
+        </el-button>
+      </div>
+      <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId"
+                 :permissionType="permissionType"/>
+      <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId"/>
+      <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true"
+                   :knowledgeId="knowledgeId"/>
       <div
         slot="footer"
         class="dialog-footer"
@@ -43,21 +47,25 @@
         <el-button
           v-if="currentView === 'create' || currentView === 'transfer'"
           @click="showList"
-        >返回</el-button>
+        >返回
+        </el-button>
         <el-button
           v-if="currentView === 'create'"
           type="primary"
           @click="handleConfirm"
-        >确定</el-button>
+        >确定
+        </el-button>
         <el-button
           v-if="currentView === 'transfer'"
           type="primary"
           @click="handleTransferConfirm"
-        >确定转让</el-button>
+        >确定转让
+        </el-button>
         <el-button
           v-if="currentView === 'list'"
           @click="handleDialogClose"
-        >关闭</el-button>
+        >关闭
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -66,7 +74,7 @@
 <script>
 import PowerList from "./list.vue";
 import PowerCreate from "./create.vue";
-import { transferUserPower,addUserPower } from "@/api/knowledge";
+import {transferUserPower, addUserPower} from "@/api/knowledge";
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -86,11 +94,11 @@ export default {
     return {
       currentView: "list",
       dialogVisible: false,
-      knowledgeId:'',
-      knowledgeName:'',
-      permissionType:INITIAL,
+      knowledgeId: '',
+      knowledgeName: '',
+      permissionType: INITIAL,
       currentTransferUser: null,
-      userName:'',
+      userName: '',
       INITIAL,
       POWER_TYPE_READ,
       POWER_TYPE_EDIT,
@@ -114,7 +122,7 @@ export default {
     this.knowledgeId = this.$route.query.knowledgeId;
   },
   methods: {
-    confirmSearch(){
+    confirmSearch() {
       this.$refs.powerList.getFilterResult(this.userName)
     },
     showDialog() {
@@ -122,9 +130,9 @@ export default {
       this.dialogVisible = true;
       this.$nextTick(() => {
         if (this.$refs.powerList) {
-            this.$refs.powerList.getUserPower()
+          this.$refs.powerList.getUserPower()
         }
-    })
+      })
     },
     showCreate() {
       this.currentView = "create";
@@ -146,26 +154,27 @@ export default {
       const createData = this.$refs.powerCreate.getResults();
       const userData = this.handleData(createData);
       if (userData && userData.length > 0) {
-        addUserPower({knowledgeId:this.knowledgeId,knowledgeUserList:userData}).then(res => {
-          if(res.code === 0){
+        addUserPower({knowledgeId: this.knowledgeId, knowledgeUserList: userData}).then(res => {
+          if (res.code === 0) {
             this.$message.success("添加成功");
             this.showList();
             this.refreshList();
           }
-        }).catch(() => {})
-      }else{
+        }).catch(() => {
+        })
+      } else {
         this.$message.error("请选择用户");
       }
     },
-    handleData(createData){
+    handleData(createData) {
       if (createData.node.length > 0) {
         var userList = [];
-        createData.node.forEach(function(group) {
-          group.users.forEach(function(user) {
+        createData.node.forEach(function (group) {
+          group.users.forEach(function (user) {
             userList.push({
               userId: user.id,
               orgId: user.orgId,
-              permissionType:createData.selectedPermission
+              permissionType: createData.selectedPermission
             });
           });
         });
@@ -186,16 +195,17 @@ export default {
       }
       if (data.knowledgeUser && !Array.isArray(data.knowledgeUser)) {
         transferUserPower(params).then(res => {
-          if(res.code === 0){
+          if (res.code === 0) {
             this.$message.success("转让成功");
             this.showList();
             this.dialogVisible = false;
-             if (this.reloadKnowledgeData) {
+            if (this.reloadKnowledgeData) {
               this.reloadKnowledgeData();  // 刷新列表
             }
           }
-        }).catch(() => {})
-      }else{
+        }).catch(() => {
+        })
+      } else {
         this.$message.error("请选择用户");
       }
     },
@@ -212,8 +222,9 @@ export default {
 .power-management {
   .list-header {
     display: flex;
-    justify-content:flex-start;
+    justify-content: flex-start;
     align-items: center;
+
     .header-left {
       .page-title {
         font-size: 18px;
@@ -256,32 +267,33 @@ export default {
 .custom-dialog-title {
   display: flex;
   align-items: center;
-  
+
   .title-content {
     display: flex;
     align-items: center;
-    
+
     .title-icon {
       font-size: 20px;
       color: #409eff;
       margin-right: 8px;
     }
-    
+
     .title-text {
       font-size: 18px;
       font-weight: 600;
       color: #303133;
     }
+
     .title-tip {
-      margin-left:5px;
+      margin-left: 5px;
       font-size: 12px;
       color: $color;
     }
   }
-  
+
   .title-subtitle {
     margin-left: 5px;
-    
+
     .knowledge-name {
       font-size: 14px;
       color: #606266;

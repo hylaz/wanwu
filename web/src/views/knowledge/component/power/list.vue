@@ -27,10 +27,10 @@
           <template slot-scope="scope">
             <div class="type-cell">
               <span v-if="!scope.row.editing" class="type-text">{{ powerType[scope.row.permissionType] }}</span>
-              <el-select 
-                v-else 
-                v-model="scope.row.permissionType" 
-                size="small" 
+              <el-select
+                v-else
+                v-model="scope.row.permissionType"
+                size="small"
                 class="permission-select"
               >
                 <el-option label="可读" :value="POWER_TYPE_READ"></el-option>
@@ -106,8 +106,8 @@
 </template>
 
 <script>
-import { getUserPower,editUserPower,delUserPower } from "@/api/knowledge";
-import { POWER_TYPE } from "@/views/knowledge/config";
+import {getUserPower, editUserPower, delUserPower} from "@/api/knowledge";
+import {POWER_TYPE} from "@/views/knowledge/config";
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -123,8 +123,8 @@ export default {
       type: String,
       default: ''
     },
-    permissionType:{
-      type:Number,
+    permissionType: {
+      type: Number,
       default: POWER_TYPE_READ
     }
   },
@@ -132,8 +132,8 @@ export default {
     return {
       powerType: POWER_TYPE,
       tableData: [],
-      name:'',
-      loading:false,
+      name: '',
+      loading: false,
       POWER_TYPE_READ,
       POWER_TYPE_EDIT,
       POWER_TYPE_ADMIN,
@@ -141,7 +141,7 @@ export default {
     }
   },
   methods: {
-    showEdit(row){
+    showEdit(row) {
       if (row.editing) return false;
       return (
         !this.permissionType === POWER_TYPE_READ ||
@@ -153,14 +153,14 @@ export default {
         (this.permissionType === POWER_TYPE_SYSTEM_ADMIN && row.permissionType === POWER_TYPE_ADMIN)
       );
     },
-    showInfo(row){
+    showInfo(row) {
       if (row.editing) return false;
       return (
         row.permissionType === POWER_TYPE_READ ||
         row.permissionType === POWER_TYPE_EDIT ||
         (this.permissionType === POWER_TYPE_READ && !row.transfer) ||
         (this.permissionType === POWER_TYPE_ADMIN && !row.transfer) ||
-        (this.permissionType === POWER_TYPE_ADMIN && row.permissionType === POWER_TYPE_ADMIN)||
+        (this.permissionType === POWER_TYPE_ADMIN && row.permissionType === POWER_TYPE_ADMIN) ||
         (this.permissionType === POWER_TYPE_EDIT && row.permissionType === POWER_TYPE_SYSTEM_ADMIN) ||
         (this.permissionType === POWER_TYPE_EDIT && row.permissionType === POWER_TYPE_ADMIN)
       );
@@ -170,11 +170,11 @@ export default {
     },
     getUserPower() {
       this.loading = true;
-      getUserPower({knowledgeId:this.knowledgeId}).then(res => {
-        if(res.code === 0){
+      getUserPower({knowledgeId: this.knowledgeId}).then(res => {
+        if (res.code === 0) {
           this.loading = false;
           var list = res.data.knowledgeUserInfoList || [];
-          this.tableData = list.map(function(item) {
+          this.tableData = list.map(function (item) {
             item.editing = false;
             return item;
           });
@@ -192,17 +192,18 @@ export default {
       row.editing = false
       row.originalType = row.permissionType
       const knowledgeUser = {
-          orgId:row.orgId,
-          userId:row.userId,
-          permissionType:row.permissionType,
-          permissionId:row.permissionId
-        }
-      editUserPower({knowledgeId:this.knowledgeId,knowledgeUser:knowledgeUser}).then(res => {
-        if(res.code === 0){
+        orgId: row.orgId,
+        userId: row.userId,
+        permissionType: row.permissionType,
+        permissionId: row.permissionId
+      }
+      editUserPower({knowledgeId: this.knowledgeId, knowledgeUser: knowledgeUser}).then(res => {
+        if (res.code === 0) {
           this.$message.success('权限修改成功')
           this.getUserPower()
         }
-      }).catch(() => {})
+      }).catch(() => {
+      })
     },
     handleCancel(row) {
       row.permissionType = row.originalType
@@ -225,12 +226,13 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delUserPower({knowledgeId:this.knowledgeId,permissionId:row.permissionId}).then(res => {
-          if(res.code === 0){
+        delUserPower({knowledgeId: this.knowledgeId, permissionId: row.permissionId}).then(res => {
+          if (res.code === 0) {
             this.$message.success('删除成功')
             this.getUserPower()
           }
-        }).catch(() => {})
+        }).catch(() => {
+        })
       }).catch(() => {
         this.$message.info('已取消删除')
       })
@@ -244,15 +246,17 @@ export default {
   padding-top: 15px;
   background: #fff;
   border-radius: 4px;
-  
+
   .table-content {
     .power-table {
       border: 1px solid #e4e7ed;
       border-radius: 4px;
-      .noPower{
-        color:#ccc;
-        font-size:12px;
+
+      .noPower {
+        color: #ccc;
+        font-size: 12px;
       }
+
       /deep/ .el-table__header {
         th {
           background-color: #f5f7fa;
@@ -262,90 +266,90 @@ export default {
           text-align: center;
         }
       }
-      
+
       /deep/ .el-table__body {
         tr {
           &:hover {
             background-color: #f5f7fa;
           }
         }
-        
+
         td {
           border-bottom: 1px solid #e4e7ed;
           padding: 12px 0;
         }
       }
-      
+
       /deep/ .el-table__empty-block {
         background-color: #fafafa;
       }
     }
-    
+
     .name-cell, .org-cell, .type-cell {
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       .name-text, .org-text, .type-text {
         color: #606266;
         font-size: 14px;
       }
-      
+
       .permission-select {
         width: 100%;
       }
     }
-    
+
     .action-buttons {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 8px;
-      
+
       .action-btn {
         padding: 4px 8px;
         border-radius: 4px;
         transition: all 0.3s;
-        
+
         &.edit-btn {
           color: $btn_bg;
-          
+
           &:hover {
             color: #5a6cff;
             background-color: #f0f2ff;
           }
         }
-        
+
         &.transfer-btn {
           color: #e6a23c;
-          
+
           &:hover {
             color: #ebb563;
             background-color: #fdf6ec;
           }
         }
-        
+
         &.save-btn {
           color: #67c23a;
-          
+
           &:hover {
             color: #85ce61;
             background-color: #f0f9ff;
           }
         }
-        
+
         &.cancel-btn {
           color: #909399;
-          
+
           &:hover {
             color: #a6a9ad;
             background-color: #f5f7fa;
           }
         }
-        
+
         &.delete-btn {
           color: #f56c6c;
-          
+
           &:hover {
             color: #f78989;
             background-color: #fef0f0;

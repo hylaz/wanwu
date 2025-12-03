@@ -10,8 +10,9 @@
       <!-- 父分段区域 -->
       <div class="parent-segment" v-if="parentSegment">
         <div class="segment-header">
-          <span class="parent-badge" v-if="['graph','community_report'].includes(parentSegment.contentType)">{{parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告'}}</span>
-          <span class="parent-badge" v-else>{{segmentList.length > 0 ? '父分段' :'通用分段'}}</span>
+          <span class="parent-badge"
+                v-if="['graph','community_report'].includes(parentSegment.contentType)">{{ parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告' }}</span>
+          <span class="parent-badge" v-else>{{ segmentList.length > 0 ? '父分段' : '通用分段' }}</span>
           <div class="parent-score">
             <span class="score-label">命中得分:</span>
             <span class="score-value">{{ formatScore(parentSegment.score) }}</span>
@@ -22,32 +23,32 @@
       </div>
 
       <!-- 子分段区域 -->
-        <div class="sub-segments" v-if="segmentList.length > 0">
+      <div class="sub-segments" v-if="segmentList.length > 0">
         <div class="segment-header">
           <span class="sub-badge">命中{{ segmentList.length }}个子分段</span>
         </div>
       </div>
       <div class="collapse-wrapper" v-if="segmentList.length > 0">
-        <el-collapse 
-          v-model="activeNames" 
+        <el-collapse
+          v-model="activeNames"
           class="section-collapse"
           :accordion="false"
         >
-        <el-collapse-item 
-          v-for="(segment, index) in segmentList" 
-          :key="index"
-          :name="index"
-          class="segment-collapse-item"
-        >
-          <template slot="title">
-            <span class="segment-badge">C-{{ index + 1 }}</span>
-            <span class="segment-score">
+          <el-collapse-item
+            v-for="(segment, index) in segmentList"
+            :key="index"
+            :name="index"
+            class="segment-collapse-item"
+          >
+            <template slot="title">
+              <span class="segment-badge">C-{{ index + 1 }}</span>
+              <span class="segment-score">
               <span class="score-label">命中得分:</span>
               <span class="score-value">{{ formatScore(childscore[index]) }}</span>
             </span>
-          </template>
-          <div class="segment-content" v-html="segment.content ? md.render(segment.content) : '暂无内容'"></div> 
-        </el-collapse-item>
+            </template>
+            <div class="segment-content" v-html="segment.content ? md.render(segment.content) : '暂无内容'"></div>
+          </el-collapse-item>
         </el-collapse>
       </div>
     </div>
@@ -55,8 +56,9 @@
 </template>
 
 <script>
-import { formatScore } from '@/utils/util'
-import { md } from "@/mixins/marksown-it";
+import {formatScore} from '@/utils/util'
+import {md} from "@/mixins/marksown-it";
+
 export default {
   name: 'SectionShow',
   data() {
@@ -66,7 +68,7 @@ export default {
       activeNames: [],
       parentSegment: {},
       segmentList: [],
-      childscore:[]
+      childscore: []
     }
   },
   methods: {
@@ -78,11 +80,11 @@ export default {
         if (data.searchList) {
           this.parentSegment = {
             score: parseFloat(data.score) || 0,
-            content: data.searchList.snippet||'暂无内容',
+            content: data.searchList.snippet || '暂无内容',
             contentType: data.searchList.contentType
           };
         }
-        
+
         // 更新子分段数据
         if (data.searchList && Array.isArray(data.searchList.childContentList)) {
           this.childscore = data.searchList.childScore;
@@ -94,8 +96,8 @@ export default {
           // 设置所有折叠项为展开状态
           this.activeNames = this.segmentList.map((_, index) => index);
         }
-        
-        
+
+
       }
       this.dialogVisible = true;
     },
@@ -111,7 +113,7 @@ export default {
 .section-dialog {
   /deep/ .el-dialog__body {
     padding: 0 20px 20px 20px;
-    max-height:70vh;
+    max-height: 70vh;
     overflow-y: auto;
   }
 }
@@ -121,12 +123,13 @@ export default {
     padding: 20px 20px 0 20px;
     background: #fff;
     border-radius: 8px;
+
     .segment-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 15px;
-      
+
       .parent-badge {
         background-color: #d2d7ff;
         color: $color;
@@ -135,18 +138,18 @@ export default {
         font-size: 12px;
         font-weight: 500;
       }
-      
+
       .parent-score {
         display: flex;
         align-items: center;
-        
+
         .score-label {
           font-size: 12px;
           color: $color;
           font-weight: bold;
           margin-right: 5px;
         }
-        
+
         .score-value {
           font-size: 14px;
           color: $color;
@@ -155,7 +158,7 @@ export default {
         }
       }
     }
-    
+
     .parent-content {
       text-align: left;
       background-color: #f7f8fa;
@@ -163,14 +166,14 @@ export default {
       border-radius: 6px;
       border: 1px solid $color;
       line-height: 1.6;
-      
+
       .parent-item {
         margin-bottom: 10px;
         font-size: 14px;
         color: #333;
         line-height: 1.5;
         text-align: left;
-        
+
         .segment-action {
           color: #999;
           font-size: 12px;
@@ -179,13 +182,13 @@ export default {
       }
     }
   }
-  
+
   .sub-segments {
     padding: 20px 20px 0 20px;
-    
+
     .segment-header {
       margin-bottom: 15px;
-      
+
       .sub-badge {
         background-color: #d2d7ff;
         color: $color;
@@ -196,7 +199,7 @@ export default {
       }
     }
   }
-  
+
   .collapse-wrapper {
     border: 1px solid $color;
     background: #f7f8fa;
@@ -204,11 +207,11 @@ export default {
     margin: 0 20px 20px 20px;
     overflow: hidden;
   }
-  
+
   .section-collapse {
     padding: 0;
     background: transparent;
-    
+
     /deep/ .el-collapse {
       border: none !important;
       border-top: none !important;
@@ -218,14 +221,14 @@ export default {
       background: transparent !important;
       border-radius: 0 !important;
     }
-    
+
     /deep/ .el-collapse-item {
       border: none !important;
       margin-bottom: 0 !important;
       background: transparent !important;
     }
-    
-    
+
+
     /deep/ .el-collapse-item__header {
       background: transparent;
       border: none;
@@ -233,21 +236,21 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      
+
       &:hover {
         background: #f0f2f5;
       }
     }
-    
+
     /deep/ .el-collapse-item__content {
       padding: 0;
       background: transparent;
     }
-    
+
     /deep/ .el-collapse-item__arrow {
       display: none !important;
     }
-    
+
     .segment-collapse-item {
       .segment-badge {
         color: $color;
@@ -255,17 +258,17 @@ export default {
         font-weight: 600;
         margin-right: 15px;
       }
-      
+
       .segment-score {
         display: flex;
         align-items: center;
-        
+
         .score-label {
           font-size: 12px;
           color: $color;
           margin-right: 5px;
         }
-        
+
         .score-value {
           font-size: 12px;
           color: $color;
@@ -273,13 +276,13 @@ export default {
           font-family: 'Courier New', monospace;
         }
       }
-      
+
       .segment-content {
         font-size: 14px;
         color: #333;
         line-height: 1.6;
         text-align: left;
-        padding:10px;
+        padding: 10px;
       }
     }
   }
@@ -292,17 +295,17 @@ export default {
     .sub-segments {
       padding: 15px;
     }
-    
+
     .section-collapse {
       /deep/ .el-collapse-item__header {
         flex-direction: column;
         align-items: flex-start;
-        
+
         .segment-badge {
           margin-bottom: 8px;
           margin-right: 0;
         }
-        
+
         .segment-score {
           position: static;
           transform: none;

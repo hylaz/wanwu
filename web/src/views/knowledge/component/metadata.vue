@@ -6,7 +6,8 @@
       size="mini"
       @click="createMetaData"
       v-if="type !== 'create'"
-    >创建</el-button>
+    >创建
+    </el-button>
     <div class="docMetaData" v-loading="loading">
       <div
         v-for="(item,index) in docMetaData"
@@ -31,21 +32,21 @@
               v-model="item.metaKey"
               @blur="metakeyBlur(item,index)"
             ></el-input>
-            <span v-else class="metaItemKey">{{item.metaKey}}</span>
+            <span v-else class="metaItemKey">{{ item.metaKey }}</span>
           </template>
           <el-select
-              v-else
-              v-model="item.metaKey"
-              placeholder="请选择"
-              @change="keyChange($event,item)"
+            v-else
+            v-model="item.metaKey"
+            placeholder="请选择"
+            @change="keyChange($event,item)"
           >
-              <el-option
+            <el-option
               v-for="meta in keyOptions"
               :key="meta.metaKey"
               :label="meta.metaKey"
               :value="meta.metaKey"
-              >
-              </el-option>
+            >
+            </el-option>
           </el-select>
         </div>
         <el-divider direction="vertical"></el-divider>
@@ -65,7 +66,7 @@
             >
             </el-option>
           </el-select>
-          <span v-else class="metaValueType">[{{item.metaValueType}}]</span>
+          <span v-else class="metaValueType">[{{ item.metaValueType }}]</span>
         </div>
         <el-divider direction="vertical" v-if="type !== 'create'"></el-divider>
         <div class="docItem_data" v-if="type !== 'create'">
@@ -117,9 +118,9 @@
         <el-divider direction="vertical" v-if="type !== 'create'"></el-divider>
         <div class="docItem_data docItem_data_btn">
           <span
-          v-if="type === 'create'"
-          class="el-icon-edit-outline setBtn"
-          @click="editMataItem(item)"
+            v-if="type === 'create'"
+            class="el-icon-edit-outline setBtn"
+            @click="editMataItem(item)"
           ></span>
           <span
             class="el-icon-delete setBtn"
@@ -131,18 +132,19 @@
   </div>
 </template>
 <script>
-import {metaSelect,updateDocMeta} from "@/api/knowledge"
+import {metaSelect, updateDocMeta} from "@/api/knowledge"
+
 export default {
-  props:['metaData','type','knowledgeId'],
+  props: ['metaData', 'type', 'knowledgeId'],
   watch: {
-    metaData:{
-        handler(val) {
-            if(val){
-                this.docMetaData = val;
-            }
-        },
-        deep: true,
-        immediate: true,
+    metaData: {
+      handler(val) {
+        if (val) {
+          this.docMetaData = val;
+        }
+      },
+      deep: true,
+      immediate: true,
     },
     docMetaData: {
       handler(val) {
@@ -158,7 +160,7 @@ export default {
         }))
 
         this.debounceTimer = setTimeout(() => {
-          this.$emit("updateMeata",payload);
+          this.$emit("updateMeata", payload);
         }, 500);
       },
       deep: true,
@@ -167,7 +169,7 @@ export default {
   },
   data() {
     return {
-      loading:false,
+      loading: false,
       debounceTimer: null,
       docMetaData: [],
       typeOptions: [
@@ -194,34 +196,34 @@ export default {
           label: "正则表达式",
         },
       ],
-      keyOptions:[]
+      keyOptions: []
     };
   },
-  created(){
+  created() {
     this.getList()
   },
   methods: {
-    getList(){
+    getList() {
       this.loading = true;
-      metaSelect({knowledgeId:this.knowledgeId}).then(res =>{
-          if(res.code === 0){
-            this.loading = false;
-            this.keyOptions = res.data.knowledgeMetaList || []
-              if(this.type === 'create'){
-                this.docMetaData = (res.data.knowledgeMetaList || []).map(item => ({
-                  ...item,
-                  metaValueType:item.metaValueType || 'string',
-                  showEdit:false,
-                  option: ''
-                }));
-              }
-              
+      metaSelect({knowledgeId: this.knowledgeId}).then(res => {
+        if (res.code === 0) {
+          this.loading = false;
+          this.keyOptions = res.data.knowledgeMetaList || []
+          if (this.type === 'create') {
+            this.docMetaData = (res.data.knowledgeMetaList || []).map(item => ({
+              ...item,
+              metaValueType: item.metaValueType || 'string',
+              showEdit: false,
+              option: ''
+            }));
           }
-      }).catch(() =>{
+
+        }
+      }).catch(() => {
         this.loading = false;
       })
     },
-    keyChange(val,item){
+    keyChange(val, item) {
       item.metaValue = ''
       item.metadataType = 'value'
       const opt = Array.isArray(this.keyOptions)
@@ -230,26 +232,26 @@ export default {
       item.metaValueType = opt ? opt.metaValueType : ''
     },
     createMetaData() {
-      if(this.type === 'create' && this.docMetaData.length > 0  ){
+      if (this.type === 'create' && this.docMetaData.length > 0) {
         if (this.docMetaData.some(item => item.metaKey === '' || item.metaValueType === '')) {
-            this.$message.error("元数据管理存在未填写的必填字段");
-            return;
+          this.$message.error("元数据管理存在未填写的必填字段");
+          return;
         }
-      }else{
-          if (this.docMetaData.length > 0 && !this.validateMetaData(this.docMetaData)) {
-            return;
+      } else {
+        if (this.docMetaData.length > 0 && !this.validateMetaData(this.docMetaData)) {
+          return;
         }
       }
 
       this.docMetaData.push({
-        metaId:"",
+        metaId: "",
         metaKey: "",
         metaRule: "",
         metaValue: "",
         metaValueType: "string",
-        showEdit:true,
+        showEdit: true,
         metadataType: "value",
-        option:"add"
+        option: "add"
       });
     },
     validateMetaData() {
@@ -270,34 +272,34 @@ export default {
       }
       return true;
     },
-    editMataItem(item){
+    editMataItem(item) {
       item.showEdit = true;
-      if(item.metaId){
+      if (item.metaId) {
         item.option = 'update';
       }
     },
-    delMataItem(i,item) {
-      if(item.metaId){
+    delMataItem(i, item) {
+      if (item.metaId) {
         item.option = 'delete'
         this.delMetaData(item)
-      }else{
+      } else {
         this.docMetaData.splice(i, 1);
       }
     },
-    delMetaData(item){
+    delMetaData(item) {
       const dataItem = [item]
       const data = {
-        docId:'',
-        knowledgeId:this.knowledgeId,
-        metaDataList:dataItem.map(({metaId,option}) =>({
+        docId: '',
+        knowledgeId: this.knowledgeId,
+        metaDataList: dataItem.map(({metaId, option}) => ({
           metaId,
           option
         }))
       }
-      updateDocMeta(data).then(res =>{
-        if(res.code === 0){
-            this.$message.success('操作成功')
-            this.getList();
+      updateDocMeta(data).then(res => {
+        if (res.code === 0) {
+          this.$message.success('操作成功')
+          this.getList();
         }
       })
     },
@@ -305,7 +307,7 @@ export default {
       item.metaValue = "";
       item.metaRule = "";
     },
-    metakeyBlur(item,index) {
+    metakeyBlur(item, index) {
       const regex = /^[a-z][a-z0-9_]*$/;
       if (!item.metaKey || typeof item.metaKey !== 'string' || item.metaKey.trim() === '') {
         this.$message.warning('请输入key值')
@@ -317,15 +319,15 @@ export default {
         return;
       }
 
-      if(this.isFound()){
+      if (this.isFound()) {
         this.$message.warning("存在相同key值");
         item.metaKey = ''
         return;
       }
-      
+
       item.showEdit = false;
     },
-    isFound(){
+    isFound() {
       const metaKeys = this.docMetaData.map(item => item.metaKey);
       const uniqueKeys = new Set(metaKeys);
       return uniqueKeys.size !== metaKeys.length;
@@ -338,42 +340,43 @@ export default {
     },
     metaRuleBlur(item) {
       if (!item.metaRule) {
-        this.showWarning("请输入正则值",item);
+        this.showWarning("请输入正则值", item);
         return;
       }
       if (!this.isValidRegex(item.metaRule)) {
-        this.showWarning("请输入合法正则值",item);
+        this.showWarning("请输入合法正则值", item);
         item.metaRule = "";
         return;
       }
     },
-    showWarning(message,item){
-        this.$message.warning(message);
-        item.metaRule = "";
+    showWarning(message, item) {
+      this.$message.warning(message);
+      item.metaRule = "";
     },
     isValidRegex(str) {
-        try {
-            if (str.startsWith('/')) {
-            if (!str.endsWith('/') && !str.match(/\/[a-z]*$/)) return false;
-            const parts = str.slice(1).split('/');
-            if (parts.length < 1) return false;
-            new RegExp(parts[0], parts[1]);
-            } else {
-            new RegExp(str);
-            }
-            return true;
-        } catch {
-            return false;
+      try {
+        if (str.startsWith('/')) {
+          if (!str.endsWith('/') && !str.match(/\/[a-z]*$/)) return false;
+          const parts = str.slice(1).split('/');
+          if (parts.length < 1) return false;
+          new RegExp(parts[0], parts[1]);
+        } else {
+          new RegExp(str);
         }
+        return true;
+      } catch {
+        return false;
+      }
     },
   },
 };
 </script>
 <style lang="scss" scoped>
 .docMetaData {
-  display:flex;
-  gap:10px;
+  display: flex;
+  gap: 10px;
   flex-direction: column;
+
   .docItem {
     display: flex;
     align-items: center;
@@ -381,44 +384,54 @@ export default {
     background: #f7f8fa;
 
     width: fit-content;
+
     .docItem_data {
       display: flex;
       align-items: center;
-      padding:5px 10px;
-      .metaItemKey{
-        padding:0 15px;
+      padding: 5px 10px;
+
+      .metaItemKey {
+        padding: 0 15px;
       }
+
       .el-input,
       .el-select,
       .el-date-picker,
       .metaItemKey {
         min-width: 160px;
       }
-      .label{
+
+      .label {
         min-width: fit-content;
       }
-      .metaValueType{
-        color:$color ;
+
+      .metaValueType {
+        color: $color;
       }
+
       .docItem_data_label {
         margin-right: 5px;
         display: flex;
         align-items: center;
+
         .question {
           color: #aaadcc;
-          margin:2px 5px 0 2px;
+          margin: 2px 5px 0 2px;
           cursor: pointer;
         }
       }
+
       .setBtn {
         font-size: 16px;
         cursor: pointer;
         color: $btn_bg;
       }
     }
+
     .docItem_data_btn {
       display: flex;
       justify-content: center;
+
       .el-icon-delete {
         margin-left: 5px;
       }

@@ -36,9 +36,9 @@ export default {
       type: Number,
       default: 0
     },
-    type:{
-      type:String,
-      default:'multiple'
+    type: {
+      type: String,
+      default: 'multiple'
     }
   },
   methods: {
@@ -57,24 +57,24 @@ export default {
 
 <style lang="scss" scoped>
 .batch-operation-toolbar {
-  position:absolute;
-  bottom:20px;
-  left:50%;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
   transform: translateX(-50%);
-  z-index:1000;
+  z-index: 1000;
   padding: 12px 20px;
   margin-bottom: 16px;
   border-radius: 8px;
-  
+
   .toolbar-container {
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid $color; 
+    border: 1px solid $color;
     border-radius: 8px;
     padding: 6px 26px;
     flex-wrap: wrap;
-    
+
     .toolbar-item {
       display: flex;
       align-items: center;
@@ -82,14 +82,14 @@ export default {
       padding: 6px 12px;
       transition: all 0.2s;
       border-radius: 4px;
-      
+
       &:hover:not(.selected-item) {
         background: rgba(255, 255, 255, 0.1);
       }
-      
+
       &.selected-item {
         cursor: default;
-        
+
         .selected-badge {
           display: inline-flex;
           align-items: center;
@@ -103,14 +103,14 @@ export default {
           font-weight: bold;
           margin-right: 8px;
         }
-        
+
         .selected-text {
           color: $color;
           font-size: 14px;
           font-weight: 500;
         }
       }
-      
+
       .icon-wrapper {
         position: relative;
         width: 20px;
@@ -119,16 +119,16 @@ export default {
         align-items: center;
         justify-content: center;
         margin-right: 8px;
-        
+
         i {
           font-size: 16px;
           color: $color;
-          
+
           &.metadata-icon {
             font-size: 18px;
             color: $color;
           }
-          
+
           &.tag-icon {
             position: absolute;
             top: -2px;
@@ -138,14 +138,14 @@ export default {
           }
         }
       }
-      
+
       .item-text {
         color: $color;
         font-size: 14px;
         white-space: nowrap;
       }
     }
-    
+
     .toolbar-divider {
       width: 1px;
       height: 14px;
