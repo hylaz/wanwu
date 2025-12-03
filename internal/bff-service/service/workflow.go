@@ -1,10 +1,13 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	net_url "net/url"
+	"time"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
@@ -304,6 +307,120 @@ func WorkflowConvert(ctx *gin.Context, orgId, workflowId, flowMode string) error
 		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_convert", fmt.Sprintf("[%v] %v", resp.StatusCode(), string(b)))
 	}
 	return nil
+}
+
+func ExplorationWorkflowRun(ctx *gin.Context, orgId string, req request.WorkflowRunReq) (*response.CozeGetWorkFlowProcessData, error) {
+	// Step 1: 触发异步执行（使用web的test_run接口），获取executeId
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.TestRunWebUri)
+	testRunRet := &response.CozeWorkFlowTestRunResponse{}
+	resp, err := resty.New().
+		R().
+		SetContext(ctx.Request.Context()).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetResult(testRunRet).
+		SetBody(map[string]any{
+			"workflow_id": req.WorkflowID,
+			"space_id":    orgId,
+			"input":       req.Input,
+		}).
+		Post(url)
+
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run", err.Error())
+	}
+	if resp.StatusCode() >= 300 {
+		b, _ := io.ReadAll(resp.RawResponse.Body)
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run",
+			fmt.Sprintf("[%d] %s", resp.StatusCode(), string(b)))
+	}
+
+	if testRunRet.Data == nil || testRunRet.Data.ExecuteID == "" {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run", "execute_id is empty")
+	}
+	executeID := testRunRet.Data.ExecuteID
+
+	// Step 2: 轮询执行状态(将coze的getprocess方法弄为同步，返回结果给应用广场的工作流使用)
+	gpUri, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetProcessUri)
+
+	// 创建一个带 30 分钟超时的子 context
+	pollCtx, cancel := context.WithTimeout(ctx.Request.Context(), 30*time.Minute)
+	defer cancel()
+
+	ticker := time.NewTicker(3 * time.Second) // 每3秒轮询一次
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-pollCtx.Done():
+			// 超时 or 上层取消
+			if errors.Is(pollCtx.Err(), context.DeadlineExceeded) {
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					"workflow execution timeout (exceeded 1 minute)")
+			}
+			return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+				"request canceled")
+
+		case <-ticker.C:
+			// 执行一次状态查询
+			statusResp, err := resty.New().
+				R().
+				SetContext(pollCtx). // 使用带超时的 context
+				SetHeader("Content-Type", "application/json").
+				SetHeader("Accept", "application/json").
+				SetHeaders(workflowHttpReqHeader(ctx)).
+				SetQueryParams(map[string]string{
+					"execute_id":  executeID,
+					"workflow_id": req.WorkflowID,
+					"space_id":    orgId,
+				}).
+				Get(gpUri)
+
+			if err != nil {
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status", err.Error())
+			}
+			if statusResp.StatusCode() >= 300 {
+				b, _ := io.ReadAll(statusResp.RawResponse.Body)
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					fmt.Sprintf("[%d] %s", statusResp.StatusCode(), string(b)))
+			}
+
+			var processResp response.CozeGetWorkflowProcessResponse
+			if err := json.Unmarshal(statusResp.Body(), &processResp); err != nil {
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					fmt.Sprintf("failed to unmarshal status response: %v", err))
+			}
+			data := processResp.Data
+			if data.ExecuteId == "" {
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status", "executeId is empty in status response")
+			}
+
+			switch data.ExecuteStatus {
+			case 2: // Success
+				return data, nil
+
+			case 3: // Failed
+				reason := "unknown"
+				if data.Reason != nil {
+					reason = *data.Reason
+				}
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					fmt.Sprintf("workflow execution failed: %s", reason))
+
+			case 4: // Canceled
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					"workflow execution was canceled")
+
+			case 1: // Running — 继续下一次轮询
+				continue
+
+			default:
+				return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_exploration_run_status",
+					fmt.Sprintf("unexpected executeStatus: %d", data.ExecuteStatus))
+			}
+		}
+	}
 }
 
 // --- internal ---

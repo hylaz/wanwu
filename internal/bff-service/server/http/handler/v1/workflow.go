@@ -1,20 +1,15 @@
 package v1
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/url"
 
-	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
-	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
-	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc/codes"
 )
 
 // ListLlmModelsByWorkflow
@@ -224,67 +219,17 @@ func WorkflowConvert(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body		request.WorkflowRunReq	true	"工作流运行参数"
-//	@Success		200		{object}	response.ExplorationWorkflowRunResp
+//	@Success		200		{object}	response.Response{}
 //	@Router			/workflow/run [post]
 func ExplorationWorkflowRun(ctx *gin.Context) {
 	var req request.WorkflowRunReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-
-	jsonData, err := json.Marshal(req.Input)
-	if err != nil {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, "invalid input"))
-		return
-	}
-
-	resp, err := service.OpenAPIWorkflowRun(ctx, req.WorkflowID, jsonData)
+	resp, err := service.ExplorationWorkflowRun(ctx, getOrgID(ctx), req)
 	if err != nil {
 		gin_util.Response(ctx, nil, err)
 		return
 	}
-
-	// Step 1: 先解析 resp 为任意 JSON 值
-	var value any
-	if err := json.Unmarshal(resp, &value); err != nil {
-		// 不是合法 JSON → 直接当作文本
-		ewrResp := &response.ExplorationWorkflowRunResp{
-			Code:          int64(codes.OK),
-			Data:          string(resp),
-			Msg:           "",
-			TerminatePlan: "useAnswerContent",
-		}
-		b, _ := json.Marshal(ewrResp)
-		gin_util.ResponseRawByte(ctx, http.StatusOK, b)
-		return
-	}
-
-	// Step 2: 判断是字符串（文本）还是对象（变量）
-	var finalData string
-	var terminatePlan string
-
-	if str, ok := value.(string); ok {
-		// 是字符串 → 文本回答
-		finalData = str
-		terminatePlan = "useAnswerContent"
-	} else {
-		// 其他类型（数组、number 等）→ 按变量处理
-		cleanBytes, _ := json.Marshal(value)
-		finalData = string(cleanBytes)
-		terminatePlan = "returnVariables"
-	}
-
-	ewrResp := &response.ExplorationWorkflowRunResp{
-		Code:          int64(codes.OK),
-		Data:          finalData,
-		Msg:           "",
-		TerminatePlan: terminatePlan,
-	}
-
-	b, err := json.Marshal(ewrResp)
-	if err != nil {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "failed to marshal response"))
-		return
-	}
-	gin_util.ResponseRawByte(ctx, http.StatusOK, b)
+	gin_util.Response(ctx, resp, nil)
 }
