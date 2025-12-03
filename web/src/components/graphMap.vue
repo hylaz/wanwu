@@ -14,7 +14,9 @@
         </span>
         <span class="graphStatus">
           <span class="statusNum">{{data.successCount || 0}}</span>
-          <span class="statusText">{{$t('knowledgeManage.graph.finished')}}</span>
+          <el-tooltip class="item" effect="dark" :content="$t('knowledgeManage.graph.successGraphTips')" placement="top">
+            <span class="statusText">{{$t('knowledgeManage.graph.finished')}}</span>
+          </el-tooltip>
         </span>
         <span class="graphStatus">
           <span class="statusNum">{{data.failCount || 0}}</span>
