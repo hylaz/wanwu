@@ -243,6 +243,28 @@
 
 ------
 
+### ➡️ 信创适配（TiDB & OceanBase）
+
+1. 基于上述Docker安装步骤，完成首次运行前的配置
+
+2. 根据需要修改.env文件中的`WANWU_DB_NAME`变量（以TiDB为例）
+   ```bash
+   # db: mysql | tidb | oceanbase
+   WANWU_DB_NAME=tidb
+   ```
+
+3. 启动数据库（以amd64为例）
+   ```bash
+   # tidb
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.tidb.yaml up -d
+   # oceanbase
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.oceanbase.yaml up -d
+   ```
+
+4. 基于上述Docker安装步骤，将系统服务完整启动
+
+------
+
 ### &#x1F4D1; 使用万悟
 
 为了帮助您快速上手本项目，我们强烈推荐先查看[ 文档操作手册](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual)。我们为用户提供了交互式、结构化的操作指南，您可以直接在其中查看操作说明、接口文档等，极大地降低了学习和使用的门槛。详细功能清单如下：

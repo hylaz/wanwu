@@ -76,6 +76,11 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       REDIS_HOST: ${WANWU_REDIS_HOST}
       REDIS_PORT: ${WANWU_REDIS_PORT}
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
@@ -87,32 +92,6 @@ services:
       SMTP_DEFAULT_FROM_NAME: ${WANWU_IAM_SMTP_DEFAULT_FROM_NAME}
     working_dir: /app
     command: ./bin/iam-service
-
-  app-service:
-    restart: always
-    image: ${WANWU_GO_IMAGE}
-    container_name: app-service
-    networks:
-      - ${WANWU_DOCKER_NETWORK}
-    ports:
-      - 9988:9988
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - ./bin/${WANWU_ARCH}/app-service:/app/bin/app-service
-      - ./configs/microservice/app-service/configs:/app/configs/microservice/app-service/configs
-      - ${WANWU_PROJECT_DIR}/app-service/log:/app/log
-    environment:
-      DB_NAME: ${WANWU_DB_NAME}
-      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
-      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
-      REDIS_HOST: ${WANWU_REDIS_HOST}
-      REDIS_PORT: ${WANWU_REDIS_PORT}
-      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
-      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
-      MINIO_USER: ${WANWU_MINIO_USER}
-      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
-    working_dir: /app
-    command: ./bin/app-service
 
   model-service:
     restart: always
@@ -131,6 +110,11 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       REDIS_HOST: ${WANWU_REDIS_HOST}
       REDIS_PORT: ${WANWU_REDIS_PORT}
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
@@ -155,54 +139,16 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       REDIS_HOST: ${WANWU_REDIS_HOST}
       REDIS_PORT: ${WANWU_REDIS_PORT}
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
     working_dir: /app
     command: ./bin/mcp-service
-
-  operate-service:
-    restart: always
-    image: ${WANWU_GO_IMAGE}
-    container_name: operate-service
-    networks:
-      - ${WANWU_DOCKER_NETWORK}
-    ports:
-      - 9797:9797
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - ./bin/${WANWU_ARCH}/operate-service:/app/bin/operate-service
-      - ${WANWU_PROJECT_DIR}/operate-service/log:/app/log
-      - ./configs/microservice/operate-service/configs:/app/configs/microservice/operate-service/configs
-    environment:
-      DB_NAME: ${WANWU_DB_NAME}
-      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
-      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
-    working_dir: /app
-    command: ./bin/operate-service
-
-  rag-service:
-    restart: always
-    image: ${WANWU_GO_IMAGE}
-    container_name: rag-service
-    networks:
-      - ${WANWU_DOCKER_NETWORK}
-    ports:
-      - 9640:9640
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - ./bin/${WANWU_ARCH}/rag-service:/app/bin/rag-service
-      - ./configs/microservice/rag-service/configs:/app/configs/microservice/rag-service/configs
-      - ${WANWU_PROJECT_DIR}/rag-service/log:/app/log
-    environment:
-      DB_NAME: ${WANWU_DB_NAME}
-      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
-      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
-      REDIS_HOST: ${WANWU_REDIS_HOST}
-      REDIS_PORT: ${WANWU_REDIS_PORT}
-      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
-    working_dir: /app
-    command: ./bin/rag-service
 
   knowledge-service:
     restart: always
@@ -222,6 +168,11 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       KAFKA_ADDR: ${WANWU_KAFKA_ADDRESS}
       KAFKA_USER: ${WANWU_KAFKA_USER}
       KAFKA_PASSWORD: ${WANWU_KAFKA_PASSWORD}
@@ -230,6 +181,34 @@ services:
       MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
     working_dir: /app
     command: ./bin/knowledge-service
+
+  rag-service:
+    restart: always
+    image: ${WANWU_GO_IMAGE}
+    container_name: rag-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 9640:9640
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./bin/${WANWU_ARCH}/rag-service:/app/bin/rag-service
+      - ./configs/microservice/rag-service/configs:/app/configs/microservice/rag-service/configs
+      - ${WANWU_PROJECT_DIR}/rag-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+    working_dir: /app
+    command: ./bin/rag-service
 
   assistant-service:
     restart: always
@@ -248,6 +227,11 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       REDIS_HOST: ${WANWU_REDIS_HOST}
       REDIS_PORT: ${WANWU_REDIS_PORT}
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
@@ -282,6 +266,62 @@ services:
     working_dir: /app
     command: ./bin/agent-service
 
+  operate-service:
+    restart: always
+    image: ${WANWU_GO_IMAGE}
+    container_name: operate-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 9797:9797
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./bin/${WANWU_ARCH}/operate-service:/app/bin/operate-service
+      - ${WANWU_PROJECT_DIR}/operate-service/log:/app/log
+      - ./configs/microservice/operate-service/configs:/app/configs/microservice/operate-service/configs
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+    working_dir: /app
+    command: ./bin/operate-service
+
+  app-service:
+    restart: always
+    image: ${WANWU_GO_IMAGE}
+    container_name: app-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 9988:9988
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./bin/${WANWU_ARCH}/app-service:/app/bin/app-service
+      - ./configs/microservice/app-service/configs:/app/configs/microservice/app-service/configs
+      - ${WANWU_PROJECT_DIR}/app-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+    working_dir: /app
+    command: ./bin/app-service
+
   workflow:
     restart: always
     image: ${WANWU_WORKFLOW_BASE_IMAGE}
@@ -303,6 +343,11 @@ services:
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
       REDIS_HOST: ${WANWU_REDIS_HOST}
       REDIS_PORT: ${WANWU_REDIS_PORT}
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
