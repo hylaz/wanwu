@@ -47,7 +47,7 @@ rag-server:
   timeout: 60
 
 tool-server:
-  endpoint: 'http://agent-wanwu:1991'
+  endpoint: 'http://callback-wanwu:8669'
 
 bff-server:
   endpoint: 'http://bff-service:6668'
