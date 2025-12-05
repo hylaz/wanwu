@@ -270,6 +270,7 @@
 | [MCP廣場](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.MCP%E5%B9%BF%E5%9C%BA.md) |          內建 100+ 精選行業 MCP server，即選即用。           |
 | [模板廣場](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.模板广场.md) |              內建 50 + 優選行業提示詞，即選即用              |
 | [設定](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | 平台支援多租戶，允許使用者進行組織、角色、使用者管理、平台基礎配置。 |
+| [知識圖譜UniAI-GraphRAG](https://github.com/UnicomAI/wanwu/blob/66539378255f9a1da80b02a83e75c7a5155f7f87/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E3%80%81%E9%97%AE%E7%AD%94%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md) | UniAI-GraphRAG 結合領域知識本體建模、知識圖譜與社區報告構建、圖檢索增強生成等技術，可有效提升知識問答的完整性、邏輯性與可信度。可顯著提升跨多文檔總結與多跳關係推理等複雜問答場景的問答效果。 |
 
 ------
 
