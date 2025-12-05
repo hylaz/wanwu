@@ -57,7 +57,11 @@
           <el-button
             type="text"
             size="mini"
-            :disabled="[STATUS_PENDING, STATUS_PROCESSING, STATUS_FAILED].includes(scope.row.status)"
+            :disabled="
+              [STATUS_PENDING, STATUS_PROCESSING, STATUS_FAILED].includes(
+                scope.row.status
+              )
+            "
             @click="handleDownload(scope.row)"
           >
             {{ $t("knowledgeManage.qaExport.download") }}
@@ -88,14 +92,14 @@
 </template>
 
 <script>
-import commonMixin from "@/mixins/common";
-import {getQaExportRecordList, delQaRecord} from "@/api/qaDatabase";
+import commonMixin from "@/mixins/common"
+import { getQaExportRecordList, delQaRecord } from "@/api/qaDatabase"
 import {
   STATUS_FAILED,
   STATUS_FINISHED,
   STATUS_PENDING,
-  STATUS_PROCESSING
-} from "@/views/knowledge/constants";
+  STATUS_PROCESSING,
+} from "@/views/knowledge/constants"
 
 export default {
   name: "QaExportRecord",
@@ -118,67 +122,70 @@ export default {
       },
       statusMap: {
         [STATUS_PENDING]: this.$t("knowledgeManage.qaExportStatus.pending"),
-        [STATUS_PROCESSING]: this.$t("knowledgeManage.qaExportStatus.processing"),
+        [STATUS_PROCESSING]: this.$t(
+          "knowledgeManage.qaExportStatus.processing"
+        ),
         [STATUS_FINISHED]: this.$t("knowledgeManage.qaExportStatus.finished"),
         [STATUS_FAILED]: this.$t("knowledgeManage.qaExportStatus.failed"),
       },
       STATUS_FAILED,
       STATUS_FINISHED,
       STATUS_PENDING,
-      STATUS_PROCESSING
-    };
+      STATUS_PROCESSING,
+    }
   },
   methods: {
     showDialog() {
-      this.dialogVisible = true;
-      this.pagination.pageNo = 1;
-      this.fetchRecordList();
+      this.dialogVisible = true
+      this.pagination.pageNo = 1
+      this.fetchRecordList()
     },
     handleClose() {
-      this.dialogVisible = false;
-      this.tableData = [];
-      this.pagination.total = 0;
+      this.dialogVisible = false
+      this.tableData = []
+      this.pagination.total = 0
     },
     handlePageChange(page) {
-      this.pagination.pageNo = page;
-      this.fetchRecordList();
+      this.pagination.pageNo = page
+      this.fetchRecordList()
     },
     fetchRecordList() {
-      if (!this.knowledgeId) return;
-      this.tableLoading = true;
+      if (!this.knowledgeId) return
+      this.tableLoading = true
       const params = {
         knowledgeId: this.knowledgeId,
         pageNo: this.pagination.pageNo,
         pageSize: this.pagination.pageSize,
-      };
+      }
       getQaExportRecordList(params)
         .then((res) => {
           if (res.code === 0) {
-            const data = res.data || {};
-            this.tableData = data.list || [];
-            this.pagination.total = data.total || 0;
+            const data = res.data || {}
+            this.tableData = data.list || []
+            this.pagination.total = data.total || 0
           }
         })
-        .catch(() => {
-        })
+        .catch(() => {})
         .finally(() => {
-          this.tableLoading = false;
-        });
+          this.tableLoading = false
+        })
     },
     formatStatus(status) {
-      return this.statusMap[status] || this.$t("knowledgeManage.noStatus");
+      return this.statusMap[status] || this.$t("knowledgeManage.noStatus")
     },
     handleDownload(row) {
-      const url = row.filePath;
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'download.csv';
-      link.click();
-      window.URL.revokeObjectURL(link.href);
+      const url = row.filePath
+      const fileName =
+        url.substring(url.lastIndexOf("/") + 1) || `download_${Date.now()}`
+      const link = document.createElement("a")
+      link.href = url
+      link.download = fileName
+      link.click()
+      window.URL.revokeObjectURL(link.href)
     },
     handleDelete(row) {
       const data = {
-        qaExportRecordId: row.qaExportRecordId,
+        exportRecordId: row.exportRecordId,
         knowledgeId: this.knowledgeId,
       }
       this.$confirm(
@@ -191,25 +198,23 @@ export default {
         }
       )
         .then(() => {
-          this.tableLoading = true;
+          this.tableLoading = true
           delQaRecord(data)
             .then((res) => {
               if (res.code === 0) {
-                this.$message.success(this.$t("common.info.delete"));
-                this.fetchRecordList();
+                this.$message.success(this.$t("common.info.delete"))
+                this.fetchRecordList()
               }
             })
-            .catch(() => {
-            })
+            .catch(() => {})
             .finally(() => {
-              this.tableLoading = false;
-            });
+              this.tableLoading = false
+            })
         })
-        .catch(() => {
-        });
+        .catch(() => {})
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -270,4 +275,3 @@ export default {
   }
 }
 </style>
-

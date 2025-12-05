@@ -456,15 +456,15 @@ export default {
   modelAccess: {
     title: "模型管理",
     import: "模型导入",
-    support: '支持',
-    noSupport: '不支持',
+    support: "支持",
+    noSupport: "不支持",
     type: {
-      yuanjing: '联通元景',
-      qwen: '通义千问',
-      huoshan: '火山引擎',
-      infini: '无问芯穹',
-      pdfParser: '文档解析服务',
-      asr: '语音识别模型'
+      yuanjing: "联通元景",
+      qwen: "通义千问",
+      huoshan: "火山引擎",
+      infini: "无问芯穹",
+      pdfParser: "文档解析服务",
+      asr: "语音识别模型",
     },
     table: {
       modelName: "模型名称",
@@ -566,7 +566,8 @@ export default {
   // 工作流/对话流
   list: {
     chatCreate: "对话流创建",
-    chatNamePlaceholder: "输入对话流名称，仅支持中文、英文、数字、下划线、中划线、英文（.）",
+    chatNamePlaceholder:
+      "输入对话流名称，仅支持中文、英文、数字、下划线、中划线、英文（.）",
     noChatName: "请输入对话流名称",
     chatNameLimit: "名称须在30字符以内",
     noChatDesc: "请输入对话流描述",
@@ -604,7 +605,8 @@ export default {
     tips: "提示",
     confirm: "确 定",
     delSuccess: "删除成功",
-    nameplaceholder: "输入工作流名称，仅支持中文、英文、数字、下划线、中划线、英文（.）",
+    nameplaceholder:
+      "输入工作流名称，仅支持中文、英文、数字、下划线、中划线、英文（.）",
     descplaceholder: "输入工作流描述，大模型将根据此描述识别并调用该工作流",
     cancel: "取 消",
     nameRules: "请填写工作流名称",
@@ -641,7 +643,7 @@ export default {
     searchPlaceholderQa: "按照问答库名称搜索",
     docPlaceholder: "按照文件名称搜索",
     questionPlaceholder: "按照问题搜索",
-    metaPlaceholder: "按照元数据搜索",
+    metaPlaceholder: "按照元数据值搜索",
     createQaDatabase: "新建问答库",
     desc: "描述",
     title: "文档知识库",
@@ -725,8 +727,10 @@ export default {
     nextStep: "下一步",
     placeholderText: "搜索分隔符",
     titleText: "创建分隔符",
-    childSegmentMaxAdjusted: "子分段最大值已调整为 {parentMaxValue}，不能超过父分段的最大值",
-    childSegmentMaxAdjustedTips: "子分段最大值不能超过父分段的最大值 {parentMaxValue}",
+    childSegmentMaxAdjusted:
+      "子分段最大值已调整为 {parentMaxValue}，不能超过父分段的最大值",
+    childSegmentMaxAdjustedTips:
+      "子分段最大值不能超过父分段的最大值 {parentMaxValue}",
     metadataRequired: "元数据管理存在未填写的必填字段",
     fileNotFoundOrServerError: "文件不存在或服务器错误",
     fileDownloadFailed: "文件下载失败，请稍后重试！",
@@ -914,7 +918,8 @@ export default {
       failed: "处理失败",
       graphStatus: "图谱解析状态",
       useGraph: "是否使用图谱",
-      successGraphTips:"若schema文件内容与上传的文档内容无法匹配，则知识图谱无法解析出内容"
+      successGraphTips:
+        "若schema文件内容与上传的文档内容无法匹配，则知识图谱无法解析出内容",
     },
     communityReport: {
       name: "名称",
@@ -998,9 +1003,11 @@ export default {
         url: "url单条上传",
         clickText: "将文件拖到此处，或",
         clickUpload: "点击上传",
-        uploadTips1: "您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制",
+        uploadTips1:
+          "您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制",
         uploadTips2: "如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待",
-        uploadTips3: "批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb ",
+        uploadTips3:
+          "批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb ",
         uploadTips4: "当前内容不自动更新",
         segmentSetting: "分段设置",
         segmentTips: "分段标识",
@@ -1053,7 +1060,7 @@ export default {
         admin: "管理员",
       },
       warning: "请先选择组织",
-    }
+    },
   },
   knowledgeSelect: {
     title: "选择知识库",
@@ -1377,7 +1384,8 @@ export default {
       modelSearchPlaceholder: "可输入模型名称搜索",
       visionModelTips:
         "*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具",
-      functionCallTips:"*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择",
+      functionCallTips:
+        "*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择",
       prologue: "开场白",
       prologuePlaceholder: "请输入开场白",
       recommendQuestion: "推荐问题",
@@ -1539,17 +1547,17 @@ export default {
   app: {
     modelTips: "暂不支持选择图文问答类模型",
     selectRerank: "请选rerank择模型！",
-    recallParameterSet:'召回参数配置',
-    linkQaDatabase:'关联问答库',
-    selectQAdatabase:'选择问答库',
-    qaSearchPlaceholder:'输入问答库名称搜索',
-    qaSearching:'问答库搜索中...',
-    knowledgeSearch:'知识库搜索中...',
-    noResponse:'无响应数据',
-    stopStream:'本次回答已被终止',
-    selectKnowledge:'请选择知识库',
+    recallParameterSet: "召回参数配置",
+    linkQaDatabase: "关联问答库",
+    selectQAdatabase: "选择问答库",
+    qaSearchPlaceholder: "输入问答库名称搜索",
+    qaSearching: "问答库搜索中...",
+    knowledgeSearch: "知识库搜索中...",
+    noResponse: "无响应数据",
+    stopStream: "本次回答已被终止",
+    selectKnowledge: "请选择知识库",
     recommendedQuestion: "推荐问题:",
-    qaUplodFileTips:"文件上传成功，请手动刷新问答库列表",
+    qaUplodFileTips: "文件上传成功，请手动刷新问答库列表",
     publishType: {
       private: "私密发布为应用：仅自己可见",
       organization: "公开发布为应用：组织内可见",
@@ -1560,4 +1568,4 @@ export default {
       tips: "开启闲聊模式，用户可进行大模型闲聊;禁用闲聊模式则只支持对知识库、问答库内涉及的内容进行问答。若只关联问答库，暂不支持开启闲聊模式",
     },
   },
-};
+}

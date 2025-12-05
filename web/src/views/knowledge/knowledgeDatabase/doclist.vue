@@ -50,7 +50,6 @@
                   icon="el-icon-refresh"
                   @click="reload"
                 >
-                  {{ $t("common.gpuDialog.reload") }}
                 </el-button>
                 <el-button
                   size="mini"
@@ -116,7 +115,7 @@
                 </el-button>
                 <template v-if="hasManagePerm">
                   <el-dropdown
-                    v-for="(group,index) in dropdownGroups"
+                    v-for="(group, index) in dropdownGroups"
                     :key="group.label"
                     @command="handleCommand"
                     :style="{ margin: index === 0 ? '0 10px' : '' }"
@@ -217,7 +216,12 @@
                   <template slot-scope="scope">
                     <span
                       :class="[
-                        [KNOWLEDGE_STATUS_CHECK_FAIL, KNOWLEDGE_STATUS_FAIL].includes(scope.row.status) ? 'error' : '',
+                        [
+                          KNOWLEDGE_STATUS_CHECK_FAIL,
+                          KNOWLEDGE_STATUS_FAIL,
+                        ].includes(scope.row.status)
+                          ? 'error'
+                          : '',
                       ]"
                     >
                       {{ filterStatus(scope.row.status) }}
@@ -272,10 +276,20 @@
                       size="mini"
                       round
                       @click="handleDel(scope.row)"
-                      :disabled="[KNOWLEDGE_STATUS_CHECKING, KNOWLEDGE_STATUS_ANALYSING].includes(Number(scope.row.status))"
+                      :disabled="
+                        [
+                          KNOWLEDGE_STATUS_CHECKING,
+                          KNOWLEDGE_STATUS_ANALYSING,
+                        ].includes(Number(scope.row.status))
+                      "
                       v-if="hasManagePerm"
                       :type="
-                        [KNOWLEDGE_STATUS_CHECKING, KNOWLEDGE_STATUS_ANALYSING].includes(Number(scope.row.status)) ? 'info' : ''
+                        [
+                          KNOWLEDGE_STATUS_CHECKING,
+                          KNOWLEDGE_STATUS_ANALYSING,
+                        ].includes(Number(scope.row.status))
+                          ? 'info'
+                          : ''
                       "
                     >
                       {{ $t("common.button.delete") }}
@@ -284,11 +298,21 @@
                       size="mini"
                       round
                       :type="
-                        [KNOWLEDGE_STATUS_PENDING_PROCESSING, KNOWLEDGE_STATUS_ANALYSING, KNOWLEDGE_STATUS_FAIL].includes(Number(scope.row.status))
+                        [
+                          KNOWLEDGE_STATUS_PENDING_PROCESSING,
+                          KNOWLEDGE_STATUS_ANALYSING,
+                          KNOWLEDGE_STATUS_FAIL,
+                        ].includes(Number(scope.row.status))
                           ? 'info'
                           : ''
                       "
-                      :disabled="[KNOWLEDGE_STATUS_PENDING_PROCESSING, KNOWLEDGE_STATUS_ANALYSING, KNOWLEDGE_STATUS_FAIL].includes(Number(scope.row.status))"
+                      :disabled="
+                        [
+                          KNOWLEDGE_STATUS_PENDING_PROCESSING,
+                          KNOWLEDGE_STATUS_ANALYSING,
+                          KNOWLEDGE_STATUS_FAIL,
+                        ].includes(Number(scope.row.status))
+                      "
                       @click="handleView(scope.row)"
                     >
                       {{ $t("knowledgeManage.view") }}
@@ -353,25 +377,29 @@
       @handleMetaCancel="handleMetaCancel"
     />
     <!-- 导出记录 -->
-    <exportRecord ref="exportRecord" :knowledgeId="docQuery.knowledgeId"/>
+    <exportRecord ref="exportRecord" :knowledgeId="docQuery.knowledgeId" />
   </div>
 </template>
 
 <script>
-import Pagination from "@/components/pagination.vue";
-import SearchInput from "@/components/searchInput.vue";
-import mataData from "../component/metadata.vue";
-import batchMetaData from "../component/meta/batchMetaData.vue";
-import BatchMetaButton from "../component/meta/batchMetaButton.vue";
+import Pagination from "@/components/pagination.vue"
+import SearchInput from "@/components/searchInput.vue"
+import mataData from "../component/metadata.vue"
+import batchMetaData from "../component/meta/batchMetaData.vue"
+import BatchMetaButton from "../component/meta/batchMetaButton.vue"
 import {
   getDocList,
   delDocItem,
   uploadFileTips,
   updateDocMeta,
   exportDoc,
-} from "@/api/knowledge";
-import {mapGetters} from "vuex";
-import {DROPDOWN_GROUPS, KNOWLEDGE_GRAPH_STATUS, KNOWLEDGE_STATUS_OPTIONS} from "../config";
+} from "@/api/knowledge"
+import { mapGetters } from "vuex"
+import {
+  DROPDOWN_GROUPS,
+  KNOWLEDGE_GRAPH_STATUS,
+  KNOWLEDGE_STATUS_OPTIONS,
+} from "../config"
 import {
   INITIAL,
   POWER_TYPE_EDIT,
@@ -385,8 +413,8 @@ import {
   KNOWLEDGE_STATUS_ANALYSING,
   KNOWLEDGE_STATUS_CHECK_FAIL,
   KNOWLEDGE_STATUS_FAIL,
-} from "@/views/knowledge/constants";
-import exportRecord from "@/views/knowledge/qaDatabase/exportRecord.vue";
+} from "@/views/knowledge/constants"
+import exportRecord from "@/views/knowledge/qaDatabase/exportRecord.vue"
 
 export default {
   components: {
@@ -438,13 +466,13 @@ export default {
       KNOWLEDGE_STATUS_ANALYSING,
       KNOWLEDGE_STATUS_CHECK_FAIL,
       KNOWLEDGE_STATUS_FAIL,
-    };
+    }
   },
   watch: {
     $route: {
       handler(val) {
         if (val.query.done) {
-          this.startTimer();
+          this.startTimer()
         }
       },
       immediate: true,
@@ -455,9 +483,9 @@ export default {
           val.some((item) => !item.metaKey || !item.metaValueType) ||
           !val.length
         ) {
-          this.isDisabled = true;
+          this.isDisabled = true
         } else {
-          this.isDisabled = false;
+          this.isDisabled = false
         }
       },
     },
@@ -465,207 +493,212 @@ export default {
   computed: {
     ...mapGetters("app", ["permissionType"]),
     hasManagePerm() {
-      return [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(this.permissionType);
-    }
+      return [
+        POWER_TYPE_EDIT,
+        POWER_TYPE_ADMIN,
+        POWER_TYPE_SYSTEM_ADMIN,
+      ].includes(this.permissionType)
+    },
   },
   mounted() {
-    this.getTableData(this.docQuery);
+    this.getTableData(this.docQuery)
     if (
       this.permissionType === INITIAL ||
       this.permissionType === null ||
       this.permissionType === undefined
     ) {
-      const savedData = localStorage.getItem("permission_data");
+      const savedData = localStorage.getItem("permission_data")
       if (savedData) {
         try {
-          const parsed = JSON.parse(savedData);
+          const parsed = JSON.parse(savedData)
           const savedPermissionType =
-            parsed && parsed.app && parsed.app.permissionType;
-          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-            this.$store.dispatch("app/setPermissionType", savedPermissionType);
+            parsed && parsed.app && parsed.app.permissionType
+          if (
+            savedPermissionType !== undefined &&
+            savedPermissionType !== INITIAL
+          ) {
+            this.$store.dispatch("app/setPermissionType", savedPermissionType)
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
     }
   },
   beforeDestroy() {
-    this.clearTimer();
+    this.clearTimer()
   },
   methods: {
     handleCommand(command) {
       const actions = {
         exportData: this.exportData,
         exportRecord: this.exportRecord,
-      };
-      (actions[command] || this.exportData)();
+      }
+      ;(actions[command] || this.exportData)()
     },
     exportData(docIdList) {
       if (!this.docQuery.knowledgeId) {
-        this.$message.warning(this.$t("common.noData"));
-        return;
+        this.$message.warning(this.$t("common.noData"))
+        return
       }
-      if (this.loading) return;
+      if (this.loading) return
       const params = {
         knowledgeId: this.docQuery.knowledgeId,
-        docIdList: docIdList
-      };
-      this.loading = true;
+        docIdList: docIdList,
+      }
+      this.loading = true
       exportDoc(params)
         .then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
-            const data = res.data || {};
-            const url = data.fileUrl || data.downloadUrl;
+            this.$message.success(this.$t("common.message.success"))
+            const data = res.data || {}
+            const url = data.fileUrl || data.downloadUrl
             if (url) {
-              window.open(url, "_blank");
+              window.open(url, "_blank")
             } else if (data.recordCreated) {
-              this.exportRecord();
+              this.exportRecord()
             }
           }
         })
-        .catch(() => {
-        })
+        .catch(() => {})
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
     exportRecord() {
-      this.$refs.exportRecord.showDialog();
+      this.$refs.exportRecord.showDialog()
     },
     handleMetaCancel() {
-      this.selectedTableData = [];
-      this.selectedDocIds = [];
+      this.selectedTableData = []
+      this.selectedDocIds = []
       // 取消所有表格数据的选中状态
       this.$nextTick(() => {
-        const table = this.$refs.dataTable;
+        const table = this.$refs.dataTable
         if (table) {
-          table.clearSelection();
+          table.clearSelection()
         }
-      });
+      })
     },
     reLoadDocList() {
-      this.getTableData(this.docQuery);
-      this.selectedTableData = [];
-      this.selectedDocIds = [];
+      this.getTableData(this.docQuery)
+      this.selectedTableData = []
+      this.selectedDocIds = []
 
       // 取消所有表格数据的选中状态
       this.$nextTick(() => {
-        const table = this.$refs.dataTable;
+        const table = this.$refs.dataTable
         if (table) {
-          table.clearSelection();
+          table.clearSelection()
         }
-      });
+      })
     },
     showBatchMeta() {
       if (!this.selectedTableData || this.selectedTableData.length === 0) {
         this.$message.warning(
           this.$t("knowledgeManage.docList.pleaseSelectDocFirst")
-        );
-        return;
+        )
+        return
       }
-      this.$refs.batchMetaData.showDialog();
+      this.$refs.batchMetaData.showDialog()
     },
     handleSelectionChange(val) {
       if (val.length > 100) {
         this.$message.warning(
           this.$t("knowledgeManage.docList.maxSelect100Files")
-        );
-        return;
+        )
+        return
       }
-      this.selectedTableData = val;
-      this.selectedDocIds = val.map((item) => item.docId);
+      this.selectedTableData = val
+      this.selectedDocIds = val.map((item) => item.docId)
     },
     getSegmentMethodText(value) {
       switch (value) {
         case "0":
-          return this.$t("knowledgeManage.config.commonSegment");
+          return this.$t("knowledgeManage.config.commonSegment")
         case "1":
-          return this.$t("knowledgeManage.config.parentSonSegment");
+          return this.$t("knowledgeManage.config.parentSonSegment")
         default:
-          return this.$t("knowledgeManage.docList.unknown");
+          return this.$t("knowledgeManage.docList.unknown")
       }
     },
     createMeta() {
-      this.$refs.mataData.createMetaData();
-      this.scrollToBottom();
+      this.$refs.mataData.createMetaData()
+      this.scrollToBottom()
     },
     scrollToBottom() {
       this.$nextTick(() => {
-        const container = this.$refs.mataData;
+        const container = this.$refs.mataData
         if (container) {
-          container.scrollTop = container.scrollHeight;
+          container.scrollTop = container.scrollHeight
         }
-      });
+      })
     },
     submitMeta() {
-      this.isDisabled = true;
+      this.isDisabled = true
       const metaList = this.metaData
         .filter((item) => item.option !== "")
-        .map(({metaId, metaKey, metaValueType, option}) => ({
+        .map(({ metaId, metaKey, metaValueType, option }) => ({
           metaKey,
-          ...(option === "add" ? {metaValueType} : {}),
+          ...(option === "add" ? { metaValueType } : {}),
           option,
-          ...(option === "update" || option === "delete" ? {metaId} : {}),
-        }));
+          ...(option === "update" || option === "delete" ? { metaId } : {}),
+        }))
       const data = {
         docId: "",
         knowledgeId: this.docQuery.knowledgeId,
         metaDataList: metaList,
-      };
+      }
       updateDocMeta(data)
         .then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
-            this.$refs.mataData.getList();
-            this.metaVisible = false;
-            this.isDisabled = false;
+            this.$message.success(this.$t("common.message.success"))
+            this.$refs.mataData.getList()
+            this.metaVisible = false
+            this.isDisabled = false
           }
         })
         .catch(() => {
-          this.isDisabled = false;
-        });
+          this.isDisabled = false
+        })
     },
     showMeta() {
-      this.metaVisible = true;
+      this.metaVisible = true
     },
     updateMeata(data) {
-      this.metaData = data;
+      this.metaData = data
     },
     handleClose() {
-      this.metaVisible = false;
+      this.metaVisible = false
     },
     startTimer() {
-      this.clearTimer();
+      this.clearTimer()
       if (this.refreshCount >= 2) {
-        return;
+        return
       }
-      const delay = this.refreshCount === 0 ? 1000 : 3000;
+      const delay = this.refreshCount === 0 ? 1000 : 3000
       this.timer = setTimeout(() => {
-        this.getTableData(this.docQuery);
-        this.refreshCount++;
-        this.startTimer();
-      }, delay);
+        this.getTableData(this.docQuery)
+        this.refreshCount++
+        this.startTimer()
+      }, delay)
     },
     clearTimer() {
       if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
+        clearInterval(this.timer)
+        this.timer = null
       }
     },
     goBack() {
-      this.$router.push({path: "/knowledge"});
+      this.$router.push({ path: "/knowledge" })
     },
     reload() {
-      this.getTableData(this.docQuery);
+      this.getTableData(this.docQuery)
     },
     handleSearch(val) {
-      this.docQuery.docName = val;
-      this.getTableData(this.docQuery);
+      this.docQuery.docName = val
+      this.getTableData(this.docQuery)
     },
     handleSearchByMeta(val) {
-      this.docQuery.metaValue = val;
-      this.getTableData(this.docQuery);
+      this.docQuery.metaValue = val
+      this.getTableData(this.docQuery)
     },
     submitDocname(formName) {
       this.$refs[formName].validate((valid) => {
@@ -673,38 +706,38 @@ export default {
           this.modifyDoc({
             id: this.currentDocdata.id,
             docName: this.ruleForm.docName,
-          });
+          })
         }
-      });
+      })
     },
     async modifyDoc(data) {
-      this.loading = true;
-      const res = await modifyDoc(data);
+      this.loading = true
+      const res = await modifyDoc(data)
       if (res.code === 0) {
-        this.$message.success(this.$t("knowledgeManage.operateSuccess"));
-        this.docListVisible = false;
-        this.getTableData(this.docQuery);
+        this.$message.success(this.$t("knowledgeManage.operateSuccess"))
+        this.docListVisible = false
+        this.getTableData(this.docQuery)
       }
-      this.loading = false;
+      this.loading = false
     },
     handleEdit(data) {
-      this.ruleForm.docName = data.docName;
-      this.docListVisible = true;
-      this.currentDocdata = data;
+      this.ruleForm.docName = data.docName
+      this.docListVisible = true
+      this.currentDocdata = data
     },
     async handleDelete(docIdList) {
-      this.loading = true;
+      this.loading = true
       try {
         let res = await delDocItem({
           docIdList,
-          knowledgeId: this.docQuery.knowledgeId
-        });
+          knowledgeId: this.docQuery.knowledgeId,
+        })
         if (res.code === 0) {
-          this.$message.success(this.$t("common.info.delete"));
+          this.$message.success(this.$t("common.info.delete"))
         }
       } finally {
-        this.reLoadDocList();
-        this.loading = false;
+        this.reLoadDocList()
+        this.loading = false
       }
     },
     handleDel(data) {
@@ -716,10 +749,11 @@ export default {
           cancelButtonText: this.$t("common.button.cancel"),
           type: "warning",
         }
-      ).then(() => {
-        this.handleDelete([data.docId]);
-      }).catch(() => {
-      });
+      )
+        .then(() => {
+          this.handleDelete([data.docId])
+        })
+        .catch(() => {})
     },
     handleBatchDelete() {
       this.$confirm(
@@ -730,47 +764,52 @@ export default {
           cancelButtonText: this.$t("common.button.cancel"),
           type: "warning",
         }
-      ).then(() => {
-        this.handleDelete(this.selectedDocIds);
-      }).catch(() => {
-      });
+      )
+        .then(() => {
+          this.handleDelete(this.selectedDocIds)
+        })
+        .catch(() => {})
     },
     handleBatchExport() {
       this.exportData(this.selectedDocIds)
     },
     async getTableData(data) {
-      this.tableLoading = true;
-      this.tableData = await this.$refs["pagination"].getTableData(data);
-      this.tableLoading = false;
-      this.getTips();
+      this.tableLoading = true
+      this.tableData = await this.$refs["pagination"].getTableData(data)
+      this.tableLoading = false
+      this.getTips()
     },
     getTips() {
-      uploadFileTips({knowledgeId: this.docQuery.knowledgeId}).then((res) => {
+      uploadFileTips({ knowledgeId: this.docQuery.knowledgeId }).then((res) => {
         if (res.code === 0) {
           if (res.data.uploadstatus === 1) {
-            this.showTips = true;
-            this.title_tips = this.$t("knowledgeManage.refreshTips");
+            this.showTips = true
+            this.title_tips = this.$t("knowledgeManage.refreshTips")
           } else if (res.data.uploadstatus === 2) {
-            this.showTips = false;
-            this.title_tips = "";
+            this.showTips = false
+            this.title_tips = ""
           } else {
-            this.showTips = true;
-            this.title_tips = res.data.msg;
+            this.showTips = true
+            this.title_tips = res.data.msg
           }
         }
-      });
+      })
     },
     changeOption(data) {
       //通过文档状态查找
-      this.docQuery.status = data;
-      this.getTableData({...this.docQuery, pageNo: 1});
+      this.docQuery.status = data
+      this.getTableData({ ...this.docQuery, pageNo: 1 })
     },
     filterStatus(status) {
       if (status === KNOWLEDGE_STATUS_UPLOADED) {
-        return this.$t("knowledgeManage.beUploaded");
+        return this.$t("knowledgeManage.beUploaded")
       }
-      const statusOption = KNOWLEDGE_STATUS_OPTIONS.find(option => option.value === status);
-      return statusOption ? statusOption.label : this.$t("knowledgeManage.noStatus");
+      const statusOption = KNOWLEDGE_STATUS_OPTIONS.find(
+        (option) => option.value === status
+      )
+      return statusOption
+        ? statusOption.label
+        : this.$t("knowledgeManage.noStatus")
     },
     handleView(row) {
       this.$router.push({
@@ -782,28 +821,27 @@ export default {
           knowledgeId: row.knowledgeId,
           knowledgeName: this.knowledgeName,
         },
-      });
+      })
     },
     handleUpload() {
       this.$router.push({
         path: "/knowledge/fileUpload",
-        query: {id: this.docQuery.knowledgeId, name: this.knowledgeName},
-      });
+        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
+      })
     },
     refreshData(data, tableInfo) {
-      this.tableData = data;
+      this.tableData = data
       if (tableInfo && tableInfo.docKnowledgeInfo) {
-        this.graphSwitch =
-          tableInfo.docKnowledgeInfo.graphSwitch === 1;
-        this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport;
-        this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName;
+        this.graphSwitch = tableInfo.docKnowledgeInfo.graphSwitch === 1
+        this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport
+        this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName
       } else {
-        this.graphSwitch = false;
-        this.showGraphReport = false;
+        this.graphSwitch = false
+        this.showGraphReport = false
       }
     },
   },
-};
+}
 </script>
 <style lang="scss" scoped>
 .mataData {
@@ -831,8 +869,8 @@ export default {
   }
 
   .el-tree--highlight-current
-  .el-tree-node.is-current
-  > .el-tree-node__content {
+    .el-tree-node.is-current
+    > .el-tree-node__content {
     background: #ffefef;
   }
 
