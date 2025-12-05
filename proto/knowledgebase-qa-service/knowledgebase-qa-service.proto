@@ -79,6 +79,7 @@ message GetQAPairListReq{
   int32 pageNum = 5;
   string userId = 6;
   string orgId = 7;
+  string metaValue = 8;
 }
 
 message GetQAPairListResp{

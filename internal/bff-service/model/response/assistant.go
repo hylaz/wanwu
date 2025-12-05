@@ -21,6 +21,7 @@ type Assistant struct {
 	ToolInfos              []*AssistantToolInfo           `json:"toolInfos"`           // 自定义工具、内置工具
 	CreatedAt              string                         `json:"createdAt"`           // 创建时间
 	UpdatedAt              string                         `json:"updatedAt"`           // 更新时间
+	NewAgent               bool                           `json:"newAgent"`            //是否是新版本智能体
 }
 
 type AssistantWorkFlowInfo struct {

@@ -47,6 +47,7 @@ const (
 	AssistantService_GetConversationList_FullMethodName                 = "/assistant_service.AssistantService/GetConversationList"
 	AssistantService_GetConversationDetailList_FullMethodName           = "/assistant_service.AssistantService/GetConversationDetailList"
 	AssistantService_AssistantConversionStream_FullMethodName           = "/assistant_service.AssistantService/AssistantConversionStream"
+	AssistantService_AssistantConversionStreamNew_FullMethodName        = "/assistant_service.AssistantService/AssistantConversionStreamNew"
 	AssistantService_ConversationDeleteByAssistantId_FullMethodName     = "/assistant_service.AssistantService/ConversationDeleteByAssistantId"
 	AssistantService_CustomPromptCreate_FullMethodName                  = "/assistant_service.AssistantService/CustomPromptCreate"
 	AssistantService_CustomPromptDelete_FullMethodName                  = "/assistant_service.AssistantService/CustomPromptDelete"
@@ -92,6 +93,7 @@ type AssistantServiceClient interface {
 	GetConversationList(ctx context.Context, in *GetConversationListReq, opts ...grpc.CallOption) (*GetConversationListResp, error)
 	GetConversationDetailList(ctx context.Context, in *GetConversationDetailListReq, opts ...grpc.CallOption) (*GetConversationDetailListResp, error)
 	AssistantConversionStream(ctx context.Context, in *AssistantConversionStreamReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AssistantConversionStreamResp], error)
+	AssistantConversionStreamNew(ctx context.Context, in *AssistantConversionStreamReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AssistantConversionStreamResp], error)
 	ConversationDeleteByAssistantId(ctx context.Context, in *ConversationDeleteByAssistantIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// --- custom prompt ---
 	CustomPromptCreate(ctx context.Context, in *CustomPromptCreateReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error)
@@ -389,6 +391,25 @@ func (c *assistantServiceClient) AssistantConversionStream(ctx context.Context, 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AssistantService_AssistantConversionStreamClient = grpc.ServerStreamingClient[AssistantConversionStreamResp]
 
+func (c *assistantServiceClient) AssistantConversionStreamNew(ctx context.Context, in *AssistantConversionStreamReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AssistantConversionStreamResp], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AssistantService_ServiceDesc.Streams[1], AssistantService_AssistantConversionStreamNew_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[AssistantConversionStreamReq, AssistantConversionStreamResp]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssistantService_AssistantConversionStreamNewClient = grpc.ServerStreamingClient[AssistantConversionStreamResp]
+
 func (c *assistantServiceClient) ConversationDeleteByAssistantId(ctx context.Context, in *ConversationDeleteByAssistantIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -495,6 +516,7 @@ type AssistantServiceServer interface {
 	GetConversationList(context.Context, *GetConversationListReq) (*GetConversationListResp, error)
 	GetConversationDetailList(context.Context, *GetConversationDetailListReq) (*GetConversationDetailListResp, error)
 	AssistantConversionStream(*AssistantConversionStreamReq, grpc.ServerStreamingServer[AssistantConversionStreamResp]) error
+	AssistantConversionStreamNew(*AssistantConversionStreamReq, grpc.ServerStreamingServer[AssistantConversionStreamResp]) error
 	ConversationDeleteByAssistantId(context.Context, *ConversationDeleteByAssistantIdReq) (*emptypb.Empty, error)
 	// --- custom prompt ---
 	CustomPromptCreate(context.Context, *CustomPromptCreateReq) (*CustomPromptIDResp, error)
@@ -593,6 +615,9 @@ func (UnimplementedAssistantServiceServer) GetConversationDetailList(context.Con
 }
 func (UnimplementedAssistantServiceServer) AssistantConversionStream(*AssistantConversionStreamReq, grpc.ServerStreamingServer[AssistantConversionStreamResp]) error {
 	return status.Errorf(codes.Unimplemented, "method AssistantConversionStream not implemented")
+}
+func (UnimplementedAssistantServiceServer) AssistantConversionStreamNew(*AssistantConversionStreamReq, grpc.ServerStreamingServer[AssistantConversionStreamResp]) error {
+	return status.Errorf(codes.Unimplemented, "method AssistantConversionStreamNew not implemented")
 }
 func (UnimplementedAssistantServiceServer) ConversationDeleteByAssistantId(context.Context, *ConversationDeleteByAssistantIdReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConversationDeleteByAssistantId not implemented")
@@ -1115,6 +1140,17 @@ func _AssistantService_AssistantConversionStream_Handler(srv interface{}, stream
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AssistantService_AssistantConversionStreamServer = grpc.ServerStreamingServer[AssistantConversionStreamResp]
 
+func _AssistantService_AssistantConversionStreamNew_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(AssistantConversionStreamReq)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AssistantServiceServer).AssistantConversionStreamNew(m, &grpc.GenericServerStream[AssistantConversionStreamReq, AssistantConversionStreamResp]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssistantService_AssistantConversionStreamNewServer = grpc.ServerStreamingServer[AssistantConversionStreamResp]
+
 func _AssistantService_ConversationDeleteByAssistantId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConversationDeleteByAssistantIdReq)
 	if err := dec(in); err != nil {
@@ -1385,6 +1421,11 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "AssistantConversionStream",
 			Handler:       _AssistantService_AssistantConversionStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "AssistantConversionStreamNew",
+			Handler:       _AssistantService_AssistantConversionStreamNew_Handler,
 			ServerStreams: true,
 		},
 	},

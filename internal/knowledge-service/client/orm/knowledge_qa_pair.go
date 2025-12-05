@@ -153,17 +153,23 @@ func DeleteKnowledgeQAPair(ctx context.Context, qaPair *model.KnowledgeQAPair, d
 		if err != nil {
 			return err
 		}
-		//3.通知rag更新问答对
+		//3.更新元数据记录
+		err = DeleteMetaDataByDocIdList(tx, qaPair.KnowledgeId, []string{qaPair.QAPairId})
+		if err != nil {
+			return err
+		}
+		//4.通知rag更新问答对
 		return service.RagDeleteQAPair(ctx, deleteParams)
 	})
 }
 
 // GetQAPairList 查询问答库问答对列表
-func GetQAPairList(ctx context.Context, userId, orgId, knowledgeId, name string, status int, pageSize int32, pageNum int32) ([]*model.KnowledgeQAPair, int64, error) {
+func GetQAPairList(ctx context.Context, userId, orgId, knowledgeId, name string, status int, qaPairIds []string, pageSize int32, pageNum int32) ([]*model.KnowledgeQAPair, int64, error) {
 	tx := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId),
 		sqlopt.WithKnowledgeID(knowledgeId),
 		sqlopt.WithStatus(status),
 		sqlopt.LikeQuestion(name),
+		sqlopt.WithQAPairIDsNonEmpty(qaPairIds),
 		sqlopt.WithDelete(0)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeQAPair{})
 	var total int64

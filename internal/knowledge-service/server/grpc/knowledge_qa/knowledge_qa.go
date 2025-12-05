@@ -58,9 +58,20 @@ func (s *Service) GetQAPairList(ctx context.Context, req *knowledgebase_qa_servi
 		log.Errorf("select QA knowledge failed err: (%v) req:(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeQABaseSelectFailed)
 	}
-	//入口层已经校验过用户权限，此处无需校验
+	qaPairIdList := make([]string, 0)
+	//查找元数据值所对应的文档列表
+	if req.MetaValue != "" {
+		qaPairIdList, err = orm.SelectDocIdListByMetaValue(ctx, "", "", req.KnowledgeId, req.MetaValue)
+		if err != nil {
+			log.Errorf("获取知识库元数据失败(%v)  参数(%v)", err, req)
+			return nil, util.ErrCode(errs.Code_KnowledgeMetaFetchFailed)
+		}
+		if len(qaPairIdList) == 0 {
+			return buildQAPairListResp(nil, knowledge, nil, 0, req.PageSize, req.PageNum), nil
+		}
+	}
 	list, total, err := orm.GetQAPairList(ctx, "", "", req.KnowledgeId,
-		req.Name, int(req.Status), req.PageSize, req.PageNum)
+		req.Name, int(req.Status), qaPairIdList, req.PageSize, req.PageNum)
 	if err != nil {
 		log.Errorf("select QA pairs failed err: (%v) req:(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeQAPairsSelectFailed)
@@ -645,12 +656,14 @@ func buildQAPairInfo(item *model.KnowledgeQAPair) *knowledgebase_qa_service.QAPa
 // buildQAPairMetaMap
 func buildQAPairMetaMap(qaPairMetaList []*model.KnowledgeDocMeta) map[string][]*model.KnowledgeDocMeta {
 	qaPairMetaMap := make(map[string][]*model.KnowledgeDocMeta)
-	for _, v := range qaPairMetaList {
-		if _, exists := qaPairMetaMap[v.DocId]; !exists {
-			qaPairMetaMap[v.DocId] = make([]*model.KnowledgeDocMeta, 0)
-		}
-		if v.Value != "" {
-			qaPairMetaMap[v.DocId] = append(qaPairMetaMap[v.DocId], v)
+	if len(qaPairMetaList) > 0 {
+		for _, v := range qaPairMetaList {
+			if _, exists := qaPairMetaMap[v.DocId]; !exists {
+				qaPairMetaMap[v.DocId] = make([]*model.KnowledgeDocMeta, 0)
+			}
+			if v.ValueMain != "" {
+				qaPairMetaMap[v.DocId] = append(qaPairMetaMap[v.DocId], v)
+			}
 		}
 	}
 	return qaPairMetaMap
@@ -668,7 +681,7 @@ func buildMetaList(metaMaps map[string][]*model.KnowledgeDocMeta, qaId string) [
 		return &knowledgebase_qa_service.MetaData{
 			MetaId:    item.MetaId,
 			Key:       item.Key,
-			Value:     item.Value,
+			Value:     item.ValueMain,
 			ValueType: valueType,
 			Rule:      item.Rule,
 		}

@@ -161,6 +161,11 @@ func deleteKnowledgeQAByKnowledgeId(ctx context.Context, taskCtx string) Result 
 				return err
 			}
 		}
+		// 删除元数据
+		err = orm.ExecuteDeleteKnowledgeMeta(tx, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
 		err := service.RagQADelete(ctx, &service.RagQADeleteParams{
 			UserId: knowledge.UserId,
 			QABase: knowledge.RagName,

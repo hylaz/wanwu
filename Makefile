@@ -7,6 +7,12 @@ LDFLAGS := -X main.buildTime=$(shell date +%Y-%m-%d,%H:%M:%S) \
 			-X main.gitBranch=$(shell git --git-dir=./.git for-each-ref --format='%(refname:short)->%(upstream:short)' $(shell git --git-dir=./.git symbolic-ref -q HEAD)) \
 			-X main.builder=$(shell git config user.name)
 
+build-tidb-setup-amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/tidb-setup
+
+build-tidb-setup-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/tidb-setup
+
 build-bff-amd64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/bff-service
 
@@ -60,6 +66,12 @@ build-assistant-amd64:
 
 build-assistant-arm64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/assistant-service
+
+build-agent-amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/agent-service
+
+build-agent-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/agent-service
 
 create-docker-net:
 	docker network create ${WANWU_DOCKER_NETWORK}
@@ -147,6 +159,45 @@ stop-mysql-setup:
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
 		down mysql-setup
+
+# --- tidb ---
+run-tidb:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d tidb
+
+stop-tidb:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down tidb
+
+# --- tidb-setup ---
+run-tidb-setup:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up tidb-setup
+
+stop-tidb-setup:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down tidb-setup
+
+# --- oceanbase ---
+run-oceanbase:
+	docker-compose -f docker-compose.oceanbase.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d oceanbase
+
+stop-oceanbase:
+	docker-compose -f docker-compose.oceanbase.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down oceanbase
 
 # --- redis ---
 run-redis:

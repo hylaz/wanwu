@@ -53,3 +53,12 @@ type WorkflowConvertReq struct {
 func (r *WorkflowConvertReq) Check() error {
 	return nil
 }
+
+type WorkflowRunReq struct {
+	WorkflowID string         `json:"workflow_id" validate:"required"`
+	Input      map[string]any `json:"input" `
+}
+
+func (r *WorkflowRunReq) Check() error {
+	return nil
+}

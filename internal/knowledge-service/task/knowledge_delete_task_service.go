@@ -148,6 +148,10 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		if err != nil {
 			return err
 		}
+		err = orm.ExecuteDeleteKnowledgeMeta(tx, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
 		err = orm.ExecuteDeleteKnowledge(tx, knowledge.Id)
 		if err != nil {
 			return err

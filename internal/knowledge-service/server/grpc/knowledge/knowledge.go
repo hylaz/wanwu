@@ -352,7 +352,7 @@ func buildDocMetaMap(docMetaList []*model.KnowledgeDocMeta) map[string]map[strin
 		if _, exists := docMetaMap[v.DocId]; !exists {
 			docMetaMap[v.DocId] = make(map[string][]*model.KnowledgeDocMeta)
 		}
-		if v.Value != "" {
+		if v.ValueMain != "" {
 			docMetaMap[v.DocId][v.Key] = append(docMetaMap[v.DocId][v.Key], v)
 		}
 	}
@@ -405,8 +405,9 @@ func handleAddMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, meta 
 	for _, docId := range req.DocIdList {
 		existMetaList := docMetaMap[docId][meta.MetaInfo.Key]
 		if len(existMetaList) > 0 {
-			existMetaList[0].Value = meta.MetaInfo.Value
+			existMetaList[0].ValueMain = meta.MetaInfo.Value
 			*updateList = append(*updateList, existMetaList[0])
+			// 删除多余的元数据,只保留更新后的
 			for i := 1; i < len(existMetaList); i++ {
 				*deleteList = append(*deleteList, existMetaList[i].MetaId)
 			}
@@ -418,7 +419,7 @@ func handleAddMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, meta 
 				UserId:      req.UserId,
 				OrgId:       req.OrgId,
 				Key:         meta.MetaInfo.Key,
-				Value:       meta.MetaInfo.Value,
+				ValueMain:   meta.MetaInfo.Value,
 				ValueType:   meta.MetaInfo.Type,
 			})
 		}
@@ -429,8 +430,9 @@ func handleUpdateMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, me
 	for _, docId := range req.DocIdList {
 		existMetaList := docMetaMap[docId][meta.MetaInfo.Key]
 		if len(existMetaList) > 0 {
-			existMetaList[0].Value = meta.MetaInfo.Value
+			existMetaList[0].ValueMain = meta.MetaInfo.Value
 			*updateList = append(*updateList, existMetaList[0])
+			// 删除多余的元数据,只保留更新后的
 			for i := 1; i < len(existMetaList); i++ {
 				*deleteList = append(*deleteList, existMetaList[i].MetaId)
 			}
@@ -442,7 +444,7 @@ func handleUpdateMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, me
 				UserId:      req.UserId,
 				OrgId:       req.OrgId,
 				Key:         meta.MetaInfo.Key,
-				Value:       meta.MetaInfo.Value,
+				ValueMain:   meta.MetaInfo.Value,
 				ValueType:   meta.MetaInfo.Type,
 			})
 		}
@@ -849,7 +851,7 @@ func buildKnowledgeMetaValueListResp(metaList []*model.KnowledgeDocMeta) *knowle
 	retMap := make(map[string]*knowledgebase_service.KnowledgeMetaValues)
 	var retList []*knowledgebase_service.KnowledgeMetaValues
 	for _, meta := range metaList {
-		if meta.Value == "" || meta.Key == "" || meta.ValueType == "" {
+		if meta.ValueMain == "" || meta.Key == "" || meta.ValueType == "" {
 			continue
 		}
 		if _, exists := retMap[meta.Key]; !exists {
@@ -857,10 +859,10 @@ func buildKnowledgeMetaValueListResp(metaList []*model.KnowledgeDocMeta) *knowle
 				MetaId:    meta.MetaId,
 				Key:       meta.Key,
 				Type:      meta.ValueType,
-				ValueList: []string{meta.Value},
+				ValueList: []string{meta.ValueMain},
 			}
 		} else {
-			retMap[meta.Key].ValueList = append(retMap[meta.Key].ValueList, meta.Value)
+			retMap[meta.Key].ValueList = append(retMap[meta.Key].ValueList, meta.ValueMain)
 		}
 	}
 	for _, retMeta := range retMap {

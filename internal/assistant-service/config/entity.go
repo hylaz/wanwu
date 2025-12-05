@@ -83,8 +83,9 @@ type PluginListAlgRequest struct {
 }
 
 type MCPToolInfo struct {
-	URL       string `json:"url"`
-	Transport string `json:"transport"`
+	URL          string   `json:"url"`
+	Transport    string   `json:"transport"`
+	ToolNameList []string `json:"toolNameList"`
 }
 
 type ToolsMap map[string]MCPToolInfo

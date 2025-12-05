@@ -1308,6 +1308,9 @@ definitions:
     type: object
   request.RagSearchKnowledgeBaseReq:
     properties:
+      auto_citation:
+        description: 是否启动知识图谱查询
+        type: boolean
       knowledge_base_info:
         additionalProperties:
           items:

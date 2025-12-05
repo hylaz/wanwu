@@ -76,12 +76,13 @@ func GetQAPairDetail(ctx *gin.Context, userId, orgId, qaPairId string) (*respons
 func GetKnowledgeQAPairList(ctx *gin.Context, userId, orgId string, r *request.KnowledgeQAPairListReq) (*response.KnowledgeQAPairPageResult, error) {
 	resp, err := knowledgeBaseQA.GetQAPairList(ctx.Request.Context(), &knowledgebase_qa_service.GetQAPairListReq{
 		KnowledgeId: r.KnowledgeId,
-		Name:        r.Name,
+		Name:        strings.TrimSpace(r.Name),
 		Status:      int32(r.Status),
 		PageSize:    int32(r.PageSize),
 		PageNum:     int32(r.PageNo),
 		UserId:      userId,
 		OrgId:       orgId,
+		MetaValue:   strings.TrimSpace(r.MetaValue),
 	})
 	if err != nil {
 		return nil, err

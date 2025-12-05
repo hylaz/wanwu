@@ -129,6 +129,24 @@ func WithDocIDs(ids []string) SQLOption {
 	})
 }
 
+func WithDocIDsNonEmpty(ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(ids) == 0 {
+			return db
+		}
+		return db.Where("doc_id in ?", ids)
+	})
+}
+
+func WithQAPairIDsNonEmpty(ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(ids) == 0 {
+			return db
+		}
+		return db.Where("qa_pair_id in ?", ids)
+	})
+}
+
 func WithQAPairIDs(ids []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("qa_pair_id in ?", ids)
@@ -150,6 +168,12 @@ func WithKey(key string) SQLOption {
 func WithType(metaValueType string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("`type` = ?", metaValueType)
+	})
+}
+
+func WithNonType(metaValueType string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("value_type != ?", metaValueType)
 	})
 }
 
@@ -287,6 +311,15 @@ func LikeName(name string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if name != "" {
 			return db.Where("name LIKE ?", "%"+name+"%")
+		}
+		return db
+	})
+}
+
+func LikeMetaValue(value string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if value != "" {
+			return db.Where("value_main LIKE ?", "%"+value+"%")
 		}
 		return db
 	})

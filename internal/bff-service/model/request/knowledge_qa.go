@@ -4,6 +4,7 @@ type KnowledgeQAPairListReq struct {
 	KnowledgeId string `json:"knowledgeId" form:"knowledgeId" validate:"required"`
 	Name        string `json:"name" form:"name"`
 	Status      int    `json:"status" form:"status"`
+	MetaValue   string `json:"metaValue" form:"metaValue"`
 	PageSearch
 	CommonCheck
 }

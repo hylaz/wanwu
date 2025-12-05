@@ -60,6 +60,7 @@ message GetDocListReq{
   string userId = 6;
   string orgId = 7;
   string docTag = 8; //文档标签
+  string metaValue = 9;
 }
 
 message GetDocDetailReq{

@@ -3326,6 +3326,16 @@ definitions:
     required:
     - workflow_id
     type: object
+  request.WorkflowRunReq:
+    properties:
+      input:
+        additionalProperties: {}
+        type: object
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
+    type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
@@ -3463,6 +3473,9 @@ definitions:
       name:
         description: 名称
         type: string
+      newAgent:
+        description: 是否是新版本智能体
+        type: boolean
       prologue:
         description: 开场白
         type: string
@@ -8262,6 +8275,43 @@ paths:
       summary: 获取文档列表
       tags:
       - knowledge.doc
+  /knowledge/doc/list/meta:
+    get:
+      consumes:
+      - application/json
+      description: 根据元数据筛选文档
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: metaValue
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 根据元数据筛选文档
+      tags:
+      - knowledge.doc
   /knowledge/doc/meta:
     post:
       consumes:
@@ -9152,6 +9202,43 @@ paths:
       security:
       - JWT: []
       summary: 获取问答对列表
+      tags:
+      - knowledge.qa
+  /knowledge/qa/pair/list/meta:
+    get:
+      consumes:
+      - application/json
+      description: 根据元数据筛选问答对
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: metaValue
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeQAPairPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 根据元数据筛选问答对
       tags:
       - knowledge.qa
   /knowledge/qa/pair/switch:
@@ -12579,6 +12666,30 @@ paths:
       summary: 修改用户状态
       tags:
       - permission.user
+  /workflow/run:
+    post:
+      consumes:
+      - application/json
+      description: 工作流运行接口
+      parameters:
+      - description: 工作流运行参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowRunReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 工作流运行接口
+      tags:
+      - workflow
   /workflow/select:
     get:
       consumes:

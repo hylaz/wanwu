@@ -1,0 +1,64 @@
+server:
+  port: 8990
+
+# logger configuration
+log:
+  std: true
+  level: info
+  logs:
+    - enable: true
+      filename: log/agent-info.log
+      level: info
+      max_size: 10
+      max_backups: 10
+      max_age: 30
+    - enable: true
+      filename: log/agent-err.log
+      level: error
+      max_size: 10
+      max_backups: 10
+      max_age: 30
+access-log:
+  std: true
+  level: info
+  logs:
+    - enable: true
+      filename: log/agent-access.log
+      level: info
+      max_size: 10
+      max_backups: 10
+      max_age: 30
+rpc-log:
+  std: true
+  level: info
+  logs:
+    - enable: true
+      filename: log/agent-rpc.log
+      level: info
+      max_size: 10
+      max_backups: 10
+      max_age: 30
+
+rag-server:
+  endpoint: 'http://rag-wanwu:8681'
+  proxy-point: 'http://bff-service:6668'
+  knowledge-hit-uri: '/callback/v1/rag/search-knowledge-base'
+  doc-parser-uri: '/rag/doc_parser'
+  timeout: 60
+
+tool-server:
+  endpoint: 'http://callback-wanwu:8669'
+
+bff-server:
+  endpoint: 'http://bff-service:6668'
+  search-model-uri: '/callback/v1/model/'
+  timeout: 600
+
+agent-file-config:
+  local-file-path: static/temp
+
+minio:
+  endpoint: localhost:9000
+  user: root
+  password: Wanwu123456
+  bucket: file-upload

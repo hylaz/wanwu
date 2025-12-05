@@ -121,6 +121,7 @@ type UsageLimitConfig struct {
 	HtmlSizeLimit                int64  `mapstructure:"html-size-limit" json:"htmlSizeLimit"`
 	CompressedSizeLimit          int64  `mapstructure:"compressed-size-limit" json:"compressedSizeLimit"`
 	UploadConcurrentLimit        int64  `mapstructure:"upload-concurrent-limit" json:"uploadConcurrentLimit"`
+	UrlCountLimit                int    `mapstructure:"url-count-limit" json:"url-count-limit"`
 }
 
 type KnowledgeDocConfig struct {

@@ -157,6 +157,8 @@ type WorkflowServiceConfig struct {
 	ImportUri                     string               `json:"import_uri" mapstructure:"import_uri"`
 	ConvertUri                    string               `json:"convert_uri" mapstructure:"convert_uri"`
 	TestRunUri                    string               `json:"test_run_uri" mapstructure:"test_run_uri"`
+	GetProcessUri                 string               `json:"get_process_uri" mapstructure:"get_process_uri"`
+	TestRunWebUri                 string               `json:"test_run_web_uri" mapstructure:"test_run_web_uri"`
 	CreateChatflowConversationUri string               `json:"create_chatflow_conversation_uri" mapstructure:"create_chatflow_conversation_uri"`
 	ChatflowRunUri                string               `json:"chatflow_run_uri" mapstructure:"chatflow_run_uri"`
 	UploadActionUri               string               `json:"upload_action_uri" mapstructure:"upload_action_uri"`
@@ -201,6 +203,7 @@ type AgentScopeWorkFlowServiceConfig struct {
 }
 
 type AgentServiceConfig struct {
+	UseNewAgent    int       `json:"use_new_agent" mapstructure:"use_new_agent"`
 	Host           string    `json:"host" mapstructure:"host"`
 	UploadMinioUri UriConfig `json:"upload_minio" mapstructure:"upload_minio"`
 }

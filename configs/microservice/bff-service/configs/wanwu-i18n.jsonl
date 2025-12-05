@@ -70,6 +70,7 @@
 {"code":110000,"key":"bff_chatflow_conversation_create","langs":{"zh":"创建对话流会话错误: %v"}}
 {"code":110000,"key":"bff_chatflow_chat","langs":{"zh":"对话流运行错误: %v"}}
 {"code":110000,"key":"bff_workflow_convert","langs":{"zh":"对话流工作流转换错误: %v"}}
+{"code":110000,"key":"bff_workflow_exploration_run","langs":{"zh":"探索广场工作流运行错误: %v"}}
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
 {"code":110000,"key":"bff_doc_center_file_md","langs":{"en":"no markdown files found: %v","zh":"未含有md文件: %v"}}
@@ -286,6 +287,7 @@
 {"code":148010,"key":"","langs":{"zh":"问答库文档导入失败，请稍后重试"}}
 {"code":148011,"key":"","langs":{"zh":"获取问答库导出记录列表失败，请稍后重试"}}
 {"code":148012,"key":"","langs":{"zh":"删除导出记录失败，请稍后重试"}}
+{"code":148013,"key":"","langs":{"zh":"获取问答库文档任务详情失败，请稍后重试"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}

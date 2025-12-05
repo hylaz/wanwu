@@ -154,6 +154,8 @@ usage-limit:
   file-size-limit: 30
   #上传接口并发限制
   upload-concurrent-limit: 100
+  # url数量限制,配置小于等于0时则不限制
+  url-count-limit: 100
 
 knowledge-doc-config:
   doc-local-file-path: static/temp

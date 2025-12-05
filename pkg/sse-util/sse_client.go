@@ -76,7 +76,7 @@ func (sw *SSEWriter) WriteLine(lineText string, done bool, streamProcessParams i
 		lineText = fmt.Sprintf("%v%v", lineText, sw.doneMsg)
 	}
 	// 写入数据
-	log.Debugf("[SSE]%v write: %v", sw.label, lineText)
+	log.Infof("[SSE]%v write: %v", sw.label, lineText)
 	_, err = sw.client.Writer.Write([]byte(lineText))
 	if err != nil {
 		err = fmt.Errorf("connection closed by web: %v", err)

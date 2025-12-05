@@ -215,7 +215,7 @@ func exportCsvFile(ctx context.Context, knowledgeId string) (int64, int64, strin
 	var lineCount, successCount, batchNo int64 = 0, 0, 0
 	for {
 		batchNo++
-		qaPairs, total, err := orm.GetQAPairList(ctx, "", "", knowledgeId, "", model.KnowledgeQAPairExportSuccess, exportBatchSize, int32(batchNo))
+		qaPairs, total, err := orm.GetQAPairList(ctx, "", "", knowledgeId, "", model.KnowledgeQAPairExportSuccess, nil, exportBatchSize, int32(batchNo))
 		if err != nil {
 			return 0, 0, "", 0, err
 		}

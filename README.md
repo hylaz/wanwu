@@ -182,7 +182,7 @@ The platform has been successfully applied in multiple industries such as **fina
     docker compose --env-file .env --env-file .env.image.arm64 down
     ```
 
-- **Source Code Start (Development**)
+- **Source Code Start (Development)**
 
 1. Based on the above Docker installation steps, start the system service completely
 
@@ -231,6 +231,24 @@ The platform has been successfully applied in multiple industries such as **fina
     ```
 
 3. Based on the above Docker installation steps, completely start the system service
+
+------
+
+### ➡️ Xinchuang Adaptation (TiDB & OceanBase)
+
+1. Based on the above Docker installation steps, complete step before the first run
+
+2. Modify the `WANWU_DB_NAME` variable in the .env file according to the database
+
+3. Start the database (using amd64 as an example)
+   ```bash
+   # tidb
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.tidb.yaml up -d
+   # oceanbase
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.oceanbase.yaml up -d
+   ```
+
+4. Based on the above Docker installation steps, completely start the system service
 
 ------
 

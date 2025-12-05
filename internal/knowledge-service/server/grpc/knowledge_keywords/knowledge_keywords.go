@@ -56,6 +56,9 @@ func buildKeywordsInfoList(ctx context.Context, keywordsList []*model.KnowledgeK
 			KnowledgeBaseNames: knowledgeNames,
 			UpdatedAt:          wanwu_util.Time2Str(k.UpdatedAt),
 		}
+		if keywordsInfo.KnowledgeBaseNames == nil {
+			continue
+		}
 		keywordsInfoList = append(keywordsInfoList, keywordsInfo)
 	}
 	return keywordsInfoList, nil
