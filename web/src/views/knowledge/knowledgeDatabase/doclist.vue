@@ -51,29 +51,28 @@
                   @click="reload"
                 >
                 </el-button>
-
-                <el-dropdown
-                  v-for="(group, index) in graphDropdownGroups"
-                  :key="group.label"
-                  @command="handleCommand"
-                  :style="{ margin: index === 0 ? '0 10px' : '' }"
-                >
-                  <el-button size="mini" type="primary">
-                    {{ group.label }}
-                    <i :class="['el-icon--right', group.icon]"></i>
-                  </el-button>
-                  <el-dropdown-menu slot="dropdown">
-                    <template v-if="showGraphReport">
-                      <el-dropdown-item
-                        v-for="item in group.items"
-                        :key="item.command"
-                        :command="item.command"
-                      >
-                        {{ item.label }}
-                      </el-dropdown-item>
-                    </template>
-                  </el-dropdown-menu>
-                </el-dropdown>
+                <template v-if="showGraphReport">
+                  <el-dropdown
+                    v-for="(group, index) in graphDropdownGroups"
+                    :key="group.label"
+                    @command="handleCommand"
+                    :style="{ margin: index === 0 ? '0 10px' : '' }"
+                  >
+                    <el-button size="mini" type="primary">
+                      {{ group.label }}
+                      <i :class="['el-icon--right', group.icon]"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item
+                          v-for="item in group.items"
+                          :key="item.command"
+                          :command="item.command"
+                        >
+                          {{ item.label }}
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </template>
 
                 <el-button
                   size="mini"
