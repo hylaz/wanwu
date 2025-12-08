@@ -209,3 +209,27 @@ func WorkflowConvert(ctx *gin.Context) {
 	}
 	gin_util.Response(ctx, nil, service.WorkflowConvert(ctx, getOrgID(ctx), req.WorkflowID, constant.AppTypeChatflow))
 }
+
+// ExplorationWorkflowRun
+//
+//	@Tags			workflow
+//	@Summary		工作流运行接口
+//	@Description	工作流运行接口
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.WorkflowRunReq	true	"工作流运行参数"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/workflow/run [post]
+func ExplorationWorkflowRun(ctx *gin.Context) {
+	var req request.WorkflowRunReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.ExplorationWorkflowRun(ctx, getOrgID(ctx), req)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+	gin_util.Response(ctx, resp, nil)
+}

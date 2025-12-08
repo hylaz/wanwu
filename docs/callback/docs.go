@@ -2938,6 +2938,10 @@ const docTemplate = `{
                 "userId"
             ],
             "properties": {
+                "auto_citation": {
+                    "description": "是否启动知识图谱查询",
+                    "type": "boolean"
+                },
                 "knowledgeIdList": {
                     "type": "array",
                     "items": {

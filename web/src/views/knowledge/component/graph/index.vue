@@ -11,11 +11,11 @@
 </template>
 
 <script>
-import { getGraphDetail } from "@/api/knowledge";
-import graphMap from "@/components/graphMap.vue";
+import { getGraphDetail } from '@/api/knowledge';
+import graphMap from '@/components/graphMap.vue';
 
 export default {
-  name: "KnowledgeGraph",
+  name: 'KnowledgeGraph',
   components: {
     graphMap,
   },
@@ -42,10 +42,10 @@ export default {
     },
     getGraphData() {
       if (!this.knowledgeId) return;
-      
+
       this.loading = true;
       getGraphDetail({ knowledgeId: this.knowledgeId })
-        .then((res) => {
+        .then(res => {
           this.loading = false;
           if (res.code === 0 && res.data) {
             this.graphData = res.data;
@@ -57,7 +57,7 @@ export default {
     },
     handleRefresh(callback) {
       this.getGraphData();
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         setTimeout(() => {
           callback();
         }, 500);

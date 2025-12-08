@@ -62,6 +62,7 @@ enum Code {
   KnowledgeDocUpdateMetaStatusFailed = 142009; // 非处理完成文档无法更新元数据，请稍后重试
   KnowledgeDocSegmentFileCSVTypeFail = 142010; // 上传文档必须是csv，请修改后重试
   KnowledgeDocUpdateMetaSameKeyFailed = 142011; // 更新文档元数据失败，已存在重复key，请稍后重试
+  KnowledgeDocExportFail = 142012; // 文档导出失败，请稍后重试
   KnowledgeTagCreateFailed = 143001; // 新建知识库标签失败，请稍后重试
   KnowledgeTagDeleteFailed = 143002; // 删除知识库标签失败，请稍后重试
   KnowledgeTagUpdateFailed = 143003; // 修改知识库标签失败，请稍后重试
@@ -117,8 +118,9 @@ enum Code {
   KnowledgeDeleteQAPairFailed = 148008; //删除问答对失败，请稍后重试
   KnowledgeQAPairsSelectFailed = 148009; //获取问答库问答对列表失败，请稍后重试
   KnowledgeQAPairExportFailed = 148010; //问答库文档导入失败，请稍后重试
-  KnowledgeQAExportRecordsSelectFailed = 148011; //获取问答库导出记录列表失败，请稍后重试
+  KnowledgeExportRecordsSelectFailed = 148011; //获取导出记录列表失败，请稍后重试
   KnowledgeDeleteExportRecordFailed = 148012; //删除导出记录失败，请稍后重试
+  KnowledgeQAPairImportTaskSelectFailed = 148013; //获取问答库文档任务详情失败，请稍后重试
 
 
 

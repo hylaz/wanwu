@@ -141,29 +141,35 @@ func UpdateKnowledgeQAPairSwitch(ctx context.Context, qaPair *model.KnowledgeQAP
 }
 
 // DeleteKnowledgeQAPair 删除问答对
-func DeleteKnowledgeQAPair(ctx context.Context, qaPair *model.KnowledgeQAPair, deleteParams *service.RagDeleteQAPairParams) error {
+func DeleteKnowledgeQAPair(ctx context.Context, knowledgeId string, qaPairIds []string, deleteParams *service.RagDeleteQAPairParams) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//1.删除问答库问答对
-		err := tx.Model(&model.KnowledgeQAPair{}).Where("qa_pair_id = ?", qaPair.QAPairId).Delete(&model.KnowledgeQAPair{}).Error
+		err := tx.Model(&model.KnowledgeQAPair{}).Where("qa_pair_id in ?", qaPairIds).Delete(&model.KnowledgeQAPair{}).Error
 		if err != nil {
 			return err
 		}
 		//2.更新问答库记录
-		err = UpdateKnowledgeDocCount(tx, qaPair.KnowledgeId)
+		err = UpdateKnowledgeDocCount(tx, knowledgeId)
 		if err != nil {
 			return err
 		}
-		//3.通知rag更新问答对
+		//3.更新元数据记录
+		err = DeleteMetaDataByDocIdList(tx, knowledgeId, qaPairIds)
+		if err != nil {
+			return err
+		}
+		//4.通知rag更新问答对
 		return service.RagDeleteQAPair(ctx, deleteParams)
 	})
 }
 
 // GetQAPairList 查询问答库问答对列表
-func GetQAPairList(ctx context.Context, userId, orgId, knowledgeId, name string, status int, pageSize int32, pageNum int32) ([]*model.KnowledgeQAPair, int64, error) {
+func GetQAPairList(ctx context.Context, userId, orgId, knowledgeId, name string, status int, qaPairIds []string, pageSize int32, pageNum int32) ([]*model.KnowledgeQAPair, int64, error) {
 	tx := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId),
 		sqlopt.WithKnowledgeID(knowledgeId),
 		sqlopt.WithStatus(status),
 		sqlopt.LikeQuestion(name),
+		sqlopt.WithQAPairIDsNonEmpty(qaPairIds),
 		sqlopt.WithDelete(0)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeQAPair{})
 	var total int64

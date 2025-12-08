@@ -195,3 +195,45 @@ func GetKnowledgeGraph(ctx *gin.Context) {
 	resp, err := service.GetKnowledgeGraph(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, resp, err)
 }
+
+// GetKnowledgeExportRecordList
+//
+//	@Tags			knowledge
+//	@Summary		获取知识库导出记录列表
+//	@Description	获取知识库导出记录列表
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		request.KnowledgeExportRecordListReq	true	"获取知识库导出记录列表请求参数"
+//	@Success		200		{object}	response.Response{data=response.KnowledgeExportRecordPageResult}
+//	@Router			/knowledge/export/record/list [get]
+func GetKnowledgeExportRecordList(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeExportRecordListReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeExportRecordList(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}
+
+// DeleteKnowledgeExportRecord
+//
+//	@Tags			knowledge
+//	@Summary		删除知识库导出记录
+//	@Description	删除知识库导出记录
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.DeleteKnowledgeExportRecordReq	true	"删除知识库导出记录请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/knowledge/export/record [delete]
+func DeleteKnowledgeExportRecord(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.DeleteKnowledgeExportRecordReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.DeleteKnowledgeExportRecord(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, nil, err)
+}

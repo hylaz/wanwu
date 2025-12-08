@@ -5,16 +5,16 @@
 </template>
 
 <script>
-    export default {
-        name: 'App',
-        data(){
-            return {}
-        },
-    }
+export default {
+  name: 'App',
+  data() {
+    return {};
+  },
+};
 </script>
 
 <style lang="scss">
-*{
+* {
   margin: 0;
   padding: 0;
   font-size: 13px;
@@ -22,7 +22,8 @@
   -webkit-font-smoothing: antialiased; /*chrome、safari*/
   -moz-osx-font-smoothing: grayscale; /*firefox*/
 }
-body,html{
+body,
+html {
   width: 100%;
   height: 100%;
   /*overflow: hidden;*/
@@ -67,18 +68,18 @@ body.el-popup-parent--hidden {
   -moz-osx-font-smoothing: grayscale;
   --main-title-hei: 100px;
   --main-padding: 0 75px;
-  --box-shadow:1px 1px 12px #f1f1f1;
+  --box-shadow: 1px 1px 12px #f1f1f1;
   width: 100%;
-  height:100%;
+  height: 100%;
 }
-.flex{
+.flex {
   display: flex;
   max-width: 100%;
 }
-.rl{
+.rl {
   position: relative;
 }
-.abs{
+.abs {
   position: absolute;
   top: 0;
   right: 0;
@@ -86,14 +87,15 @@ body.el-popup-parent--hidden {
   left: 0;
 }
 /*设置乾坤创建的div高度*/
-div[data-name]{
+div[data-name] {
   height: 100%;
 }
-.routerview-container,.overview{
+.routerview-container,
+.overview {
   z-index: 100;
 }
-.routerview-container{
-  .common-module-wrap>.title{
+.routerview-container {
+  .common-module-wrap > .title {
     margin-bottom: 20px;
   }
 }
@@ -122,7 +124,7 @@ div[data-name]{
     color: $color_title;
   }
 }
-.primary-bt{
+.primary-bt {
   min-width: 76px;
   border-radius: 23px;
   border: 1px solid $color;
@@ -138,7 +140,7 @@ div[data-name]{
 }
 
 /*默认高度自适应*/
-.main-content{
+.main-content {
   height: auto;
   min-height: 100%;
   margin: auto;
@@ -147,29 +149,29 @@ div[data-name]{
   padding: var(--main-padding);
 }
 /*一屏显示*/
-.full-content{
+.full-content {
   height: 100%;
 }
-.md-list{
-  .md-list__title{
+.md-list {
+  .md-list__title {
     height: var(--main-title-hei);
     line-height: var(--main-title-hei);
     font-weight: bold;
     background-color: #fff;
     display: flex;
-    .__title-left{
+    .__title-left {
       font-size: 18px;
       flex: 1;
     }
-    .__title-right{
-      flex:1;
+    .__title-right {
+      flex: 1;
       text-align: right;
-      .tip{
+      .tip {
         color: #999;
         font-weight: 400;
         font-size: 13px;
       }
-      .compare-bt{
+      .compare-bt {
         margin-left: 10px;
         span {
           font-size: 13px;
@@ -177,53 +179,53 @@ div[data-name]{
       }
     }
   }
-  .md-list__list{
+  .md-list__list {
     min-height: calc(100% - var(--main-title-hei));
     margin: auto;
     background-color: #fff;
-    .list-item{
+    .list-item {
       position: relative;
       width: calc((100% - 60px) / 3);
       height: 240px;
       display: inline-block;
       margin: 0 30px 30px 0;
       padding: 25px;
-      border: 1px solid #EBEBEB;
+      border: 1px solid #ebebeb;
       border-radius: 8px;
       vertical-align: top;
 
-      .item__header_checkbox{
+      .item__header_checkbox {
         position: absolute;
         right: 10px;
-        top:5px;
+        top: 5px;
         padding: 8px;
       }
-      .list-item__header{
+      .list-item__header {
         line-height: 30px;
-        .item__header_img{
+        .item__header_img {
           width: 26px;
           height: 30px;
           object-fit: contain;
         }
-        .item__header_name{
-          flex:20;
+        .item__header_name {
+          flex: 20;
           font-weight: bold;
           margin-left: 12px;
           cursor: pointer;
         }
       }
-      .list-item__info{
+      .list-item__info {
         margin-top: 5px;
-        .info{
+        .info {
           line-height: 30px;
-          overflow:hidden;
+          overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
 
-          span{
+          span {
             font-size: 12px;
           }
-          span:nth-child(1){
+          span:nth-child(1) {
             color: #999;
             display: inline-block;
             width: 70px;
@@ -231,15 +233,15 @@ div[data-name]{
         }
       }
     }
-    .list-item-active{
+    .list-item-active {
       border: 1px solid $color;
     }
-    .no-rt-bd{
-      margin: 0 0 20px 0!important;
+    .no-rt-bd {
+      margin: 0 0 20px 0 !important;
     }
   }
 }
-.copy-icon{
+.copy-icon {
   font-size: 15px;
   padding: 4px;
   color: #33a4df;

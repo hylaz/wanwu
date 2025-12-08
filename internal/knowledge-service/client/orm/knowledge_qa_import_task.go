@@ -54,6 +54,21 @@ func SelectKnowledgeQAPairImportTaskById(ctx context.Context, importId string) (
 	return &importTask, nil
 }
 
+// SelectKnowledgeQALatestImportTask 查询最近导入任务
+func SelectKnowledgeQALatestImportTask(ctx context.Context, knowledgeId string) ([]*model.KnowledgeQAPairImportTask, error) {
+	var importTaskList []*model.KnowledgeQAPairImportTask
+	err := sqlopt.SQLOptions(sqlopt.WithKnowledgeID(knowledgeId)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeQAPairImportTask{}).
+		Order("create_at desc").
+		Limit(1).
+		Find(&importTaskList).Error
+	if err != nil {
+		log.Errorf("SelectKnowledgeQALatestImportTask knowledgeId %s err: %v", knowledgeId, err)
+		return nil, err
+	}
+	return importTaskList, nil
+}
+
 // UpdateKnowledgeQAPairImportTaskStatus 更新导入任务状态
 func UpdateKnowledgeQAPairImportTaskStatus(ctx context.Context, tx *gorm.DB, taskId string, status int, errMsg string, totalCount int64, successCount int64) error {
 	if tx == nil {

@@ -133,6 +133,27 @@ func ImportKnowledgeQAPair(ctx *gin.Context) {
 	gin_util.Response(ctx, nil, err)
 }
 
+// GetKnowledgeQAPairImportTip
+//
+//	@Tags			knowledge.qa
+//	@Summary		获取问答库异步上传任务提示
+//	@Description	获取问答库异步上传任务提示：有正在执行的异步上传任务/最近一次上传任务的失败信息
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		request.KnowledgeQAPairImportTipReq	true	"获取问答库异步上传任务提示请求参数"
+//	@Success		200		{object}	response.Response{data=response.KnowledgeQAPairImportTipResp}
+//	@Router			/knowledge/qa/pair/import/tip [get]
+func GetKnowledgeQAPairImportTip(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeQAPairImportTipReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetKnowledgeQAPairImportTip(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}
+
 // KnowledgeQAHit
 //
 //	@Tags			knowledge
@@ -172,47 +193,5 @@ func ExportKnowledgeQAPair(ctx *gin.Context) {
 		return
 	}
 	err := service.ExportKnowledgeQAPair(ctx, userId, orgId, &req)
-	gin_util.Response(ctx, nil, err)
-}
-
-// GetKnowledgeQAExportRecordList
-//
-//	@Tags			knowledge.qa
-//	@Summary		获取问答库导出记录列表
-//	@Description	获取问答库导出记录列表
-//	@Security		JWT
-//	@Accept			json
-//	@Produce		json
-//	@Param			data	query		request.KnowledgeQAExportRecordListReq	true	"获取问答库导出记录列表请求参数"
-//	@Success		200		{object}	response.Response{data=response.KnowledgeQAExportRecordPageResult}
-//	@Router			/knowledge/qa/export/record/list [get]
-func GetKnowledgeQAExportRecordList(ctx *gin.Context) {
-	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.KnowledgeQAExportRecordListReq
-	if !gin_util.BindQuery(ctx, &req) {
-		return
-	}
-	resp, err := service.GetKnowledgeQAExportRecordList(ctx, userId, orgId, &req)
-	gin_util.Response(ctx, resp, err)
-}
-
-// DeleteKnowledgeQAExportRecord
-//
-//	@Tags			knowledge.qa
-//	@Summary		删除问答库导出记录
-//	@Description	删除问答库导出记录
-//	@Security		JWT
-//	@Accept			json
-//	@Produce		json
-//	@Param			data	body		request.DeleteKnowledgeQAExportRecordReq	true	"删除问答库导出记录请求参数"
-//	@Success		200		{object}	response.Response
-//	@Router			/knowledge/qa/export/record [delete]
-func DeleteKnowledgeQAExportRecord(ctx *gin.Context) {
-	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.DeleteKnowledgeQAExportRecordReq
-	if !gin_util.Bind(ctx, &req) {
-		return
-	}
-	err := service.DeleteKnowledgeExportRecord(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, nil, err)
 }

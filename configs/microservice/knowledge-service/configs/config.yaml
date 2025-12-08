@@ -78,8 +78,10 @@ minio:
   password: Wanwu123456
   bucket: rag-doc
   public-rag-bucket: rag-public
+  public-export-bucket: export-public
   knowledge-dir: /knowledge
-  knowledge-export-dir: export
+  knowledge-export-dir: knowledge
+  qa-export-dir: qa
 
 kafka:
   addr: kafka-wanwu:9092
@@ -154,6 +156,8 @@ usage-limit:
   file-size-limit: 30
   #上传接口并发限制
   upload-concurrent-limit: 100
+  # url数量限制,配置小于等于0时则不限制
+  url-count-limit: 100
 
 knowledge-doc-config:
   doc-local-file-path: static/temp

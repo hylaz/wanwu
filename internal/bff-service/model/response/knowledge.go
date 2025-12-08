@@ -134,3 +134,20 @@ type KnowledgeGraphEdge struct {
 	Weight       float64  `json:"weight"`
 	SourceId     []string `json:"source_id"`
 }
+
+type KnowledgeExportRecordPageResult struct {
+	List     []*ListKnowledgeExportRecordResp `json:"list"`
+	Total    int64                            `json:"total"`
+	PageNo   int                              `json:"pageNo"`
+	PageSize int                              `json:"pageSize"`
+}
+
+type ListKnowledgeExportRecordResp struct {
+	ExportRecordId string `json:"exportRecordId"` //知识库导出记录id
+	Author         string `json:"author"`         //导出人
+	ExportTime     string `json:"exportTime"`     //导出时间
+	FilePath       string `json:"filePath"`       //导出文件路径
+	Status         int    `json:"status"`         //状态
+	ErrorMsg       string `json:"errorMsg"`       //导出状态错误信息
+	KnowledgeName  string `json:"knowledgeName"`
+}

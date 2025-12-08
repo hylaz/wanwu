@@ -110,9 +110,9 @@ doc-center:
     - key: model
       val: 模型导入方式-详细版.md
     - key: knowledge
-      val: 2.知识库/创建知识库.md
+      val: 2.知识库/创建知识库、问答库/创建知识库/创建知识库.md
     - key: knowledge-hit
-      val: 2.知识库/命中测试.md
+      val: 2.知识库/命中测试/创建命中测试.md
     - key: knowledge-keywords
       val: 2.知识库/关键词管理.md
     - key: mcp
@@ -124,49 +124,49 @@ doc-center:
     - key: agent
       val: 7.智能体.md
     - key: workflow-1
-      val: 6.工作流/开始.md
+      val: 6.工作流/开始节点.md
     - key: workflow-2
-      val: 6.工作流/结束.md
+      val: 6.工作流/结束节点.md
     - key: workflow-3
-      val: 6.工作流/大模型.md
+      val: 6.工作流/大模型节点.md
     - key: workflow-5
-      val: 6.工作流/代码.md
+      val: 6.工作流/代码节点.md
     - key: workflow-8
-      val: 6.工作流/选择器.md
+      val: 6.工作流/选择器节点.md
     - key: workflow-9
-      val: 6.工作流/工作流.md
+      val: 6.工作流/工作流节点.md
     - key: workflow-13
-      val: 6.工作流/输出.md
+      val: 6.工作流/输出节点.md
     - key: workflow-15
-      val: 6.工作流/文本处理.md
+      val: 6.工作流/文本处理节点.md
     - key: workflow-21
-      val: 6.工作流/循环.md
+      val: 6.工作流/循环节点.md
     - key: workflow-28
-      val: 6.工作流/批处理.md
+      val: 6.工作流/批处理节点.md
     - key: workflow-30
-      val: 6.工作流/输入.md
+      val: 6.工作流/输入节点.md
     - key: workflow-32
-      val: 6.工作流/变量聚合.md
+      val: 6.工作流/变量聚合节点.md
     - key: workflow-45
-      val: 6.工作流/HTTP请求.md
+      val: 6.工作流/HTTP请求节点.md
     - key: workflow-58
-      val: 6.工作流/JSON序列化.md
+      val: 6.工作流/JSON序列化节点.md
     - key: workflow-1004
-      val: 6.工作流/工具.md
+      val: 6.工作流/工具节点.md
     - key: workflow-1006
-      val: 6.工作流/知识库.md
+      val: 6.工作流/知识库节点.md
     - key: workflow-1007
-      val: 6.工作流/文档生成.md
+      val: 6.工作流/文档生成节点.md
     - key: workflow-1008
-      val: 6.工作流/文档解析.md
+      val: 6.工作流/文档解析节点.md
     - key: workflow-1009
-      val: 6.工作流/MCP.md
+      val: 6.工作流/MCP节点.md
     - key: workflow-1010
-      val: 6.工作流/GUI.md
+      val: 6.工作流/GUI节点.md
     - key: workflow-1022
-      val: 6.工作流/意图识别.md
+      val: 6.工作流/意图识别节点.md
     - key: workflow-1059
-      val: 6.工作流/JSON反序列化.md
+      val: 6.工作流/JSON反序列化节点.md
 
 models :
   - model_id: "Asr"
@@ -231,6 +231,7 @@ operate:
   host: operate-service:9797
 
 agent:
+  use_new_agent: 1
   host: agent-wanwu
   upload_minio:
     port: 15001
@@ -255,6 +256,8 @@ workflow:
   import_uri: /api/workflow_api/import
   convert_uri: /api/workflow_api/update_meta_by_wanwu
   test_run_uri: /v1/workflow/%v/run_by_wanwu
+  test_run_web_uri: /api/workflow_api/test_run
+  get_process_uri: /api/workflow_api/get_process
   create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
   chatflow_run_uri: /v1/workflow/chat_by_wanwu
   upload_action_uri: /api/common/upload/apply_upload_action

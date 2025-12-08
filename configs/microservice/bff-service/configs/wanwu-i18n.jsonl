@@ -70,6 +70,13 @@
 {"code":110000,"key":"bff_chatflow_conversation_create","langs":{"zh":"创建对话流会话错误: %v"}}
 {"code":110000,"key":"bff_chatflow_chat","langs":{"zh":"对话流运行错误: %v"}}
 {"code":110000,"key":"bff_workflow_convert","langs":{"zh":"对话流工作流转换错误: %v"}}
+{"code":110000,"key":"bff_workflow_exploration_run","langs":{"zh":"探索广场工作流运行错误: %v"}}
+{"code":110000,"key":"bff_workflow_publish","langs":{"zh":"工作流发布错误: %v"}}
+{"code":110000,"key":"bff_workflow_export_version","langs":{"zh":"工作流版本导出错误: %v"}}
+{"code":110000,"key":"bff_workflow_version_list","langs":{"zh":"获取工作流历史版本列表错误: %v"}}
+{"code":110000,"key":"bff_workflow_update_desc","langs":{"zh":"更新工作流最新版本详情错误: %v"}}
+{"code":110000,"key":"bff_workflow_rollback","langs":{"zh":"工作流回滚错误: %v"}}
+{"code":110010,"key":"","langs":{"zh":"应用类型错误"}}
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
 {"code":110000,"key":"bff_doc_center_file_md","langs":{"en":"no markdown files found: %v","zh":"未含有md文件: %v"}}
@@ -196,6 +203,7 @@
 {"code":140000,"key":"","langs":{"zh":"系统异常，请稍后重试"}}
 {"code":140001,"key":"know_doc_unsupported_file_format","langs":{"zh":"文件格式不支持"}}
 {"code":140001,"key":"know_doc_file_size_exceed","langs":{"zh":"文件大小超过限制"}}
+{"code":140002,"key":"know_doc_file_count_exceed","langs":{"zh":"文件数量超过限制"}}
 {"code":140001,"key":"know_same_name_validation_fail","langs":{"zh":"已存在同名文件，请更改名字后重试"}}
 {"code":140001,"key":"know_doc_last_failure_info","langs":{"zh":"最近一次失败信息：%v"}}
 {"code":140001,"key":"know_doc_parsing_service_error","langs":{"zh":"文件解析服务异常"}}
@@ -229,6 +237,7 @@
 {"code":142009,"key":"","langs":{"zh":"非处理完成文档无法更新元数据，请稍后重试"}}
 {"code":142010,"key":"","langs":{"zh":"上传文档必须是csv，请修改后重试"}}
 {"code":142011,"key":"","langs":{"zh":"更新文档元数据失败，已存在重复key，请稍后重试"}}
+{"code":142012,"key":"","langs":{"zh":"文档导出失败，请稍后重试"}}
 {"code":143001,"key":"","langs":{"zh":"新建标签失败，请稍后重试"}}
 {"code":143002,"key":"","langs":{"zh":"删除标签失败，请稍后重试"}}
 {"code":143003,"key":"","langs":{"zh":"修改标签失败，请稍后重试"}}
@@ -284,8 +293,9 @@
 {"code":148008,"key":"","langs":{"zh":"删除问答对失败，请稍后重试"}}
 {"code":148009,"key":"","langs":{"zh":"获取问答库问答对列表失败，请稍后重试"}}
 {"code":148010,"key":"","langs":{"zh":"问答库文档导入失败，请稍后重试"}}
-{"code":148011,"key":"","langs":{"zh":"获取问答库导出记录列表失败，请稍后重试"}}
+{"code":148011,"key":"","langs":{"zh":"获取导出记录列表失败，请稍后重试"}}
 {"code":148012,"key":"","langs":{"zh":"删除导出记录失败，请稍后重试"}}
+{"code":148013,"key":"","langs":{"zh":"获取问答库文档任务详情失败，请稍后重试"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}
@@ -316,6 +326,7 @@
 {"code":310022,"key":"mcp_get_mcp_server_tool_list_err","langs":{"zh":"获取MCP服务工具列表异常:%v"}}
 {"code":310022,"key":"mcp_get_mcp_server_tool_count_err","langs":{"zh":"获取MCP服务工具数量异常:%v"}}
 {"code":310023,"key":"mcp_update_err","langs":{"zh":"编辑MCP异常:%v"}}
+{"code":310023,"key":"mcp_update_duplicate_name","langs":{"zh":"更新MCP异常: 已存在同名"}}
 {"code":310024,"key":"mcp_update_builtin_tool_err","langs":{"zh":"更新内置工具异常:%v"}}
 {"code":310024,"key":"mcp_create_duplicate_builtin_tool","langs":{"zh":"创建内置工具异常: 已存在同名"}}
 {"code":310024,"key":"mcp_create_builtin_tool_err","langs":{"zh":"创建内置工具异常: %v"}}
@@ -385,6 +396,7 @@
 {"code":300001,"key":"app_api_keys_gen","langs":{"zh":"生成ApiKey错误:%v"}}
 {"code":300001,"key":"app_api_keys_get_by_key","langs":{"zh":"通过ApiKey获取信息错误:%v"}}
 {"code":300002,"key":"app_publish_app_create","langs":{"zh":"发布应用创建%v错误:%v"}}
+{"code":300002,"key":"app_publish_app_update","langs":{"zh":"更新应用发布状态%v错误:%v"}}
 {"code":300002,"key":"app_publish_app_query","langs":{"zh":"发布查询App:%v错误:%v"}}
 {"code":300002,"key":"app_publish_app_delete","langs":{"zh":"删除发布的App:%v错误:%v"}}
 {"code":300002,"key":"app_publish_app_exist","langs":{"zh":"发布应用(%v)已存在"}}

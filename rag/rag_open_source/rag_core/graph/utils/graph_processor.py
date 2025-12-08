@@ -364,6 +364,7 @@ def extract_community(graph, config):
             "report": rep,
             "entities": structure["entities"],
             "report_title": structure["title"],
+            "report_summary": structure["summary"],
         }
         reports.append(obj)
 

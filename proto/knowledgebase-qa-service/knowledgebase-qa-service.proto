@@ -22,12 +22,10 @@ service KnowledgeBaseQAService {
   rpc GetQAPairList(GetQAPairListReq) returns (GetQAPairListResp) {}
   // 导入文档
   rpc ImportQAPair(ImportQAPairReq) returns (google.protobuf.Empty) {}
+  // 获取问答库异步上传任务提示
+  rpc GetQAImportTip(QAImportTipReq) returns (QAImportTipResp) {}
   // 导出文档
   rpc ExportQAPair(ExportQAPairReq) returns (google.protobuf.Empty) {}
-  // 获取导出记录列表
-  rpc GetExportRecordList(GetExportRecordListReq) returns (GetExportRecordListResp) {}
-  // 删除导出记录
-  rpc DeleteExportRecord(DeleteExportRecordReq) returns (google.protobuf.Empty) {}
   // 问答库命中测试
   rpc KnowledgeQAHit(KnowledgeQAHitReq) returns (KnowledgeQAHitResp) {}
 }
@@ -60,9 +58,10 @@ message UpdateQAPairSwitchReq {
 }
 
 message DeleteQAPairReq {
-  string qaPairId = 1;//问答对id
-  string userId = 2;
-  string orgId = 3;
+  string knowledgeId = 1;//问答库id
+  repeated string qaPairIds = 2;//问答对id
+  string userId = 3;
+  string orgId = 4;
 }
 
 message GetQAPairInfoReq {
@@ -79,6 +78,7 @@ message GetQAPairListReq{
   int32 pageNum = 5;
   string userId = 6;
   string orgId = 7;
+  string metaValue = 8;
 }
 
 message GetQAPairListResp{
@@ -123,39 +123,21 @@ message DocFileInfo {
   int64 docSize = 5;//文档大小
 }
 
+message QAImportTipReq {
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message QAImportTipResp{
+  string knowledgeName = 1;
+  string knowledgeId = 2;
+  string message = 3;
+  int32 uploadStatus = 4;
+}
+
 message ExportQAPairReq {
   string knowledgeId = 1; //问答库id
-  string userId = 2;
-  string orgId = 3;
-}
-
-message GetExportRecordListReq{
-  string knowledgeId = 1;//问答库id
-  string userId = 2;
-  string orgId = 3;
-  int32 pageSize = 4;
-  int32 pageNum = 5;
-}
-
-message GetExportRecordListResp{
-  int64 total = 1;
-  int32 pageNum = 2;
-  int32 pageSize = 3;
-  repeated ExportRecordInfo exportRecordInfos = 4;
-}
-
-message ExportRecordInfo{
-  string qaExportRecordId = 1;//导出记录id
-  string author = 2; //导出人
-  int32 status = 3; //导出状态
-  string filePath = 4; //导出文件路径
-  string errorMsg = 5; //错误信息
-  string exportTime =6; //导出时间
-  string userId = 7;
-}
-
-message DeleteExportRecordReq{
-  string qaExportRecordId = 1;//导出记录id
   string userId = 2;
   string orgId = 3;
 }
@@ -220,3 +202,4 @@ message KnowledgeQASearchInfo{
   string qaId = 6;
   string contentType = 7; // qa
 }
+

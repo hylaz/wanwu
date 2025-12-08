@@ -38,14 +38,18 @@ func OAuthLogin(ctx *gin.Context, req *request.OAuthLoginRequest) (string, error
 	if err != nil {
 		return "", err
 	}
+	err = oauthValidateReqApp(req.ClientID, "", req.RedirectURI, oauthApp)
+	if err != nil {
+		return "", err
+	}
 	loginURI := fmt.Sprintf(
 		"%s?client_id=%s&response_type=%s&scope=%s&client_name=%s&redirect_uri=%s&state=%s",
 		loginUri,
-		url.QueryEscape(req.ClientID), //ID
-		url.QueryEscape(req.ResponseType),
+		url.QueryEscape(oauthApp.ClientId), //ID
+		url.QueryEscape("code"),
 		url.QueryEscape(scopeStr),
 		url.QueryEscape(oauthApp.Name),
-		url.QueryEscape(req.RedirectURI),
+		url.QueryEscape(oauthApp.RedirectUri),
 		url.QueryEscape(req.State), // 对state也进行编码
 	)
 
@@ -77,7 +81,7 @@ func OAuthAuthorize(ctx *gin.Context, req *request.OAuthRequest) (string, error)
 	}
 	redirectURI := fmt.Sprintf(
 		"%s?code=%s&state=%s",
-		req.RedirectURI,
+		oauthApp.RedirectUri,
 		url.QueryEscape(code),
 		url.QueryEscape(req.State), // 对state也进行编码
 	)

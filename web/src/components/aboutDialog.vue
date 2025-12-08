@@ -15,34 +15,34 @@
         />
       </div>
       <div class="about-version">
-        {{$t('about.version')}}: {{about.version || '1.0'}}
+        {{ $t('about.version') }}: {{ about.version || '1.0' }}
       </div>
       <div>
-        {{about.copyright}}
+        {{ about.copyright }}
       </div>
     </div>
   </el-dialog>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
     return {
       dialogVisible: false,
       basePath: this.$basePath,
-      about: {}
-    }
+      about: {},
+    };
   },
   watch: {
-    commonInfo:{
+    commonInfo: {
       handler(val) {
-        const { about } = val.data || {}
-        this.about = about || {}
+        const { about } = val.data || {};
+        this.about = about || {};
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   computed: {
     ...mapGetters('user', ['commonInfo']),
@@ -50,13 +50,13 @@ export default {
   mounted() {},
   methods: {
     openDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     handleClose() {
-      this.dialogVisible = false
-    }
-  }
-}
+      this.dialogVisible = false;
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

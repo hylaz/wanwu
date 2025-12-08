@@ -384,3 +384,24 @@ func DeleteDocChildSegment(ctx *gin.Context) {
 	err := service.DeleteDocChildSegment(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, nil, err)
 }
+
+// ExportKnowledgeDoc
+//
+//	@Tags			knowledge.doc
+//	@Summary		知识库文档导出
+//	@Description	知识库文档导出
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.KnowledgeDocExportReq	true	"知识库文档导出请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/knowledge/doc/export [post]
+func ExportKnowledgeDoc(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.KnowledgeDocExportReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.ExportKnowledgeDoc(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, nil, err)
+}

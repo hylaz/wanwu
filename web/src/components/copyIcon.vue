@@ -7,16 +7,16 @@
 
 <script>
 export default {
-  name: "CopyIcon",
+  name: 'CopyIcon',
   inheritAttrs: false,
   props: {
     text: {
       type: String,
-      required: true
+      required: true,
     },
     showIcon: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   methods: {
@@ -44,11 +44,9 @@ export default {
         console.error('复制失败:', err);
         this.$message.error('复制失败，请手动复制');
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -16,10 +16,7 @@
         :rules="rules"
         @submit.native.prevent
       >
-        <el-form-item
-          :label="$t('safety.create.tableName')"
-          prop="tableName"
-        >
+        <el-form-item :label="$t('safety.create.tableName')" prop="tableName">
           <el-input
             v-model="ruleForm.tableName"
             :placeholder="$t('safety.create.tableNamePlaceholder')"
@@ -27,10 +24,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item
-          :label="$t('safety.create.remark')"
-          prop="remark"
-        >
+        <el-form-item :label="$t('safety.create.remark')" prop="remark">
           <el-input
             v-model="ruleForm.remark"
             type="textarea"
@@ -39,35 +33,26 @@
           />
         </el-form-item>
       </el-form>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-            <el-button
-              @click="handleClose()">
-                {{ $t('common.confirm.cancel') }}
-            </el-button>
-            <el-button
-              type="primary"
-              @click="submitForm('ruleForm')"
-            >{{ $t('common.confirm.confirm') }}</el-button>
-        </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose()">
+          {{ $t('common.confirm.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">
+          {{ $t('common.confirm.confirm') }}
+        </el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import {createSensitive, editSensitive} from "@/api/safety";
+import { createSensitive, editSensitive } from '@/api/safety';
 
 export default {
   data() {
     var checkName = (rule, value, callback) => {
       const reg = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
       if (!reg.test(value)) {
-        callback(
-          new Error(
-            this.$t('safety.create.tableNamePlaceholder')
-          )
-        );
+        callback(new Error(this.$t('safety.create.tableNamePlaceholder')));
       } else {
         return callback();
       }
@@ -81,82 +66,96 @@ export default {
       },
       rules: {
         tableName: [
-          {required: true, message: this.$t('safety.create.tableNameMsg'), trigger: "blur"},
-          {validator: checkName, trigger: "blur"},
+          {
+            required: true,
+            message: this.$t('safety.create.tableNameMsg'),
+            trigger: 'blur',
+          },
+          { validator: checkName, trigger: 'blur' },
         ],
-        remark: [{required: true, message: this.$t('safety.create.remarkMsg'), trigger: "blur"}]
+        remark: [
+          {
+            required: true,
+            message: this.$t('safety.create.remarkMsg'),
+            trigger: 'blur',
+          },
+        ],
       },
-      tableId: ''
-    }
+      tableId: '',
+    };
   },
   methods: {
     handleClose() {
       this.dialogVisible = false;
-      this.clearform()
+      this.clearform();
     },
     clearform() {
-      this.tableId = ''
-      this.$refs.ruleForm.resetFields()
-      this.$refs.ruleForm.clearValidate()
+      this.tableId = '';
+      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm.clearValidate();
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           if (this.tableId !== '') {
-            this.editSensitive()
+            this.editSensitive();
           } else {
-            this.createSensitive()
+            this.createSensitive();
           }
         } else {
           return false;
         }
-      })
+      });
     },
     createSensitive() {
-      createSensitive(this.ruleForm).then(res => {
-        if (res.code === 0) {
-          this.$message.success(this.$t('common.info.create'));
-          this.$emit('reloadData')
-          this.dialogVisible = false;
-          this.$router.push({path: `/safety/wordList/${res.data.tableId}`});
-        }
-      }).catch((error) => {
-        this.$message.error(error)
-      })
+      createSensitive(this.ruleForm)
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success(this.$t('common.info.create'));
+            this.$emit('reloadData');
+            this.dialogVisible = false;
+            this.$router.push({ path: `/safety/wordList/${res.data.tableId}` });
+          }
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     editSensitive() {
       const data = {
         ...this.ruleForm,
-        'tableId': this.tableId
-      }
-      editSensitive(data).then(res => {
-        if (res.code === 0) {
-          this.$message.success(this.$t('common.info.edit'));
-          this.$emit('reloadData')
-          this.clearform();
-          this.dialogVisible = false;
-        }
-      }).catch((error) => {
-        this.$message.error(error)
-      })
+        tableId: this.tableId,
+      };
+      editSensitive(data)
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success(this.$t('common.info.edit'));
+            this.$emit('reloadData');
+            this.clearform();
+            this.dialogVisible = false;
+          }
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     showDialog(row = null) {
       this.dialogVisible = true;
       if (row) {
-        this.title = this.$t('safety.create.editTitle')
+        this.title = this.$t('safety.create.editTitle');
         this.tableId = row.tableId;
         this.ruleForm = {
           tableName: row.tableName,
-          remark: row.remark
-        }
+          remark: row.remark,
+        };
       } else {
-        this.title = this.$t('safety.create.createTitle')
+        this.title = this.$t('safety.create.createTitle');
         this.ruleForm = {
           tableName: '',
-          remark: ''
-        }
+          remark: '',
+        };
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

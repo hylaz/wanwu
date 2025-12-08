@@ -7,6 +7,7 @@
       :show-file-list="false"
       :auto-upload="false"
       :accept="accept"
+      :limit="maxFileCount"
       :file-list="fileList"
       :on-change="uploadOnChange"
     >
@@ -17,9 +18,9 @@
             class="upload-img"
           />
           <p class="click-text">
-            {{ $t("common.fileUpload.uploadText") }}
+            {{ $t('common.fileUpload.uploadText') }}
             <span class="clickUpload">
-              {{ $t("common.fileUpload.uploadClick") }}
+              {{ $t('common.fileUpload.uploadClick') }}
             </span>
             <a
               class="clickUpload template"
@@ -27,7 +28,7 @@
               download
               @click.stop
             >
-              {{ $t("common.fileUpload.templateClick") }}
+              {{ $t('common.fileUpload.templateClick') }}
             </a>
           </p>
           <slot name="upload-tips" />
@@ -87,11 +88,19 @@
   </div>
 </template>
 <script>
-import uploadChunk from "@/mixins/uploadChunk";
-import { delfile } from "@/api/chunkFile";
+import uploadChunk from '@/mixins/uploadChunk';
+import { delfile } from '@/api/chunkFile';
 
 export default {
-  props: ["templateUrl", "accept"],
+  props: {
+    templateUrl: String,
+    accept: String,
+    maxSize: Number,
+    maxFileCount: {
+      type: Number,
+      default: undefined,
+    },
+  },
   mixins: [uploadChunk],
   data() {
     return {
@@ -101,6 +110,14 @@ export default {
   methods: {
     uploadOnChange(file, fileList) {
       if (!fileList.length) return;
+      // 验证文件大小，只有通过验证才继续上传
+      if (!this.validateFileSize(file)) {
+        return;
+      }
+      // 验证文件格式，只有通过验证才继续上传
+      if (!this.validateFileFormat(file)) {
+        return;
+      }
       this.fileList = fileList;
       if (this.fileList.length > 0) {
         this.maxSizeBytes = 0;
@@ -108,31 +125,67 @@ export default {
         this.startUpload();
       }
     },
+    validateFileSize(file) {
+      // 文件大小限制处理，maxSize为可选属性
+      if (this.maxSize) {
+        const maxSizeBytes = this.maxSize * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+          this.$message.error(
+            this.$t('common.fileUpload.fileSizeLimit') ||
+              `文件大小不能超过${this.maxSize}MB`,
+          );
+          return false;
+        }
+      }
+      return true;
+    },
+    validateFileFormat(file) {
+      // 文件格式验证，accept为可选属性
+      if (this.accept) {
+        const fileName = file.name;
+        const lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+          this.$message.error(this.$t('common.fileUpload.fileFormatError'));
+          return false;
+        }
+        const fileExtension = fileName.slice(lastDotIndex).toLowerCase();
+
+        const acceptFormats = this.accept
+          .split(',')
+          .map(format => format.trim().toLowerCase());
+
+        if (!acceptFormats.includes(fileExtension)) {
+          this.$message.error(this.$t('common.fileUpload.fileFormatError'));
+          return false;
+        }
+      }
+      return true;
+    },
     uploadFile(chunkFileName, fileName, filePath) {
-      this.$emit("uploadFile", chunkFileName, fileName, filePath);
+      this.$emit('uploadFile', chunkFileName, fileName, filePath);
     },
     clearFileList() {
       this.fileList = [];
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleRemove(item, index) {
-      const data = { fileList: [this.resList[index]["name"]], isExpired: true };
-      delfile(data).then((res) => {
+      const data = { fileList: [this.resList[index]['name']], isExpired: true };
+      delfile(data).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t("common.info.delete"));
+          this.$message.success(this.$t('common.info.delete'));
         }
       });
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
         this.file = null;
       } else {

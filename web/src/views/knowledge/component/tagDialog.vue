@@ -8,18 +8,18 @@
     <div>
       <el-input
         v-if="type !== 'section'"
-        placeholder="搜索标签"
+        :placeholder="$t('knowledgeManage.searchTag')"
         suffix-icon="el-icon-search"
         @keyup.enter.native="addByEnterKey"
         v-model="tagName"
       ></el-input>
-      <div
-        class="add"
-        @click="addTag"
-      ><span class="el-icon-plus add-icon"></span>{{title}}</div>
+      <div class="add" @click="addTag">
+        <span class="el-icon-plus add-icon"></span>
+        {{ title }}
+      </div>
       <div class="tag-box">
         <div
-          v-for="(item,index) in tagList"
+          v-for="(item, index) in tagList"
           class="tag_item"
           @mouseenter="mouseEnter(item)"
           @mouseleave="mouseLeave(item)"
@@ -28,133 +28,146 @@
           <el-checkbox
             v-model="item.selected"
             v-if="!item.showIpt && type !== 'section'"
-          >{{item.tagName}}</el-checkbox>
-          <span v-if="!item.showIpt && type === 'section'">{{item.tagName}}</span>
+          >
+            {{ item.tagName }}
+          </el-checkbox>
+          <span v-if="!item.showIpt && type === 'section'">
+            {{ item.tagName }}
+          </span>
           <el-input
             v-model="item.tagName"
             v-if="item.showIpt"
             maxlength="50"
-            placeholder="按回车(enter)键确认"
-            @keydown.backspace.native="handleDelete(item,index)" 
+            :placeholder="$t('knowledgeManage.tagNameHint')"
+            @keydown.backspace.native="handleDelete(item, index)"
             @keyup.enter.native="inputBlur(item)"
-           
           ></el-input>
           <span
             class="el-icon-close del-icon"
             v-if="item.showDel && !item.showIpt"
-            @click="delTag(item,index)"
+            @click="delTag(item, index)"
           ></span>
         </div>
       </div>
     </div>
-    <span
-      slot="footer"
-      class="dialog-footer"
-    >
-      <el-button
-        type="primary"
-        @click="submitDialog"
-      >确 定</el-button>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="submitDialog">
+        {{ $t('common.button.confirm') }}
+      </el-button>
     </span>
   </el-dialog>
 </template>
 <script>
-import { delTag, tagList, createTag, editTag, bindTag,bindTagCount,updateDocTag} from "@/api/knowledge";
+import {
+  delTag,
+  tagList,
+  createTag,
+  editTag,
+  bindTag,
+  bindTagCount,
+} from '@/api/knowledge';
+
 export default {
-  props:['type','title','currentList'],
+  props: ['type', 'title', 'currentList'],
   data() {
     return {
       dialogVisible: false,
       tagList: [],
-      tagName: "",
-      knowledgeId: ""
+      tagName: '',
+      knowledgeId: '',
     };
   },
-  watch:{
-    currentList:{
-      handler(val){
-        if(val.length){
-          this.tagList = val
-        }else{
-          this.tagList = []
+  watch: {
+    currentList: {
+      handler(val) {
+        if (val.length) {
+          this.tagList = val;
+        } else {
+          this.tagList = [];
         }
       },
-      deep:true
-    }
+      deep: true,
+    },
   },
   methods: {
     submitDialog() {
-      if(this.type === 'section'){
-        this.$emit('sendList',this.tagList)
-      }else{
-         this.bindTag()
+      if (this.type === 'section') {
+        this.$emit('sendList', this.tagList);
+      } else {
+        this.bindTag();
       }
     },
-    bindTag(){
-      const ids = this.tagList.filter((item) => item.selected).map((item) => item.tagId);
-      bindTag({ knowledgeId: this.knowledgeId, tagIdList: ids }).then((res) => {
+    bindTag() {
+      const ids = this.tagList
+        .filter(item => item.selected)
+        .map(item => item.tagId);
+      bindTag({ knowledgeId: this.knowledgeId, tagIdList: ids }).then(res => {
         if (res.code === 0) {
-          this.$emit("relodaData");
+          this.$emit('reloadData');
         }
       });
       this.dialogVisible = false;
     },
     getList() {
       tagList({ knowledgeId: this.knowledgeId, tagName: this.tagName }).then(
-        (res) => {
+        res => {
           if (res.code === 0) {
-            this.tagList = res.data.knowledgeTagList.map((item) => ({
+            this.tagList = res.data.knowledgeTagList.map(item => ({
               ...item,
               showDel: false,
               showIpt: false,
             }));
           }
-        }
+        },
       );
     },
-    bindTagCount(tagId){
-      return bindTagCount({tagId}).then(res =>{
-        if(res.code === 0){
-          const tagBindCount = res.data.tagBindCount;
-          return tagBindCount > 0;
-        }
-        return 'unknow'
-      }).catch(() =>{
-        return 'unknow'
-      })
+    bindTagCount(tagId) {
+      return bindTagCount({ tagId })
+        .then(res => {
+          if (res.code === 0) {
+            const tagBindCount = res.data.tagBindCount;
+            return tagBindCount > 0;
+          }
+          return 'unknow';
+        })
+        .catch(() => {
+          return 'unknow';
+        });
     },
-    delTag(item,index){
-      if(this.type !== 'section'){
-          this.delTag_item(item)
-      }else{
-        this.tagList.splice(index,1)
+    delTag(item, index) {
+      if (this.type !== 'section') {
+        this.delTag_item(item);
+      } else {
+        this.tagList.splice(index, 1);
       }
     },
     async delTag_item(item) {
       const isBind = await this.bindTagCount(item.tagId);
-      if(isBind == 'unknow') return
+      if (isBind == 'unknow') return;
       await this.$confirm(
-        `删除标签${item.tagName}`,
-        item.selected && isBind ? "标签正在使用中，是否删除？" : "确认要删除当前标签？",
+        this.$t('knowledgeManage.deleteTag') + `${item.tagName}`,
+        item.selected && isBind
+          ? this.$t('knowledgeManage.deleteTagHint1')
+          : this.$t('knowledgeManage.deleteTagHint2'),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+        },
       )
-        .then(async() => {
-          const res = await delTag({ tagId: item.tagId })
-            if (res.code === 0) {
-                this.getList();
-            }
-        })
-        .catch((error) => {
+        .then(async () => {
+          const res = await delTag({ tagId: item.tagId });
+          if (res.code === 0) {
             this.getList();
+          }
+        })
+        .catch(error => {
+          this.getList();
         });
     },
-    showDiaglog(id='') {
+    showDiaglog(id = '') {
       this.dialogVisible = true;
-      if(this.type !== 'section'){
+      if (this.type !== 'section') {
         this.knowledgeId = id;
         this.getList();
       }
@@ -172,11 +185,11 @@ export default {
       n.showIpt = true;
     },
     inputBlur(n) {
-      if(!n.tagName) return;
+      if (!n.tagName) return;
 
-      if(this.type === 'section'){
+      if (this.type === 'section') {
         n.showIpt = false;
-        return
+        return;
       }
 
       if (n.tagId) {
@@ -185,13 +198,13 @@ export default {
         this.add_Tag(n);
       }
     },
-    handleDelete(n,i){
-      if(n.tagName === '' && !n.tagId){
-          this.tagList.splice(i,1)
+    handleDelete(n, i) {
+      if (n.tagName === '' && !n.tagId) {
+        this.tagList.splice(i, 1);
       }
     },
     add_Tag(n) {
-      createTag({ tagName: n.tagName }).then((res) => {
+      createTag({ tagName: n.tagName }).then(res => {
         if (res.code === 0) {
           n.showIpt = false;
           this.getList();
@@ -199,7 +212,7 @@ export default {
       });
     },
     edit_tag(n) {
-      editTag({ tagId: n.tagId, tagName: n.tagName }).then((res) => {
+      editTag({ tagId: n.tagId, tagName: n.tagName }).then(res => {
         if (res.code === 0) {
           n.showIpt = false;
           this.getList();
@@ -207,14 +220,16 @@ export default {
       });
     },
     addTag() {
-      const emptyTag = this.tagList.find(tag => !tag.tagId && tag.tagName === "");
-      if(emptyTag) return;
-      if(this.type === 'section' && this.tagList.length > 10){
-        this.$message.warning('最多可创建10个关键词')
+      const emptyTag = this.tagList.find(
+        tag => !tag.tagId && tag.tagName === '',
+      );
+      if (emptyTag) return;
+      if (this.type === 'section' && this.tagList.length > 10) {
+        this.$message.warning(this.$t('knowledgeManage.addTagWarning'));
         return;
       }
       this.tagList.unshift({
-        tagName: "",
+        tagName: '',
         checked: false,
         showDel: false,
         showIpt: true,
@@ -233,18 +248,22 @@ export default {
   .el-dialog__body {
     padding: 5px 20px !important;
   }
+
   .add {
     margin-top: 10px;
     padding: 10px 0;
     cursor: pointer;
+
     .add-icon {
       margin-right: 5px;
     }
   }
+
   .tag-box {
     max-height: 300px;
     overflow-y: scroll;
   }
+
   .tag_item {
     cursor: pointer;
     background: $color_opacity;
@@ -254,6 +273,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     .del-icon {
       color: $color;
       cursor: pointer;

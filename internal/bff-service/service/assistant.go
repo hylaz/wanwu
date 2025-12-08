@@ -5,10 +5,12 @@ import (
 	"sort"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
+	"github.com/UnicomAI/wanwu/api/proto/common"
 	knowledgeBase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
@@ -251,6 +253,86 @@ func AssistantToolConfig(ctx *gin.Context, userId, orgId string, req request.Ass
 	return err
 }
 
+func assistantModelConvert(ctx *gin.Context, modelConfigInfo *common.AppModelConfig) (modelConfig request.AppModelConfig, err error) {
+	if modelConfigInfo != nil && modelConfigInfo.ModelId != "" {
+		log.Debugf("检测到模型配置，模型ID: %s", modelConfigInfo.ModelId)
+		modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: modelConfigInfo.ModelId})
+		if err != nil {
+			log.Errorf("获取模型信息失败，模型ID: %s, 错误: %v", modelConfigInfo.ModelId, err)
+		}
+		if modelInfo != nil {
+			modelConfig, err = appModelConfigProto2Model(modelConfigInfo, modelInfo.DisplayName)
+			if err != nil {
+				log.Errorf("模型配置Proto转换到模型失败，模型ID: %s, 错误: %v", modelConfigInfo.ModelId, err)
+				return modelConfig, err
+			}
+			log.Debugf("模型配置转换成功: %+v", modelConfig)
+		}
+	} else {
+		log.Debugf("模型配置为空或模型ID为空")
+	}
+	return modelConfig, nil
+}
+
+func assistantRerankConvert(ctx *gin.Context, rerankConfigInfo *common.AppModelConfig) (request.AppModelConfig, error) {
+	var rerankConfig request.AppModelConfig
+	if rerankConfigInfo != nil && rerankConfigInfo.ModelId != "" {
+		log.Debugf("检测到Rerank配置，模型ID: %s", rerankConfigInfo.ModelId)
+		modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: rerankConfigInfo.ModelId})
+		if err != nil {
+			log.Errorf("获取Rerank模型信息失败，模型ID: %s, 错误: %v", rerankConfigInfo.ModelId, err)
+		} else {
+			rerankConfig, err = appModelConfigProto2Model(rerankConfigInfo, modelInfo.DisplayName)
+			if err != nil {
+				log.Errorf("Rerank配置Proto转换到模型失败，模型ID: %s, 错误: %v", rerankConfigInfo.ModelId, err)
+				return rerankConfig, err
+			}
+			log.Debugf("Rerank配置转换成功: %+v", rerankConfig)
+		}
+	} else {
+		log.Debugf("Rerank配置为空或模型ID为空")
+	}
+	return rerankConfig, nil
+}
+
+func assistantWorkFlowConvert(ctx *gin.Context, workFlowInfos []*assistant_service.AssistantWorkFlowInfos) ([]*response.AssistantWorkFlowInfo, error) {
+	var assistantWorkFlowInfos []*response.AssistantWorkFlowInfo
+	if len(workFlowInfos) > 0 {
+		var workflowIds []string
+		for _, wf := range workFlowInfos {
+			workflowIds = append(workflowIds, wf.WorkFlowId)
+		}
+		cozeWorkflowList, err := ListWorkflowByIDs(ctx, "", workflowIds)
+		if err != nil {
+			return nil, err
+		}
+		for _, wf := range workFlowInfos {
+			workFlowInfo := &response.AssistantWorkFlowInfo{
+				WorkFlowId: wf.WorkFlowId,
+				ApiName:    wf.ApiName,
+				Enable:     wf.Enable,
+				UniqueId:   bff_util.ConcatAssistantToolUniqueId("workflow", wf.WorkFlowId),
+			}
+
+			for _, info := range cozeWorkflowList.Workflows {
+				if info.WorkflowId == wf.WorkFlowId {
+					// 找到匹配的工作流，设置名称和描述
+					workFlowInfo.WorkFlowName = info.Name
+					workFlowInfo.WorkFlowDesc = info.Desc
+					workFlowInfo.AvatarPath = cacheWorkflowAvatar(info.URL, constant.AppTypeWorkflow)
+				}
+			}
+
+			assistantWorkFlowInfos = append(assistantWorkFlowInfos, workFlowInfo)
+			log.Debugf("添加工作流信息: WorkFlowId=%s, ApiName=%s", wf.WorkFlowId, wf.ApiName)
+		}
+		log.Debugf("总共添加 %d 个工作流信息", len(assistantWorkFlowInfos))
+	} else {
+		log.Debugf("工作流信息为空")
+	}
+	return assistantWorkFlowInfos, nil
+}
+
 func assistantMCPConvert(ctx *gin.Context, assistantMCPInfos []*assistant_service.AssistantMCPInfos) ([]*response.AssistantMCPInfo, error) {
 	// 若查询结果为空，返回空列表
 	if len(assistantMCPInfos) == 0 {
@@ -408,6 +490,44 @@ func assistantToolsConvert(ctx *gin.Context, assistantToolInfos []*assistant_ser
 	}
 	return retToolInfos, nil
 
+}
+
+func assistantSafetyConvert(ctx *gin.Context, resp *assistant_service.AssistantSafetyConfig) (request.AppSafetyConfig, error) {
+	var exists bool
+	enable := resp.GetEnable()
+	var sensitiveTableList []request.SensitiveTable
+
+	if len(resp.GetSensitiveTable()) != 0 {
+		var tableIds []string
+		for _, table := range resp.GetSensitiveTable() {
+			tableIds = append(tableIds, table.TableId)
+		}
+		sensitiveWordTable, err := safety.GetSensitiveWordTableListByIDs(ctx, &safety_service.GetSensitiveWordTableListByIDsReq{TableIds: tableIds})
+
+		if err == nil && sensitiveWordTable != nil {
+			exists = true
+		} else {
+			enable = false
+		}
+
+		if exists {
+			for _, table := range sensitiveWordTable.List {
+				sensitiveTableList = append(sensitiveTableList, request.SensitiveTable{
+					TableId:   table.TableId,
+					TableName: table.TableName,
+				})
+			}
+		}
+	}
+
+	if len(sensitiveTableList) == 0 {
+		enable = false
+	}
+
+	return request.AppSafetyConfig{
+		Enable: enable,
+		Tables: sensitiveTableList,
+	}, nil
 }
 
 func ConversationCreate(ctx *gin.Context, userId, orgId string, req request.ConversationCreateRequest) (response.ConversationCreateResp, error) {
@@ -599,75 +719,17 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		log.Debugf("Assistant响应为空，返回空Assistant模型")
 		return nil, nil
 	}
-	var modelConfig request.AppModelConfig
-	if resp.ModelConfig != nil && resp.ModelConfig.ModelId != "" {
-		log.Debugf("检测到模型配置，模型ID: %s", resp.ModelConfig.ModelId)
-		modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: resp.ModelConfig.ModelId})
-		if err != nil {
-			log.Errorf("获取模型信息失败，模型ID: %s, 错误: %v", resp.ModelConfig.ModelId, err)
-		}
-		if modelInfo != nil {
-			modelConfig, err = appModelConfigProto2Model(resp.ModelConfig, modelInfo.DisplayName)
-			if err != nil {
-				log.Errorf("模型配置Proto转换到模型失败，模型ID: %s, 错误: %v", resp.ModelConfig.ModelId, err)
-				return nil, err
-			}
-			log.Debugf("模型配置转换成功: %+v", modelConfig)
-		}
-	} else {
-		log.Debugf("模型配置为空或模型ID为空")
-	}
-	var rerankConfig request.AppModelConfig
-	if resp.RerankConfig != nil && resp.RerankConfig.ModelId != "" {
-		log.Debugf("检测到Rerank配置，模型ID: %s", resp.RerankConfig.ModelId)
-		modelInfo, err := model.GetModelById(ctx.Request.Context(), &model_service.GetModelByIdReq{ModelId: resp.RerankConfig.ModelId})
-		if err != nil {
-			log.Errorf("获取Rerank模型信息失败，模型ID: %s, 错误: %v", resp.RerankConfig.ModelId, err)
-			return nil, err
-		}
-		rerankConfig, err = appModelConfigProto2Model(resp.RerankConfig, modelInfo.DisplayName)
-		if err != nil {
-			log.Errorf("Rerank配置Proto转换到模型失败，模型ID: %s, 错误: %v", resp.RerankConfig.ModelId, err)
-			return nil, err
-		}
-		log.Debugf("Rerank配置转换成功: %+v", rerankConfig)
-	} else {
-		log.Debugf("Rerank配置为空或模型ID为空")
+
+	// 转换Model配置
+	modelConfig, err := assistantModelConvert(ctx, resp.ModelConfig)
+	if err != nil {
+		return nil, err
 	}
 
-	var assistantWorkFlowInfos []*response.AssistantWorkFlowInfo
-	if len(resp.WorkFlowInfos) > 0 {
-		var workflowIds []string
-		for _, wf := range resp.WorkFlowInfos {
-			workflowIds = append(workflowIds, wf.WorkFlowId)
-		}
-		cozeWorkflowList, err := ListWorkflowByIDs(ctx, "", workflowIds)
-		if err != nil {
-			return nil, err
-		}
-		for _, wf := range resp.WorkFlowInfos {
-			workFlowInfo := &response.AssistantWorkFlowInfo{
-				WorkFlowId: wf.WorkFlowId,
-				ApiName:    wf.ApiName,
-				Enable:     wf.Enable,
-				UniqueId:   bff_util.ConcatAssistantToolUniqueId("workflow", wf.WorkFlowId),
-			}
-
-			for _, info := range cozeWorkflowList.Workflows {
-				if info.WorkflowId == wf.WorkFlowId {
-					// 找到匹配的工作流，设置名称和描述
-					workFlowInfo.WorkFlowName = info.Name
-					workFlowInfo.WorkFlowDesc = info.Desc
-					workFlowInfo.AvatarPath = cacheWorkflowAvatar(info.URL, constant.AppTypeWorkflow)
-				}
-			}
-
-			assistantWorkFlowInfos = append(assistantWorkFlowInfos, workFlowInfo)
-			log.Debugf("添加工作流信息: WorkFlowId=%s, ApiName=%s", wf.WorkFlowId, wf.ApiName)
-		}
-		log.Debugf("总共添加 %d 个工作流信息", len(assistantWorkFlowInfos))
-	} else {
-		log.Debugf("工作流信息为空")
+	// 转换Workflow配置
+	assistantWorkFlowInfos, err := assistantWorkFlowConvert(ctx, resp.WorkFlowInfos)
+	if err != nil {
+		return nil, err
 	}
 
 	// 查询该用户所有权限的所有 MCP
@@ -675,24 +737,36 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 	if err != nil {
 		return nil, err
 	}
+
 	// 查询该用户所有权限的 custom、builtin 工具
 	assistantToolInfos, err := assistantToolsConvert(ctx, resp.ToolInfos)
 	if err != nil {
 		return nil, err
 	}
 
-	var sensitiveWordTable *safety_service.SensitiveWordTables
-	if len(resp.SafetyConfig.GetSensitiveTable()) != 0 {
-		var tableIds []string
-		for _, table := range resp.SafetyConfig.SensitiveTable {
-			tableIds = append(tableIds, table.TableId)
-		}
-		sensitiveWordTable, _ = safety.GetSensitiveWordTableListByIDs(ctx, &safety_service.GetSensitiveWordTableListByIDsReq{TableIds: tableIds})
+	// 转换Safety配置
+	safetyConfig, err := assistantSafetyConvert(ctx, resp.SafetyConfig)
+	if err != nil {
+		return nil, err
 	}
+
+	// 转换KnowledgeBase配置
 	knowledgeBaseConfig, err := transKnowledgeBases2Model(ctx, resp.KnowledgeBaseConfig)
 	if err != nil {
 		return nil, err
 	}
+
+	// 转换Rerank配置
+	rerankConfig := request.AppModelConfig{}
+	if len(knowledgeBaseConfig.Knowledgebases) > 0 {
+		rerankConfig, err = assistantRerankConvert(ctx, resp.RerankConfig)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	// 转换Vision配置
 	var visionConfig response.VisionConfig
 	if resp.VisionConfig != nil {
 		visionConfig = response.VisionConfig{
@@ -709,7 +783,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		KnowledgeBaseConfig: knowledgeBaseConfig,
 		ModelConfig:         modelConfig,
 		RerankConfig:        rerankConfig,
-		SafetyConfig:        request.AppSafetyConfig{Enable: resp.SafetyConfig.GetEnable()},
+		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		Scope:               resp.Scope,
 		WorkFlowInfos:       assistantWorkFlowInfos,
@@ -717,17 +791,9 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		ToolInfos:           assistantToolInfos,
 		CreatedAt:           util.Time2Str(resp.CreatTime),
 		UpdatedAt:           util.Time2Str(resp.UpdateTime),
+		NewAgent:            config.Cfg().Agent.UseNewAgent == 1,
 	}
-	if sensitiveWordTable != nil {
-		var sensitiveTableList []request.SensitiveTable
-		for _, table := range sensitiveWordTable.List {
-			sensitiveTableList = append(sensitiveTableList, request.SensitiveTable{
-				TableId:   table.TableId,
-				TableName: table.TableName,
-			})
-		}
-		assistantModel.SafetyConfig.Tables = sensitiveTableList
-	}
+
 	log.Debugf("Assistant响应到模型转换完成，结果: %+v", assistantModel)
 	return &assistantModel, nil
 }
@@ -750,7 +816,8 @@ func transKnowledgeBases2Model(ctx *gin.Context, kbConfig *assistant_service.Ass
 	kbInfoList, err := knowledgeBase.SelectKnowledgeDetailByIdList(ctx, &knowledgeBase_service.KnowledgeDetailSelectListReq{
 		KnowledgeIds: kbConfig.KnowledgeBaseIds,
 	})
-	if err != nil {
+
+	if err != nil || kbInfoList == nil || len(kbInfoList.List) == 0 {
 		return request.AppKnowledgebaseConfig{
 			Knowledgebases: make([]request.AppKnowledgeBase, 0),
 		}, err

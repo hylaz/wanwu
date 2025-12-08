@@ -132,10 +132,23 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		return Result{Error: err}
 	}
 
-	//3.事务执行删除数据
+	//3.查询所有导出任务
+	exportTasks, err := orm.SelectExportTaskByKnowledgeIdNoDeleteCheck(ctx, params.KnowledgeId, "", "")
+	if err != nil {
+		return Result{Error: err}
+	}
+
+	//4.事务执行删除数据
 	err = db.GetClient().DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if len(docList) > 0 {
 			err := BatchDeleteAllDoc(ctx, tx, knowledge, docList)
+			if err != nil {
+				return err
+			}
+		}
+		// 删除导出文件
+		if len(exportTasks) > 0 {
+			err = batchMinioDeleteExportFiles(ctx, exportTasks)
 			if err != nil {
 				return err
 			}
@@ -148,11 +161,20 @@ func deleteKnowledgeByKnowledgeId(ctx context.Context, taskCtx string) Result {
 		if err != nil {
 			return err
 		}
+		err = orm.ExecuteDeleteKnowledgeMeta(tx, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
 		err = orm.ExecuteDeleteKnowledge(tx, knowledge.Id)
 		if err != nil {
 			return err
 		}
 		err = orm.DeleteImportTaskByKnowledgeId(tx, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
+		// 删除知识库导出任务
+		err = orm.DeleteExportTaskByKnowledgeId(tx, knowledge.KnowledgeId)
 		if err != nil {
 			return err
 		}

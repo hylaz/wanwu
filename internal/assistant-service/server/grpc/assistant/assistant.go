@@ -157,15 +157,24 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 	}
 
 	// 处理rerankConfig，转换成json字符串之后再更新
-	if req.RerankConfig != nil {
-		rerankConfigBytes, err := json.Marshal(req.RerankConfig)
-		if err != nil {
-			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
-				TextKey: "assistant_rerankConfig_marshal",
-				Args:    []string{err.Error()},
-			})
+	var knowledgeBaseIds []string
+	if req.KnowledgeBaseConfig != nil {
+		knowledgeBaseIds = req.KnowledgeBaseConfig.GetKnowledgeBaseIds()
+	}
+
+	if req.KnowledgeBaseConfig == nil || len(knowledgeBaseIds) == 0 {
+		existingAssistant.RerankConfig = ""
+	} else {
+		if req.RerankConfig != nil {
+			rerankConfigBytes, err := json.Marshal(req.RerankConfig)
+			if err != nil {
+				return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+					TextKey: "assistant_rerankConfig_marshal",
+					Args:    []string{err.Error()},
+				})
+			}
+			existingAssistant.RerankConfig = string(rerankConfigBytes)
 		}
-		existingAssistant.RerankConfig = string(rerankConfigBytes)
 	}
 
 	// 处理knowledgeBaseConfig，转换成json字符串之后再更新

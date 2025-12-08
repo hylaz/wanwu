@@ -14,18 +14,18 @@
 </template>
 
 <script>
-import infoList from "./infoList";
+import infoList from './infoList';
 export default {
   mixins: [infoList],
   components: {},
-  name: "",
+  name: '',
   props: {
-    listApi: "",
+    listApi: '',
   },
   data() {
-    return {}
+    return {};
   },
-  mounted() { },
+  mounted() {},
   methods: {},
 };
 </script>
@@ -54,7 +54,7 @@ export default {
     border-color: #cccccc;
   }
 
-  .el-pager li:hover{
+  .el-pager li:hover {
     color: $color;
   }
   .el-pager li.active {

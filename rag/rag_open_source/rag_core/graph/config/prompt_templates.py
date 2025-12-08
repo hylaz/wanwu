@@ -43,7 +43,7 @@ Write a comprehensive report of a community, given a list of entities that belon
 The report should include the following sections:
 
 - TITLE: community's name that represents its key entities - title should be short but specific. When possible, include representative named entities in the title.
-- SUMMARY: An executive summary of the community's overall structure, how its entities are related to each other, and significant information associated with its entities.
+- SUMMARY: An executive summary of the community's overall structure, how its entities are related to each other, and significant information associated with its entities, and should include all input entities.
 - IMPACT SEVERITY RATING: a float score between 0-10 that represents the severity of IMPACT posed by entities within the community.  IMPACT is the scored importance of a community.
 - RATING EXPLANATION: Give a single sentence explanation of the IMPACT severity rating.
 - DETAILED FINDINGS: A list of 5-10 key insights about the community. Each insight should have a short summary followed by multiple paragraphs of explanatory text grounded according to the grounding rules below. Be comprehensive.
@@ -164,7 +164,7 @@ ATTRIBUTE_PROMPT = """
 要求（严格遵守）：
 1. 输出必须是合法的 JSON（仅输出 JSON，不要额外说明），字段如下：
    - title: 用一行结合 attribute 和 entities 概述社区（简洁、有概括力）。
-   - summary: 简短摘要，2-3 句，概述社区核心特征与整体价值（中文）。
+   - summary: 简短摘要，2-3 句，概述社区核心特征与整体价值（中文），需提及所有 entities 的名称。
    - rating: 数值，0 到 5（可含一位小数），表示社区重要性或质量。
    - rating_explanation: 对 rating 的简要理由（如无可写空字符串）。
    - findings: 列出 2–5 条关于该社区的关键洞察。每条洞察应先给出一段简短的摘要，随后给出多段解释性文字，要求内容全面。
@@ -173,6 +173,7 @@ ATTRIBUTE_PROMPT = """
 3. 使用 attribute 显式体现在 title 和 summary 中。
 4. 输出内容语言和输入语言保持一致，输入内容有中文的话也使用中文输出。
 5. 回答简洁，事实性陈述不得无根据臆断；必要时使用“未知”或“未注明”提示信息。
+6. 同样输入下，报告标题和内容需保持稳定。
 
 示例输入：
 entities = ["人形跽坐铜灯","匈奴王金冠","鲁国大玉璧"]

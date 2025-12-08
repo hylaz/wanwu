@@ -4,21 +4,31 @@
       <div class="smart rl smart-create">
         <div class="app-card-create" @click="showCreate">
           <div class="create-img-wrap">
-            <img class="create-type" src="@/assets/imgs/safety_import.png" alt="" />
-            <img class="create-img" src="@/assets/imgs/create_icon.png" alt="" />
+            <img
+              class="create-type"
+              src="@/assets/imgs/safety_import.png"
+              alt=""
+            />
+            <img
+              class="create-img"
+              src="@/assets/imgs/create_icon.png"
+              alt=""
+            />
             <div class="create-filter"></div>
           </div>
           <span>{{ $t('safety.safetyList.create') }}</span>
         </div>
       </div>
       <template v-if="listData && listData.length">
-        <div class="smart rl" 
-        v-for="(n,i) in listData" 
-        :key="`${i}sm`" 
-        @click.stop="toWordList(n)">
+        <div
+          class="smart rl"
+          v-for="(n, i) in listData"
+          :key="`${i}sm`"
+          @click.stop="toWordList(n)"
+        >
           <div class="info rl">
             <p class="name" :title="n.tableName">
-              {{n.tableName}}
+              {{ n.tableName }}
             </p>
             <el-tooltip
               v-if="n.remark"
@@ -27,11 +37,11 @@
               :content="n.remark"
               placement="bottom-start"
             >
-              <p class="desc">{{n.remark}}</p>
+              <p class="desc">{{ n.remark }}</p>
             </el-tooltip>
           </div>
           <div class="tags">
-            <span :class="['smartDate','tagList']">{{n.createdAt}}</span>
+            <span :class="['smartDate', 'tagList']">{{ n.createdAt }}</span>
           </div>
           <div class="editor">
             <el-dropdown @command="handleClick($event, n)" placement="top">
@@ -39,131 +49,145 @@
                 <i class="el-icon-more icon edit-icon" @click.stop></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="edit">{{$t('common.button.edit')}}</el-dropdown-item>
-                <el-dropdown-item command="delete">{{$t('common.button.delete')}}</el-dropdown-item>
+                <el-dropdown-item command="edit">
+                  {{ $t('common.button.edit') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="delete">
+                  {{ $t('common.button.delete') }}
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
         </div>
       </template>
     </div>
-    <el-empty class="noData" v-if="!(listData && listData.length)" :description="$t('common.noData')"></el-empty>
+    <el-empty
+      class="noData"
+      v-if="!(listData && listData.length)"
+      :description="$t('common.noData')"
+    ></el-empty>
   </div>
 </template>
 
 <script>
-import { delSensitive } from "@/api/safety";
+import { delSensitive } from '@/api/safety';
 export default {
-  props:{
-    appData:{
-      type:Array,
-      required:true,
-      default:[]
-    }
+  props: {
+    appData: {
+      type: Array,
+      required: true,
+      default: [],
+    },
   },
-  watch:{
-    appData:{
-      handler:function(val){
-        this.listData = val
+  watch: {
+    appData: {
+      handler: function (val) {
+        this.listData = val;
       },
-      immediate:true,
-      deep:true
-    }
+      immediate: true,
+      deep: true,
+    },
   },
-  data(){
-    return{
+  data() {
+    return {
       basePath: this.$basePath,
-      listData:[]
-    }
+      listData: [],
+    };
   },
-  methods:{
-  showCreate(){
-    this.$parent.showCreate();
-  },
-    handleClick(command,n){
-      switch (command){
+  methods: {
+    showCreate() {
+      this.$parent.showCreate();
+    },
+    handleClick(command, n) {
+      switch (command) {
         case 'edit':
           this.editItem(n);
           break;
         case 'delete':
-          this.deleteItem(n.tableId)
+          this.deleteItem(n.tableId);
           break;
       }
     },
     editItem(row) {
-      this.$emit('editItem', row)
+      this.$emit('editItem', row);
     },
-    relodaData(){
+    reloadData() {
       this.$emit('reloadData');
     },
-    deleteItem(tableId){
-      this.$confirm(this.$t('safety.safetyList.delTip'), this.$t('knowledgeManage.tip'), {
-        confirmButtonText: this.$t('common.confirm.confirm'),
-        cancelButtonText: this.$t('common.confirm.cancel'),
-        type: "warning",
-        beforeClose:(action, instance, done) =>{
-          if(action === 'confirm'){
-            instance.confirmButtonLoading = true;
-            delSensitive({tableId})
-              .then(res =>{
-                if(res.code === 0){
-                  this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-                  this.$emit('reloadData')
-                }
-              })
-              .catch(() => {})
-              .finally(() =>{
-                done();
-                setTimeout(() => {
-                  instance.confirmButtonLoading = false;
-                }, 300);
-              })
-          }else{
-            done()
-          }
-        }
-      }).then(() => {})
+    deleteItem(tableId) {
+      this.$confirm(
+        this.$t('safety.safetyList.delTip'),
+        this.$t('knowledgeManage.tip'),
+        {
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true;
+              delSensitive({ tableId })
+                .then(res => {
+                  if (res.code === 0) {
+                    this.$message.success(
+                      this.$t('knowledgeManage.operateSuccess'),
+                    );
+                    this.$emit('reloadData');
+                  }
+                })
+                .catch(() => {})
+                .finally(() => {
+                  done();
+                  setTimeout(() => {
+                    instance.confirmButtonLoading = false;
+                  }, 300);
+                });
+            } else {
+              done();
+            }
+          },
+        },
+      ).then(() => {});
     },
-    toWordList(n){
-      this.$router.push({path:`/safety/wordList/${n.tableId}`});
+    toWordList(n) {
+      this.$router.push({ path: `/safety/wordList/${n.tableId}` });
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/appCard.scss";
+@import '@/style/appCard.scss';
 .app-card {
   .smart {
     height: 152px;
-    .smartDate{
-      padding-top:3px;
-      color:#888888;
+    .smartDate {
+      padding-top: 3px;
+      color: #888888;
     }
     .info {
       padding-right: 0;
     }
-    .desc{
+    .desc {
       padding-top: 5px;
     }
-    .logo{
-      border-radius:50%;
-      background: #F1F4FF;
+    .logo {
+      border-radius: 50%;
+      background: #f1f4ff;
       box-shadow: none;
-      padding:0 5px!important;
+      padding: 0 5px !important;
       width: 65px !important;
-      height:65px !important;
+      height: 65px !important;
     }
-    .tagList{
+    .tagList {
       cursor: pointer;
-      .icon-tag{
+      .icon-tag {
         transform: rotate(-40deg);
-        margin-right:3px;
+        margin-right: 3px;
       }
     }
-    .tagList:hover{
-        color:$color;
-      }
+    .tagList:hover {
+      color: $color;
+    }
   }
 }
 </style>

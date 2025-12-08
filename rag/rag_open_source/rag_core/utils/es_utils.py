@@ -177,28 +177,30 @@ def get_weighted_rerank(query, weights, search_list, top_k):
         search_list_infos[user_id]["base_names"].append(base_name)
         search_list_infos[user_id]["search_list"].append(item)
 
-    rescored_search_list = []
-    sorted_score_list = []
     es_data = {}
     es_data['query'] = query
     es_data["weights"] = weights
     es_data["search_list_infos"] = search_list_infos
     es_url = ES_BASE_URL + "/api/v1/rag/es/rescore"
     headers = {'Content-Type': 'application/json'}
+    response_info = {"code": 0, "message": "", "data": {"sorted_scores": [], "sorted_search_list": []}}
     try:
         if not search_list:
-            return sorted_score_list, rescored_search_list
+            return response_info
         response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
         if response.status_code == 200:
             result_data = json.loads(response.text)
-            rescored_search_list = result_data['result']['search_list'][:top_k]
-            sorted_score_list = result_data['result']['scores'][:top_k]
+            response_info["data"]["sorted_search_list"] = result_data['result']['search_list'][:top_k]
+            response_info["data"]["sorted_scores"] = result_data['result']['scores'][:top_k]
             logger.info("query：" + repr(query) + ", es重评分请求成功")
+
+            return response_info
         else:
             logger.error("query：" + repr(query) + ", es重评分请求失败" + repr(response.text))
+            raise RuntimeError(repr(response.text))
     except Exception as e:
         logger.error(" query：" + repr(query) + ", es重评分请求异常：" + repr(e))
-    return sorted_score_list, rescored_search_list
+        return {"code": 1, "message": str(e)}
 
 
 def search_es(user_id, kb_names, query, top_k, kb_ids=[], filter_file_name_list=[], metadata_filtering_conditions = []):

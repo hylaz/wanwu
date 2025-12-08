@@ -1,329 +1,364 @@
 @import './theme/index.scss';
 
 * {
-    margin: 0;
-    padding: 0;
-    font-size: 13px;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  box-sizing: border-box;
 }
 
 //移动端禁止非内容区域的滚动
-html, body {
-    overscroll-behavior: none;
-    overscroll-behavior-y: none;
-    overscroll-behavior-x: none;
+html,
+body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
 }
 
-.dark-message{
-    background: #111!important;
-    border-color:#111;
-    min-width: 150px!important;
-    .el-message__content{
-        color: #fff!important;
-        width: 100%;
-        text-align: center;
-    }
-}
+.dark-message {
+  background: #111 !important;
+  border-color: #111;
+  min-width: 150px !important;
 
+  .el-message__content {
+    color: #fff !important;
+    width: 100%;
+    text-align: center;
+  }
+}
 
 .el-button:focus,
 .el-button:hover {
-    background: #fff!important;
-    border-color: #DCDFE6;
-    color: #606266;
+  background: #fff !important;
+  border-color: #dcdfe6;
+  color: #606266;
 }
 
-.el-button--mini{
-    height: 30px;
+.el-button--mini {
+  height: 30px;
 }
+
 .el-range-editor.is-active,
 .el-range-editor.is-active:hover,
 .el-select .el-input.is-focus .el-input__inner {
-    border-color: $color!important;
+  border-color: $color !important;
 }
+
 .el-select .el-input {
-    font-size: 13px;
+  font-size: 13px;
 }
 
 .el-input .el-input__inner:focus {
-    outline: none;
-    border: 1px solid $color!important;
+  outline: none;
+  border: 1px solid $color !important;
 }
 
 .el-button--primary {
-    color: #FFF!important;
-    background-color: $color!important;
-    border-color: $color!important;
-    span{
-        color: #fff!important;
-    }
+  color: #fff !important;
+  background-color: $color !important;
+  border-color: $color !important;
+
+  span {
+    color: #fff !important;
+  }
 }
 
 .el-button--primary.is-active,
 .el-button--primary:active {
-    background: #ee1e1f!important;
-    border-color: #ee1e1f!important;
-    color: #fff!important;
+  background: #ee1e1f !important;
+  border-color: #ee1e1f !important;
+  color: #fff !important;
 }
 
 .el-button--primary:focus,
 .el-button--primary:hover {
-    background: $color!important;
-    border-color: $color!important;
-    color: #fff!important;
+  background: $color !important;
+  border-color: $color !important;
+  color: #fff !important;
 }
 
 .el-button--text {
-    color: $color!important;
+  color: $color !important;
 }
 
 .el-button--text:focus,
 .el-button--text:hover {
-    color: $color;
+  color: $color;
 }
 
-.el-tabs__item:hover{
-    color: $color !important;
+.el-tabs__item:hover {
+  color: $color !important;
 }
+
 .el-tabs__item.is-active {
-    color: $color !important;
+  color: $color !important;
 }
-.el-tabs__active-bar{
-    background:$color !important;
+
+.el-tabs__active-bar {
+  background: $color !important;
 }
 
 .el-textarea__inner:focus,
 .el-textarea__inner:hover {
-    border-color: $color;
+  border-color: $color;
 }
 
 .el-button.is-round {
-    background-color: #fff;
-    border-color: $color;
-    color: $color;
+  background-color: #fff;
+  border-color: $color;
+  color: $color;
 }
 
 .el-dialog__headerbtn .el-dialog__close:hover {
-    color: #909399;
+  color: #909399;
 }
 
 .el-button--primary.is-plain {
-    color: $color!important;
-    background: #fff!important;
-    border-color: $color!important;
+  color: $color !important;
+  background: #fff !important;
+  border-color: $color !important;
 }
-.el-button--primary.is-plain span{
-    color: $color!important;
+
+.el-button--primary.is-plain span {
+  color: $color !important;
 }
+
 .el-button.is-disabled.el-button--text {
-    background-color: transparent;
-    color: #999!important;
+  background-color: transparent;
+  color: #999 !important;
 }
+
 .el-button.is-disabled.el-button--text:hover {
-    background-color: transparent;
-    color: #999!important;
+  background-color: transparent;
+  color: #999 !important;
 }
-.el-button.el-button--preview{
-    color: $color!important;
-    border-color: transparent!important;
-    background: rgba(230, 0, 1, 0.05);
+
+.el-button.el-button--preview {
+  color: $color !important;
+  border-color: transparent !important;
+  background: rgba(230, 0, 1, 0.05);
 }
+
 .el-button.el-button--preview.is-disabled,
-.el-button.el-button--preview.is-disabled:hover{
-    color: #909399!important;
-    background: #f4f4f5!important;
+.el-button.el-button--preview.is-disabled:hover {
+  color: #909399 !important;
+  background: #f4f4f5 !important;
 }
+
 .el-button.el-button--preview:hover,
-.el-button.el-button--preview:focus{
-    background: rgba(230, 0, 1, 0.05) !important;
+.el-button.el-button--preview:focus {
+  background: rgba(230, 0, 1, 0.05) !important;
 }
 
-.el-message-box__btns{
-    padding: 10px 15px!important;
+.el-message-box__btns {
+  padding: 10px 15px !important;
 }
 
-
-.el-radio__input.is-checked+.el-radio__label {
-    color: #333!important;
+.el-radio__input.is-checked + .el-radio__label {
+  color: #333 !important;
 }
 
-.el-input-number__decrease:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled),
-.el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
-    border-color: $color!important;
+.el-input-number__decrease:hover:not(.is-disabled)
+  ~ .el-input
+  .el-input__inner:not(.is-disabled),
+.el-input-number__increase:hover:not(.is-disabled)
+  ~ .el-input
+  .el-input__inner:not(.is-disabled) {
+  border-color: $color !important;
 }
-.el-input-number__increase:hover,.el-input-number__decrease:hover{
-    color: $color!important;
+
+.el-input-number__increase:hover,
+.el-input-number__decrease:hover {
+  color: $color !important;
 }
 
 .el-button--primary.is-disabled,
 .el-button--primary.is-disabled:active,
 .el-button--primary.is-disabled:focus,
 .el-button--primary.is-disabled:hover {
-    color: #909399!important;
-    background: #f4f4f5!important;
-    border-color: #d3d4d6!important;
-}
-.el-button--primary.is-disabled span{
-    color: #909399!important;
-}
-.el-button--success:focus,
-.el-button--success:hover {
-    background: #67C23A!important;
-    border-color: #67C23A;
-    color: #fff;
+  color: #909399 !important;
+  background: #f4f4f5 !important;
+  border-color: #d3d4d6 !important;
 }
 
-.el-menu-item.is-active{
-    color: $color !important;
-    background: $color_opacity;
+.el-button--primary.is-disabled span {
+  color: #909399 !important;
 }
-.el-menu-item:hover, .el-submenu__title:hover{
-    background: #F5F7FA !important;
+
+.el-button--success:focus,
+.el-button--success:hover {
+  background: #67c23a !important;
+  border-color: #67c23a;
+  color: #fff;
 }
+
+.el-menu-item.is-active {
+  color: $color !important;
+  background: $color_opacity;
+}
+
+.el-menu-item:hover,
+.el-submenu__title:hover {
+  background: #f5f7fa !important;
+}
+
 .el-submenu__title {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .el-textarea .el-input__count {
-    background: transparent !important;
-    height: 28px;
+  background: transparent !important;
+  height: 28px;
 }
 
 /*隐藏滚动条但是允许滚动*/
 /*::-webkit-scrollbar{
     display: none;
 }*/
-pre::-webkit-scrollbar{
-    display: block!important;
+pre::-webkit-scrollbar {
+  display: block !important;
 }
+
 .aibase-textarea {
-    position: relative;
-    z-index: 10;
-    width: 400px;
-    min-height: 26px;
-    line-height: 20px;
-    _height: 30px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 10px 35px 10px 15px;
-    outline: 0;
-    word-wrap: break-word;
-    overflow-x: hidden;
+  position: relative;
+  z-index: 10;
+  width: 400px;
+  min-height: 26px;
+  line-height: 20px;
+  _height: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 35px 10px 15px;
+  outline: 0;
+  word-wrap: break-word;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-user-modify: read-write-plaintext-only;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.editable-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  // box-shadow: 1px 1px 12px #ddd;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+
+  .editable--input {
+    word-break: break-all;
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    max-height: 216px;
     overflow-y: auto;
-    -webkit-user-modify: read-write-plaintext-only;
-    border-radius: 4px;
-    background: transparent;
+    line-height: 22px;
+  }
+
+  .editable--close {
+    position: absolute;
+    z-index: 20;
+    margin: auto;
+    cursor: pointer;
+    top: 7px;
+    right: 10px;
+    font-size: 20px;
+    color: #dbdada;
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  .editable--send {
+    position: absolute;
+    z-index: 20;
+    margin: auto;
+    // width: 27px;
+    // height: 27px;
+    padding: 8px 15px;
+    cursor: pointer;
+    bottom: 6px;
+    right: 10px;
+    border-radius: 20px;
+    // background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    span {
+      display: flex;
+      align-items: center;
+
+      img {
+        width: 16px;
+        height: 16px;
+        margin-left: 5px;
+      }
+    }
+  }
+
+  .editable--placeholder {
+    position: absolute;
+    z-index: 1;
+    top: 12px;
+    left: 15px;
+    color: #c0c4cc;
+  }
 }
-.editable-box{
-    position: relative;
+
+.upload-box {
+  height: 100%;
+  text-align: right;
+  position: relative;
+  width: 100%;
+  border: 1px solid #d4d6d9;
+  border-radius: 6px;
+
+  .el-upload {
     width: 100%;
     height: 100%;
-    border-radius: 15px;
-    // box-shadow: 1px 1px 12px #ddd;
-    border: 1px solid #E2E8F0;
-    background-color: #fff;
-    .editable--input{
-        word-break: break-all;
-        width: 100%;
-        height: 100%;
-        min-height: 120px;
-        max-height: 216px;
-        overflow-y: auto;
-        line-height: 22px;
+
+    .el-upload-dragger {
+      background-color: #fff;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
-    .editable--close{
-        position: absolute;
-        z-index: 20;
-        margin: auto;
-        cursor: pointer;
-        top: 7px;
-        right: 10px;
-        font-size: 20px;
-        color: #dbdada;
-        cursor: pointer;
-        padding: 2px;
-    }
-    .editable--send{
-        position: absolute;
-        z-index: 20;
-        margin: auto;
-        // width: 27px;
-        // height: 27px;
-        padding: 8px 15px;
-        cursor: pointer;
-        bottom: 6px;
-        right: 10px;
-        border-radius:20px;
-        // background-color: #fff;
-        cursor: pointer;
-        display: flex;
-        align-items:center;
-        span{
-            display:flex;
-            align-items: center;
-            img{
-                width:16px;
-                height:16px;
-                margin-left:5px;
-            }
-        }
-    }
-    .editable--placeholder{
-        position: absolute;
-        z-index: 1;
-        top: 12px;
-        left: 15px;
-        color: #c0c4cc;
-    }
+  }
 }
 
-.upload-box{
-    height: 100%;
-    text-align: right;
-    position: relative;
+.upload-box:hover {
+  border: 1px solid $color;
+}
+
+.upload-box-noborder {
+  border: 1px solid #eee !important;
+  background-color: transparent !important;
+}
+
+.echo-img {
+  position: relative;
+  height: 100%;
+
+  .el-icon-close {
+    position: absolute;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    padding: 2px;
+    color: #ddd;
+    background-color: #333;
+  }
+
+  .el-icon-close:hover {
+    color: #fff;
+  }
+
+  img {
     width: 100%;
-    border: 1px solid #D4D6D9;
-    border-radius: 6px;
-    .el-upload{
-        width: 100%;
-        height: 100%;
-        .el-upload-dragger{
-            background-color: #fff;
-            width:100%;
-            height:100%;
-            border:none;
-        }
-    }
-}
-.upload-box:hover{
-    border: 1px solid $color;
-}
-.upload-box-noborder{
-    border: 1px solid #eee!important;
-    background-color: transparent!important;
-}
-
-.echo-img{
-    position: relative;
     height: 100%;
-    .el-icon-close{
-        position: absolute;
-        right: 0;
-        top:0;
-        cursor: pointer;
-        padding: 2px;
-        color: #ddd;
-        background-color: #333;
-    }
-    .el-icon-close:hover{
-        color: #fff;
-    }
-    img{
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #eee;
-    }
+    object-fit: contain;
+    background: #eee;
+  }
 }
-
-

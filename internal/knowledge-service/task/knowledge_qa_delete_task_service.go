@@ -6,8 +6,10 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
 	async_task_pkg "github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/async-task"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
@@ -132,8 +134,21 @@ func deleteKnowledgeQAByKnowledgeId(ctx context.Context, taskCtx string) Result 
 		return Result{Error: err}
 	}
 
-	//3.事务执行删除数据
+	//3.查询所有导出任务
+	exportTasks, err := orm.SelectExportTaskByKnowledgeIdNoDeleteCheck(ctx, params.KnowledgeId, "", "")
+	if err != nil {
+		return Result{Error: err}
+	}
+
+	//4.事务执行删除数据
 	err = db.GetClient().DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 删除导出文件
+		if len(exportTasks) > 0 {
+			err = batchMinioDeleteExportFiles(ctx, exportTasks)
+			if err != nil {
+				return err
+			}
+		}
 		// 删除问答库
 		err = orm.ExecuteDeleteKnowledge(tx, knowledge.Id)
 		if err != nil {
@@ -145,7 +160,7 @@ func deleteKnowledgeQAByKnowledgeId(ctx context.Context, taskCtx string) Result 
 			return err
 		}
 		// 删除问答库导出任务
-		err = orm.DeleteQAExportTaskByKnowledgeId(tx, knowledge.KnowledgeId)
+		err = orm.DeleteExportTaskByKnowledgeId(tx, knowledge.KnowledgeId)
 		if err != nil {
 			return err
 		}
@@ -161,6 +176,11 @@ func deleteKnowledgeQAByKnowledgeId(ctx context.Context, taskCtx string) Result 
 				return err
 			}
 		}
+		// 删除元数据
+		err = orm.ExecuteDeleteKnowledgeMeta(tx, knowledge.KnowledgeId)
+		if err != nil {
+			return err
+		}
 		err := service.RagQADelete(ctx, &service.RagQADeleteParams{
 			UserId: knowledge.UserId,
 			QABase: knowledge.RagName,
@@ -172,4 +192,16 @@ func deleteKnowledgeQAByKnowledgeId(ctx context.Context, taskCtx string) Result 
 		return nil
 	})
 	return Result{Error: err}
+}
+
+// batchMinioDeleteExportFiles 批量删除minio导出文件
+func batchMinioDeleteExportFiles(ctx context.Context, taskList []*model.KnowledgeExportTask) error {
+	for _, task := range taskList {
+		filePath := "http://" + config.GetConfig().Minio.EndPoint + "/" + task.ExportFilePath
+		err := service.DeleteFile(ctx, filePath)
+		if err != nil {
+			log.Errorf("batchMinioDelete error %v", err)
+		}
+	}
+	return nil
 }

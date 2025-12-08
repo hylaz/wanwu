@@ -20,17 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	KnowledgeBaseQAService_CreateQAPair_FullMethodName        = "/knowledgebase_qa_service.KnowledgeBaseQAService/CreateQAPair"
-	KnowledgeBaseQAService_UpdateQAPair_FullMethodName        = "/knowledgebase_qa_service.KnowledgeBaseQAService/UpdateQAPair"
-	KnowledgeBaseQAService_UpdateQAPairSwitch_FullMethodName  = "/knowledgebase_qa_service.KnowledgeBaseQAService/UpdateQAPairSwitch"
-	KnowledgeBaseQAService_DeleteQAPair_FullMethodName        = "/knowledgebase_qa_service.KnowledgeBaseQAService/DeleteQAPair"
-	KnowledgeBaseQAService_GetQAPairInfo_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetQAPairInfo"
-	KnowledgeBaseQAService_GetQAPairList_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetQAPairList"
-	KnowledgeBaseQAService_ImportQAPair_FullMethodName        = "/knowledgebase_qa_service.KnowledgeBaseQAService/ImportQAPair"
-	KnowledgeBaseQAService_ExportQAPair_FullMethodName        = "/knowledgebase_qa_service.KnowledgeBaseQAService/ExportQAPair"
-	KnowledgeBaseQAService_GetExportRecordList_FullMethodName = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetExportRecordList"
-	KnowledgeBaseQAService_DeleteExportRecord_FullMethodName  = "/knowledgebase_qa_service.KnowledgeBaseQAService/DeleteExportRecord"
-	KnowledgeBaseQAService_KnowledgeQAHit_FullMethodName      = "/knowledgebase_qa_service.KnowledgeBaseQAService/KnowledgeQAHit"
+	KnowledgeBaseQAService_CreateQAPair_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/CreateQAPair"
+	KnowledgeBaseQAService_UpdateQAPair_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/UpdateQAPair"
+	KnowledgeBaseQAService_UpdateQAPairSwitch_FullMethodName = "/knowledgebase_qa_service.KnowledgeBaseQAService/UpdateQAPairSwitch"
+	KnowledgeBaseQAService_DeleteQAPair_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/DeleteQAPair"
+	KnowledgeBaseQAService_GetQAPairInfo_FullMethodName      = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetQAPairInfo"
+	KnowledgeBaseQAService_GetQAPairList_FullMethodName      = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetQAPairList"
+	KnowledgeBaseQAService_ImportQAPair_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/ImportQAPair"
+	KnowledgeBaseQAService_GetQAImportTip_FullMethodName     = "/knowledgebase_qa_service.KnowledgeBaseQAService/GetQAImportTip"
+	KnowledgeBaseQAService_ExportQAPair_FullMethodName       = "/knowledgebase_qa_service.KnowledgeBaseQAService/ExportQAPair"
+	KnowledgeBaseQAService_KnowledgeQAHit_FullMethodName     = "/knowledgebase_qa_service.KnowledgeBaseQAService/KnowledgeQAHit"
 )
 
 // KnowledgeBaseQAServiceClient is the client API for KnowledgeBaseQAService service.
@@ -51,12 +50,10 @@ type KnowledgeBaseQAServiceClient interface {
 	GetQAPairList(ctx context.Context, in *GetQAPairListReq, opts ...grpc.CallOption) (*GetQAPairListResp, error)
 	// 导入文档
 	ImportQAPair(ctx context.Context, in *ImportQAPairReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取问答库异步上传任务提示
+	GetQAImportTip(ctx context.Context, in *QAImportTipReq, opts ...grpc.CallOption) (*QAImportTipResp, error)
 	// 导出文档
 	ExportQAPair(ctx context.Context, in *ExportQAPairReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 获取导出记录列表
-	GetExportRecordList(ctx context.Context, in *GetExportRecordListReq, opts ...grpc.CallOption) (*GetExportRecordListResp, error)
-	// 删除导出记录
-	DeleteExportRecord(ctx context.Context, in *DeleteExportRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 问答库命中测试
 	KnowledgeQAHit(ctx context.Context, in *KnowledgeQAHitReq, opts ...grpc.CallOption) (*KnowledgeQAHitResp, error)
 }
@@ -139,30 +136,20 @@ func (c *knowledgeBaseQAServiceClient) ImportQAPair(ctx context.Context, in *Imp
 	return out, nil
 }
 
+func (c *knowledgeBaseQAServiceClient) GetQAImportTip(ctx context.Context, in *QAImportTipReq, opts ...grpc.CallOption) (*QAImportTipResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QAImportTipResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseQAService_GetQAImportTip_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *knowledgeBaseQAServiceClient) ExportQAPair(ctx context.Context, in *ExportQAPairReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, KnowledgeBaseQAService_ExportQAPair_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *knowledgeBaseQAServiceClient) GetExportRecordList(ctx context.Context, in *GetExportRecordListReq, opts ...grpc.CallOption) (*GetExportRecordListResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetExportRecordListResp)
-	err := c.cc.Invoke(ctx, KnowledgeBaseQAService_GetExportRecordList_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *knowledgeBaseQAServiceClient) DeleteExportRecord(ctx context.Context, in *DeleteExportRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, KnowledgeBaseQAService_DeleteExportRecord_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -197,12 +184,10 @@ type KnowledgeBaseQAServiceServer interface {
 	GetQAPairList(context.Context, *GetQAPairListReq) (*GetQAPairListResp, error)
 	// 导入文档
 	ImportQAPair(context.Context, *ImportQAPairReq) (*emptypb.Empty, error)
+	// 获取问答库异步上传任务提示
+	GetQAImportTip(context.Context, *QAImportTipReq) (*QAImportTipResp, error)
 	// 导出文档
 	ExportQAPair(context.Context, *ExportQAPairReq) (*emptypb.Empty, error)
-	// 获取导出记录列表
-	GetExportRecordList(context.Context, *GetExportRecordListReq) (*GetExportRecordListResp, error)
-	// 删除导出记录
-	DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error)
 	// 问答库命中测试
 	KnowledgeQAHit(context.Context, *KnowledgeQAHitReq) (*KnowledgeQAHitResp, error)
 	mustEmbedUnimplementedKnowledgeBaseQAServiceServer()
@@ -236,14 +221,11 @@ func (UnimplementedKnowledgeBaseQAServiceServer) GetQAPairList(context.Context, 
 func (UnimplementedKnowledgeBaseQAServiceServer) ImportQAPair(context.Context, *ImportQAPairReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportQAPair not implemented")
 }
+func (UnimplementedKnowledgeBaseQAServiceServer) GetQAImportTip(context.Context, *QAImportTipReq) (*QAImportTipResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQAImportTip not implemented")
+}
 func (UnimplementedKnowledgeBaseQAServiceServer) ExportQAPair(context.Context, *ExportQAPairReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExportQAPair not implemented")
-}
-func (UnimplementedKnowledgeBaseQAServiceServer) GetExportRecordList(context.Context, *GetExportRecordListReq) (*GetExportRecordListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetExportRecordList not implemented")
-}
-func (UnimplementedKnowledgeBaseQAServiceServer) DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteExportRecord not implemented")
 }
 func (UnimplementedKnowledgeBaseQAServiceServer) KnowledgeQAHit(context.Context, *KnowledgeQAHitReq) (*KnowledgeQAHitResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method KnowledgeQAHit not implemented")
@@ -396,6 +378,24 @@ func _KnowledgeBaseQAService_ImportQAPair_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseQAService_GetQAImportTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QAImportTipReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseQAServiceServer).GetQAImportTip(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseQAService_GetQAImportTip_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseQAServiceServer).GetQAImportTip(ctx, req.(*QAImportTipReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KnowledgeBaseQAService_ExportQAPair_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExportQAPairReq)
 	if err := dec(in); err != nil {
@@ -410,42 +410,6 @@ func _KnowledgeBaseQAService_ExportQAPair_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KnowledgeBaseQAServiceServer).ExportQAPair(ctx, req.(*ExportQAPairReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _KnowledgeBaseQAService_GetExportRecordList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetExportRecordListReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(KnowledgeBaseQAServiceServer).GetExportRecordList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: KnowledgeBaseQAService_GetExportRecordList_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KnowledgeBaseQAServiceServer).GetExportRecordList(ctx, req.(*GetExportRecordListReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _KnowledgeBaseQAService_DeleteExportRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteExportRecordReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(KnowledgeBaseQAServiceServer).DeleteExportRecord(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: KnowledgeBaseQAService_DeleteExportRecord_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KnowledgeBaseQAServiceServer).DeleteExportRecord(ctx, req.(*DeleteExportRecordReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -504,16 +468,12 @@ var KnowledgeBaseQAService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _KnowledgeBaseQAService_ImportQAPair_Handler,
 		},
 		{
+			MethodName: "GetQAImportTip",
+			Handler:    _KnowledgeBaseQAService_GetQAImportTip_Handler,
+		},
+		{
 			MethodName: "ExportQAPair",
 			Handler:    _KnowledgeBaseQAService_ExportQAPair_Handler,
-		},
-		{
-			MethodName: "GetExportRecordList",
-			Handler:    _KnowledgeBaseQAService_GetExportRecordList_Handler,
-		},
-		{
-			MethodName: "DeleteExportRecord",
-			Handler:    _KnowledgeBaseQAService_DeleteExportRecord_Handler,
 		},
 		{
 			MethodName: "KnowledgeQAHit",

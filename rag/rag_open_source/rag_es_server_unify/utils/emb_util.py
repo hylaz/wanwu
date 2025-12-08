@@ -37,6 +37,7 @@ def get_embs(texts: list, embedding_model_id=""):
     other_error_wait = 0.5  # 每次0.5s
 
     attempt = 0
+    last_error = None
     while attempt < max(len(rate_limit_backoff), other_error_max_retries) + 1:
         try:
             # 记录请求开始时间
@@ -81,6 +82,7 @@ def get_embs(texts: list, embedding_model_id=""):
         except Exception as e:
             # 增强错误日志
             error_details = f"Error: {type(e).__name__} - {str(e)}"
+            last_error = error_details
 
             # 尝试获取OpenAI错误详情
             if hasattr(e, 'response'):
@@ -116,7 +118,7 @@ def get_embs(texts: list, embedding_model_id=""):
                     break
 
     # 最终错误处理
-    raise RuntimeError(f"Failed to get embeddings after retries. Model config: {emb_info}")
+    raise RuntimeError(f"Failed to get embeddings after retries. Model config: {emb_info}, last error: {last_error}")
 
 
 def calculate_cosine(query, contents, embedding_model_id="") -> list[float]:

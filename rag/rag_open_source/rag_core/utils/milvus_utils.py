@@ -288,6 +288,9 @@ def add_milvus(user_id, kb_name, sub_chunk, add_file_name, add_file_path, kb_id=
                 "meta_data": chunk['meta_data']
             }
 
+            if "title" in chunk:
+                chunk_dict["title"] = chunk["title"]
+
             if "create_time" in chunk:
                 chunk_dict["create_time"] = chunk["create_time"]
 

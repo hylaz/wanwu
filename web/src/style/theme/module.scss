@@ -1,99 +1,115 @@
-.common-module-wrap{
-    width: 100%;
-    padding: 21px;
-    /*box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.1);*/
-    border-radius: 4px 4px 4px 4px;
-    margin-bottom: 26px;
-    .title{
-        //width: 96px;
-        height: 22px;
-        font-family: Microsoft YaHei, Microsoft YaHei;
-        font-weight: bold;
-        font-size: 16px;
-        color: $color_title;
-        line-height: 22px;
-        text-align: left;
-        font-style: normal;
-        text-transform: none;
-        margin: -7px 0 20px 6px;
-    }
-    .el-button.el-button--primary,
-    .el-button--primary.el-button--mini,
-    .el-button--default.el-button--mini {
-        box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.1);
-        border-radius: 4px;
-    }
+.common-module-wrap {
+  width: 100%;
+  padding: 21px;
+  /*box-shadow: 0px 3px 8px 0px rgba(0,0,0,0.1);*/
+  border-radius: 4px 4px 4px 4px;
+  margin-bottom: 26px;
+
+  .title {
+    //width: 96px;
+    height: 22px;
+    font-family:
+      Microsoft YaHei,
+      Microsoft YaHei;
+    font-weight: bold;
+    font-size: 16px;
+    color: $color_title;
+    line-height: 22px;
+    text-align: left;
+    font-style: normal;
+    text-transform: none;
+    margin: -7px 0 20px 6px;
+  }
+
+  .el-button.el-button--primary,
+  .el-button--primary.el-button--mini,
+  .el-button--default.el-button--mini {
+    box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
 }
 
 .hide-loading-bg {
-    .el-loading-mask {
-        background: none;
-    }
+  .el-loading-mask {
+    background: none;
+  }
 }
 
 .tooltip-cover-arrow .popper__arrow,
 .el-tooltip__popper .popper__arrow {
-    border-width: 7px;
+  border-width: 7px;
 }
 
-.list-common{
-    .con_search{
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+.list-common {
+  .con_search {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .refresh-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    background: #ffffff;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #dddddd;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .el-pagination {
+    text-align: right;
+    float: none !important;
+
+    .el-pagination__total {
+      float: left;
+      color: #425466;
     }
-    .refresh-icon{
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        background: #FFFFFF;
-        border-radius: 4px 4px 4px 4px;
-        border: 1px solid #DDDDDD;
-        justify-content: center;
-        align-items: center;
+
+    .el-pager li {
+      margin: 0 0 0 8px;
+      min-width: 28px;
+      border-radius: 4px;
+      color: #425466 !important;
+      //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
     }
-    .el-pagination{
-        text-align: right;
-        float: none !important;
-        .el-pagination__total{
-            float: left;
-            color: #425466;
-        }
-        .el-pager li{
-            margin: 0 0 0 8px;
-            min-width: 28px;
-            border-radius: 4px;
-            color: #425466 !important;
-            //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
-        }
-        .btn-prev,.btn-next{
-            width: 28px;
-            border-radius: 4px;
-            min-width: 28px;
-            //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
-        }
-        .btn-next{
-            margin-left: 8px;
-            padding-left: 8px;
-        }
-        .el-input__inner{
-            color: #425466;
-            //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
-        }
-        .el-pagination__jump {
-            color: #425466;
-        }
+
+    .btn-prev,
+    .btn-next {
+      width: 28px;
+      border-radius: 4px;
+      min-width: 28px;
+      //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
     }
-    .el-table th.el-table__cell .cell{
-        font-family: Abhaya Libre ExtraBold, Abhaya Libre ExtraBold;
-        font-weight: 400;
-        font-size: 13px;
-        color: $txt_color;
+
+    .btn-next {
+      margin-left: 8px;
+      padding-left: 8px;
     }
+
+    .el-input__inner {
+      color: #425466;
+      //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
+    }
+
+    .el-pagination__jump {
+      color: #425466;
+    }
+  }
+
+  .el-table th.el-table__cell .cell {
+    font-family:
+      Abhaya Libre ExtraBold,
+      Abhaya Libre ExtraBold;
+    font-weight: 400;
+    font-size: 13px;
+    color: $txt_color;
+  }
 }
 
-.wrap-fullheight{
-    height: 100%;
-    margin-bottom:0;
+.wrap-fullheight {
+  height: 100%;
+  margin-bottom: 0;
 }

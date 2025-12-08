@@ -654,17 +654,23 @@ def get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk
             logger.info('useful_list is None 重排结果：' + json.dumps(repr(response_info),ensure_ascii=False))
             return response_info
 
+
         if rerank_mod == "rerank_model":
             documents = [{"text": item["snippet"]} for item in vector_text_search_list]
-            sorted_scores, sorted_search_list = rerank_utils.get_model_rerank(question, top_k,
-                                                                              documents,
-                                                                              vector_text_search_list,
-                                                                              rerank_model_id)
+            rerank_result = rerank_utils.get_model_rerank(question, top_k,
+                                                          documents,
+                                                          vector_text_search_list,
+                                                          rerank_model_id)
         elif rerank_mod == "weighted_score":
-            sorted_scores, sorted_search_list = es_utils.get_weighted_rerank(question, weights,
-                                                                             vector_text_search_list, top_k)
+            rerank_result = es_utils.get_weighted_rerank(question, weights,
+                                                         vector_text_search_list, top_k)
         else:
             raise Exception("rerank_mod is not valid")
+        if rerank_result["code"] != 0:
+            logger.warn(f"rerank failed, rerank method: {rerank_mod}, rerank result: {rerank_result}")
+            raise RuntimeError(rerank_result["message"])
+        sorted_scores = rerank_result['data']["sorted_scores"]
+        sorted_search_list = rerank_result['data']["sorted_search_list"]
 
 
         # ========= 标签召回的结果需要置顶到最前面---去重并取topK start =========
@@ -710,10 +716,10 @@ def get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk
             sorted_search_list = new_search_list[:top_k]
             sorted_scores = new_scores[:top_k]
 
-        rerank_result = rerank_utils.rerank_search(question, sorted_scores, sorted_search_list, rate, return_meta,
-                                                   prompt_template, default_answer, auto_citation)
+        response_info = rerank_utils.assemble_search_result(question, sorted_scores, sorted_search_list, rate, return_meta,
+                                                            prompt_template, default_answer, auto_citation)
 
-        response_info = replace_minio_ip(rerank_result)
+        response_info = replace_minio_ip(response_info)
         logger.info('重排结果：' + repr(response_info))
 
         if response_info['code'] != 0:

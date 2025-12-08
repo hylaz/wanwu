@@ -1,0 +1,47 @@
+{
+    "api_schema": {
+        "info": {
+            "description": "用于解析并回答用户上传的docx、txt、xlsx各种类型文件内容的问题",
+            "title": "chatdoc",
+            "version": "1.0.0"
+        },
+        "openapi": "3.0.0",
+        "paths": {
+            "/v1/doc_pra": {
+                "post": {
+                    "description": "用于解析并回答用户上传的docx、txt、xlsx各种类型文件内容的问题",
+                    "summary": "chatdoc",
+                    "operationId": "chatdoc",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "query": {
+                                            "description": "用户提出的问题",
+                                            "type": "string"
+                                        },
+                                        "upload_file_url": {
+                                            "description": "文件下载链接",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "query",
+                                        "upload_file_url"
+                                    ],
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "servers": [
+            {
+                "url": "%s"
+            }
+        ]
+    }
+}

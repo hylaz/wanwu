@@ -3,25 +3,48 @@
     <div class="app-header">
       <div class="header-top">
         <div class="taglist_warp">
-          <div v-for="item in tagList" class="tagList" @click="handleTagClick(item)"
-               :class="{'white':item.value === active}">
-            <img :src="item.value === active ? item.activeImg : item.unactiveImg" class="h-icon"/>
+          <div
+            v-for="item in tagList"
+            class="tagList"
+            @click="handleTagClick(item)"
+            :class="{ white: item.value === active }"
+          >
+            <img
+              :src="item.value === active ? item.activeImg : item.unactiveImg"
+              class="h-icon"
+            />
             <span>{{ item.name }}</span>
           </div>
         </div>
-        <SearchInput :placeholder="placeholder" style="width:200px;" @handleSearch="handleSearch"/>
+        <SearchInput
+          :placeholder="placeholder"
+          style="width: 200px"
+          @handleSearch="handleSearch"
+        />
       </div>
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane :label="$t('menu.app.agent')" name="agent">
-            <AppList :appData="listData" :isShowTool="false" :appFrom="'explore'"/>
+            <AppList
+              :appData="listData"
+              :isShowTool="false"
+              :appFrom="'explore'"
+            />
           </el-tab-pane>
           <el-tab-pane :label="$t('menu.app.rag')" name="rag">
-            <AppList :appData="listData" :isShowTool="false" :appFrom="'explore'"/>
+            <AppList
+              :appData="listData"
+              :isShowTool="false"
+              :appFrom="'explore'"
+            />
           </el-tab-pane>
-          <!--<el-tab-pane :label="$t('menu.app.workflow')" name="workflow">
-            <AppList :appData="listData" :isShowTool="false" :appFrom="'explore'" />
-          </el-tab-pane>-->
+          <el-tab-pane :label="$t('menu.app.workflow')" name="workflow">
+            <AppList
+              :appData="listData"
+              :isShowTool="false"
+              :appFrom="'explore'"
+            />
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -29,13 +52,13 @@
 </template>
 
 <script>
-import SearchInput from "@/components/searchInput.vue"
-import AppList from "@/components/appList.vue"
-import CreateTotalDialog from "@/components/createTotalDialog.vue"
-import {getExplorList} from "@/api/explore"
+import SearchInput from '@/components/searchInput.vue';
+import AppList from '@/components/appList.vue';
+import CreateTotalDialog from '@/components/createTotalDialog.vue';
+import { getExplorList } from '@/api/explore';
 
 export default {
-  components: {SearchInput, CreateTotalDialog, AppList},
+  components: { SearchInput, CreateTotalDialog, AppList },
   data() {
     return {
       placeholder: this.$t('explore.hint'),
@@ -48,30 +71,30 @@ export default {
           name: this.$t('explore.tag.all'),
           value: 'all',
           activeImg: require('@/assets/imgs/all_active.svg'),
-          unactiveImg: require('@/assets/imgs/all_unactive.svg')
+          unactiveImg: require('@/assets/imgs/all_unactive.svg'),
         },
         {
           name: this.$t('explore.tag.favorite'),
           value: 'favorite',
           activeImg: require('@/assets/imgs/mine_active.svg'),
-          unactiveImg: require('@/assets/imgs/mine_unactive.svg')
+          unactiveImg: require('@/assets/imgs/mine_unactive.svg'),
         },
         {
           name: this.$t('explore.tag.private'),
           value: 'private',
           activeImg: require('@/assets/imgs/start_active.svg'),
-          unactiveImg: require('@/assets/imgs/start_unactive.svg')
+          unactiveImg: require('@/assets/imgs/start_unactive.svg'),
         },
         {
           name: this.$t('explore.tag.history'),
           value: 'history',
           activeImg: require('@/assets/imgs/history_active.svg'),
-          unactiveImg: require('@/assets/imgs/history_unactive.svg')
-        }
+          unactiveImg: require('@/assets/imgs/history_unactive.svg'),
+        },
       ],
       historyList: [],
-      listData: []
-    }
+      listData: [],
+    };
   },
   watch: {
     historyAppList: {
@@ -79,42 +102,43 @@ export default {
         if (val) {
           this.historyList = val;
         }
-      }
-    }
+      },
+    },
   },
   created() {
-    this.getExplorData(this.activeName, this.active)
+    this.getExplorData(this.activeName, this.active);
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     handleSearch(value) {
       this.searchValue = value;
-      this.getExplorData(this.activeName, this.active)
+      this.getExplorData(this.activeName, this.active);
     },
     historyClick(n) {
       if (!n.path) return;
-      this.$router.push({path: n.path});
+      this.$router.push({ path: n.path });
     },
     handleClick() {
-      this.getExplorData(this.activeName, this.active)
+      this.getExplorData(this.activeName, this.active);
     },
     handleTagClick(item) {
-      this.active = item.value
-      this.getExplorData(this.activeName, this.active)
+      this.active = item.value;
+      this.getExplorData(this.activeName, this.active);
     },
     getExplorData(appType, searchType) {
-      const data = {name: this.searchValue, appType, searchType}
-      getExplorList(data).then(res => {
-        if (res.code === 0) {
-          this.listData = res.data.list || []
-        }
-      }).catch((err) => {
-        this.$message.error(err)
-      })
-    }
-  }
-}
+      const data = { name: this.searchValue, appType, searchType };
+      getExplorList(data)
+        .then(res => {
+          if (res.code === 0) {
+            this.listData = res.data.list || [];
+          }
+        })
+        .catch(err => {
+          this.$message.error(err);
+        });
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 /deep/ {

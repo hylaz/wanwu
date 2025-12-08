@@ -7,45 +7,48 @@
     :close-on-click-modal="false"
     :before-close="handleClose"
   >
-    <div class="link-text" @click="handleDownload">{{$t('docDownload.name')}}</div>
+    <div class="link-text" @click="handleDownload">
+      {{ $t('docDownload.name') }}
+    </div>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="handleDownload">{{$t('common.button.confirm')}}</el-button>
+      <el-button type="primary" @click="handleDownload">
+        {{ $t('common.button.confirm') }}
+      </el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
-import { docDownload } from "@/api/user"
-import {avatarSrc} from "@/utils/util";
+import { docDownload } from '@/api/user';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   data() {
     return {
       dialogVisible: false,
-    }
+    };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     openDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     handleDownload() {
       docDownload().then(res => {
         if (!(res.data && res.data.docCenterPath)) {
-          this.$message.error(res.msg || '暂无下载路径')
-          return
+          this.$message.error(res.msg || '暂无下载路径');
+          return;
         }
-        const url = window.location.origin + avatarSrc(res.data.docCenterPath)
-        window.open(url)
-        this.handleClose()
-      })
-    }
-  }
-}
+        const url = window.location.origin + avatarSrc(res.data.docCenterPath);
+        window.open(url);
+        this.handleClose();
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

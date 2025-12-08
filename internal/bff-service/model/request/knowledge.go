@@ -169,6 +169,7 @@ type RagSearchKnowledgeBaseReq struct {
 	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	AutoCitation         bool                           `json:"auto_citation"`                 // 是否启动知识图谱查询
 	CommonCheck
 }
 

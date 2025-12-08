@@ -22,12 +22,13 @@ import (
 func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (*response.DocPageResult, error) {
 	resp, err := knowledgeBaseDoc.GetDocList(ctx.Request.Context(), &knowledgebase_doc_service.GetDocListReq{
 		KnowledgeId: r.KnowledgeId,
-		DocName:     r.DocName,
+		DocName:     strings.TrimSpace(r.DocName),
 		Status:      int32(r.Status),
 		PageSize:    int32(r.PageSize),
 		PageNum:     int32(r.PageNo),
 		UserId:      userId,
 		OrgId:       orgId,
+		MetaValue:   strings.TrimSpace(r.MetaValue),
 	})
 	if err != nil {
 		return nil, err
@@ -482,6 +483,21 @@ func GetDocChildSegmentList(ctx *gin.Context, userId, orgId string, req *request
 		return nil, err
 	}
 	return buildDocChildSegmentResp(docSegmentListResp), err
+}
+
+// ExportKnowledgeDoc 导出文档
+func ExportKnowledgeDoc(ctx *gin.Context, userId, orgId string, req *request.KnowledgeDocExportReq) error {
+	_, err := knowledgeBaseDoc.ExportDoc(ctx.Request.Context(), &knowledgebase_doc_service.ExportDocReq{
+		UserId:      userId,
+		OrgId:       orgId,
+		KnowledgeId: req.KnowledgeId,
+		DocIdList:   req.DocIdList,
+	})
+	if err != nil {
+		log.Errorf("导出失败(保存导出任务 失败(%v) ", err)
+		return err
+	}
+	return nil
 }
 
 func buildMetaInfoList(req *request.DocImportReq) []*knowledgebase_doc_service.DocMetaData {

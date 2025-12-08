@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
@@ -131,13 +132,13 @@ func exportKnowledgeQAPair(ctx context.Context, taskCtx string) Result {
 	}
 
 	//1.查询问答库导出任务
-	task, err := orm.SelectKnowledgeQAPairExportTaskById(ctx, params.TaskId)
+	task, err := orm.SelectKnowledgeExportTaskById(ctx, params.TaskId)
 	if err != nil {
 		return Result{Error: err}
 	}
 
 	//2.更新状态处理中
-	err = orm.UpdateKnowledgeQAPairExportTask(ctx, params.TaskId, model.KnowledgeQAPairExportExporting, "", 0, 0, "", 0)
+	err = orm.UpdateKnowledgeExportTask(ctx, params.TaskId, model.KnowledgeExportExporting, "", 0, 0, "", 0)
 	if err != nil {
 		log.Errorf("UpdateQAPairExportTaskStatus err: %s", err)
 		return Result{Error: err}
@@ -153,7 +154,7 @@ func exportKnowledgeQAPair(ctx context.Context, taskCtx string) Result {
 }
 
 // PrintPanicStackWithCall 执行文件导出
-func doKnowledgeQAPairExport(ctx context.Context, exportTask *model.KnowledgeQAPairExportTask) (lineCount int64, successCount int64, err error) {
+func doKnowledgeQAPairExport(ctx context.Context, exportTask *model.KnowledgeExportTask) (lineCount int64, successCount int64, err error) {
 	filePath := ""
 	fileSize := int64(0)
 	defer util.PrintPanicStackWithCall(func(panicOccur bool, err2 error) {
@@ -161,18 +162,18 @@ func doKnowledgeQAPairExport(ctx context.Context, exportTask *model.KnowledgeQAP
 			log.Errorf("do knowledge qa pair export task panic: %v", err2)
 			err = fmt.Errorf("文件导出异常")
 		}
-		var status = model.KnowledgeQAPairExportSuccess
+		var status = model.KnowledgeExportSuccess
 		var errMsg string
 		if err != nil {
-			status = model.KnowledgeQAPairExportFail
+			status = model.KnowledgeExportFail
 			errMsg = err.Error()
 		}
 		if lineCount == 0 {
-			status = model.KnowledgeQAPairExportFail
+			status = model.KnowledgeExportFail
 			errMsg = "文件所有行全部处理失败"
 		}
 		//更新状态和数量
-		err = orm.UpdateKnowledgeQAPairExportTask(ctx, exportTask.ExportId, status, errMsg, lineCount, successCount, filePath, fileSize)
+		err = orm.UpdateKnowledgeExportTask(ctx, exportTask.ExportId, status, errMsg, lineCount, successCount, filePath, fileSize)
 	})
 	lineCount, successCount, filePath, fileSize, err = exportCsvFile(ctx, exportTask.KnowledgeId)
 	if err != nil {
@@ -215,7 +216,7 @@ func exportCsvFile(ctx context.Context, knowledgeId string) (int64, int64, strin
 	var lineCount, successCount, batchNo int64 = 0, 0, 0
 	for {
 		batchNo++
-		qaPairs, total, err := orm.GetQAPairList(ctx, "", "", knowledgeId, "", model.KnowledgeQAPairExportSuccess, exportBatchSize, int32(batchNo))
+		qaPairs, total, err := orm.GetQAPairList(ctx, "", "", knowledgeId, "", model.KnowledgeExportSuccess, nil, exportBatchSize, int32(batchNo))
 		if err != nil {
 			return 0, 0, "", 0, err
 		}
@@ -233,8 +234,9 @@ func exportCsvFile(ctx context.Context, knowledgeId string) (int64, int64, strin
 		}
 		successCount += int64(len(records))
 	}
-	dir := config.GetConfig().Minio.KnowledgeExportDir
-	bucketName := config.GetConfig().Minio.PublicRagBucket
+	currentDate := time.Now().Format("2006-01-02")
+	dir := config.GetConfig().Minio.QAExportDir + "/" + currentDate
+	bucketName := config.GetConfig().Minio.PublicExportBucket
 	_, minioFilePath, fileSize, err := service.UploadLocalFile(ctx, dir, bucketName, filepath.Base(exportFilePath), exportFilePath)
 	if err != nil {
 		log.Errorf("upload file err: %v", err)

@@ -114,7 +114,7 @@ func registerTables(dbClient *gorm.DB) error {
 		model.KnowledgeReportImportTask{},
 		model.KnowledgeQAPair{},
 		model.KnowledgeQAPairImportTask{},
-		model.KnowledgeQAPairExportTask{},
+		model.KnowledgeExportTask{},
 	)
 	if err != nil {
 		fmt.Printf("register knowledge tables failed: %v", err)
@@ -126,7 +126,7 @@ func registerTables(dbClient *gorm.DB) error {
 
 // initData初始化数据
 func initData(dbClient *gorm.DB) error {
-	err := initDocMeta(dbClient)
+	err := initDocMetaKnowledgeId(dbClient)
 	if err != nil {
 		log.Errorf("init doc meta failed: %v", err)
 		return err
@@ -136,10 +136,15 @@ func initData(dbClient *gorm.DB) error {
 		log.Errorf("init knowledge permission failed: %v", err)
 		return err
 	}
+	err = initDocMetaValueMain(dbClient)
+	if err != nil {
+		log.Errorf("init doc meta failed: %v", err)
+		return err
+	}
 	return nil
 }
 
-func initDocMeta(dbClient *gorm.DB) error {
+func initDocMetaKnowledgeId(dbClient *gorm.DB) error {
 	var knowledgeDocMetaList []model.KnowledgeDocMeta
 	//数据量不会太大直接getAll
 	err := dbClient.Model(&model.KnowledgeDocMeta{}).Where("create_at <= ?", docMetaTimestampOld).Find(&knowledgeDocMetaList).Error
@@ -163,6 +168,33 @@ func initDocMeta(dbClient *gorm.DB) error {
 				}
 			}
 
+		}
+	}
+	return nil
+}
+
+func initDocMetaValueMain(dbClient *gorm.DB) error {
+	var knowledgeDocMetaList []model.KnowledgeDocMeta
+	err := dbClient.Model(&model.KnowledgeDocMeta{}).Where("value != ?", "").
+		Where("value_main = ?", "").
+		Find(&knowledgeDocMetaList).Error
+	if err != nil {
+		return err
+	}
+	if len(knowledgeDocMetaList) > 0 {
+		for _, meta := range knowledgeDocMetaList {
+			valueMain := meta.Value
+			runes := []rune(valueMain) // 按Unicode字符拆分
+			if len(runes) > 128 {
+				valueMain = string(runes[:128])
+			}
+			err := dbClient.Model(&model.KnowledgeDocMeta{}).
+				Where("id = ?", meta.Id).
+				Update("value_main", valueMain).Error
+			if err != nil {
+				log.Errorf("update DocMeta valueMain failed，id: %d, value:%s, err: %v", meta.Id, valueMain, err)
+				continue
+			}
 		}
 	}
 	return nil

@@ -8,7 +8,7 @@
     <el-form-item class="vertical-form-item">
       <template #label>
         <span v-if="!setType" class="vertical-form-title">
-          {{ $t("searchConfig.title") }}
+          {{ $t('searchConfig.title') }}
         </span>
       </template>
       <div
@@ -51,10 +51,10 @@
           >
             <el-col class="mixTypeRange-title">
               <span>
-                {{ $t("searchConfig.semantics") }}[{{ item.mixTypeRange }}]
+                {{ $t('searchConfig.semantics') }}[{{ item.mixTypeRange }}]
               </span>
               <span>
-                {{ $t("searchConfig.keyword") }}
+                {{ $t('searchConfig.keyword') }}
                 [{{ (1 - (item.mixTypeRange || 0)).toFixed(1) }}]
               </span>
             </el-col>
@@ -65,13 +65,12 @@
                 :step="0.1"
                 :max="1"
                 @change="rangeChage($event)"
-              >
-              </el-slider>
+              ></el-slider>
             </el-col>
           </el-row>
           <el-row v-if="showRerank(item)">
             <el-col>
-              <span class="content-name">{{ $t("searchConfig.rerank") }}</span>
+              <span class="content-name">{{ $t('searchConfig.rerank') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
@@ -98,8 +97,7 @@
                   :key="item.modelId"
                   :label="item.displayName"
                   :value="item.modelId"
-                >
-                </el-option>
+                ></el-option>
               </el-select>
             </el-col>
           </el-row>
@@ -122,13 +120,12 @@
                 :step="1"
                 v-model="formInline.knowledgeMatchParams.topK"
                 show-input
-              >
-              </el-slider>
+              ></el-slider>
             </el-col>
           </el-row>
           <el-row v-if="showHistory(item)">
             <el-col>
-              <span class="content-name">{{ $t("searchConfig.max") }}</span>
+              <span class="content-name">{{ $t('searchConfig.max') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
@@ -145,13 +142,12 @@
                 :step="1"
                 v-model="formInline.knowledgeMatchParams.maxHistory"
                 show-input
-              >
-              </el-slider>
+              ></el-slider>
             </el-col>
           </el-row>
           <el-row>
             <el-col>
-              <span class="content-name">{{ $t("searchConfig.score") }}</span>
+              <span class="content-name">{{ $t('searchConfig.score') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
@@ -168,8 +164,7 @@
                 :step="0.1"
                 v-model="formInline.knowledgeMatchParams.threshold"
                 show-input
-              >
-              </el-slider>
+              ></el-slider>
             </el-col>
           </el-row>
         </div>
@@ -178,18 +173,17 @@
     <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
       <template #label>
         <span class="graph-switch-title">
-          {{ $t("knowledgeManage.graph.useGraph") }}
+          {{ $t('knowledgeManage.graph.useGraph') }}
         </span>
       </template>
-      <el-switch v-model="formInline.knowledgeMatchParams.useGraph">
-      </el-switch>
+      <el-switch v-model="formInline.knowledgeMatchParams.useGraph"></el-switch>
     </el-form-item>
   </el-form>
 </template>
 <script>
-import { getRerankList } from "@/api/modelAccess";
+import { getRerankList } from '@/api/modelAccess';
 export default {
-  props: ["setType", "config", "showGraphSwitch","category"],
+  props: ['setType', 'config', 'showGraphSwitch', 'category'],
   data() {
     return {
       debounceTimer: null,
@@ -199,55 +193,56 @@ export default {
       formInline: {
         knowledgeMatchParams: {
           keywordPriority: 0.8, //关键词权重
-          matchType: "", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
-          priorityMatch:this.category && this.category === 1 ? 0 : 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
-          rerankModelId: "", //rerank模型id
+          matchType: '', //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+          priorityMatch: this.category && this.category === 1 ? 0 : 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+          rerankModelId: '', //rerank模型id
           threshold: 0.4, //过滤分数阈值
           semanticsPriority: 0.2, //语义权重
           topK: 5, //topK 获取最高的几行
           maxHistory: 0, //最长上下文
           useGraph: false, //是否使用图谱
-          chiChat:false,//是否开启闲聊模式
+          chiChat: false, //是否开启闲聊模式
         },
       },
       initialEditForm: null,
       searchTypeData: [
         {
-          name: this.$t("searchConfig.vector"),
-          value: "vector",
-          desc: this.$t("searchConfig.vectorHint"),
-          icon: "el-icon-menu",
+          name: this.$t('searchConfig.vector'),
+          value: 'vector',
+          desc: this.$t('searchConfig.vectorHint'),
+          icon: 'el-icon-menu',
           isWeight: false,
           showContent: false,
         },
         {
-          name: this.$t("searchConfig.fullText"),
-          value: "text",
-          desc: this.$t("searchConfig.fullTextHint"),
-          icon: "el-icon-document",
+          name: this.$t('searchConfig.fullText'),
+          value: 'text',
+          desc: this.$t('searchConfig.fullTextHint'),
+          icon: 'el-icon-document',
           isWeight: false,
           showContent: false,
         },
         {
-          name: this.$t("searchConfig.mixed"),
-          value: "mix",
-          desc: this.$t("searchConfig.mixedHint"),
-          icon: "el-icon-s-grid",
+          name: this.$t('searchConfig.mixed'),
+          value: 'mix',
+          desc: this.$t('searchConfig.mixedHint'),
+          icon: 'el-icon-s-grid',
           isWeight: true,
-          Weight: "",
-          mixTypeValue: this.category && this.category === 1 ? "rerank" : "weight",
+          Weight: '',
+          mixTypeValue:
+            this.category && this.category === 1 ? 'rerank' : 'weight',
           showContent: false,
           mixTypeRange: 0.2,
           mixType: [
             {
-              name: this.$t("searchConfig.weight"),
-              value: "weight",
-              desc: this.$t("searchConfig.weightHint"),
+              name: this.$t('searchConfig.weight'),
+              value: 'weight',
+              desc: this.$t('searchConfig.weightHint'),
             },
             {
-              name: this.$t("searchConfig.rerank"),
-              value: "rerank",
-              desc: this.$t("searchConfig.rerankHint"),
+              name: this.$t('searchConfig.rerank'),
+              value: 'rerank',
+              desc: this.$t('searchConfig.rerankHint'),
             },
           ],
         },
@@ -266,8 +261,8 @@ export default {
           clearTimeout(this.debounceTimer);
         }
         this.debounceTimer = setTimeout(() => {
-          const props = ["knowledgeMatchParams"];
-          const changed = props.some((prop) => {
+          const props = ['knowledgeMatchParams'];
+          const changed = props.some(prop => {
             return (
               JSON.stringify(newVal[prop]) !==
               JSON.stringify((this.initialEditForm || {})[prop])
@@ -277,7 +272,8 @@ export default {
             if (!this.setType) {
               delete this.formInline.knowledgeMatchParams.maxHistory;
             }
-            this.$emit("sendConfigInfo", this.formInline);
+            const payload = JSON.parse(JSON.stringify(this.formInline));
+            this.$emit('sendConfigInfo', payload);
           }
         }, 200);
       },
@@ -287,23 +283,26 @@ export default {
     config: {
       handler(newVal) {
         if (newVal && Object.keys(newVal).length > 0) {
-          this.isSettingFromConfig = true; // 设置标志位
-          const formData = JSON.parse(JSON.stringify(newVal));
+          this.isSettingFromConfig = true;
+          const params = newVal.knowledgeMatchParams || newVal;
+          const formData = JSON.parse(JSON.stringify(params));
           this.formInline.knowledgeMatchParams = formData;
           const { matchType, priorityMatch } =
             this.formInline.knowledgeMatchParams;
-          if (matchType !== "") {
-            this.searchTypeData = this.searchTypeData.map((item) => ({
+          if (matchType !== '') {
+            this.searchTypeData = this.searchTypeData.map(item => ({
               ...item,
+              ...(this.hasMixTypeRange(item, 'mixTypeRange') && {
+                mixTypeRange: formData.semanticsPriority || 0.2,
+              }),
               showContent: item.value === matchType ? true : false,
             }));
-            if (matchType === "mix") {
-              this.searchTypeData[2]["mixTypeValue"] =
-                priorityMatch === 1 ? "weight" : "rerank";
+            if (matchType === 'mix') {
+              this.searchTypeData[2]['mixTypeValue'] =
+                priorityMatch === 1 ? 'weight' : 'rerank';
             }
           }
 
-          // 使用nextTick确保DOM更新完成后再重置标志位
           this.$nextTick(() => {
             this.isSettingFromConfig = false;
           });
@@ -323,7 +322,10 @@ export default {
     this.getRerankData();
   },
   methods: {
-    filteredMixType(item){
+    hasMixTypeRange(item, key) {
+      return Object.prototype.hasOwnProperty.call(item, key);
+    },
+    filteredMixType(item) {
       if (this.category && this.category === 1) {
         return item.mixType.filter((_, idx) => idx !== 0);
       }
@@ -331,40 +333,44 @@ export default {
     },
     rangeChage(val) {
       this.formInline.knowledgeMatchParams.keywordPriority = Number(
-        (1 - (val || 0)).toFixed(1)
+        (1 - (val || 0)).toFixed(1),
       );
       this.formInline.knowledgeMatchParams.semanticsPriority = val;
     },
     mixTypeClick(item, n) {
       item.mixTypeValue = n.value;
       const { knowledgeMatchParams } = this.formInline;
-      knowledgeMatchParams.priorityMatch = n.value === "weight" ? 1 : 0;
+      knowledgeMatchParams.priorityMatch = n.value === 'weight' ? 1 : 0;
     },
     showRerank(n) {
       return (
-        n.value === "vector" ||
-        n.value === "text" ||
-        (n.value === "mix" && n.mixTypeValue === "rerank")
+        n.value === 'vector' ||
+        n.value === 'text' ||
+        (n.value === 'mix' && n.mixTypeValue === 'rerank')
       );
     },
     showHistory(n) {
       return (
-        (this.setType === "rag" || this.setType === "agent") &&
-        (n.value === "vector" || n.value === "text" || n.value === "mix") //&& n.mixTypeValue === "rerank"
+        (this.setType === 'rag' || this.setType === 'agent') &&
+        (n.value === 'vector' || n.value === 'text' || n.value === 'mix') //&& n.mixTypeValue === "rerank"
       );
     },
     clickSearch(n) {
       this.formInline.knowledgeMatchParams.matchType = n.value;
-      this.searchTypeData = this.searchTypeData.map((item) => ({
+      this.searchTypeData = this.searchTypeData.map(item => ({
         ...item,
         showContent: item.value === n.value ? !item.showContent : false,
       }));
-      this.formInline.knowledgeMatchParams.priorityMatch =
-        n.value !== "mix" ? 0 : 1;
+      if (this.category === 0) {
+        this.formInline.knowledgeMatchParams.priorityMatch =
+          n.value !== 'mix' ? 0 : 1;
+      } else {
+        this.formInline.knowledgeMatchParams.priorityMatch = 0;
+      }
       this.clear();
     },
     clear() {
-      this.formInline.knowledgeMatchParams.rerankModelId = "";
+      this.formInline.knowledgeMatchParams.rerankModelId = '';
       this.formInline.knowledgeMatchParams.keywordPriority = 0.8;
       this.formInline.knowledgeMatchParams.semanticsPriority = 0.2;
       this.formInline.knowledgeMatchParams.threshold = 0.4;
@@ -373,7 +379,7 @@ export default {
     getRerankData() {
       this.rerankLoading = true;
       getRerankList()
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.rerankOptions = res.data.list || [];
           }
@@ -392,9 +398,10 @@ export default {
       if (!this.setType) {
         const formData = JSON.parse(JSON.stringify(this.formInline));
         delete formData.knowledgeMatchParams.maxHistory;
-        this.$emit("sendConfigInfo", formData);
+        this.$emit('sendConfigInfo', formData);
       } else {
-        this.$emit("sendConfigInfo", this.formInline);
+        const payload = JSON.parse(JSON.stringify(this.formInline));
+        this.$emit('sendConfigInfo', payload);
       }
     },
   },
@@ -492,6 +499,7 @@ export default {
         .weightType {
           border: 1px solid #c0c4cc;
           border-radius: 4px;
+          flex: 1 1 220px;
           .weightType-name {
             text-align: center;
             font-weight: bold;

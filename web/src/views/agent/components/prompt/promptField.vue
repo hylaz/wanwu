@@ -7,8 +7,8 @@
             <h3>
               {{
                 fieldIndex === 0
-                  ? $t("agent.form.systemPrompt")
-                  : $t("tempSquare.comparePrompt")
+                  ? $t('agent.form.systemPrompt')
+                  : $t('tempSquare.comparePrompt')
               }}
             </h3>
             <el-button
@@ -17,11 +17,11 @@
               @click="handleSelectPrompt"
             >
               <span v-if="!isSelected">
-                <span>{{ $t("tempSquare.select") }}</span>
+                <span>{{ $t('tempSquare.select') }}</span>
               </span>
               <span v-else>
                 <i class="el-icon-check" style="margin-right: 4px"></i>
-                <span>{{ $t("tempSquare.selected") }}</span>
+                <span>{{ $t('tempSquare.selected') }}</span>
               </span>
             </el-button>
           </div>
@@ -107,13 +107,13 @@
 </template>
 
 <script>
-import Prologue from "../Prologue.vue";
-import SessionComponentSe from "../SessionComponentSe.vue";
-import PromptOptimize from "@/components/promptOptimize.vue";
-import createPrompt from "@/components/createApp/createPrompt.vue";
-import sseMethodMixin from "@/mixins/sseMethod";
+import Prologue from '../Prologue.vue';
+import SessionComponentSe from '../SessionComponentSe.vue';
+import PromptOptimize from '@/components/promptOptimize.vue';
+import createPrompt from '@/components/createApp/createPrompt.vue';
+import sseMethodMixin from '@/mixins/sseMethod';
 export default {
-  name: "PromptCompareField",
+  name: 'PromptCompareField',
   mixins: [sseMethodMixin],
   inject: {
     getEditableRef: {
@@ -166,24 +166,24 @@ export default {
   data() {
     return {
       showRecommendQuestion: false,
-      promptType: "create",
-      sessionItemWidth: "19vw",
-      systemPrompt: "",
+      promptType: 'create',
+      sessionItemWidth: '19vw',
+      systemPrompt: '',
       echo: true,
-      type: "agentChat",
-      fieldId: "prompt-field-" + this._uid, //区分提示词对比每个字段的会话id
+      type: 'agentChat',
+      fieldId: 'prompt-field-' + this._uid, //区分提示词对比每个字段的会话id
     };
   },
   mounted() {
     const currentSession = this.$refs.sessionComLocal;
     if (currentSession) {
-      this.$refs["session-com"] = currentSession;
+      this.$refs['session-com'] = currentSession;
     }
   },
   methods: {
     preSend(promptText, fileList, file_info) {
       let sessionCom = this.$refs.sessionComLocal;
-      if (!sessionCom || typeof sessionCom.getList !== "function") return;
+      if (!sessionCom || typeof sessionCom.getList !== 'function') return;
 
       let historyList = sessionCom.getList();
       let lastIndex = Array.isArray(historyList) ? historyList.length : 0;
@@ -196,18 +196,18 @@ export default {
       this.isTestChat = true;
       this.setSseParams({
         assistantId: this.editForm && this.editForm.assistantId,
-        conversationId: "",
+        conversationId: '',
         fileInfo: fileInfo,
         systemPrompt: this.systemPrompt,
       });
       this.echo = false;
-      this.sendEventSource(promptText, "", lastIndex);
+      this.sendEventSource(promptText, '', lastIndex);
     },
     clearHistory() {
       this.stopEventSource();
       if (
         this.$refs.sessionComLocal &&
-        typeof this.$refs.sessionComLocal.clearData === "function"
+        typeof this.$refs.sessionComLocal.clearData === 'function'
       ) {
         this.$refs.sessionComLocal.clearData();
       }
@@ -217,35 +217,35 @@ export default {
     },
     showPromptOptimize() {
       if (!this.systemPrompt) {
-        this.$message.warning(this.$t("tempSquare.promptOptimizeHint"));
+        this.$message.warning(this.$t('tempSquare.promptOptimizeHint'));
         return;
       }
       this.$refs.promptOptimize.openDialog({ prompt: this.systemPrompt });
     },
     handleClosePrompt() {
-      this.$emit("closePrompt", this.fieldIndex);
+      this.$emit('closePrompt', this.fieldIndex);
     },
     promptSubmit(prompt) {
       this.systemPrompt = prompt;
     },
     handleSelectPrompt() {
-      this.$emit("selectField", this.fieldIndex);
+      this.$emit('selectField', this.fieldIndex);
       this.copy(this.systemPrompt) && this.copycb();
     },
     copy(text) {
-      text = text.replaceAll("<br/>", "\n");
-      let textareaEl = document.createElement("textarea");
-      textareaEl.setAttribute("readonly", "readonly");
+      text = text.replaceAll('<br/>', '\n');
+      let textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly');
       textareaEl.value = text;
       document.body.appendChild(textareaEl);
       textareaEl.select();
-      let res = document.execCommand("copy");
+      let res = document.execCommand('copy');
       document.body.removeChild(textareaEl);
       return res;
     },
     copycb() {
-      this.$message.success(this.$t("agent.copyTips"));
-    }
+      this.$message.success(this.$t('agent.copyTips'));
+    },
   },
 };
 </script>
@@ -360,4 +360,3 @@ export default {
   padding: 15px;
 }
 </style>
-

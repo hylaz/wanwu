@@ -1,92 +1,92 @@
-import { PERMS } from "@/router/permission"
-import { i18n } from '@/lang'
+import { PERMS } from '@/router/permission';
+import { i18n } from '@/lang';
 
 export const menuList = [
-    {
-        name: i18n.t('menu.modelAccess'),
-        key: 'modelAccess',
-        img: require('@/assets/imgs/model.svg'),
-        imgActive: require('@/assets/imgs/model_active.svg'),
-        path: '/modelAccess',
-        perm: PERMS.MODEL,
-    },
-    {
-        name: i18n.t('menu.knowledge'),
-        key: 'knowledge',
-        img: require('@/assets/imgs/knowledge.svg'),
-        imgActive: require('@/assets/imgs/knowledge_active.svg'),
-        path: '/knowledge',
-        perm: PERMS.KNOWLEDGE,
-    },
-    {
-        name: i18n.t('menu.tool'),
-        key: 'tool',
-        img: require('@/assets/imgs/tool.svg'),
-        imgActive: require('@/assets/imgs/tool_active.svg'),
-        path: '/tool',
-        perm: PERMS.TOOL,
-    },
-    {
-        name: i18n.t('menu.safetyGuard'),
-        key: 'safetyGuard',
-        img: require('@/assets/imgs/safety.svg'),
-        imgActive: require('@/assets/imgs/safety_active.svg'),
-        path: '/safety',
-        perm: PERMS.SAFETY,
-    },
-    {
-        key: 'line',
-        perm: [PERMS.MODEL, PERMS.KNOWLEDGE, PERMS.TOOL]
-    },
-    {
-        name: i18n.t('menu.app.rag'),
-        key: 'rag',
-        img: require('@/assets/imgs/rag.svg'),
-        imgActive: require('@/assets/imgs/rag_active.svg'),
-        path: '/appSpace/rag',
-        perm: PERMS.RAG
-    },
-    {
-        name: i18n.t('menu.app.workflow'),
-        key: 'workflow',
-        img: require('@/assets/imgs/workflow_icon.svg'),
-        imgActive: require('@/assets/imgs/workflow_icon_active.svg'),
-        path: '/appSpace/workflow',
-        perm: PERMS.WORKFLOW
-    },
-    {
-        name: i18n.t('menu.app.agent'),
-        key: 'agent',
-        img: require('@/assets/imgs/agent.svg'),
-        imgActive: require('@/assets/imgs/agent_active.svg'),
-        path: '/appSpace/agent',
-        perm: PERMS.AGENT
-    },
-    {
-        key: 'line',
-        perm: [PERMS.RAG, PERMS.WORKFLOW, PERMS.AGENT]
-    },
-    {
-        name: i18n.t('menu.mcp'),
-        key: 'mcpManage',
-        img: require('@/assets/imgs/mcp_menu.svg'),
-        imgActive: require('@/assets/imgs/mcp_menu_active.svg'),
-        path: '/mcp',
-        perm: PERMS.MCP,
-    },
-    {
-        name: i18n.t('menu.explore'),
-        key: 'explore',
-        img: require('@/assets/imgs/explore.svg'),
-        imgActive: require('@/assets/imgs/explore_active.svg'),
-        path: '/explore',
-        perm: PERMS.EXPLORE
-    },
-    {
-        name: i18n.t('menu.templateSquare'),
-        key: 'templateSquare',
-        img: require('@/assets/imgs/template_square.svg'),
-        imgActive: require('@/assets/imgs/template_square_active.svg'),
-        path: '/templateSquare',
-    },
-]
+  {
+    name: i18n.t('menu.modelAccess'),
+    key: 'modelAccess',
+    img: require('@/assets/imgs/model.svg'),
+    imgActive: require('@/assets/imgs/model_active.svg'),
+    path: '/modelAccess',
+    perm: PERMS.MODEL,
+  },
+  {
+    name: i18n.t('menu.knowledge'),
+    key: 'knowledge',
+    img: require('@/assets/imgs/knowledge.svg'),
+    imgActive: require('@/assets/imgs/knowledge_active.svg'),
+    path: '/knowledge',
+    perm: PERMS.KNOWLEDGE,
+  },
+  {
+    name: i18n.t('menu.tool'),
+    key: 'tool',
+    img: require('@/assets/imgs/tool.svg'),
+    imgActive: require('@/assets/imgs/tool_active.svg'),
+    path: '/tool',
+    perm: PERMS.TOOL,
+  },
+  {
+    name: i18n.t('menu.safetyGuard'),
+    key: 'safetyGuard',
+    img: require('@/assets/imgs/safety.svg'),
+    imgActive: require('@/assets/imgs/safety_active.svg'),
+    path: '/safety',
+    perm: PERMS.SAFETY,
+  },
+  {
+    key: 'line',
+    perm: [PERMS.MODEL, PERMS.KNOWLEDGE, PERMS.TOOL],
+  },
+  {
+    name: i18n.t('menu.app.rag'),
+    key: 'rag',
+    img: require('@/assets/imgs/rag.svg'),
+    imgActive: require('@/assets/imgs/rag_active.svg'),
+    path: '/appSpace/rag',
+    perm: PERMS.RAG,
+  },
+  {
+    name: i18n.t('menu.app.workflow'),
+    key: 'workflow',
+    img: require('@/assets/imgs/workflow_icon.svg'),
+    imgActive: require('@/assets/imgs/workflow_icon_active.svg'),
+    path: '/appSpace/workflow',
+    perm: PERMS.WORKFLOW,
+  },
+  {
+    name: i18n.t('menu.app.agent'),
+    key: 'agent',
+    img: require('@/assets/imgs/agent.svg'),
+    imgActive: require('@/assets/imgs/agent_active.svg'),
+    path: '/appSpace/agent',
+    perm: PERMS.AGENT,
+  },
+  {
+    key: 'line',
+    perm: [PERMS.RAG, PERMS.WORKFLOW, PERMS.AGENT],
+  },
+  {
+    name: i18n.t('menu.mcp'),
+    key: 'mcpManage',
+    img: require('@/assets/imgs/mcp_menu.svg'),
+    imgActive: require('@/assets/imgs/mcp_menu_active.svg'),
+    path: '/mcp',
+    perm: PERMS.MCP,
+  },
+  {
+    name: i18n.t('menu.explore'),
+    key: 'explore',
+    img: require('@/assets/imgs/explore.svg'),
+    imgActive: require('@/assets/imgs/explore_active.svg'),
+    path: '/explore',
+    perm: PERMS.EXPLORE,
+  },
+  {
+    name: i18n.t('menu.templateSquare'),
+    key: 'templateSquare',
+    img: require('@/assets/imgs/template_square.svg'),
+    imgActive: require('@/assets/imgs/template_square_active.svg'),
+    path: '/templateSquare',
+  },
+];

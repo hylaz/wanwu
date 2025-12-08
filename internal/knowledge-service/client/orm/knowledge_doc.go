@@ -37,12 +37,13 @@ type KnowledgeGraph struct {
 
 // GetDocList 查询知识库文件列表
 func GetDocList(ctx context.Context, userId, orgId, knowledgeId, name, tag string,
-	statusList []int, pageSize int32, pageNum int32) ([]*model.KnowledgeDoc, int64, error) {
+	statusList []int, docIdList []string, pageSize int32, pageNum int32) ([]*model.KnowledgeDoc, int64, error) {
 	tx := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId),
 		sqlopt.WithKnowledgeID(knowledgeId),
 		sqlopt.LikeName(name),
 		sqlopt.LikeTag(tag),
 		sqlopt.WithStatusList(statusList),
+		sqlopt.WithDocIDsNonEmpty(docIdList),
 		sqlopt.WithDelete(0)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{})
 	var total int64
@@ -87,6 +88,17 @@ func GetDocListByKnowledgeIdNoDeleteCheck(ctx context.Context, userId, orgId str
 func GetDocListByKnowledgeId(ctx context.Context, userId, orgId string, knowledgeId string) ([]*model.KnowledgeDoc, error) {
 	var docList []*model.KnowledgeDoc
 	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeID(knowledgeId), sqlopt.WithDelete(0)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).Find(&docList).Error
+	if err != nil {
+		return nil, err
+	}
+	return docList, nil
+}
+
+// GetDocListByKnowledgeIdAndFileTypeFilter 根据知识库id查询知识库文件列表
+func GetDocListByKnowledgeIdAndFileTypeFilter(ctx context.Context, userId, orgId string, knowledgeId string, fileType string) ([]*model.KnowledgeDoc, error) {
+	var docList []*model.KnowledgeDoc
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeID(knowledgeId), sqlopt.WithDelete(0), sqlopt.WithFileTypeFilter(fileType)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).Find(&docList).Error
 	if err != nil {
 		return nil, err
@@ -147,12 +159,29 @@ func SelectDocByDocIdList(ctx context.Context, docIdList []string, userId, orgId
 	return docList, nil
 }
 
+// SelectDocByDocIdListAndFileTypeFilter 查询知识库文档信息
+func SelectDocByDocIdListAndFileTypeFilter(ctx context.Context, docIdList []string, userId, orgId string, fileTypeFilter string) ([]*model.KnowledgeDoc, error) {
+	var docList []*model.KnowledgeDoc
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithDocIDs(docIdList), sqlopt.WithFileTypeFilter(fileTypeFilter)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).
+		Find(&docList).Error
+	if err != nil {
+		log.Errorf("SelectDocByDocId userId %s err: %v", userId, err)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+	}
+	if len(docList) == 0 {
+		log.Errorf("SelectDocByDocId userId %s doc list empty", userId)
+		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+	}
+	return docList, nil
+}
+
 func buildKnowledgeDocMeta(doc *model.KnowledgeDoc, importTask *model.KnowledgeImportTask, meta *model.KnowledgeDocMeta) (*model.KnowledgeDocMeta, error) {
 	return &model.KnowledgeDocMeta{
 		MetaId:    generator.GetGenerator().NewID(),
 		DocId:     doc.DocId,
 		Key:       meta.Key,
-		Value:     meta.Value,
+		ValueMain: meta.ValueMain,
 		ValueType: meta.ValueType,
 		Rule:      meta.Rule,
 		UserId:    importTask.UserId,
@@ -322,12 +351,12 @@ func buildAndCreateMetaData(tx *gorm.DB, importTask *model.KnowledgeImportTask, 
 }
 
 func convertMetaValue(meta *model.KnowledgeDocMeta) (interface{}, error) {
-	if len(meta.Value) == 0 {
+	if len(meta.ValueMain) == 0 {
 		return nil, nil
 	}
 	// 根据类型转换value
 	if meta.ValueType == MetaValueTypeNumber {
-		ragValue, err := strconv.Atoi(meta.Value)
+		ragValue, err := strconv.Atoi(meta.ValueMain)
 		if err != nil {
 			log.Errorf("convertMetaValue fail %v", err)
 			return nil, err
@@ -335,14 +364,14 @@ func convertMetaValue(meta *model.KnowledgeDocMeta) (interface{}, error) {
 		return ragValue, nil
 	}
 	if meta.ValueType == MetaValueTypeTime {
-		parseInt, err := strconv.ParseInt(meta.Value, 10, 64)
+		parseInt, err := strconv.ParseInt(meta.ValueMain, 10, 64)
 		if err != nil {
 			log.Errorf("convertMetaValue fail %v", err)
 			return nil, err
 		}
 		return parseInt, nil
 	}
-	return meta.Value, nil
+	return meta.ValueMain, nil
 }
 
 // CreateKnowledgeUrlDoc 创建知识库url文件

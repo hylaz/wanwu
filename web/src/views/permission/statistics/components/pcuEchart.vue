@@ -7,11 +7,11 @@
   </div>
 </template>
 <script>
-import * as echarts from "echarts";
-import {i18n} from "@/lang";
-import { formatAmount } from "@/utils/util.js";
+import * as echarts from 'echarts';
+import { i18n } from '@/lang';
+import { formatAmount } from '@/utils/util.js';
 
-const units = i18n.t("statisticsEcharts.units");
+const units = i18n.t('statisticsEcharts.units');
 
 export default {
   props: {
@@ -21,7 +21,7 @@ export default {
         return [];
       },
     },
-    name: ''
+    name: '',
   },
   data() {
     return {
@@ -37,7 +37,7 @@ export default {
           }
           this.api = echarts.init(this.$refs.api);
 
-          window.addEventListener("resize", () => {
+          window.addEventListener('resize', () => {
             this.api.resize();
           });
           this.handleLine();
@@ -46,14 +46,13 @@ export default {
       deep: true,
     },
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     handleLine() {
       let yData = [];
       let xTime = [];
-      const {items = [], lineName} = this.content[0] || {}
-      items.map((item) => {
+      const { items = [], lineName } = this.content[0] || {};
+      items.map(item => {
         xTime.push(item.key);
         yData.push(item.value);
       });
@@ -61,22 +60,26 @@ export default {
       let option = {
         animationDuration: 1000,
         tooltip: {
-          trigger: "axis",
-          position: "right",
+          trigger: 'axis',
+          position: 'right',
           padding: [5, 8],
           textStyle: {
-            color: "#eee",
+            color: '#eee',
             fontSize: 13,
           },
-          backgroundColor: "rgba(13,5,30,.6)",
-          extraCssText: "z-index:1", // 层级
+          backgroundColor: 'rgba(13,5,30,.6)',
+          extraCssText: 'z-index:1', // 层级
         },
         toolbox: {
           show: true,
           feature: {
             dataView: {
               title: i18n.t('statisticsEcharts.dateView'),
-              lang: [i18n.t('statisticsEcharts.dateView'), i18n.t('statisticsEcharts.close'), i18n.t('statisticsEcharts.reload')],
+              lang: [
+                i18n.t('statisticsEcharts.dateView'),
+                i18n.t('statisticsEcharts.close'),
+                i18n.t('statisticsEcharts.reload'),
+              ],
               readOnly: false,
               optionToContent: function (opt) {
                 // console.log(opt)
@@ -84,7 +87,7 @@ export default {
                 var axisData = opt.xAxis[0].data; //坐标轴
                 var series = opt.series; //折线图的数据
                 var tdHeads = `<td  style="margin-top:10px; padding: 0 15px">${i18n.t('statisticsEcharts.date')}</td>`; //表头
-                var tdBodys = "";
+                var tdBodys = '';
                 series.forEach(function (item) {
                   tdHeads += `<td style="padding:5px 15px">${item.name}</td>`;
                 });
@@ -92,62 +95,62 @@ export default {
                 for (var i = 0, l = axisData.length; i < l; i++) {
                   for (var j = 0; j < series.length; j++) {
                     if (series[j].data[i] == undefined) {
-                      tdBodys += `<td>${"-"}</td>`;
+                      tdBodys += `<td>${'-'}</td>`;
                     } else {
                       tdBodys += `<td>${series[j].data[i]}</td>`;
                     }
                   }
                   table += `<tr><td style="padding: 0 15px">${axisData[i]}</td>${tdBodys}</tr>`;
-                  tdBodys = "";
+                  tdBodys = '';
                 }
-                table += "</tbody></table>";
+                table += '</tbody></table>';
                 return table;
               },
             },
             saveAsImage: {
-              title: i18n.t('statisticsEcharts.saveImage')
+              title: i18n.t('statisticsEcharts.saveImage'),
             },
           },
         },
         legend: {
           show: true,
           data: [lineName],
-          x: "center",
+          x: 'center',
           bottom: 10,
           // orient: 'vertical', // 纵向分布
           textStyle: {
             fontSize: 12,
           },
-          icon: "rect",
+          icon: 'rect',
           itemWidth: 20,
           itemHeight: 10,
         },
         grid: {
-          top: "10%",
-          left: "4%",
-          right: "7%",
-          bottom: "15%",
+          top: '10%',
+          left: '4%',
+          right: '7%',
+          bottom: '15%',
           containLabel: true,
         },
         xAxis: {
-          type: "category",
+          type: 'category',
           boundaryGap: false,
           data: xTime,
         },
         yAxis: {
-          type: "value",
+          type: 'value',
           name:
             this.isLong > 0
               ? `${i18n.t('statisticsEcharts.unit')}(${units[this.isLong]})`
               : units[this.isLong],
-          nameLocation: "end",
+          nameLocation: 'end',
           nameGap: 15,
           nameTextStyle: {
             padding: [0, 0, 0, -30],
-            fontWeight: "bold",
+            fontWeight: 'bold',
           },
           axisLabel: {
-            formatter: (value) => {
+            formatter: value => {
               return formatAmount(value, 'object', true).value; // 2位小数
             },
           },
@@ -156,14 +159,14 @@ export default {
           {
             name: lineName,
             data: yData,
-            type: "line",
+            type: 'line',
             symbolSize: 5, // 原点大小
             smooth: true,
             zlevel: 1, // 层级
             label: {
-              position: "right",
+              position: 'right',
               show: false,
-              color: "#333",
+              color: '#333',
               fontSize: 13,
               formatter: function (params) {
                 return params.data + i18n.t('statisticsEcharts.minute');
@@ -172,31 +175,31 @@ export default {
             // 折线拐点的样式
             itemStyle: {
               // 静止时：
-              color: "#0088FF",
-              borderColor: "#0088FF", //拐点的边框颜色
+              color: '#0088FF',
+              borderColor: '#0088FF', //拐点的边框颜色
               borderWidth: 2,
             },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 {
                   offset: 0,
-                  color: "rgba(80,141,255,0.39)",
+                  color: 'rgba(80,141,255,0.39)',
                 },
                 {
                   offset: 0.34,
-                  color: "rgba(56,155,255,0.05)",
+                  color: 'rgba(56,155,255,0.05)',
                 },
                 {
                   offset: 1,
-                  color: "rgba(38,197,254,0.00)",
+                  color: 'rgba(38,197,254,0.00)',
                 },
               ]),
             },
             emphasis: {
-              focus: "series",
+              focus: 'series',
               // 鼠标经过时：
               itemStyle: {
-                  color: "#4CF8C5",
+                color: '#4CF8C5',
               },
             },
           },
@@ -217,7 +220,7 @@ export default {
     if (this.api) {
       this.api.dispose();
     }
-  }
+  },
 };
 </script>
 <style lang="sass">

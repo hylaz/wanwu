@@ -1179,6 +1179,10 @@ const docTemplate = `{
                     "description": "名称",
                     "type": "string"
                 },
+                "newAgent": {
+                    "description": "是否是新版本智能体",
+                    "type": "boolean"
+                },
                 "prologue": {
                     "description": "开场白",
                     "type": "string"

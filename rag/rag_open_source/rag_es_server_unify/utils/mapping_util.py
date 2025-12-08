@@ -160,6 +160,7 @@ community_report_mappings = {
         "content_id": {"type": "keyword"},
         "file_name": {"type": "keyword"},
         "kb_name": {"type": "keyword"},
+        "title": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
         "content": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
         "embedding_content": {"type": "text", "analyzer": "ik_max_word", "search_analyzer": "ik_smart"},
         "chunk_id": {"type": "keyword"},

@@ -23,6 +23,7 @@ const (
 	KnowledgeBaseDocService_GetDocList_FullMethodName              = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocList"
 	KnowledgeBaseDocService_GetDocDetail_FullMethodName            = "/knowledgebase_doc_service.KnowledgeBaseDocService/GetDocDetail"
 	KnowledgeBaseDocService_ImportDoc_FullMethodName               = "/knowledgebase_doc_service.KnowledgeBaseDocService/ImportDoc"
+	KnowledgeBaseDocService_ExportDoc_FullMethodName               = "/knowledgebase_doc_service.KnowledgeBaseDocService/ExportDoc"
 	KnowledgeBaseDocService_UpdateDocStatus_FullMethodName         = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocStatus"
 	KnowledgeBaseDocService_UpdateDocMetaData_FullMethodName       = "/knowledgebase_doc_service.KnowledgeBaseDocService/UpdateDocMetaData"
 	KnowledgeBaseDocService_BatchUpdateDocMetaData_FullMethodName  = "/knowledgebase_doc_service.KnowledgeBaseDocService/BatchUpdateDocMetaData"
@@ -53,6 +54,8 @@ type KnowledgeBaseDocServiceClient interface {
 	GetDocDetail(ctx context.Context, in *GetDocDetailReq, opts ...grpc.CallOption) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(ctx context.Context, in *ImportDocReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 导出文档
+	ExportDoc(ctx context.Context, in *ExportDocReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新文档状态
 	UpdateDocStatus(ctx context.Context, in *UpdateDocStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新文档元数据
@@ -123,6 +126,16 @@ func (c *knowledgeBaseDocServiceClient) ImportDoc(ctx context.Context, in *Impor
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_ImportDoc_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseDocServiceClient) ExportDoc(ctx context.Context, in *ExportDocReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseDocService_ExportDoc_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -319,6 +332,8 @@ type KnowledgeBaseDocServiceServer interface {
 	GetDocDetail(context.Context, *GetDocDetailReq) (*DocInfo, error)
 	// 上传文档
 	ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error)
+	// 导出文档
+	ExportDoc(context.Context, *ExportDocReq) (*emptypb.Empty, error)
 	// 更新文档状态
 	UpdateDocStatus(context.Context, *UpdateDocStatusReq) (*emptypb.Empty, error)
 	// 更新文档元数据
@@ -373,6 +388,9 @@ func (UnimplementedKnowledgeBaseDocServiceServer) GetDocDetail(context.Context, 
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) ImportDoc(context.Context, *ImportDocReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportDoc not implemented")
+}
+func (UnimplementedKnowledgeBaseDocServiceServer) ExportDoc(context.Context, *ExportDocReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExportDoc not implemented")
 }
 func (UnimplementedKnowledgeBaseDocServiceServer) UpdateDocStatus(context.Context, *UpdateDocStatusReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocStatus not implemented")
@@ -500,6 +518,24 @@ func _KnowledgeBaseDocService_ImportDoc_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KnowledgeBaseDocServiceServer).ImportDoc(ctx, req.(*ImportDocReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseDocService_ExportDoc_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportDocReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseDocServiceServer).ExportDoc(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseDocService_ExportDoc_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseDocServiceServer).ExportDoc(ctx, req.(*ExportDocReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -846,6 +882,10 @@ var KnowledgeBaseDocService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportDoc",
 			Handler:    _KnowledgeBaseDocService_ImportDoc_Handler,
+		},
+		{
+			MethodName: "ExportDoc",
+			Handler:    _KnowledgeBaseDocService_ExportDoc_Handler,
 		},
 		{
 			MethodName: "UpdateDocStatus",

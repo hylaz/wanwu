@@ -14,7 +14,7 @@
       <div class="header-right">
         <span class="common-add" @click="handleAdd">
           <span class="el-icon-plus"></span>
-          <span class="handleBtn">{{ $t("knowledgeSelect.add") }}</span>
+          <span class="handleBtn">{{ $t('knowledgeSelect.add') }}</span>
         </span>
         <el-tooltip
           class="item"
@@ -26,13 +26,20 @@
             class="el-icon-s-operation operation"
             @click="showknowledgeRecallSet"
           >
-            <span class="handleBtn">{{ $t("agent.form.config") }}</span>
+            <span class="handleBtn">{{ $t('agent.form.config') }}</span>
           </span>
         </el-tooltip>
       </div>
     </div>
     <div class="qa-database-content">
-      <div class="action-list" v-if="showKnowledgeList">
+      <div
+        class="action-list"
+        v-if="showKnowledgeList"
+        :class="{
+          'single-row': appType === 'agent',
+          'two-row': appType !== 'agent',
+        }"
+      >
         <div
           v-for="(item, index) in knowledgeList"
           :key="index"
@@ -62,67 +69,66 @@
         </div>
       </div>
     </div>
-    <knowledgeSelect 
-      ref="knowledgeSelect" 
-      :category="category" 
-      @getKnowledgeData="getKnowledgeData" 
-      :setType="setType"
+    <knowledgeSelect
+      ref="knowledgeSelect"
+      :category="category"
+      @getKnowledgeData="getKnowledgeData"
     />
-    <metaDataFilterField 
-      ref="metaDataFilterField" 
-      :knowledgeId="currentKnowledgeId" 
-      :metaData="currentMetaData" 
-      @submitMetaData="submitMetaData" 
-      :category="category" 
+    <metaDataFilterField
+      ref="metaDataFilterField"
+      :knowledgeId="currentKnowledgeId"
+      :metaData="currentMetaData"
+      @submitMetaData="submitMetaData"
+      :category="category"
     />
-    <knowledgeRecallField 
-      ref="knowledgeRecallField" 
-      :showGraphSwitch="showGraphSwitch" 
-      @setKnowledgeSet="knowledgeRecallSet" 
+    <knowledgeRecallField
+      ref="knowledgeRecallField"
+      :showGraphSwitch="showGraphSwitch"
+      @setKnowledgeSet="knowledgeRecallSet"
       :config="knowledgeRecallConfig"
-      :category="category" 
+      :category="category"
     />
   </div>
 </template>
 <script>
-import knowledgeSelect from "@/components/knowledgeSelect.vue";
-import metaDataFilterField from "./metaDataFilterField.vue";
-import knowledgeRecallField from "./knowledgeRecallField.vue";
+import knowledgeSelect from '@/components/knowledgeSelect.vue';
+import metaDataFilterField from './metaDataFilterField.vue';
+import knowledgeRecallField from './knowledgeRecallField.vue';
 export default {
-  name: "QaDatabase",
+  name: 'QaDatabase',
   components: { knowledgeSelect, metaDataFilterField, knowledgeRecallField },
   props: {
     knowledgeConfig: {
       type: Object,
       default: () => null,
-      require: true
+      require: true,
     },
     category: {
       type: Number,
-      default: 0
+      default: 0,
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
     searchConfig: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     type: {
       type: String,
       default: '',
-      require: true
+      require: true,
     },
     labelText: {
       type: String,
       default: '',
-      require: true
+      require: true,
     },
-    setType: {
+    appType: {
       type: String,
-      default: '',
-    }
+      default: 'rag',
+    },
   },
   data() {
     return {
@@ -131,43 +137,48 @@ export default {
       currentKnowledgeId: '',
       knowledgeIndex: -1,
       currentMetaData: {},
-      showGraphSwitch: false
-    }
+      showGraphSwitch: false,
+    };
   },
   watch: {
     type: {
       handler(val) {
         if (val === 'qaKnowledgeBaseConfig') {
           this.showGraphSwitch = false;
-        } else {
-          this.showGraphSwitch = true;
         }
       },
-      immediate: true
+      immediate: true,
     },
     knowledgeConfig: {
       handler(val) {
         this.knowledgeList = val.knowledgebases || [];
         this.knowledgeRecallConfig = val.config || {};
+        this.showGraphSwitch = this.knowledgeList.some(
+          item => item.graphSwitch === 1,
+        );
       },
       immediate: true,
-      deep: true
-    }
+      deep: true,
+    },
   },
   computed: {
     showKnowledgeList() {
-      return this.knowledgeConfig && this.knowledgeConfig.knowledgebases && this.knowledgeConfig.knowledgebases.length;
-    }
+      return (
+        this.knowledgeConfig &&
+        this.knowledgeConfig.knowledgebases &&
+        this.knowledgeConfig.knowledgebases.length
+      );
+    },
   },
   methods: {
     knowledgeRecallSet(data) {
-      this.$emit("knowledgeRecallSet", data, this.type);
+      this.$emit('knowledgeRecallSet', data, this.type);
     },
     handleAdd() {
-      this.$refs.knowledgeSelect.showDialog(this.knowledgeList)
+      this.$refs.knowledgeSelect.showDialog(this.knowledgeList);
     },
     getKnowledgeData(data) {
-      this.$emit("getSelectKnowledge", data, this.type);
+      this.$emit('getSelectKnowledge', data, this.type);
     },
     handleSetting(item, index) {
       this.currentKnowledgeId = item.id;
@@ -179,15 +190,15 @@ export default {
       this.$refs.metaDataFilterField.showDialog();
     },
     handleDelete(index) {
-      this.$emit("knowledgeDelete", index, this.type);
+      this.$emit('knowledgeDelete', index, this.type);
     },
     submitMetaData(data) {
-      this.$emit("updateMetaData", data, this.knowledgeIndex, this.type);
+      this.$emit('updateMetaData', data, this.knowledgeIndex, this.type);
     },
     showknowledgeRecallSet() {
-      if(!this.knowledgeConfig.knowledgebases.length) return
+      if (!this.knowledgeConfig.knowledgebases.length) return;
       this.$refs.knowledgeRecallField.showDialog();
-    }
+    },
   },
 };
 </script>
@@ -258,10 +269,14 @@ export default {
   .qa-database-content {
     .action-list {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       width: 100%;
-
+      &.single-row {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      &.two-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
       .action-item {
         display: flex;
         justify-content: space-between;

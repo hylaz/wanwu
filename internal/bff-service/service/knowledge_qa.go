@@ -6,6 +6,7 @@ import (
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_qa_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-qa-service"
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
@@ -19,6 +20,9 @@ import (
 
 // ImportKnowledgeQAPair 导入问答对
 func ImportKnowledgeQAPair(ctx *gin.Context, userId, orgId string, req *request.KnowledgeQAPairImportReq) error {
+	if len(req.DocInfo) != 1 {
+		return grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, "文档数量超过限制")
+	}
 	docInfoList, err := buildQAPairDocInfoList(ctx, req)
 	if err != nil {
 		log.Errorf("上传失败(构建文档信息列表失败(%v) ", err)
@@ -35,6 +39,28 @@ func ImportKnowledgeQAPair(ctx *gin.Context, userId, orgId string, req *request.
 		return err
 	}
 	return nil
+}
+
+// GetKnowledgeQAPairImportTip 获取导入进度提示条
+func GetKnowledgeQAPairImportTip(ctx *gin.Context, userId, orgId string, r *request.KnowledgeQAPairImportTipReq) (*response.KnowledgeQAPairImportTipResp, error) {
+	resp, err := knowledgeBaseQA.GetQAImportTip(ctx.Request.Context(), &knowledgebase_qa_service.QAImportTipReq{
+		UserId:      userId,
+		OrgId:       orgId,
+		KnowledgeId: r.KnowledgeId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	var message = ""
+	if len(resp.Message) > 0 {
+		message = gin_util.I18nKey(ctx, "know_doc_last_failure_info", resp.Message)
+	}
+	return &response.KnowledgeQAPairImportTipResp{
+		Message:       message,
+		UploadStatus:  resp.UploadStatus,
+		KnowledgeId:   resp.KnowledgeId,
+		KnowledgeName: resp.KnowledgeName,
+	}, nil
 }
 
 // ExportKnowledgeQAPair 导出问答对
@@ -76,12 +102,13 @@ func GetQAPairDetail(ctx *gin.Context, userId, orgId, qaPairId string) (*respons
 func GetKnowledgeQAPairList(ctx *gin.Context, userId, orgId string, r *request.KnowledgeQAPairListReq) (*response.KnowledgeQAPairPageResult, error) {
 	resp, err := knowledgeBaseQA.GetQAPairList(ctx.Request.Context(), &knowledgebase_qa_service.GetQAPairListReq{
 		KnowledgeId: r.KnowledgeId,
-		Name:        r.Name,
+		Name:        strings.TrimSpace(r.Name),
 		Status:      int32(r.Status),
 		PageSize:    int32(r.PageSize),
 		PageNum:     int32(r.PageNo),
 		UserId:      userId,
 		OrgId:       orgId,
+		MetaValue:   strings.TrimSpace(r.MetaValue),
 	})
 	if err != nil {
 		return nil, err
@@ -99,9 +126,9 @@ func GetKnowledgeQAPairList(ctx *gin.Context, userId, orgId string, r *request.K
 	}, nil
 }
 
-// GetKnowledgeQAExportRecordList 查询问答库导出记录列表
-func GetKnowledgeQAExportRecordList(ctx *gin.Context, userId, orgId string, r *request.KnowledgeQAExportRecordListReq) (*response.KnowledgeQAExportRecordPageResult, error) {
-	resp, err := knowledgeBaseQA.GetExportRecordList(ctx.Request.Context(), &knowledgebase_qa_service.GetExportRecordListReq{
+// GetKnowledgeExportRecordList 查询知识库导出记录列表
+func GetKnowledgeExportRecordList(ctx *gin.Context, userId, orgId string, r *request.KnowledgeExportRecordListReq) (*response.KnowledgeExportRecordPageResult, error) {
+	resp, err := knowledgeBase.GetExportRecordList(ctx.Request.Context(), &knowledgebase_service.GetExportRecordListReq{
 		KnowledgeId: r.KnowledgeId,
 		UserId:      userId,
 		OrgId:       orgId,
@@ -111,8 +138,8 @@ func GetKnowledgeQAExportRecordList(ctx *gin.Context, userId, orgId string, r *r
 	if err != nil {
 		return nil, err
 	}
-	return &response.KnowledgeQAExportRecordPageResult{
-		List:     buildQAExportRecordRespList(ctx, resp.ExportRecordInfos),
+	return &response.KnowledgeExportRecordPageResult{
+		List:     buildExportRecordRespList(ctx, resp.ExportRecordInfos),
 		Total:    resp.Total,
 		PageNo:   int(resp.PageNum),
 		PageSize: int(resp.PageSize),
@@ -171,9 +198,10 @@ func UpdateKnowledgeQAPairSwitch(ctx *gin.Context, userId, orgId string, req *re
 // DeleteKnowledgeQAPair 删除问答对
 func DeleteKnowledgeQAPair(ctx *gin.Context, userId, orgId string, req *request.DeleteKnowledgeQAPairReq) error {
 	_, err := knowledgeBaseQA.DeleteQAPair(ctx.Request.Context(), &knowledgebase_qa_service.DeleteQAPairReq{
-		UserId:   userId,
-		OrgId:    orgId,
-		QaPairId: req.QAPairId,
+		KnowledgeId: req.KnowledgeId,
+		QaPairIds:   req.QAPairIdList,
+		UserId:      userId,
+		OrgId:       orgId,
 	})
 	if err != nil {
 		log.Errorf("删除问答对 失败(%v) ", err)
@@ -183,11 +211,11 @@ func DeleteKnowledgeQAPair(ctx *gin.Context, userId, orgId string, req *request.
 }
 
 // DeleteKnowledgeExportRecord 删除导出记录
-func DeleteKnowledgeExportRecord(ctx *gin.Context, userId, orgId string, req *request.DeleteKnowledgeQAExportRecordReq) error {
-	_, err := knowledgeBaseQA.DeleteExportRecord(ctx.Request.Context(), &knowledgebase_qa_service.DeleteExportRecordReq{
-		UserId:           userId,
-		OrgId:            orgId,
-		QaExportRecordId: req.QAExportRecordId,
+func DeleteKnowledgeExportRecord(ctx *gin.Context, userId, orgId string, req *request.DeleteKnowledgeExportRecordReq) error {
+	_, err := knowledgeBase.DeleteExportRecord(ctx.Request.Context(), &knowledgebase_service.DeleteExportRecordReq{
+		UserId:         userId,
+		OrgId:          orgId,
+		ExportRecordId: req.ExportRecordId,
 	})
 	if err != nil {
 		log.Errorf("删除导出记录 失败(%v) ", err)
@@ -246,18 +274,19 @@ func buildQAPairRespList(ctx *gin.Context, dataList []*knowledgebase_qa_service.
 	return retList
 }
 
-// buildQAExportRecordRespList 构造问答库导出记录返回列表
-func buildQAExportRecordRespList(ctx *gin.Context, dataList []*knowledgebase_qa_service.ExportRecordInfo) []*response.ListKnowledgeQAExportRecordResp {
-	retList := make([]*response.ListKnowledgeQAExportRecordResp, 0)
+// buildExportRecordRespList 构造知识库导出记录返回列表
+func buildExportRecordRespList(ctx *gin.Context, dataList []*knowledgebase_service.ExportRecordInfo) []*response.ListKnowledgeExportRecordResp {
+	retList := make([]*response.ListKnowledgeExportRecordResp, 0)
 	authorMap := buildExportAuthorMap(ctx, dataList)
 	for _, data := range dataList {
-		retList = append(retList, &response.ListKnowledgeQAExportRecordResp{
-			QAExportRecordId: data.QaExportRecordId,
-			ExportTime:       data.ExportTime,
-			FilePath:         buildAccessFilePath(data.FilePath),
-			Status:           int(data.Status),
-			ErrorMsg:         gin_util.I18nKey(ctx, data.ErrorMsg),
-			Author:           authorMap[data.UserId],
+		retList = append(retList, &response.ListKnowledgeExportRecordResp{
+			ExportRecordId: data.ExportRecordId,
+			ExportTime:     data.ExportTime,
+			FilePath:       buildAccessFilePath(data.FilePath),
+			Status:         int(data.Status),
+			ErrorMsg:       gin_util.I18nKey(ctx, data.ErrorMsg),
+			Author:         authorMap[data.UserId],
+			KnowledgeName:  data.KnowledgeName,
 		})
 	}
 	return retList
@@ -299,7 +328,7 @@ func buildQAPairAuthorMap(ctx *gin.Context, dataList []*knowledgebase_qa_service
 	return authorMap
 }
 
-func buildExportAuthorMap(ctx *gin.Context, dataList []*knowledgebase_qa_service.ExportRecordInfo) map[string]string {
+func buildExportAuthorMap(ctx *gin.Context, dataList []*knowledgebase_service.ExportRecordInfo) map[string]string {
 	authorMap := make(map[string]string)
 	userIdSet := make(map[string]bool)
 	for _, data := range dataList {

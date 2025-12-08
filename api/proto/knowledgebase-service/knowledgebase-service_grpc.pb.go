@@ -34,6 +34,8 @@ const (
 	KnowledgeBaseService_UpdateKnowledgeMetaValue_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeMetaValue"
 	KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName         = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeStatus"
 	KnowledgeBaseService_GetKnowledgeGraph_FullMethodName             = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeGraph"
+	KnowledgeBaseService_GetExportRecordList_FullMethodName           = "/knowledgebase_service.KnowledgeBaseService/GetExportRecordList"
+	KnowledgeBaseService_DeleteExportRecord_FullMethodName            = "/knowledgebase_service.KnowledgeBaseService/DeleteExportRecord"
 )
 
 // KnowledgeBaseServiceClient is the client API for KnowledgeBaseService service.
@@ -68,6 +70,10 @@ type KnowledgeBaseServiceClient interface {
 	UpdateKnowledgeStatus(ctx context.Context, in *UpdateKnowledgeStatusReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 获取知识图谱详情
 	GetKnowledgeGraph(ctx context.Context, in *KnowledgeGraphReq, opts ...grpc.CallOption) (*KnowledgeGraphResp, error)
+	// 获取导出记录列表
+	GetExportRecordList(ctx context.Context, in *GetExportRecordListReq, opts ...grpc.CallOption) (*GetExportRecordListResp, error)
+	// 删除导出记录
+	DeleteExportRecord(ctx context.Context, in *DeleteExportRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type knowledgeBaseServiceClient struct {
@@ -218,6 +224,26 @@ func (c *knowledgeBaseServiceClient) GetKnowledgeGraph(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *knowledgeBaseServiceClient) GetExportRecordList(ctx context.Context, in *GetExportRecordListReq, opts ...grpc.CallOption) (*GetExportRecordListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetExportRecordListResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_GetExportRecordList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) DeleteExportRecord(ctx context.Context, in *DeleteExportRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_DeleteExportRecord_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseServiceServer is the server API for KnowledgeBaseService service.
 // All implementations must embed UnimplementedKnowledgeBaseServiceServer
 // for forward compatibility.
@@ -250,6 +276,10 @@ type KnowledgeBaseServiceServer interface {
 	UpdateKnowledgeStatus(context.Context, *UpdateKnowledgeStatusReq) (*emptypb.Empty, error)
 	// 获取知识图谱详情
 	GetKnowledgeGraph(context.Context, *KnowledgeGraphReq) (*KnowledgeGraphResp, error)
+	// 获取导出记录列表
+	GetExportRecordList(context.Context, *GetExportRecordListReq) (*GetExportRecordListResp, error)
+	// 删除导出记录
+	DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedKnowledgeBaseServiceServer()
 }
 
@@ -301,6 +331,12 @@ func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeStatus(context.Con
 }
 func (UnimplementedKnowledgeBaseServiceServer) GetKnowledgeGraph(context.Context, *KnowledgeGraphReq) (*KnowledgeGraphResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetKnowledgeGraph not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) GetExportRecordList(context.Context, *GetExportRecordListReq) (*GetExportRecordListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExportRecordList not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteExportRecord not implemented")
 }
 func (UnimplementedKnowledgeBaseServiceServer) mustEmbedUnimplementedKnowledgeBaseServiceServer() {}
 func (UnimplementedKnowledgeBaseServiceServer) testEmbeddedByValue()                              {}
@@ -575,6 +611,42 @@ func _KnowledgeBaseService_GetKnowledgeGraph_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseService_GetExportRecordList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetExportRecordListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).GetExportRecordList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_GetExportRecordList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).GetExportRecordList(ctx, req.(*GetExportRecordListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_DeleteExportRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteExportRecordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).DeleteExportRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_DeleteExportRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).DeleteExportRecord(ctx, req.(*DeleteExportRecordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -637,6 +709,14 @@ var KnowledgeBaseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetKnowledgeGraph",
 			Handler:    _KnowledgeBaseService_GetKnowledgeGraph_Handler,
+		},
+		{
+			MethodName: "GetExportRecordList",
+			Handler:    _KnowledgeBaseService_GetExportRecordList_Handler,
+		},
+		{
+			MethodName: "DeleteExportRecord",
+			Handler:    _KnowledgeBaseService_DeleteExportRecord_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

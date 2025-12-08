@@ -5,10 +5,9 @@
         class="el-icon-arrow-left"
         @click="goBack"
         style="margin-right: 10px; font-size: 20px; cursor: pointer"
-      >
-      </i>
+      ></i>
       {{ $t('safety.wordList.title') }}
-      <LinkIcon type="safety"/>
+      <LinkIcon type="safety" />
     </div>
     <div class="block table-wrap list-common wrap-fullheight">
       <el-container class="konw_container">
@@ -20,14 +19,15 @@
               </div>
 
               <div class="content_title">
-                <el-button size="mini" type="primary" @click="showCreate">{{ $t('safety.wordList.create') }}</el-button>
-                <el-button size="mini" type="primary" @click="showReply">{{ $t('safety.wordList.reply') }}</el-button>
+                <el-button size="mini" type="primary" @click="showCreate">
+                  {{ $t('safety.wordList.create') }}
+                </el-button>
+                <el-button size="mini" type="primary" @click="showReply">
+                  {{ $t('safety.wordList.reply') }}
+                </el-button>
               </div>
             </el-header>
-            <el-main
-              class="noPadding"
-              v-loading="tableLoading"
-            >
+            <el-main class="noPadding" v-loading="tableLoading">
               <el-table
                 :data="tableData"
                 style="width: 100%"
@@ -36,8 +36,7 @@
                 <el-table-column
                   prop="word"
                   :label="$t('safety.wordList.word')"
-                >
-                </el-table-column>
+                ></el-table-column>
                 <el-table-column
                   prop="sensitiveType"
                   :label="$t('safety.wordList.type')"
@@ -56,7 +55,8 @@
                       round
                       @click="handleDel(scope.row)"
                       type="primary"
-                    >{{ $t('common.button.delete') }}
+                    >
+                      {{ $t('common.button.delete') }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -74,28 +74,28 @@
         </el-main>
       </el-container>
     </div>
-    <createWord ref="createWord" @reload="reload"/>
-    <setReply ref="setReply"/>
+    <createWord ref="createWord" @reload="reload" />
+    <setReply ref="setReply" />
   </div>
 </template>
 
 <script>
-import Pagination from "@/components/pagination.vue";
+import Pagination from '@/components/pagination.vue';
 import createWord from './createWord.vue';
 import setReply from './setReply.vue';
-import {SafetyType} from "@/utils/commonSet";
-import {getSensitiveWord, delSensitiveWord} from "@/api/safety";
-import LinkIcon from "@/components/linkIcon.vue";
+import { SafetyType } from '@/utils/commonSet';
+import { getSensitiveWord, delSensitiveWord } from '@/api/safety';
+import LinkIcon from '@/components/linkIcon.vue';
 
 export default {
-  components: {LinkIcon, createWord, setReply, Pagination},
+  components: { LinkIcon, createWord, setReply, Pagination },
   data() {
     return {
       safetyType: SafetyType,
       loading: false,
       tableLoading: false,
       docQuery: {
-        tableId: this.$route.params.id
+        tableId: this.$route.params.id,
       },
       fileList: [],
       listApi: getSensitiveWord,
@@ -106,67 +106,72 @@ export default {
     };
   },
   mounted() {
-    this.getTableData(this.docQuery)
+    this.getTableData(this.docQuery);
   },
   methods: {
     reload() {
-      this.getTableData(this.docQuery)
+      this.getTableData(this.docQuery);
     },
     showCreate() {
-      this.$refs.createWord.showDialog(this.docQuery.tableId)
+      this.$refs.createWord.showDialog(this.docQuery.tableId);
     },
     showReply() {
-      this.$refs.setReply.showDialog(this.docQuery.tableId)
+      this.$refs.setReply.showDialog(this.docQuery.tableId);
     },
     goBack() {
-      this.$router.push({path: '/safety'})
+      this.$router.push({ path: '/safety' });
     },
     handleDel(data) {
-      this.$confirm(this.$t('safety.wordList.deleteHint') + data.word, this.$t('knowledgeManage.tip'),
+      this.$confirm(
+        this.$t('safety.wordList.deleteHint') + data.word,
+        this.$t('knowledgeManage.tip'),
         {
           confirmButtonText: this.$t('common.button.confirm'),
           cancelButtonText: this.$t('common.button.cancel'),
-          type: "warning"
-        }
+          type: 'warning',
+        },
       )
         .then(async () => {
-          let jsondata = {tableId: this.docQuery.tableId, wordId: data.wordId}
+          let jsondata = {
+            tableId: this.docQuery.tableId,
+            wordId: data.wordId,
+          };
           this.loading = true;
           let res = await delSensitiveWord(jsondata);
           if (res.code === 0) {
             this.$message.success(this.$t('common.info.delete'));
-            this.getTableData(this.docQuery)
+            this.getTableData(this.docQuery);
           }
           this.loading = false;
         })
-        .catch((error) => {
-          this.getTableData(this.docQuery)
+        .catch(error => {
+          this.getTableData(this.docQuery);
         });
     },
     async getTableData(data) {
       this.tableLoading = true;
-      this.tableData = await this.$refs["pagination"].getTableData(data);
+      this.tableData = await this.$refs['pagination'].getTableData(data);
       this.tableLoading = false;
     },
     async download(url, name) {
-      const res = await downDoc(url)
-      const blobUrl = window.URL.createObjectURL(res) // 将blob对象转为一个URL
-      const link = document.createElement('a')
-      link.href = blobUrl
-      link.download = name
-      link.click() // 启动下载
-      window.URL.revokeObjectURL(link.href) // 下载完毕删除a标签
+      const res = await downDoc(url);
+      const blobUrl = window.URL.createObjectURL(res); // 将blob对象转为一个URL
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = name;
+      link.click(); // 启动下载
+      window.URL.revokeObjectURL(link.href); // 下载完毕删除a标签
     },
     handleUpload() {
       this.$router.push({
         path: '/knowledge/fileUpload',
-        query: {id: this.docQuery.knowledgeId, name: this.knowledgeName}
-      })
+        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
+      });
     },
     refreshData(data) {
-      this.tableData = data
-    }
-  }
+      this.tableData = data;
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -179,8 +184,8 @@ export default {
   }
 
   .el-tree--highlight-current
-  .el-tree-node.is-current
-  > .el-tree-node__content {
+    .el-tree-node.is-current
+    > .el-tree-node__content {
     background: #ffefef;
   }
 
@@ -423,11 +428,11 @@ export default {
   color: #666; /* 设置文字颜色 */
 }
 
-.custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
+.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
   border-top-color: #fff !important;
 }
 
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
+.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
   border-top-color: #ccc !important;
 }
 </style>

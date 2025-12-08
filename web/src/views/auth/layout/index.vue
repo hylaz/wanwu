@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <div class="overview">
-      <img :src="backgroundSrc" alt="">
+      <img :src="backgroundSrc" alt="" />
     </div>
     <div class="auth-modal">
       <div class="header__left">
@@ -9,81 +9,81 @@
           v-if="commonInfo.login.logo && commonInfo.login.logo.path"
           style="height: 60px; margin: 0 15px 0 22px"
           :src="basePath + '/user/api' + commonInfo.login.logo.path"
-          alt=""/>
+          alt=""
+        />
         <!--<span style="font-size: 16px;">{{commonInfo.home.title || ''}}</span>-->
         <!--<div style="margin-left: 10px">
           <ChangeLang :isLogin="true" />
         </div>-->
       </div>
-<!--      <div class="container__left">-->
-<!--        {{ commonInfo.login.welcomeText }}-->
-<!--      </div>-->
+      <!--      <div class="container__left">-->
+      <!--        {{ commonInfo.login.welcomeText }}-->
+      <!--      </div>-->
 
-      <slot :commonInfo="commonInfo"/>
-
+      <slot :commonInfo="commonInfo" />
     </div>
   </div>
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex'
-import ChangeLang from "@/components/changeLang.vue"
-import {replaceTitle, replaceIcon, avatarSrc} from "@/utils/util";
-import { getCommonInfo } from '@/api/user'
+import { mapState, mapActions } from 'vuex';
+import ChangeLang from '@/components/changeLang.vue';
+import { replaceTitle, replaceIcon, avatarSrc } from '@/utils/util';
+import { getCommonInfo } from '@/api/user';
 
 export default {
-  components: {ChangeLang},
+  components: { ChangeLang },
   data() {
     return {
       backgroundSrc: require('@/assets/imgs/auth_bg.png'),
-      basePath: this.$basePath
-    }
+      basePath: this.$basePath,
+    };
   },
   computed: {
     ...mapState('login', ['commonInfo']),
-    ...mapState('user', ['lang'])
+    ...mapState('user', ['lang']),
   },
   watch: {
-    'lang': {
+    lang: {
       handler(val) {
         if (val) {
           /*this.getImgCode()
           this.getLogoInfo()*/
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   created() {
     this.getCommonInfo().then(() => {
-      const { tab = {}, login = {} } = this.commonInfo || {}
-      const { logo = {}, title = '' } = tab || {}
-      const { background = {} } = login || {}
+      const { tab = {}, login = {} } = this.commonInfo || {};
+      const { logo = {}, title = '' } = tab || {};
+      const { background = {} } = login || {};
 
-      background.path && this.setAuthBg(background.path)
-      title && replaceTitle(title)
-      logo.path && replaceIcon(logo.path)
-      this.$emit('getCommonInfo', this.commonInfo)
-    })
+      background.path && this.setAuthBg(background.path);
+      title && replaceTitle(title);
+      logo.path && replaceIcon(logo.path);
+      this.$emit('getCommonInfo', this.commonInfo);
+    });
   },
   methods: {
     ...mapActions('login', ['getCommonInfo']),
     setDefaultImage() {
-      this.backgroundSrc = require('@/assets/imgs/auth_bg.png')
+      this.backgroundSrc = require('@/assets/imgs/auth_bg.png');
     },
     setAuthBg(backgroundPath) {
       if (!backgroundPath) {
-        this.setDefaultImage()
-        return
+        this.setDefaultImage();
+        return;
       }
-      this.backgroundSrc = avatarSrc(backgroundPath)
+      this.backgroundSrc = avatarSrc(backgroundPath);
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/auth.scss";
+@import '@/style/auth.scss';
 .overview {
   position: relative;
   height: 100%;
@@ -105,7 +105,7 @@ export default {
     left: 56px;
     color: #fff;
     text-align: center;
-    opacity: .8;
+    opacity: 0.8;
     letter-spacing: 1px;
 
     .desc {

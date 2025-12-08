@@ -1,18 +1,24 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    width="60%"
+    width="65%"
     :before-close="handleClose"
     class="batch-meta-dialog"
   >
     <div slot="title" class="custom-title">
-      <h1>{{ type !== 'single' ? $t("metaData.batchEdit") : $t("knowledgeManage.meta.editMetaData") }}</h1>
+      <h1>
+        {{
+          type !== 'single'
+            ? $t('metaData.batchEdit')
+            : $t('knowledgeManage.meta.editMetaData')
+        }}
+      </h1>
     </div>
     <div class="dialog-content">
       <div class="create-section">
         <el-button type="primary" @click="addMetaData" class="create-btn">
           <i class="el-icon-plus"></i>
-          {{ $t("common.button.add") }}
+          {{ $t('common.button.add') }}
         </el-button>
       </div>
 
@@ -47,7 +53,7 @@
 
             <div class="field-group type-group">
               <span class="type-label">
-                {{ $t("knowledgeManage.meta.type") }}:
+                {{ $t('knowledgeManage.meta.type') }}:
               </span>
               <span class="type-value">[{{ item.metaValueType }}]</span>
             </div>
@@ -62,7 +68,7 @@
                 closable
                 @close="handleCloseArray(item)"
               >
-                {{ $t("knowledgeManage.meta.multipleValue") }}
+                {{ $t('knowledgeManage.meta.multipleValue') }}
               </el-tag>
               <template v-else>
                 <el-input
@@ -109,7 +115,7 @@
 
       <div class="apply-section" v-if="type !== 'single'">
         <el-checkbox v-model="applyToSelected" class="apply-checkbox">
-          {{ $t("knowledgeManage.meta.applyAll") }}
+          {{ $t('knowledgeManage.meta.applyAll') }}
         </el-checkbox>
         <el-tooltip
           :content="$t('knowledgeManage.meta.applyAllTips')"
@@ -122,7 +128,7 @@
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleClose" class="cancel-btn">
-        {{ $t("common.confirm.cancel") }}
+        {{ $t('common.confirm.cancel') }}
       </el-button>
       <el-button
         type="primary"
@@ -130,17 +136,18 @@
         class="confirm-btn"
         :loading="loading"
       >
-        {{ $t("common.confirm.confirm") }}
+        {{ $t('common.confirm.confirm') }}
       </el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
-import { metaSelect, getDocMetaList, updateMetaData } from "@/api/knowledge";
+import { metaSelect, getDocMetaList, updateMetaData } from '@/api/knowledge';
+
 export default {
-  name: "BatchMetaData",
-  props: ["selectedDocIds", "type"],
+  name: 'BatchMetaData',
+  props: ['selectedDocIds', 'type'],
   data() {
     return {
       dialogVisible: false,
@@ -155,8 +162,8 @@ export default {
   methods: {
     handleMetaKeyChange(val, item) {
       item.metaValueType = this.keyOptions
-        .filter((i) => i.metaKey === val)
-        .map((e) => e.metaValueType)[0];
+        .filter(i => i.metaKey === val)
+        .map(e => e.metaValueType)[0];
     },
     isJsonArray(val) {
       try {
@@ -167,11 +174,11 @@ export default {
     },
     handleMetaValueChange(item, index) {
       if (item.metaId && item.originalMetaValue !== item.metaValue) {
-        item.option = "update";
+        item.option = 'update';
       }
     },
     handleCloseArray(item) {
-      item.metaValue = "";
+      item.metaValue = '';
     },
     getMetaList() {
       this.docLoading = true;
@@ -179,9 +186,9 @@ export default {
         docIdList: this.selectedDocIds,
         knowledgeId: this.$route.params.id,
       })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.handleMataData(res.data.knowledgeMetaValues || [])
+            this.handleMataData(res.data.knowledgeMetaValues || []);
             this.docLoading = false;
           }
         })
@@ -189,32 +196,30 @@ export default {
           this.docLoading = false;
         });
     },
-    handleMataData(data){
-      this.metaDataList = data.map(
-        (item) => ({
-          ...item,
-          metaValue:
-            item.metaValue.length > 1
-              ? item.metaValue
-              : item.metaValueType === "time"
+    handleMataData(data) {
+      this.metaDataList = data.map(item => ({
+        ...item,
+        metaValue:
+          item.metaValue.length > 1
+            ? item.metaValue
+            : item.metaValueType === 'time'
               ? Number(item.metaValue[0])
               : item.metaValue[0],
-          option: "existing",
-          originalMetaValue: item.metaValue,
-        })
-      );
+        option: 'existing',
+        originalMetaValue: item.metaValue,
+      }));
     },
     getList() {
       const knowledgeId = this.$route.params.id;
       metaSelect({ knowledgeId })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.keyOptions = res.data.knowledgeMetaList || [];
           }
         })
         .catch(() => {});
     },
-    showDialog(row=null) {
+    showDialog(row = null) {
       this.dialogVisible = true;
       this.applyToSelected = false;
       this.getList();
@@ -226,26 +231,26 @@ export default {
     },
     handleClose() {
       this.dialogVisible = false;
-      this.$emit("reLoadDocList");
+      this.$emit('reLoadDocList');
     },
     addMetaData() {
       this.metaDataList.push({
-        metaKey: "",
-        metaValueType: "string",
-        metaValue: "",
-        option: "add",
+        metaKey: '',
+        metaValueType: 'string',
+        metaValue: '',
+        option: 'add',
       });
     },
 
     removeMetaData(item, index) {
       this.$confirm(
-        this.$t("knowledgeManage.deleteTips"),
-        this.$t("common.confirm.title"),
+        this.$t('knowledgeManage.deleteTips'),
+        this.$t('common.confirm.title'),
         {
-          confirmButtonText: this.$t("common.confirm.confirm"),
-          cancelButtonText: this.$t("common.confirm.cancel"),
-          type: "warning",
-        }
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+        },
       )
         .then(() => {
           this.metaDataList.splice(index, 1);
@@ -257,24 +262,24 @@ export default {
               {
                 metaId: item.metaId,
                 metaKey: item.metaKey,
-                option: "delete",
+                option: 'delete',
               },
             ],
           };
-          this.unpdateMetaApi(data, "delete");
+          this.unpdateMetaApi(data, 'delete');
         })
         .catch(() => {
-          this.$message.info(this.$t("common.noData"));
+          this.$message.info(this.$t('common.noData'));
         });
     },
     unpdateMetaApi(data, type) {
       this.loading = true;
       updateMetaData(data)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
+            this.$message.success(this.$t('common.message.success'));
             this.getMetaList();
-            if (type === "submit") {
+            if (type === 'submit') {
               this.handleClose();
             }
             this.loading = false;
@@ -284,7 +289,7 @@ export default {
     },
     handleConfirm() {
       if (this.metaDataList.length === 0) {
-        this.$message.warning(this.$t("common.noData"));
+        this.$message.warning(this.$t('common.noData'));
         return;
       }
 
@@ -292,31 +297,31 @@ export default {
         const item = this.metaDataList[i];
         if (!item.metaKey) {
           this.$message.warning(
-            `${this.$t("knowledgeManage.meta.rowKey")} ${i + 1} ${this.$t(
-              "knowledgeManage.meta.rowKeyTips"
-            )}`
+            `${this.$t('knowledgeManage.meta.rowKey')} ${i + 1} ${this.$t(
+              'knowledgeManage.meta.rowKeyTips',
+            )}`,
           );
           return;
         }
         if (!item.metaValue) {
           this.$message.warning(
-            `${this.$t("knowledgeManage.meta.rowKey")} ${i + 1} ${this.$t(
-              "knowledgeManage.meta.rowValueTips"
-            )}`
+            `${this.$t('knowledgeManage.meta.rowKey')} ${i + 1} ${this.$t(
+              'knowledgeManage.meta.rowValueTips',
+            )}`,
           );
           return;
         }
       }
 
       const updateData = this.metaDataList.filter(
-        (item) => item.option === "update" || item.option === "add"
+        item => item.option === 'update' || item.option === 'add',
       );
 
       if (updateData.length === 0) {
-        this.$message.info(this.$t("common.noData"));
+        this.$message.info(this.$t('common.noData'));
         return;
       }
-      const processedUpdateData = updateData.map((item) => ({
+      const processedUpdateData = updateData.map(item => ({
         ...item,
         metaValue: String(item.metaValue),
       }));
@@ -327,7 +332,7 @@ export default {
         metaValueList: processedUpdateData,
         knowledgeId: this.$route.params.id,
       };
-      this.unpdateMetaApi(data, "submit");
+      this.unpdateMetaApi(data, 'submit');
     },
   },
 };
@@ -497,6 +502,7 @@ export default {
     align-items: center;
     margin-top: 20px;
     padding: 0 10px 10px 0;
+
     .apply-checkbox {
       /deep/ .el-checkbox__label {
         color: #606266;

@@ -88,10 +88,12 @@ type MinioConfig struct {
 	EndPoint           string `json:"endpoint" mapstructure:"endpoint"`
 	KnowledgeDir       string `mapstructure:"knowledge-dir" json:"knowledge-dir"`
 	KnowledgeExportDir string `mapstructure:"knowledge-export-dir" json:"knowledge-export-dir"`
+	QAExportDir        string `mapstructure:"qa-export-dir" json:"qa-export-dir"`
 	User               string `mapstructure:"user" json:"user"`
 	Password           string `mapstructure:"password" json:"password"`
 	Bucket             string `mapstructure:"bucket" json:"bucket"`
 	PublicRagBucket    string `mapstructure:"public-rag-bucket" json:"public-rag-bucket"`
+	PublicExportBucket string `mapstructure:"public-export-bucket" json:"public-export-bucket"`
 }
 
 type KafkaConfig struct {
@@ -121,6 +123,7 @@ type UsageLimitConfig struct {
 	HtmlSizeLimit                int64  `mapstructure:"html-size-limit" json:"htmlSizeLimit"`
 	CompressedSizeLimit          int64  `mapstructure:"compressed-size-limit" json:"compressedSizeLimit"`
 	UploadConcurrentLimit        int64  `mapstructure:"upload-concurrent-limit" json:"uploadConcurrentLimit"`
+	UrlCountLimit                int    `mapstructure:"url-count-limit" json:"url-count-limit"`
 }
 
 type KnowledgeDocConfig struct {
@@ -168,5 +171,6 @@ type RagServerConfig struct {
 	UpdateQAPairStatusUri     string `mapstructure:"update-qa-pair-status-uri" json:"update-qa-pair-status-uri"`
 	BatchDeleteQAPairsUri     string `mapstructure:"batch-delete-qa-pairs-uri" json:"batch-delete-qa-pairs-uri"`
 	KnowledgeQAHitUri         string `mapstructure:"knowledge-QA-hit-uri" json:"knowledge-QA-hit-uri"`
+	KnowledgeDocSearchUri     string `mapstructure:"knowledge-doc-search-uri" json:"knowledge-doc-search-uri"`
 	Timeout                   int64  `mapstructure:"timeout" json:"timeout"`
 }

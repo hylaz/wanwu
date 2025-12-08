@@ -35,6 +35,10 @@ service KnowledgeBaseService {
   rpc UpdateKnowledgeStatus(UpdateKnowledgeStatusReq) returns (google.protobuf.Empty) {}
   // 获取知识图谱详情
   rpc GetKnowledgeGraph(KnowledgeGraphReq) returns (KnowledgeGraphResp){}
+  // 获取导出记录列表
+  rpc GetExportRecordList(GetExportRecordListReq) returns (GetExportRecordListResp) {}
+  // 删除导出记录
+  rpc DeleteExportRecord(DeleteExportRecordReq) returns (google.protobuf.Empty) {}
 }
 
 message DeleteKnowledgeReq{
@@ -264,3 +268,34 @@ message KnowledgeGraphResp{
   string schema = 5;
 }
 
+message GetExportRecordListReq{
+  string knowledgeId = 1;//问答库id
+  string userId = 2;
+  string orgId = 3;
+  int32 pageSize = 4;
+  int32 pageNum = 5;
+}
+
+message GetExportRecordListResp{
+  int64 total = 1;
+  int32 pageNum = 2;
+  int32 pageSize = 3;
+  repeated ExportRecordInfo exportRecordInfos = 4;
+}
+
+message ExportRecordInfo{
+  string exportRecordId = 1;//导出记录id
+  string author = 2; //导出人
+  int32 status = 3; //导出状态
+  string filePath = 4; //导出文件路径
+  string errorMsg = 5; //错误信息
+  string exportTime =6; //导出时间
+  string userId = 7;
+  string knowledgeName = 8;
+}
+
+message DeleteExportRecordReq{
+  string exportRecordId = 1;//导出记录id
+  string userId = 2;
+  string orgId = 3;
+}

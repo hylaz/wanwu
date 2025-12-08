@@ -1,31 +1,54 @@
 <template>
   <div class="mcp-detail" id="timeScroll">
-    <span class="back" @click="back">{{$t('menu.back') + (isFromSquare ? $t('menu.mcp') : $t('menu.tool'))}}</span>
+    <span class="back" @click="back">
+      {{ $t('menu.back') + (isFromSquare ? $t('menu.mcp') : $t('menu.tool')) }}
+    </span>
     <div class="mcp-title">
-      <img class="logo" :src="(detail.avatar && detail.avatar.path) ? avatarSrc(detail.avatar.path) : defaultAvatar" alt=""/>
-      <div :class="['info',{fold:foldStatus}]">
-        <p class="name">{{detail.name}}</p>
+      <img
+        class="logo"
+        :src="
+          detail.avatar && detail.avatar.path
+            ? avatarSrc(detail.avatar.path)
+            : defaultAvatar
+        "
+        alt=""
+      />
+      <div :class="['info', { fold: foldStatus }]">
+        <p class="name">{{ detail.name }}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
-          {{foldStatus ? detail.desc : detail.desc.slice(0,268) + '...'}}
+          {{ foldStatus ? detail.desc : detail.desc.slice(0, 268) + '...' }}
           <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
-            {{foldStatus ? $t('common.button.fold') : $t('common.button.detail')}}
+            {{
+              foldStatus ? $t('common.button.fold') : $t('common.button.detail')
+            }}
           </span>
         </p>
-        <p v-else class="desc">{{detail.desc}}</p>
+        <p v-else class="desc">{{ detail.desc }}</p>
       </div>
     </div>
     <div class="mcp-main">
       <div class="left-info">
         <!-- tabs -->
         <div class="mcp-tabs">
-          <div v-if="mcpSquareId" :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('square.info') }}</div>
+          <div
+            v-if="mcpSquareId"
+            :class="['mcp-tab', { active: tabActive === 0 }]"
+            @click="tabClick(0)"
+          >
+            {{ $t('square.info') }}
+          </div>
           <div style="display: inline-block">
-            <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('tool.square.sseUrl') }}</div>
+            <div
+              :class="['mcp-tab', { active: tabActive === 1 }]"
+              @click="tabClick(1)"
+            >
+              {{ $t('tool.square.sseUrl') }}
+            </div>
           </div>
         </div>
 
         <div v-if="tabActive === 0">
-          <div class="overview bg-border" >
+          <div class="overview bg-border">
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.summary') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
@@ -36,22 +59,25 @@
             </div>
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.scenario') }}</div>
-              <div class="item-desc" >
+              <div class="item-desc">
                 <div v-html="parseTxt(detail.scenario)"></div>
               </div>
             </div>
           </div>
-          <div class="overview bg-border" >
+          <div class="overview bg-border">
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.manual') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.manual)"></div>
             </div>
           </div>
-          <div class="overview bg-border" >
+          <div class="overview bg-border">
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>
               <div class="item-desc">
-                <div class="readme-content markdown-body mcp-markdown" v-html="md.render(detail.detail || '')"></div>
+                <div
+                  class="readme-content markdown-body mcp-markdown"
+                  v-html="md.render(detail.detail || '')"
+                ></div>
               </div>
             </div>
           </div>
@@ -76,31 +102,58 @@
         </div>-->
 
         <div class="tool bg-border" v-if="tabActive === 1">
-          <div class="tool-item ">
+          <div class="tool-item">
             <p class="title">SSE URL:</p>
             <div class="sse-url" style="display: flex">
-              <div class="tool-item-bg sse-url__input">{{detail.sseUrl}}</div>
-              <el-button v-if="isFromSquare" class="sse-url__bt" type="primary" :disabled="detail.hasCustom" @click="preSendToCustomize">{{ $t('tool.square.sendButton') }}</el-button>
+              <div class="tool-item-bg sse-url__input">{{ detail.sseUrl }}</div>
+              <el-button
+                v-if="isFromSquare"
+                class="sse-url__bt"
+                type="primary"
+                :disabled="detail.hasCustom"
+                @click="preSendToCustomize"
+              >
+                {{ $t('tool.square.sendButton') }}
+              </el-button>
             </div>
-            <p style="line-height: 40px;color: #666;">
-              {{isFromSquare ? $t('tool.square.sendHint1') : $t('tool.square.sendHint2')}}
+            <p style="line-height: 40px; color: #666">
+              {{
+                isFromSquare
+                  ? $t('tool.square.sendHint1')
+                  : $t('tool.square.sendHint2')
+              }}
             </p>
           </div>
           <div class="tool-item" v-if="tools && tools.length">
             <p class="title">{{ $t('tool.square.tool.info') }}</p>
             <div class="tool-item-bg tool-intro">
               <el-collapse class="mcp-el-collapse">
-                <el-collapse-item v-for="(n,i) in tools" :key="n.name + i" :title="n.name" :name="i">
-                  <div class="desc">{{ $t('tool.square.tool.desc') }}<span v-html="parseTxt(n.description)"></span></div>
+                <el-collapse-item
+                  v-for="(n, i) in tools"
+                  :key="n.name + i"
+                  :title="n.name"
+                  :name="i"
+                >
+                  <div class="desc">
+                    {{ $t('tool.square.tool.desc') }}
+                    <span v-html="parseTxt(n.description)"></span>
+                  </div>
                   <div class="params">
                     <p>{{ $t('tool.square.tool.params') }}</p>
-                    <div class="params-table" v-for="(m, j) in n.params" :key="m.name + j">
+                    <div
+                      class="params-table"
+                      v-for="(m, j) in n.params"
+                      :key="m.name + j"
+                    >
                       <div class="tr">
-                        <div class="td">{{m.name}}</div>
-                        <div class="td color">{{m.type}}</div>
-                        <div class="td color">{{m.requiredBadge}}</div>
+                        <div class="td">{{ m.name }}</div>
+                        <div class="td color">{{ m.type }}</div>
+                        <div class="td color">{{ m.requiredBadge }}</div>
                       </div>
-                      <p class="params-desc" v-html="parseTxt(m.description)"></p>
+                      <p
+                        class="params-desc"
+                        v-html="parseTxt(m.description)"
+                      ></p>
                     </div>
                   </div>
                 </el-collapse-item>
@@ -115,14 +168,18 @@
             <p class="title">{{ $t('tool.square.tool.setup') }}</p>
             <div class="tool-item-bg">
               <div class="install-intro-item">
-                <p class="install-intro-title">{{ $t('tool.square.tool.cursor.title') }}</p>
+                <p class="install-intro-title">
+                  {{ $t('tool.square.tool.cursor.title') }}
+                </p>
                 <p>{{ $t('tool.square.tool.cursor.step1') }}</p>
                 <p>{{ $t('tool.square.tool.cursor.step2') }}</p>
                 <p>{{ $t('tool.square.tool.cursor.step3') }}</p>
                 <p>{{ $t('tool.square.tool.cursor.step4') }}</p>
               </div>
               <div class="install-intro-item">
-                <p class="install-intro-title">{{ $t('tool.square.tool.claude.title') }}</p>
+                <p class="install-intro-title">
+                  {{ $t('tool.square.tool.claude.title') }}
+                </p>
                 <p>{{ $t('tool.square.tool.claude.step1') }}</p>
                 <p>{{ $t('tool.square.tool.claude.step2') }}</p>
                 <p>{{ $t('tool.square.tool.claude.step3') }}</p>
@@ -133,11 +190,26 @@
       </div>
 
       <div class="right-recommend">
-        <p style="margin: 20px 0;color: #333;">{{ $t('tool.square.tool.other') }}</p>
-        <div class="recommend-item" v-for="(item ,i) in recommendList" :key="`${i}rc`" @click="handleClick(item)">
-          <img class="logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
-          <p class="name">{{item.name}}</p>
-          <p class="intro">{{item.desc}}</p>
+        <p style="margin: 20px 0; color: #333">
+          {{ $t('tool.square.tool.other') }}
+        </p>
+        <div
+          class="recommend-item"
+          v-for="(item, i) in recommendList"
+          :key="`${i}rc`"
+          @click="handleClick(item)"
+        >
+          <img
+            class="logo"
+            :src="
+              item.avatar && item.avatar.path
+                ? avatarSrc(item.avatar.path)
+                : defaultAvatar
+            "
+            alt=""
+          />
+          <p class="name">{{ item.name }}</p>
+          <p class="intro">{{ item.desc }}</p>
         </div>
       </div>
     </div>
@@ -152,29 +224,34 @@
   </div>
 </template>
 <script>
-import sendDialog from './sendDialog'
-import { md } from '@/mixins/marksown-it'
-import { getRecommendsList, getPublicMcpInfo, getDetail, getTools } from "@/api/mcp"
-import {avatarSrc, formatTools} from "@/utils/util"
+import sendDialog from './sendDialog';
+import { md } from '@/mixins/marksown-it';
+import {
+  getRecommendsList,
+  getPublicMcpInfo,
+  getDetail,
+  getTools,
+} from '@/api/mcp';
+import { avatarSrc, formatTools } from '@/utils/util';
 
 export default {
   props: {
     type: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
-      md:md,
+      defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
+      md: md,
       isFromSquare: true,
-      mcpSquareId:'',
+      mcpSquareId: '',
       mcpId: '',
       detail: {},
       tools: [],
-      foldStatus:false,
-      tabActive:0,
+      foldStatus: false,
+      tabActive: 0,
       recommendList: [],
       dialogVisible: false,
     };
@@ -182,102 +259,104 @@ export default {
   watch: {
     $route: {
       handler() {
-        this.initData()
+        this.initData();
       },
       // 深度观察监听
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
-    this.initData()
-    this.getRecommendList()
+    this.initData();
+    this.getRecommendList();
   },
   methods: {
     avatarSrc,
-    initData(){
-      this.mcpSquareId = this.$route.query.mcpSquareId
-      this.mcpId = this.$route.query.mcpId
-      this.isFromSquare = this.type === 'square'
-      this.tabActive = 0
-      this.getDetailData()
+    initData() {
+      this.mcpSquareId = this.$route.query.mcpSquareId;
+      this.mcpId = this.$route.query.mcpId;
+      this.isFromSquare = this.type === 'square';
+      this.tabActive = 0;
+      this.getDetailData();
 
       //滚动到顶部
-      const main = document.querySelector(".el-main > .page-container")
-      if (main) main.scrollTop = 0
+      const main = document.querySelector('.el-main > .page-container');
+      if (main) main.scrollTop = 0;
     },
-    getDetailData(){
+    getDetailData() {
       if (this.isFromSquare) {
-        getPublicMcpInfo({mcpSquareId:this.mcpSquareId}).then((res) => {
-          this.detail = res.data || {}
-          this.tools = formatTools(res.data.tools)
-        })
+        getPublicMcpInfo({ mcpSquareId: this.mcpSquareId }).then(res => {
+          this.detail = res.data || {};
+          this.tools = formatTools(res.data.tools);
+        });
       } else {
-        if (!this.mcpSquareId) this.tabActive = 1
-        getDetail({mcpId:this.mcpId}).then((res) => {
-          this.detail = res.data || {}
-        })
-        this.getToolsList()
+        if (!this.mcpSquareId) this.tabActive = 1;
+        getDetail({ mcpId: this.mcpId }).then(res => {
+          this.detail = res.data || {};
+        });
+        this.getToolsList();
       }
     },
-    getToolsList(){
+    getToolsList() {
       getTools({
         mcpId: this.mcpId,
-      }).then((res) => {
-        this.tools = formatTools(res.data.tools)
-      })
+      }).then(res => {
+        this.tools = formatTools(res.data.tools);
+      });
     },
-    getIsCanSendStatus(){
-      getPublicMcpInfo({mcpSquareId:this.mcpSquareId})
-        .then((res) => {
-          this.detail.hasCustom = res.data.hasCustom
-        })
+    getIsCanSendStatus() {
+      getPublicMcpInfo({ mcpSquareId: this.mcpSquareId }).then(res => {
+        this.detail.hasCustom = res.data.hasCustom;
+      });
     },
     getRecommendList() {
       const params = {
-        mcpSquareId: this.mcpSquareId
-      }
-      getRecommendsList(params).then((res) => {
-        this.recommendList = res.data.list
-      })
+        mcpSquareId: this.mcpSquareId,
+      };
+      getRecommendsList(params).then(res => {
+        this.recommendList = res.data.list;
+      });
     },
-    handleClick(val){
-      this.$router.push(`/mcp/detail/square?mcpSquareId=${val.mcpSquareId}`)
+    handleClick(val) {
+      this.$router.push(`/mcp/detail/square?mcpSquareId=${val.mcpSquareId}`);
     },
     // 解析文本，遇到.换行等
-    parseTxt(txt){
-      if (!txt) return ''
-      const text = txt.replaceAll('\n\t','<br/>&nbsp;').replaceAll('\n','<br/>').replaceAll('\t', '   &nbsp;')
-      return text
+    parseTxt(txt) {
+      if (!txt) return '';
+      const text = txt
+        .replaceAll('\n\t', '<br/>&nbsp;')
+        .replaceAll('\n', '<br/>')
+        .replaceAll('\t', '   &nbsp;');
+      return text;
     },
-    tabClick(status){
-      this.tabActive = status
+    tabClick(status) {
+      this.tabActive = status;
     },
-    fold(){
-      this.foldStatus = !this.foldStatus
+    fold() {
+      this.foldStatus = !this.foldStatus;
     },
-    preSendToCustomize(){
-      this.dialogVisible = true
-      this.$refs.dialog.ruleForm.serverUrl = this.detail.sseUrl
+    preSendToCustomize() {
+      this.dialogVisible = true;
+      this.$refs.dialog.ruleForm.serverUrl = this.detail.sseUrl;
     },
-    handleClose(){
-      this.dialogVisible = false
+    handleClose() {
+      this.dialogVisible = false;
     },
     back() {
-      if (this.isFromSquare) this.$router.push({path: '/mcp'})
-      else this.$router.push({path: '/tool?type=mcp&mcp=integrate'})
+      if (this.isFromSquare) this.$router.push({ path: '/mcp' });
+      else this.$router.push({ path: '/tool?type=mcp&mcp=integrate' });
     },
   },
   components: {
-    sendDialog
+    sendDialog,
   },
 };
 </script>
 <style lang="scss">
-@import "@/style/markdown.scss";
-.markdown-body{
+@import '@/style/markdown.scss';
+.markdown-body {
   font-family: 'Microsoft YaHei', Arial, sans-serif;
 }
-.mcp-detail{
+.mcp-detail {
   padding: 20px;
   overflow: auto;
   margin: 20px;
@@ -285,31 +364,31 @@ export default {
     color: $color;
     cursor: pointer;
   }
-  .mcp-title{
+  .mcp-title {
     padding: 20px 0;
     display: flex;
     border-bottom: 1px solid #bfbfbf;
-    .logo{
+    .logo {
       width: 54px;
       height: 54px;
       object-fit: cover;
     }
-    .info{
+    .info {
       position: relative;
       width: 1240px;
       margin-left: 15px;
-      .name{
+      .name {
         font-size: 16px;
-        color: #5D5D5D;
+        color: #5d5d5d;
         font-weight: bold;
       }
-      .desc{
+      .desc {
         margin-top: 10px;
         line-height: 22px;
-        color: #9F9F9F;
+        color: #9f9f9f;
         word-break: break-all;
       }
-      .arrow{
+      .arrow {
         position: absolute;
         display: block;
         right: 0;
@@ -320,19 +399,19 @@ export default {
         font-size: 13px;
       }
     }
-    .fold{
+    .fold {
       height: auto;
     }
   }
-  .mcp-main{
+  .mcp-main {
     display: flex;
     margin: 10px 0 0 0;
-    .left-info{
+    .left-info {
       width: calc(100% - 420px);
       margin-right: 20px;
-      .mcp-tabs{
+      .mcp-tabs {
         margin: 20px 0 0 0;
-        .mcp-tab{
+        .mcp-tab {
           display: inline-block;
           vertical-align: middle;
           width: 160px;
@@ -342,44 +421,43 @@ export default {
           text-align: center;
           cursor: pointer;
         }
-        .active{
+        .active {
           background: #333;
           color: #fff;
           font-weight: bold;
         }
       }
-      .overview{
-        .overview-item{
+      .overview {
+        .overview-item {
           display: flex;
           padding: 15px 0;
           border-bottom: 1px solid #eee;
           line-height: 24px;
-          .item-title{
+          .item-title {
             width: 80px;
             color: $color;
             font-weight: bold;
           }
-          .item-desc{
+          .item-desc {
             width: calc(100% - 100px);
             margin-left: 10px;
-            flex:1;
+            flex: 1;
             color: #333;
           }
-
         }
-        .overview-item:last-child{
+        .overview-item:last-child {
           border-bottom: none;
         }
       }
-      .tool{
-        .tool-item{
+      .tool {
+        .tool-item {
           padding: 20px 0;
           border-bottom: 1px solid #eee;
-          .title{
+          .title {
             font-weight: bold;
             line-height: 46px;
           }
-          .tool-item-bg{
+          .tool-item-bg {
             background: inherit;
             background-color: rgba(249, 249, 249, 1);
             border: none;
@@ -387,26 +465,26 @@ export default {
             padding: 20px;
           }
         }
-        .tool-item:last-child{
+        .tool-item:last-child {
           border-bottom: none;
         }
-        .sse-url{
-          .sse-url__input{
-            flex:1;
+        .sse-url {
+          .sse-url__input {
+            flex: 1;
             margin-right: 20px;
             padding: 12px;
             color: $color;
           }
-          .sse-url__bt{
+          .sse-url__bt {
             width: 120px;
           }
         }
-        .install-intro-item{
-          p{
+        .install-intro-item {
+          p {
             line-height: 26px;
             color: #333;
           }
-          .install-intro-title{
+          .install-intro-title {
             color: $color;
             margin-top: 10px;
             font-weight: bold;
@@ -414,13 +492,13 @@ export default {
         }
       }
     }
-    .right-recommend{
+    .right-recommend {
       width: 400px;
       overflow-y: auto;
-      border-left:1px solid #eee;
+      border-left: 1px solid #eee;
       padding: 20px;
       max-height: 900px;
-      .recommend-item{
+      .recommend-item {
         position: relative;
         border: 1px solid $border_color;
         background: $color_opacity;
@@ -429,22 +507,22 @@ export default {
         padding: 20px 20px 20px 80px;
         text-align: left;
         cursor: pointer;
-        .logo{
+        .logo {
           width: 46px;
           height: 46px;
           object-fit: cover;
           position: absolute;
-          left:20px;
+          left: 20px;
           border: 1px solid #fff;
           border-radius: 4px;
         }
-        .name{
-          color: #5D5D5D;
+        .name {
+          color: #5d5d5d;
           font-weight: bold;
         }
-        .intro{
+        .intro {
           height: 36px;
-          color: #5D5D5D;
+          color: #5d5d5d;
           margin-top: 8px;
           font-size: 13px;
           overflow: hidden;
@@ -452,7 +530,7 @@ export default {
       }
     }
   }
-  .bg-border{
+  .bg-border {
     margin-top: 20px;
     /*min-height: calc(100vh - 360px);*/
     background-color: rgba(255, 255, 255, 1);
@@ -462,7 +540,7 @@ export default {
     padding: 10px 20px;
     box-shadow: 2px 2px 15px $color_opacity;
   }
-  .overview-item .item-desc{
+  .overview-item .item-desc {
     line-height: 28px;
   }
 }
@@ -523,7 +601,7 @@ export default {
   }
 }
 .mcp-markdown {
-  /deep/.code-header{
+  /deep/.code-header {
     /*height: 0!important;*/
     padding: 0 0 5px 0;
   }

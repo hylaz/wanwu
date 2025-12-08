@@ -1,0 +1,38 @@
+services:
+
+  # ------ middleware ------
+
+  oceanbase:
+    restart: always
+    image: ${WANWU_OCEAN_BASE_IMAGE}
+    container_name: ${WANWU_OCEAN_BASE_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 2881:2881
+    volumes:
+      - ./configs/middleware/mysql/initdb.d:/root/init
+      - wanwu_oceanbase_ob:/root/ob
+      - wanwu_oceanbase_obd_cluster:/root/.obd/cluster
+    environment:
+      MODE: MINI
+      OB_TENANT_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      OB_TENANT_NAME: ${WANWU_OCEAN_BASE_TENANT_NAME}
+      OB_TENANT_INIT_SQL_DIR: /root/init
+    command: .
+    healthcheck:
+      test: >
+        obclient -h127.0.0.1 -P2881 -u ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME} 
+        --password=${WANWU_OCEAN_BASE_PASSWORD} -e 'SELECT 1;' > /dev/null 2>&1
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+networks:
+  wanwu-net:
+    external: true
+
+volumes:
+  wanwu_oceanbase_ob:
+  wanwu_oceanbase_obd_cluster:

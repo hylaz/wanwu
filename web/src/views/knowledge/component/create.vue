@@ -53,13 +53,12 @@
               :key="item.modelId"
               :label="item.displayName"
               :value="item.modelId"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
           <template #label>
-            <span>{{ $t("knowledgeManage.create.knowledgeGraph") }}:</span>
+            <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}:</span>
             <el-tooltip
               class="item"
               effect="dark"
@@ -117,8 +116,9 @@
                     v-for="(tag, tagIdx) in item.tags"
                     :key="tagIdx"
                     class="model-select-tag"
-                    >{{ tag.text }}</span
                   >
+                    {{ tag.text }}
+                  </span>
                 </div>
               </div>
             </el-option>
@@ -147,26 +147,27 @@
                   class="upload-img"
                 />
                 <p class="click-text">
-                  {{ $t("common.fileUpload.uploadText") }}
+                  {{ $t('common.fileUpload.uploadText') }}
                   <span class="clickUpload">
-                    {{ $t("common.fileUpload.uploadClick") }}
+                    {{ $t('common.fileUpload.uploadClick') }}
                   </span>
                 </p>
               </div>
               <div class="tips">
                 <p>
                   <span class="red">*</span>
-                  {{ $t("knowledgeManage.create.schemaTip1") }}
+                  {{ $t('knowledgeManage.create.schemaTip1') }}
                   <a
                     class="template_downLoad"
                     href="#"
                     @click.prevent.stop="downloadTemplate"
-                    >{{ $t("knowledgeManage.create.templateDownload") }}</a
                   >
+                    {{ $t('knowledgeManage.create.templateDownload') }}
+                  </a>
                 </p>
                 <p>
                   <span class="red">*</span>
-                  {{ $t("knowledgeManage.create.schemaTip2") }}
+                  {{ $t('knowledgeManage.create.schemaTip2') }}
                 </p>
               </div>
             </div>
@@ -227,22 +228,23 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose()">
-          {{ $t("common.confirm.cancel") }}
+          {{ $t('common.confirm.cancel') }}
         </el-button>
         <el-button type="primary" @click="submitForm('ruleForm')">
-          {{ $t("common.confirm.confirm") }}
+          {{ $t('common.confirm.confirm') }}
         </el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
-import { createKnowledgeItem, editKnowledgeItem } from "@/api/knowledge";
-import { selectModelList } from "@/api/modelAccess";
-import { KNOWLEDGE_GRAPH_TIPS } from "../config";
-import uploadChunk from "@/mixins/uploadChunk";
-import { delfile } from "@/api/chunkFile";
+import { mapActions, mapGetters } from 'vuex';
+import { createKnowledgeItem, editKnowledgeItem } from '@/api/knowledge';
+import { selectModelList } from '@/api/modelAccess';
+import { KNOWLEDGE_GRAPH_TIPS } from '../config';
+import uploadChunk from '@/mixins/uploadChunk';
+import { delfile } from '@/api/chunkFile';
+
 export default {
   props: {
     category: {
@@ -255,7 +257,7 @@ export default {
     let checkName = (rule, value, callback) => {
       const reg = /^[\u4E00-\u9FA5a-z0-9_-]+$/;
       if (!reg.test(value)) {
-        callback(new Error(this.$t("knowledgeManage.inputErrorTips")));
+        callback(new Error(this.$t('knowledgeManage.inputErrorTips')));
       } else {
         return callback();
       }
@@ -263,14 +265,14 @@ export default {
     return {
       dialogVisible: false,
       ruleForm: {
-        name: "",
-        description: "",
+        name: '',
+        description: '',
         embeddingModelInfo: {
-          modelId: "",
+          modelId: '',
         },
         knowledgeGraph: {
-          llmModelId: "",
-          schemaUrl: "",
+          llmModelId: '',
+          schemaUrl: '',
           switch: false,
         },
       },
@@ -283,35 +285,35 @@ export default {
         name: [
           {
             required: true,
-            message: this.$t("knowledgeManage.knowledgeNameRules"),
-            trigger: "blur",
+            message: this.$t('knowledgeManage.knowledgeNameRules'),
+            trigger: 'blur',
           },
-          { validator: checkName, trigger: "blur" },
+          { validator: checkName, trigger: 'blur' },
         ],
         description: [
           {
             required: true,
-            message: this.$t("knowledgeManage.inputDesc"),
-            trigger: "blur",
+            message: this.$t('knowledgeManage.inputDesc'),
+            trigger: 'blur',
           },
         ],
-        "embeddingModelInfo.modelId": [
+        'embeddingModelInfo.modelId': [
           {
             required: true,
-            message: this.$t("common.select.placeholder"),
-            trigger: "blur",
+            message: this.$t('common.select.placeholder'),
+            trigger: 'blur',
           },
         ],
-        "knowledgeGraph.llmModelId": [
+        'knowledgeGraph.llmModelId': [
           {
             required: true,
-            message: this.$t("knowledgeManage.create.selectModel"),
-            trigger: "change",
+            message: this.$t('knowledgeManage.create.selectModel'),
+            trigger: 'change',
           },
         ],
       },
       isEdit: false,
-      knowledgeId: "",
+      knowledgeId: '',
     };
   },
   watch: {
@@ -324,14 +326,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("app", ["embeddingList"]),
+    ...mapGetters('app', ['embeddingList']),
   },
   created() {
     this.getEmbeddingList();
     this.getModelData(); //获取模型列表
   },
   methods: {
-    ...mapActions("app", ["getEmbeddingList"]),
+    ...mapActions('app', ['getEmbeddingList']),
     visibleChange(val) {
       //下拉框显示的时候请求模型列表
       if (val) {
@@ -341,37 +343,37 @@ export default {
     getTitle() {
       if (this.category === 0) {
         if (this.isEdit) {
-          return this.$t("knowledgeManage.editInfo");
+          return this.$t('knowledgeManage.editInfo');
         } else {
-          return this.$t("knowledgeManage.createKnowledge");
+          return this.$t('knowledgeManage.createKnowledge');
         }
       } else {
         if (this.isEdit) {
-          return this.$t("knowledgeManage.qaDatabase.editInfo");
+          return this.$t('knowledgeManage.qaDatabase.editInfo');
         } else {
-          return this.$t("knowledgeManage.qaDatabase.createKnowledge");
+          return this.$t('knowledgeManage.qaDatabase.createKnowledge');
         }
       }
     },
     async downloadTemplate() {
-      const url = "/user/api/v1/static/docs/graph_schema.xlsx";
-      const fileName = "graph_schema.xlsx";
+      const url = '/user/api/v1/static/docs/graph_schema.xlsx';
+      const fileName = 'graph_schema.xlsx';
       try {
         const response = await fetch(url);
         if (!response.ok)
-          throw new Error(this.$t("knowledgeManage.create.fileNotExist"));
+          throw new Error(this.$t('knowledgeManage.create.fileNotExist'));
 
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
 
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = blobUrl;
         a.download = fileName;
         a.click();
 
         URL.revokeObjectURL(blobUrl); // 释放内存
       } catch (error) {
-        this.$message.error(this.$t("knowledgeManage.create.downloadFailed"));
+        this.$message.error(this.$t('knowledgeManage.create.downloadFailed'));
       }
     },
     async getModelData() {
@@ -379,7 +381,7 @@ export default {
       const res = await selectModelList();
       if (res.code === 0) {
         this.knowledgeGraphModelOptions = (res.data.list || []).filter(
-          (item) => !item.config || item.config.visionSupport !== "support"
+          item => !item.config || item.config.visionSupport !== 'support',
         );
         this.modelLoading = false;
       }
@@ -390,14 +392,14 @@ export default {
       this.clearform();
     },
     clearform() {
-      (this.isEdit = false), (this.knowledgeId = "");
+      ((this.isEdit = false), (this.knowledgeId = ''));
       this.$refs.ruleForm.resetFields();
       this.$refs.ruleForm.clearValidate();
       this.fileList = [];
       this.cancelAllRequests();
       this.file = null;
       this.fileIndex = 0;
-      this.fileUuid = "";
+      this.fileUuid = '';
     },
     uploadOnChange(file, fileList) {
       if (!fileList.length) return;
@@ -409,15 +411,15 @@ export default {
       ) {
         setTimeout(() => {
           this.fileList.map((file, index) => {
-            if (file.progressStatus && file.progressStatus !== "success") {
-              this.$set(file, "progressStatus", "exception");
-              this.$set(file, "showRetry", "false");
-              this.$set(file, "showResume", "false");
-              this.$set(file, "showRemerge", "false");
+            if (file.progressStatus && file.progressStatus !== 'success') {
+              this.$set(file, 'progressStatus', 'exception');
+              this.$set(file, 'showRetry', 'false');
+              this.$set(file, 'showResume', 'false');
+              this.$set(file, 'showRemerge', 'false');
               if (file.size > this.maxSizeBytes) {
-                this.$set(file, "fileType", "maxFile");
+                this.$set(file, 'fileType', 'maxFile');
               } else {
-                this.$set(file, "fileType", "minFile");
+                this.$set(file, 'fileType', 'minFile');
               }
             }
           });
@@ -427,7 +429,7 @@ export default {
           this.startUpload();
         } else {
           //如果上传当中有新的文件加入
-          if (this.file.progressStatus === "success") {
+          if (this.file.progressStatus === 'success') {
             this.startUpload(this.fileIndex);
           }
         }
@@ -438,10 +440,10 @@ export default {
       if (file.size <= 0) {
         setTimeout(() => {
           this.$message.warning(
-            file.name + this.$t("knowledgeManage.filterFile")
+            file.name + this.$t('knowledgeManage.filterFile'),
           );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
         return false;
@@ -450,24 +452,24 @@ export default {
     },
     //  验证文件格式
     verifyFormat(file) {
-      const nameType = ["xlsx", "xls"];
+      const nameType = ['xlsx', 'xls'];
       const fileName = file.name;
-      const isSupportedFormat = nameType.some((ext) =>
-        fileName.endsWith(`.${ext}`)
+      const isSupportedFormat = nameType.some(ext =>
+        fileName.endsWith(`.${ext}`),
       );
       if (!isSupportedFormat) {
         setTimeout(() => {
           this.$message.warning(
-            file.name + this.$t("knowledgeManage.fileTypeError")
+            file.name + this.$t('knowledgeManage.fileTypeError'),
           );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
         return false;
       } else {
-        const fileType = file.name.split(".").pop();
-        const limit20 = ["xlsx", "xls"];
+        const fileType = file.name.split('.').pop();
+        const limit20 = ['xlsx', 'xls'];
         let isLimit20 = file.size / 1024 / 1024 < 20;
         let num = 0;
         if (limit20.includes(fileType)) {
@@ -475,10 +477,10 @@ export default {
           if (!isLimit20) {
             setTimeout(() => {
               this.$message.error(
-                this.$t("knowledgeManage.limitSize") + `${num}MB!`
+                this.$t('knowledgeManage.limitSize') + `${num}MB!`,
               );
               this.fileList = this.fileList.filter(
-                (files) => files.name !== file.name
+                files => files.name !== file.name,
               );
             }, 50);
             return false;
@@ -494,13 +496,13 @@ export default {
       setTimeout(() => {
         this.fileList = this.fileList.reduce((accumulator, current) => {
           const length = accumulator.filter(
-            (obj) => obj.name === current.name
+            obj => obj.name === current.name,
           ).length;
           if (length === 0) {
             accumulator.push(current);
           } else {
             this.$message.warning(
-              current.name + this.$t("knowledgeManage.fileExist")
+              current.name + this.$t('knowledgeManage.fileExist'),
             );
             res = false;
           }
@@ -510,15 +512,15 @@ export default {
       }, 50);
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       let num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleRemove(item, index) {
       if (item.percentage < 100) {
@@ -527,26 +529,26 @@ export default {
         return;
       }
       // 如果文件已上传成功，需要删除服务器上的文件
-      if (this.resList && this.resList[index] && this.resList[index]["name"]) {
+      if (this.resList && this.resList[index] && this.resList[index]['name']) {
         this.delfile({
-          fileList: [this.resList[index]["name"]],
+          fileList: [this.resList[index]['name']],
           isExpired: true,
         });
         this.resList.splice(index, 1);
       }
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
         this.file = null;
-        this.ruleForm.knowledgeGraph.schemaUrl = "";
+        this.ruleForm.knowledgeGraph.schemaUrl = '';
       } else {
         this.fileIndex--;
       }
     },
     delfile(data) {
-      delfile(data).then((res) => {
+      delfile(data).then(res => {
         if (res.code === 0) {
           this.$message.success(
-            this.$t("knowledgeManage.create.deleteSuccess")
+            this.$t('knowledgeManage.create.deleteSuccess'),
           );
         }
       });
@@ -559,7 +561,7 @@ export default {
       }
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           if (this.isEdit) {
             this.editKnowledge();
@@ -578,16 +580,16 @@ export default {
         category: this.category,
       };
       createKnowledgeItem(data)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.$message.success(
-              this.$t("knowledgeManage.create.createSuccess")
+              this.$t('knowledgeManage.create.createSuccess'),
             );
-            this.$emit("reloadData", this.category);
+            this.$emit('reloadData', this.category);
             this.dialogVisible = false;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           this.$message.error(error);
         });
     },
@@ -597,17 +599,17 @@ export default {
         knowledgeId: this.knowledgeId,
       };
       editKnowledgeItem(data)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.$message.success(
-              this.$t("knowledgeManage.create.editSuccess")
+              this.$t('knowledgeManage.create.editSuccess'),
             );
-            this.$emit("reloadData", this.category);
+            this.$emit('reloadData', this.category);
             this.clearform();
             this.dialogVisible = false;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           this.$message.error(error);
         });
     },
@@ -625,19 +627,19 @@ export default {
           knowledgeGraph: {
             llmModelId: row.llmModelId,
             switch: row.graphSwitch === 1 ? true : false,
-            schemaUrl: "",
+            schemaUrl: '',
           },
         };
       } else {
         this.ruleForm = {
-          name: "",
-          description: "",
+          name: '',
+          description: '',
           embeddingModelInfo: {
-            modelId: "",
+            modelId: '',
           },
           knowledgeGraph: {
-            llmModelId: "",
-            schemaUrl: "",
+            llmModelId: '',
+            schemaUrl: '',
             switch: false,
           },
         };
@@ -654,6 +656,7 @@ export default {
     overflow-y: auto;
     padding: 20px;
   }
+
   /deep/ .el-form-item {
     .el-select {
       width: 100%;
@@ -686,12 +689,15 @@ export default {
 
   .tips {
     padding: 0 20px;
+
     p {
       line-height: 1.6;
       color: #666666 !important;
+
       .red {
         color: #f56c6c;
       }
+
       .template_downLoad {
         margin-left: 5px;
         color: $color;
@@ -703,11 +709,13 @@ export default {
 
 .file-list {
   padding: 20px 0;
+
   .document_lise {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+
   .document_lise_item {
     cursor: pointer;
     padding: 5px 10px;
@@ -718,36 +726,45 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+
     .lise_item_box {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       .size {
         display: flex;
         align-items: center;
+
         .progress {
           width: 400px;
           margin-left: 30px;
         }
+
         img {
           width: 18px;
           height: 18px;
           margin-bottom: -3px;
         }
+
         .file-size {
           margin-left: 10px;
         }
       }
+
       .handleBtn {
         display: flex;
         align-items: center;
+
         .check.success {
           color: #67c23a;
         }
+
         .close.fail {
           color: #f56c6c;
         }
+
         .error {
           color: #f56c6c;
           cursor: pointer;
@@ -756,6 +773,7 @@ export default {
       }
     }
   }
+
   .document_lise_item:hover {
     background: #eceefe;
   }

@@ -7,6 +7,12 @@ LDFLAGS := -X main.buildTime=$(shell date +%Y-%m-%d,%H:%M:%S) \
 			-X main.gitBranch=$(shell git --git-dir=./.git for-each-ref --format='%(refname:short)->%(upstream:short)' $(shell git --git-dir=./.git symbolic-ref -q HEAD)) \
 			-X main.builder=$(shell git config user.name)
 
+build-tidb-setup-amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/tidb-setup
+
+build-tidb-setup-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/tidb-setup
+
 build-bff-amd64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/bff-service
 
@@ -61,6 +67,12 @@ build-assistant-amd64:
 build-assistant-arm64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/assistant-service
 
+build-agent-amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/amd64/ ./cmd/agent-service
+
+build-agent-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod vendor -ldflags "$(LDFLAGS)" -o ./bin/arm64/ ./cmd/agent-service
+
 create-docker-net:
 	docker network create ${WANWU_DOCKER_NETWORK}
 
@@ -68,6 +80,10 @@ check:
 	go vet ./...
 	go fmt ./...
 	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v1.64.8 bash -c 'golangci-lint run -v --timeout 3m'
+
+check-callback:
+	docker run --rm -t -v $(PWD)/callback:/callback -w /callback crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/python:3.12-slim-isort7.0.0 isort --check-only --diff --color .
+	docker run --rm -t -v $(PWD)/callback:/callback -w /callback pyfound/black:25.11.0 black -t py312 --check --diff --color .
 
 doc:
 	docker run --name golang-swag --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.6-bookworm-swag1.16.6 bash -c 'make doc-swag'
@@ -101,6 +117,12 @@ docker-image-agent:
 
 docker-image-agent-base:
 	docker build -f Dockerfile.agent-base --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/agent-base:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
+docker-image-callback:
+	docker build -f Dockerfile.callback --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/callback:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
+docker-image-callback-base:
+	docker build -f Dockerfile.callback-base --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/callback-base:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
 
 grpc-protoc:
 	protoc --proto_path=. --go_out=paths=source_relative:api --go-grpc_out=paths=source_relative:api proto/*/*.proto
@@ -140,6 +162,45 @@ stop-mysql-setup:
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
 		down mysql-setup
+
+# --- tidb ---
+run-tidb:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d tidb
+
+stop-tidb:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down tidb
+
+# --- tidb-setup ---
+run-tidb-setup:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up tidb-setup
+
+stop-tidb-setup:
+	docker-compose -f docker-compose.tidb.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down tidb-setup
+
+# --- oceanbase ---
+run-oceanbase:
+	docker-compose -f docker-compose.oceanbase.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d oceanbase
+
+stop-oceanbase:
+	docker-compose -f docker-compose.oceanbase.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down oceanbase
 
 # --- redis ---
 run-redis:

@@ -1,0 +1,113 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	EXEC_MODE_SET_PASSWORD = "set_password"
+	EXEC_MODE_INIT_DATA    = "init_data"
+)
+
+func main() {
+	// 1. 设置密码
+	if err := setupTidb(EXEC_MODE_SET_PASSWORD); err != nil {
+		log.Fatalf("setup tidb set password err: %v", err)
+	}
+
+	// 2. 初始化数据
+	if err := setupTidb(EXEC_MODE_INIT_DATA); err != nil {
+		log.Fatalf("setup tidb init data err: %v", err)
+	}
+}
+
+func setupTidb(execMode string) error {
+	// 0. 解析环境变量
+	dbHost := getEnvWithDefault("WANWU_TIDB_HOST", "127.0.0.1")
+	dbPort := getEnvWithDefault("WANWU_TIDB_PORT", "4000")
+	dbUser := getEnvWithDefault("WANWU_TIDB_USER", "root")
+	dbPassword := os.Getenv("WANWU_TIDB_PASSWORD")
+	sqlFile := os.Getenv("WANWU_TIDB_SQL_FILE")
+
+	// 1. 连接数据库
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&tls=false",
+		dbUser,
+		dbPassword,
+		dbHost,
+		dbPort,
+	))
+	if err != nil {
+		return fmt.Errorf("init db exec mode %v err: %v", execMode, err)
+	}
+	defer db.Close()
+	switch execMode {
+	case EXEC_MODE_SET_PASSWORD:
+		if err = db.Ping(); err != nil {
+			// 尝试无密码连接
+			db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&tls=false",
+				dbUser,
+				"",
+				dbHost,
+				dbPort,
+			))
+			if err != nil {
+				return fmt.Errorf("init db exec mode %v without password err: %v", execMode, err)
+			}
+			defer db.Close()
+		} else {
+			log.Printf("already setup db, exec mode: %v", execMode)
+			return nil
+		}
+	case EXEC_MODE_INIT_DATA:
+		// do nothing
+	default:
+		return fmt.Errorf("invalid exec mode: %v", execMode)
+	}
+
+	if err = db.Ping(); err != nil {
+		return fmt.Errorf("ping db exec mode %v err: %v", execMode, err)
+	}
+
+	// 2. 开启会话级多语句模式
+	if _, err = db.Exec("SET tidb_multi_statement_mode = 'ON'"); err != nil {
+		return fmt.Errorf("set tidb_multi_statement_mode err: %v", err)
+	}
+
+	// 3. 执行 SQL
+	var sqlString string
+	switch execMode {
+	case EXEC_MODE_SET_PASSWORD:
+		sqlString = fmt.Sprintf("USE mysql;ALTER USER 'root'@'%%' IDENTIFIED BY '%s';FLUSH PRIVILEGES;SET GLOBAL tidb_skip_isolation_level_check = 1;", dbPassword)
+	case EXEC_MODE_INIT_DATA:
+		sqlBytes, err := os.ReadFile(sqlFile)
+		if err != nil {
+			return fmt.Errorf("read sql file %v err: %v", sqlFile, err)
+		}
+		sqlString = string(sqlBytes)
+	default:
+		return fmt.Errorf("invalid exec mode: %v", execMode)
+	}
+
+	if _, err = db.Exec(sqlString); err != nil {
+		return fmt.Errorf("exec sql err: %v", err)
+	}
+
+	// 4. 关闭多语句模式
+	_, _ = db.Exec("SET tidb_multi_statement_mode = 'OFF'")
+
+	log.Printf("setup db success, exec mode: %v", execMode)
+	return nil
+}
+
+func getEnvWithDefault(key, defaultVal string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		return defaultVal
+	}
+	return val
+}

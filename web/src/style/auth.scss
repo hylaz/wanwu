@@ -58,28 +58,33 @@
         color: #666 !important;
       }
 
-      .el-icon-lock, .el-icon-user, .el-icon-key {
+      .el-icon-lock,
+      .el-icon-user,
+      .el-icon-key {
         font-size: 18px;
       }
 
-      input[type=input]::placeholder {
-        color: #B3B1BC;
+      input[type='input']::placeholder {
+        color: #b3b1bc;
       }
 
       input::-webkit-input-placeholder {
-        color: #B3B1BC;
+        color: #b3b1bc;
       }
 
-      input::-moz-placeholder { /* Mozilla Firefox 19+ */
-        color: #B3B1BC;
+      input::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
+        color: #b3b1bc;
       }
 
-      input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-        color: #B3B1BC;
+      input:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
+        color: #b3b1bc;
       }
 
-      input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-        color: #B3B1BC;
+      input:-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
+        color: #b3b1bc;
       }
     }
 

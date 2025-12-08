@@ -13,6 +13,13 @@ type QAKnowledgeInfo struct {
 	KnowledgeName string `json:"knowledgeName"`
 }
 
+type KnowledgeQAPairImportTipResp struct {
+	Message       string `json:"msg"`
+	UploadStatus  int32  `json:"uploadstatus"`  //上传状态
+	KnowledgeId   string `json:"knowledgeId"`   //知识库id
+	KnowledgeName string `json:"knowledgeName"` //知识库名称
+}
+
 type ListKnowledgeQAPairResp struct {
 	QAPairId     string         `json:"qaPairId"`     //问答对id
 	KnowledgeId  string         `json:"knowledgeId"`  //问答库id
@@ -28,22 +35,6 @@ type ListKnowledgeQAPairResp struct {
 
 type CreateKnowledgeQAPairResp struct {
 	QAPairId string `json:"qaPairId"`
-}
-
-type KnowledgeQAExportRecordPageResult struct {
-	List     []*ListKnowledgeQAExportRecordResp `json:"list"`
-	Total    int64                              `json:"total"`
-	PageNo   int                                `json:"pageNo"`
-	PageSize int                                `json:"pageSize"`
-}
-
-type ListKnowledgeQAExportRecordResp struct {
-	QAExportRecordId string `json:"qaExportRecordId"` //问答库导出记录id
-	Author           string `json:"author"`           //导出人
-	ExportTime       string `json:"exportTime"`       //导出时间
-	FilePath         string `json:"filePath"`         //导出文件路径
-	Status           int    `json:"status"`           //状态
-	ErrorMsg         string `json:"errorMsg"`         //导出状态错误信息
 }
 
 type KnowledgeQAHitResp struct {

@@ -1878,24 +1878,31 @@ definitions:
     required:
     - knowledgeId
     type: object
-  request.DeleteKnowledgeQAExportRecordReq:
+  request.DeleteKnowledgeExportRecordReq:
     properties:
+      exportRecordId:
+        description: 问答库导出记录id
+        type: string
       knowledgeId:
         description: 问答库id
         type: string
-      qaExportRecordId:
-        description: 问答库导出记录id
-        type: string
     required:
+    - exportRecordId
     - knowledgeId
-    - qaExportRecordId
     type: object
   request.DeleteKnowledgeQAPairReq:
     properties:
-      qaPairId:
+      QAPairIdList:
+        description: 问答对列表
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        description: 问答库id
         type: string
     required:
-    - qaPairId
+    - QAPairIdList
+    - knowledgeId
     type: object
   request.DeleteKnowledgeSplitterReq:
     properties:
@@ -1953,7 +1960,7 @@ definitions:
           type: string
         type: array
       docImportType:
-        description: 文档导入类型，0：文件上传，1：url上传，2.批量url上传
+        description: 文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
         type: integer
       docInfoList:
         description: 上传文档列表
@@ -2163,6 +2170,19 @@ definitions:
     - model
     - modelType
     - provider
+    type: object
+  request.KnowledgeDocExportReq:
+    properties:
+      docIdList:
+        description: 文档id
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        description: 知识库id
+        type: string
+    required:
+    - knowledgeId
     type: object
   request.KnowledgeGraph:
     properties:
@@ -3326,6 +3346,16 @@ definitions:
     required:
     - workflow_id
     type: object
+  request.WorkflowRunReq:
+    properties:
+      input:
+        additionalProperties: {}
+        type: object
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
+    type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
@@ -3463,6 +3493,9 @@ definitions:
       name:
         description: 名称
         type: string
+      newAgent:
+        description: 是否是新版本智能体
+        type: boolean
       prologue:
         description: 开场白
         type: string
@@ -4346,6 +4379,19 @@ definitions:
       userName:
         type: string
     type: object
+  response.KnowledgeExportRecordPageResult:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ListKnowledgeExportRecordResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
   response.KnowledgeGraphEdge:
     properties:
       description:
@@ -4533,19 +4579,6 @@ definitions:
       metaValueType:
         type: string
     type: object
-  response.KnowledgeQAExportRecordPageResult:
-    properties:
-      list:
-        items:
-          $ref: '#/definitions/response.ListKnowledgeQAExportRecordResp'
-        type: array
-      pageNo:
-        type: integer
-      pageSize:
-        type: integer
-      total:
-        type: integer
-    type: object
   response.KnowledgeQAHitResp:
     properties:
       score:
@@ -4558,6 +4591,20 @@ definitions:
         items:
           $ref: '#/definitions/response.QAHitSearchList'
         type: array
+    type: object
+  response.KnowledgeQAPairImportTipResp:
+    properties:
+      knowledgeId:
+        description: 知识库id
+        type: string
+      knowledgeName:
+        description: 知识库名称
+        type: string
+      msg:
+        type: string
+      uploadstatus:
+        description: 上传状态
+        type: integer
     type: object
   response.KnowledgeQAPairPageResult:
     properties:
@@ -4741,7 +4788,7 @@ definitions:
         description: 上传时间
         type: string
     type: object
-  response.ListKnowledgeQAExportRecordResp:
+  response.ListKnowledgeExportRecordResp:
     properties:
       author:
         description: 导出人
@@ -4749,14 +4796,16 @@ definitions:
       errorMsg:
         description: 导出状态错误信息
         type: string
+      exportRecordId:
+        description: 知识库导出记录id
+        type: string
       exportTime:
         description: 导出时间
         type: string
       filePath:
         description: 导出文件路径
         type: string
-      qaExportRecordId:
-        description: 问答库导出记录id
+      knowledgeName:
         type: string
       status:
         description: 状态
@@ -8175,6 +8224,30 @@ paths:
       summary: 删除文档
       tags:
       - knowledge.doc
+  /knowledge/doc/export:
+    post:
+      consumes:
+      - application/json
+      description: 知识库文档导出
+      parameters:
+      - description: 知识库文档导出请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeDocExportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 知识库文档导出
+      tags:
+      - knowledge.doc
   /knowledge/doc/import:
     post:
       consumes:
@@ -8235,13 +8308,16 @@ paths:
         required: true
         type: string
       - in: query
+        name: metaValue
+        type: string
+      - in: query
         name: pageNo
         type: integer
       - in: query
         name: pageSize
         required: true
         type: integer
-      - description: 当前状态  -1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
+      - description: 当前状态  -1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败、
         in: query
         name: status
         type: integer
@@ -8620,6 +8696,65 @@ paths:
       summary: 解析url
       tags:
       - knowledge.doc
+  /knowledge/export/record:
+    delete:
+      consumes:
+      - application/json
+      description: 删除知识库导出记录
+      parameters:
+      - description: 删除知识库导出记录请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeExportRecordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除知识库导出记录
+      tags:
+      - knowledge
+  /knowledge/export/record/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取知识库导出记录列表
+      parameters:
+      - description: 知识库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeExportRecordPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取知识库导出记录列表
+      tags:
+      - knowledge
   /knowledge/graph:
     get:
       consumes:
@@ -8927,65 +9062,6 @@ paths:
       summary: 问答库文档导出
       tags:
       - knowledge.qa
-  /knowledge/qa/export/record:
-    delete:
-      consumes:
-      - application/json
-      description: 删除问答库导出记录
-      parameters:
-      - description: 删除问答库导出记录请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.DeleteKnowledgeQAExportRecordReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - JWT: []
-      summary: 删除问答库导出记录
-      tags:
-      - knowledge.qa
-  /knowledge/qa/export/record/list:
-    get:
-      consumes:
-      - application/json
-      description: 获取问答库导出记录列表
-      parameters:
-      - description: 问答库id
-        in: query
-        name: knowledgeId
-        required: true
-        type: string
-      - in: query
-        name: pageNo
-        type: integer
-      - in: query
-        name: pageSize
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.KnowledgeQAExportRecordPageResult'
-              type: object
-      security:
-      - JWT: []
-      summary: 获取问答库导出记录列表
-      tags:
-      - knowledge.qa
   /knowledge/qa/hit:
     post:
       consumes:
@@ -9114,6 +9190,34 @@ paths:
       summary: 问答库文档导入
       tags:
       - knowledge.qa
+  /knowledge/qa/pair/import/tip:
+    get:
+      consumes:
+      - application/json
+      description: 获取问答库异步上传任务提示：有正在执行的异步上传任务/最近一次上传任务的失败信息
+      parameters:
+      - description: 问答库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeQAPairImportTipResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取问答库异步上传任务提示
+      tags:
+      - knowledge.qa
   /knowledge/qa/pair/list:
     get:
       consumes:
@@ -9123,6 +9227,9 @@ paths:
       - in: query
         name: knowledgeId
         required: true
+        type: string
+      - in: query
+        name: metaValue
         type: string
       - in: query
         name: name
@@ -12579,6 +12686,30 @@ paths:
       summary: 修改用户状态
       tags:
       - permission.user
+  /workflow/run:
+    post:
+      consumes:
+      - application/json
+      description: 工作流运行接口
+      parameters:
+      - description: 工作流运行参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowRunReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 工作流运行接口
+      tags:
+      - workflow
   /workflow/select:
     get:
       consumes:

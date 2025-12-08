@@ -263,6 +263,11 @@ func ExecuteDeleteKnowledge(tx *gorm.DB, id uint32) error {
 	return tx.Unscoped().Model(&model.KnowledgeBase{}).Where("id = ?", id).Delete(&model.KnowledgeBase{}).Error
 }
 
+// ExecuteDeleteKnowledgeMeta 删除知识库元数据
+func ExecuteDeleteKnowledgeMeta(tx *gorm.DB, knowledgeId string) error {
+	return tx.Unscoped().Model(&model.KnowledgeDocMeta{}).Where("knowledge_id = ?", knowledgeId).Delete(&model.KnowledgeDocMeta{}).Error
+}
+
 // UpdateKnowledgeFileInfo 更新知识库文档信息
 func UpdateKnowledgeFileInfo(tx *gorm.DB, knowledgeId string, resultList []*model.DocInfo) error {
 	var docSize int64

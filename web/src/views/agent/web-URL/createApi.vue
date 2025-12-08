@@ -2,61 +2,42 @@
   <div>
     <div class="header">
       <div class="header-api">
-        <el-tag
-          effect="plain"
-          class="root-url"
-        >API根地址</el-tag>
-        {{apiURL}}
+        <el-tag effect="plain" class="root-url">API根地址</el-tag>
+        {{ apiURL }}
       </div>
-      <el-button
-        size="small"
-        @click="openApiDialog"
-        class="apikeyBtn"
-      >
+      <el-button size="small" @click="openApiDialog" class="apikeyBtn">
         <img :src="require('@/assets/imgs/apikey.png')" />
         API密钥
       </el-button>
-      <div class="show-doc" @click="jumpApiDoc">
-        查看API文档
-      </div>
+      <div class="show-doc" @click="jumpApiDoc">查看API文档</div>
     </div>
-    <el-table
-      :data="tableData"
-      style="width: 100%"
-    >
-      <el-table-column
-        label="密钥"
-        prop="apiKey"
-        width="300"
-      >
-      <template slot-scope="scope">
-        <span>{{scope.row.apiKey.slice(0,6) + '******'}}</span>
-      </template>
-      </el-table-column>
-      <el-table-column
-        label="创建时间"
-        prop="createdAt"
-      />
-      <el-table-column
-        label="操作"
-        width="200"
-      >
+    <el-table :data="tableData" style="width: 100%">
+      <el-table-column label="密钥" prop="apiKey" width="300">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            @click="handleCopy(scope.row) && copycb()"
-          >复制</el-button>
-          <el-button
-            size="mini"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
+          <span>{{ scope.row.apiKey.slice(0, 6) + '******' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" prop="createdAt" />
+      <el-table-column label="操作" width="200">
+        <template slot-scope="scope">
+          <el-button size="mini" @click="handleCopy(scope.row) && copycb()">
+            复制
+          </el-button>
+          <el-button size="mini" @click="handleDelete(scope.row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
 <script>
-import { getApiKeyRoot,createApiKey,delApiKey,getApiKeyList } from "@/api/appspace";
+import {
+  getApiKeyRoot,
+  createApiKey,
+  delApiKey,
+  getApiKeyList,
+} from '@/api/appspace';
 export default {
   props: {
     appType: {
@@ -70,9 +51,9 @@ export default {
   },
   data() {
     return {
-      apiURL: "",
+      apiURL: '',
       tableData: [],
-      dialogVisible:false
+      dialogVisible: false,
     };
   },
   created() {
@@ -81,50 +62,50 @@ export default {
   },
   methods: {
     jumpApiDoc() {
-      const {data} = this.$store.state.user.commonInfo || {}
-      const {linkList} = data || {}
-      const apiDocLink = linkList[`api-${this.appType}`]
-      if (apiDocLink) window.open(apiDocLink)
+      const { data } = this.$store.state.user.commonInfo || {};
+      const { linkList } = data || {};
+      const apiDocLink = linkList[`api-${this.appType}`];
+      if (apiDocLink) window.open(apiDocLink);
     },
-    handleClose(){
+    handleClose() {
       this.dialogVisible = false;
     },
     apiKeyRootUrl() {
-      const data = { appId: this.appId, appType:this.appType };
-      getApiKeyRoot(data).then((res) => {
+      const data = { appId: this.appId, appType: this.appType };
+      getApiKeyRoot(data).then(res => {
         if (res.code === 0) {
-          this.apiURL = res.data || "";
+          this.apiURL = res.data || '';
         }
       });
     },
-    openApiDialog(){
+    openApiDialog() {
       this.handleCreate();
     },
     handleCopy(row) {
       let text = row.apiKey;
-      var textareaEl = document.createElement("textarea");
-      textareaEl.setAttribute("readonly", "readonly");
+      var textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly');
       textareaEl.value = text;
       document.body.appendChild(textareaEl);
       textareaEl.select();
-      var res = document.execCommand("copy");
+      var res = document.execCommand('copy');
       document.body.removeChild(textareaEl);
       return res;
     },
     copycb() {
-      this.$message.success("内容已复制到粘贴板");
+      this.$message.success('内容已复制到粘贴板');
     },
     handleCreate() {
       const data = { appId: this.appId, appType: this.appType };
-      createApiKey(data).then((res) => {
+      createApiKey(data).then(res => {
         if (res.code === 0) {
-          this.getTableData()
+          this.getTableData();
         }
       });
     },
     getTableData() {
       const data = { appId: this.appId, appType: this.appType };
-      getApiKeyList(data).then((res) => {
+      getApiKeyList(data).then(res => {
         if (res.code === 0) {
           this.tableData = res.data || [];
         }
@@ -132,23 +113,23 @@ export default {
     },
     handleDelete(row) {
       this.$confirm(
-        "确定要删除当前APIkey吗？",
-        this.$t("knowledgeManage.tip"),
+        '确定要删除当前APIkey吗？',
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+        },
       )
         .then(() => {
-          delApiKey({ apiId: row.apiId }).then((res) => {
+          delApiKey({ apiId: row.apiId }).then(res => {
             if (res.code === 0) {
-              this.$message.success("删除成功");
+              this.$message.success('删除成功');
               this.getTableData();
             }
           });
         })
-        .catch((error) => {
+        .catch(error => {
           this.getTableData();
         });
     },
@@ -156,38 +137,37 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-  .header{
-    width:100%;
-    display:flex;
-    justify-content:flex-start;
-    align-items:flex-start;
-    height:60px;
-    .show-doc {
-      margin-left: 20px;
-      line-height: 60px;
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 60px;
+  .show-doc {
+    margin-left: 20px;
+    line-height: 60px;
+    color: $color;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .header-api {
+    padding: 6px 10px;
+    box-shadow: 1px 2px 2px #ddd;
+    background-color: #fff;
+    border-radius: 6px;
+    .root-url {
+      background-color: #eceefe;
       color: $color;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    .header-api {
-      padding: 6px 10px;
-      box-shadow: 1px 2px 2px #ddd;
-      background-color: #fff;
-      border-radius: 6px;
-      .root-url {
-        background-color: #eceefe;
-        color: $color;
-        border: none;
-      }
-    }
-    .apikeyBtn{
-      margin-left:10px;
-      border:1px solid $btn_bg;
-      padding:12px;
-      color: $btn_bg;
-      display:flex;
-      align-items:center;
+      border: none;
     }
   }
-
+  .apikeyBtn {
+    margin-left: 10px;
+    border: 1px solid $btn_bg;
+    padding: 12px;
+    color: $btn_bg;
+    display: flex;
+    align-items: center;
+  }
+}
 </style>

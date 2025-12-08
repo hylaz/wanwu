@@ -25,19 +25,21 @@
           <source :src="fileUrl" type="video/mp3" />
           <source :src="fileUrl" type="audio/ogg" />
           <source :src="fileUrl" type="audio/mpeg" />
-          {{ $t("agent.autioTips") }}
+          {{ $t('agent.autioTips') }}
         </audio>
         <i class="el-icon-close echo-close" @click="clearFile"></i>
       </div>
       <div v-if="fileType === 'doc/*'" class="echo-img-box echo-doc-box">
         <img :src="require('@/assets/imgs/fileicon.png')" class="docIcon" />
         <div class="docInfo">
-          <p class="docInfo_name">{{$t('knowledgeManage.fileName')}}：{{ fileList[0]["name"] }}</p>
+          <p class="docInfo_name">
+            {{ $t('knowledgeManage.fileName') }}：{{ fileList[0]['name'] }}
+          </p>
           <p class="docInfo_size">
-            {{$t('knowledgeManage.fileSize')}}：{{
-              fileList[0]["size"] > 1024
-                ? (fileList[0]["size"] / (1024 * 1024)).toFixed(5) + " MB"
-                : fileList[0]["size"] + " bytes"
+            {{ $t('knowledgeManage.fileSize') }}：{{
+              fileList[0]['size'] > 1024
+                ? (fileList[0]['size'] / (1024 * 1024)).toFixed(5) + ' MB'
+                : fileList[0]['size'] + ' bytes'
             }}
           </p>
         </div>
@@ -70,9 +72,9 @@
             @drop.prevent.stop="handleDrop"
             contenteditable="true"
           ></div>
-          <span class="editable--placeholder" v-if="!promptValue">{{
-            placeholder
-          }}</span>
+          <span class="editable--placeholder" v-if="!promptValue">
+            {{ placeholder }}
+          </span>
           <i
             v-if="promptValue"
             class="el-icon-close editable--close"
@@ -84,13 +86,14 @@
               :class="{ btnActive: isActive, btnAnactive: !isActive }"
               @click="linkSearch"
               v-if="showModelSelect && !isPower && isLink"
-              >{{ $t("agent.connectInternect") }}</el-button
             >
+              {{ $t('agent.connectInternect') }}
+            </el-button>
             <!-- <img class="editable--send" :src="require('@/assets/imgs/send.png')" @click="preSend" /> -->
-            <el-button type="primary" class="editable--send" @click="preSend"
-              ><span>{{$t('agent.send')}}</span>
-              <img :src="require('@/assets/imgs/sendIcon.png')"
-            /></el-button>
+            <el-button type="primary" class="editable--send" @click="preSend">
+              <span>{{ $t('agent.send') }}</span>
+              <img :src="require('@/assets/imgs/sendIcon.png')" />
+            </el-button>
           </div>
         </div>
         <!-- 覆盖层，模型下线禁止点击 -->
@@ -119,15 +122,16 @@
               style="font-size: 15px"
               slot="reference"
               @click="setRandomReminder(n)"
-              >{{ n.title }}</span
             >
+              {{ n.title }}
+            </span>
           </el-popover>
         </div>
-        <span class="refresh" @click="getReminderList"
-          ><i class="el-icon-loading" v-show="refreshLoading"></i>&nbsp;{{
-            $t("agent.next")
-          }}</span
-        >
+        <span class="refresh" @click="getReminderList">
+          <i class="el-icon-loading" v-show="refreshLoading"></i>
+          &nbsp;
+          {{ $t('agent.next') }}
+        </span>
       </div>
     </transition>
 
@@ -141,11 +145,11 @@
 </template>
 
 <script>
-import commonMixin from "@/mixins/common";
-import uploadChunk from "@/mixins/uploadChunk";
-import uploadDialog from "./uploadBatchDialog";
-import { getModelList } from "@/api/cubm";
-import { mapGetters } from "vuex";
+import commonMixin from '@/mixins/common';
+import uploadChunk from '@/mixins/uploadChunk';
+import uploadDialog from './uploadBatchDialog';
+import { getModelList } from '@/api/cubm';
+import { mapGetters } from 'vuex';
 export default {
   props: {
     source: { type: String },
@@ -172,42 +176,42 @@ export default {
     return {
       basePath: this.$basePath,
       isActive: false,
-      isPower: this.$platform === "YWD_RAG" || this.$platform === "HW_RAG",
+      isPower: this.$platform === 'YWD_RAG' || this.$platform === 'HW_RAG',
       isLink: false,
       modelParams: null,
       modleOptions: [],
       colorArr: [
-        "#dca3c2",
-        "#aaa9db",
-        "#d1a69b",
-        "#7894cf",
-        "#4fbed9",
-        "#ebb8bd",
-        "#9b9655",
-        "#3bb4b7",
-        "#61aac5",
-        "#d79ae5",
-        "#51a2da",
-        "#89b0f9",
-        "#738cbd",
+        '#dca3c2',
+        '#aaa9db',
+        '#d1a69b',
+        '#7894cf',
+        '#4fbed9',
+        '#ebb8bd',
+        '#9b9655',
+        '#3bb4b7',
+        '#61aac5',
+        '#d79ae5',
+        '#51a2da',
+        '#89b0f9',
+        '#738cbd',
       ],
-      placeholder: "请输入内容,用Ctrl+Enter可换行",
-      promptHtml: "",
-      promptValue: "",
+      placeholder: '请输入内容,用Ctrl+Enter可换行',
+      promptHtml: '',
+      promptValue: '',
       randomReminderList: [], //随机8个提示词
       randomReminderShow: false,
       refreshLoading: false,
       //文件
       hasFile: false,
       fileIdList: [],
-      fileType: "",
+      fileType: '',
       fileList: [],
-      fileUrl: "",
-      imgUrl: "",
-      modelType: "",
+      fileUrl: '',
+      imgUrl: '',
+      modelType: '',
       fileLoading: false,
       isDragging: false,
-      lastFileType: "",
+      lastFileType: '',
       dragConfigured: false,
     };
   },
@@ -218,7 +222,7 @@ export default {
           this.modelParams = null;
           return;
         }
-        this.modleOptions.map((modelItem) => {
+        this.modleOptions.map(modelItem => {
           if (
             modelItem.modelId == val.modelId &&
             modelItem.modelVersion == val.modelVersion
@@ -227,8 +231,8 @@ export default {
           }
         });
         this.modelType =
-          this.modelParams.modelSeries === "deepseek" ? "deepseek" : "bigModel";
-        this.$emit("getModelType", this.modelType);
+          this.modelParams.modelSeries === 'deepseek' ? 'deepseek' : 'bigModel';
+        this.$emit('getModelType', this.modelType);
       },
     },
     maxPicNum: {
@@ -241,15 +245,15 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("app", ["maxPicNum"]),
+    ...mapGetters('app', ['maxPicNum']),
   },
   methods: {
     initDrag(maxFiles) {
       this.$nextTick(() => {
         this.$setupDragAndDrop({
-          containerSelector: ".editable-wp",
+          containerSelector: '.editable-wp',
           maxImageFiles: maxFiles,
-          onFiles: (files) => {
+          onFiles: files => {
             this.isDragging = true;
             this.processFiles(files);
           },
@@ -259,13 +263,12 @@ export default {
     // 处理文件的方法，提取出来供 handleDrop 和 onFiles 使用
     processFiles(files) {
       if (!files || files.length === 0) return;
-
       const picked = files;
-      const fileObjs = picked.map((f) => ({
+      const fileObjs = picked.map(f => ({
         raw: f,
         uid: f.uid || this.$guid(),
         percentage: 0,
-        progressStatus: "active",
+        progressStatus: 'active',
         fileName: f.name,
         name: f.name,
         size: f.size,
@@ -273,20 +276,20 @@ export default {
         fileUrl: URL.createObjectURL(f),
         imgUrl: URL.createObjectURL(f),
       }));
-      const ext = (picked[0].name.split(".").pop() || "").toLowerCase();
+      const ext = (picked[0].name.split('.').pop() || '').toLowerCase();
       const mime = picked[0].type;
-      let ftype = "";
+      let ftype = '';
       if (
-        (mime && mime.indexOf("image/") === 0) ||
-        ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].indexOf(ext) > -1
+        (mime && mime.indexOf('image/') === 0) ||
+        ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].indexOf(ext) > -1
       )
-        ftype = "image/*";
+        ftype = 'image/*';
       else if (
-        (mime && mime.indexOf("audio/") === 0) ||
-        ["mp3", "wav", "ogg"].indexOf(ext) > -1
+        (mime && mime.indexOf('audio/') === 0) ||
+        ['mp3', 'wav', 'ogg'].indexOf(ext) > -1
       )
-        ftype = "audio/*";
-      else ftype = "doc/*";
+        ftype = 'audio/*';
+      else ftype = 'doc/*';
       this.fileType = ftype;
       this.fileList = fileObjs;
       this.fileUrl = fileObjs[0].fileUrl;
@@ -312,7 +315,7 @@ export default {
       this.fileLoading = false;
       this.fileIdList.push({
         fileName,
-        fileSize: this.fileList[this.fileIndex]["size"],
+        fileSize: this.fileList[this.fileIndex]['size'],
         fileUrl: fiePath,
       });
     },
@@ -331,33 +334,33 @@ export default {
     linkSearch() {
       this.isActive = !this.isActive;
     },
-    getModelData(type = "") {
-      getModelList({ modelType: "" })
-        .then((res) => {
+    getModelData(type = '') {
+      getModelList({ modelType: '' })
+        .then(res => {
           if (res.code === 0) {
             this.modleOptions = res.data.list || [];
-            if (type === "") {
+            if (type === '') {
               this.modelParams = this.modleOptions[0];
             }
             this.modelType =
-              this.modelParams.modelSeries === "deepseek"
-                ? "deepseek"
-                : "bigModel";
-            this.$emit("getModelType", this.modelType);
+              this.modelParams.modelSeries === 'deepseek'
+                ? 'deepseek'
+                : 'bigModel';
+            this.$emit('getModelType', this.modelType);
           }
         })
-        .catch((err) => {});
+        .catch(err => {});
     },
     visibleChange(val) {
       if (val) {
-        this.getModelData("refresh");
+        this.getModelData('refresh');
       }
     },
     modelChange() {
       this.modelType =
-        this.modelParams.modelSeries === "deepseek" ? "deepseek" : "bigModel";
-      this.$emit("getModelType", this.modelType);
-      this.$emit("modelChange");
+        this.modelParams.modelSeries === 'deepseek' ? 'deepseek' : 'bigModel';
+      this.$emit('getModelType', this.modelType);
+      this.$emit('modelChange');
     },
     showBigImg(url) {
       console.log(url);
@@ -365,40 +368,36 @@ export default {
     clearFile() {
       this.fileIdList = [];
       this.fileList = [];
-      this.fileType = "";
-      this.fileUrl = "";
-      this.imgUrl = "";
+      this.fileType = '';
+      this.fileUrl = '';
+      this.imgUrl = '';
       this.hasFile = false;
     },
-    /*showFileUpload(status){
-              this.hasFile = status
-            },*/
     preUpload() {
-      this.$refs["upload"].openDialog();
+      this.$refs['upload'].openDialog();
     },
     setFileId(fileIdList) {
       this.fileIdList = fileIdList;
       this.fileUrl = this.fileIdList[this.fileIdList.length - 1].fileUrl;
       //this.imgUrl = fileIdList.imgUrl;
       let fileType =
-        this.fileIdList[this.fileIdList.length - 1]["fileName"]
-          .split(".")
-          .pop() || "";
-      if (["jpeg", "PNG", "png", "JPG", "jpg"].includes(fileType)) {
+        this.fileIdList[this.fileIdList.length - 1]['fileName']
+          .split('.')
+          .pop() || '';
+      if (['jpeg', 'PNG', 'png', 'JPG', 'jpg'].includes(fileType)) {
         //'bmp','webp'
-        this.fileType = "image/*";
+        this.fileType = 'image/*';
       }
-      if (["mp3", "wav"].includes(fileType)) {
-        this.fileType = "audio/*";
+      if (['mp3', 'wav'].includes(fileType)) {
+        this.fileType = 'audio/*';
       }
       if (
-        ["txt", "csv", "xlsx", "doc", "docx", "html", "pptx", "pdf"].includes(
-          fileType
+        ['txt', 'csv', 'xlsx', 'doc', 'docx', 'html', 'pptx', 'pdf'].includes(
+          fileType,
         )
       ) {
-        this.fileType = "doc/*";
+        this.fileType = 'doc/*';
       }
-      //this.$emit('setSessionStatus',0)   //上传图片后，算法自动返回结果，此时将status设置为0
     },
     setFile(fileList) {
       this.fileList = fileList;
@@ -417,9 +416,9 @@ export default {
       this.randomReminderShow = false;
     },
     clearInput() {
-      this.$refs.editor.innerHTML = "";
-      this.promptHtml = "";
-      this.promptValue = "";
+      this.$refs.editor.innerHTML = '';
+      this.promptHtml = '';
+      this.promptValue = '';
       this.randomReminderShow && (this.randomReminderShow = false);
     },
     getContentInBraces(str) {
@@ -437,13 +436,12 @@ export default {
       this.clearInput();
       this.promptValue = data;
       this.$refs.editor.innerHTML = data
-        .replaceAll("{", '<div class="light-input" contenteditable="true">')
-        .replaceAll("}", "</div>");
-      // let matchArr = this.getContentInBraces(data)
+        .replaceAll('{', '<div class="light-input" contenteditable="true">')
+        .replaceAll('}', '</div>');
     },
     getPrompt() {
-      if (this.source === "perfectReminder") {
-        if (this.$refs.editor.innerHTML === "/") {
+      if (this.source === 'perfectReminder') {
+        if (this.$refs.editor.innerHTML === '/') {
           this.getReminderList();
         } else {
           this.randomReminderShow = false;
@@ -454,21 +452,21 @@ export default {
       return prompt;
     },
     getPromptBak() {
-      let prompt = "";
-      if (this.source === "perfectReminder") {
-        if (this.$refs.editor.innerHTML === "/") {
+      let prompt = '';
+      if (this.source === 'perfectReminder') {
+        if (this.$refs.editor.innerHTML === '/') {
           this.getReminderList();
         } else {
           this.randomReminderShow = false;
         }
         prompt = this.$refs.editor.innerHTML
-          .replaceAll('<div class="light-input" contenteditable="true">', "")
-          .replaceAll("</div>", "")
-          .replaceAll(" ", "");
+          .replaceAll('<div class="light-input" contenteditable="true">', '')
+          .replaceAll('</div>', '')
+          .replaceAll(' ', '');
       } else {
         prompt = this.$refs.editor.innerHTML; //从对话框复制过来的会换行，临时处理，后期优化
       }
-      let prompt2 = prompt.replace("<div><br></div>", "");
+      let prompt2 = prompt.replace('<div><br></div>', '');
       this.promptValue = this.$refs.editor.innerHTML;
       return prompt2;
     },
@@ -486,7 +484,7 @@ export default {
       if (res.code === 0) {
         this.refreshLoading = false;
         this.randomReminderShow = true;
-        this.randomReminderList = res.data.list.map((item) => {
+        this.randomReminderList = res.data.list.map(item => {
           return {
             ...item,
             random: parseInt(Math.random(13) * 10),
@@ -504,7 +502,7 @@ export default {
       var offset = sel.focusOffset;
       //div当前内容
       var content = el.innerHTML; //添加换行符\n
-      el.innerHTML = content.slice(0, offset) + "\n" + content.slice(offset); //设置光标为当前位置
+      el.innerHTML = content.slice(0, offset) + '\n' + content.slice(offset); //设置光标为当前位置
       range.setStart(el.childNodes[0], offset + 1);
       //使得选区(光标)开始与结束位置重叠
       range.collapse(true);
@@ -533,7 +531,7 @@ export default {
     },
     preSend() {
       this.hasFile = false;
-      this.$emit("preSend");
+      this.$emit('preSend');
     },
     goModelList() {
       //跳转到服务管理
@@ -770,4 +768,3 @@ export default {
   }
 }
 </style>
-    

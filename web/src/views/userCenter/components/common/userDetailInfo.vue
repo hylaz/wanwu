@@ -12,28 +12,47 @@
         accept=".png,.jpg,.jpeg"
       >
         <div class="echo-img">
-          <img :src="form.avatar || defaultAvatar" alt=""/>
+          <img :src="form.avatar || defaultAvatar" alt="" />
           <p class="echo-img-tip" v-if="isLoading">
-            {{$t('userInfo.avatarLoading')}}
+            {{ $t('userInfo.avatarLoading') }}
             <span class="el-icon-loading"></span>
           </p>
-          <p class="echo-img-tip" v-else>{{$t('userInfo.avatarTip')}}</p>
+          <p class="echo-img-tip" v-else>{{ $t('userInfo.avatarTip') }}</p>
         </div>
       </el-upload>
       <div class="row">
-        <label>{{$t('userInfo.username')}}</label>
-        <span>{{form.username}}</span>
+        <label>{{ $t('userInfo.username') }}</label>
+        <span>{{ form.username }}</span>
       </div>
     </div>
     <div class="row">
-      <label>{{$t('userInfo.password')}}</label>
-      <span class="pwd-span">{{form.password || '--'}}</span>
-      <el-button type="primary" size="mini" style="margin-left: 30px;" @click="showPwd">{{ $t('userInfo.resetPwd') }}</el-button>
+      <label>{{ $t('userInfo.password') }}</label>
+      <span class="pwd-span">{{ form.password || '--' }}</span>
+      <el-button
+        type="primary"
+        size="mini"
+        style="margin-left: 30px"
+        @click="showPwd"
+      >
+        {{ $t('userInfo.resetPwd') }}
+      </el-button>
     </div>
-    <div class="row"><label>{{$t('userInfo.company')}}</label><span>{{form.company || '--'}}</span></div>
-    <div class="row"><label>{{$t('userInfo.phone')}}</label><span>{{form.phone || '--'}}</span></div>
-    <div class="row"><label>{{$t('userInfo.email')}}</label><span>{{form.email || '--'}}</span></div>
-    <div class="row"><label>{{$t('userInfo.remark')}}</label><span>{{form.remark || '--'}}</span></div>
+    <div class="row">
+      <label>{{ $t('userInfo.company') }}</label>
+      <span>{{ form.company || '--' }}</span>
+    </div>
+    <div class="row">
+      <label>{{ $t('userInfo.phone') }}</label>
+      <span>{{ form.phone || '--' }}</span>
+    </div>
+    <div class="row">
+      <label>{{ $t('userInfo.email') }}</label>
+      <span>{{ form.email || '--' }}</span>
+    </div>
+    <div class="row">
+      <label>{{ $t('userInfo.remark') }}</label>
+      <span>{{ form.remark || '--' }}</span>
+    </div>
     <el-dialog
       :title="$t('resetPwd.title')"
       :visible.sync="pwdVisible"
@@ -42,21 +61,21 @@
       :close-on-click-modal="false"
       :before-close="handleClose"
     >
-      <Pwd @handleClose="handleClose"/>
+      <Pwd @handleClose="handleClose" />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import Pwd from "../pwd/index.vue"
-import {uploadAvatar, restAvatar} from "@/api/user";
-import {avatarSrc} from "@/utils/util";
+import Pwd from '../pwd/index.vue';
+import { uploadAvatar, restAvatar } from '@/api/user';
+import { avatarSrc } from '@/utils/util';
 
 export default {
-  components: {Pwd},
+  components: { Pwd },
   data() {
     return {
-      defaultAvatar: require("@/assets/imgs/avatar_default.png"),
+      defaultAvatar: require('@/assets/imgs/avatar_default.png'),
       isLoading: false,
       form: {
         avatar: '',
@@ -66,65 +85,76 @@ export default {
         company: '',
         phone: '',
         email: '',
-        remark: ''
+        remark: '',
       },
-      pwdVisible: false
-    }
+      pwdVisible: false,
+    };
   },
   watch: {
     $route: {
       handler() {
-        this.justifyShowPwd()
+        this.justifyShowPwd();
       },
-      deep: true
+      deep: true,
     },
   },
   mounted() {
-    this.justifyShowPwd()
+    this.justifyShowPwd();
   },
   methods: {
     handleUploadAvatar(data) {
       if (data.file) {
-        this.isLoading = true
-        const formData = new FormData()
-        const config = {headers: {"Content-Type": "multipart/form-data"}}
-        formData.append('avatar', data.file)
         this.isLoading = true;
-        uploadAvatar(formData, config).then(res => {
-          if (res.code === 0) {
-            const avatar = avatarSrc(res.data.path)
-            restAvatar({avatar: res.data}).then(res => {
-              if (res.code === 0) {
-                this.form.avatar = avatar
-                this.$forceUpdate()
-              }
-            })
-          }
-        }).finally(() => this.isLoading = false)
+        const formData = new FormData();
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+        formData.append('avatar', data.file);
+        this.isLoading = true;
+        uploadAvatar(formData, config)
+          .then(res => {
+            if (res.code === 0) {
+              const avatar = avatarSrc(res.data.path);
+              restAvatar({ avatar: res.data }).then(res => {
+                if (res.code === 0) {
+                  this.form.avatar = avatar;
+                  this.$forceUpdate();
+                }
+              });
+            }
+          })
+          .finally(() => (this.isLoading = false));
       }
     },
     handleUploadError() {
-      this.$message.error(this.$t('common.message.uploadError'))
+      this.$message.error(this.$t('common.message.uploadError'));
     },
     justifyShowPwd() {
-      const {showPwd} = this.$route.query || {}
+      const { showPwd } = this.$route.query || {};
       if (showPwd === '1') {
-        this.showPwd()
+        this.showPwd();
       }
     },
     setData(data) {
-      const {avatar, userId, username, company, phone, email, remark} = data || {}
-      this.form = {userId, username, company, phone, email, remark, password: '***'}
-      this.form.avatar = avatarSrc(avatar.path)
+      const { avatar, userId, username, company, phone, email, remark } =
+        data || {};
+      this.form = {
+        userId,
+        username,
+        company,
+        phone,
+        email,
+        remark,
+        password: '***',
+      };
+      this.form.avatar = avatarSrc(avatar.path);
     },
     showPwd() {
-      this.pwdVisible = true
+      this.pwdVisible = true;
     },
     handleClose() {
-      this.pwdVisible = false
-    }
-  }
-}
+      this.pwdVisible = false;
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -154,7 +184,9 @@ export default {
       border-radius: 4px;
       margin-top: 5px;
       padding: 3px 20px;
-      box-shadow: 0 0 15px 0 rgba(89, 104, 178, 0.06), 0 15px 20px 0 rgba(89, 104, 178, 0.06);
+      box-shadow:
+        0 0 15px 0 rgba(89, 104, 178, 0.06),
+        0 15px 20px 0 rgba(89, 104, 178, 0.06);
     }
 
     .pwd-span {
@@ -177,7 +209,7 @@ export default {
           width: 100%;
           height: 100%;
           border-radius: 6px;
-          border: 1px solid #DCDFE6;
+          border: 1px solid #dcdfe6;
           overflow: hidden;
         }
 

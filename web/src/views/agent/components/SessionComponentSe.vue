@@ -31,7 +31,7 @@
                   >
                     <i class="el-icon-s-order"></i>
                     &nbsp;
-                    {{ $t("agent.copyToInput") }}
+                    {{ $t('agent.copyToInput') }}
                   </p>
                   <span
                     slot="reference"
@@ -114,7 +114,8 @@
 
         <!-- 回答故障  code:7-->
         <div class="session-error" v-if="n.error">
-          <i class="el-icon-warning"></i>&nbsp;{{ n.response }}
+          <i class="el-icon-warning"></i>
+          &nbsp;{{ n.response }}
         </div>
 
         <!--回答 文字+图片-->
@@ -138,13 +139,15 @@
                   <img
                     :src="require('@/assets/imgs/tool-icon.png')"
                     class="think_icon"
-                  />{{ n.toolText }}
+                  />
+                  {{ n.toolText }}
                 </template>
                 <template v-else>
                   <img
                     :src="require('@/assets/imgs/think-icon.png')"
                     class="think_icon"
-                  />{{ n.thinkText }}
+                  />
+                  {{ n.thinkText }}
                 </template>
                 <i
                   v-bind:class="{
@@ -167,7 +170,8 @@
           <div v-else class="session-answer-wrapper">
             <img class="logo" :src="'/user/api/' + defaultUrl" />
             <div v-if="n.code === 7" class="answer-content session-error">
-              <i class="el-icon-warning"></i> &nbsp;{{ n.response }}
+              <i class="el-icon-warning"></i>
+              &nbsp;{{ n.response }}
             </div>
             <div v-else class="answer-content" v-html="n.response"></div>
           </div>
@@ -205,8 +209,7 @@
                         ? 'el-icon-caret-bottom'
                         : 'el-icon-caret-right',
                     ]"
-                  >
-                  </i>
+                  ></i>
                   出处：
                 </span>
                 <a
@@ -224,8 +227,9 @@
                     :data-parents-index="i"
                     :data-collapse="m.collapse ? 'true' : 'false'"
                     v-if="n.qa_type === 1"
-                    >{{ j + 1 }}</sub
                   >
+                    {{ j + 1 }}
+                  </sub>
                   {{ m.title }}
                 </span>
                 <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
@@ -277,7 +281,7 @@
             </div>
             <!--提示话术-->
             <div class="answer-operation-tip">
-              {{ $t("agent.answerOperationTip") }}
+              {{ $t('agent.answerOperationTip') }}
             </div>
           </div>
         </div>
@@ -308,10 +312,13 @@
           <!--仅图片时只有 重新生成-->
           <div class="answer-operation">
             <div class="opera-left">
-              <span v-if="i === session_data.history.length - 1" class="restart"
-                ><i class="el-icon-refresh" @click="refresh">
+              <span
+                v-if="i === session_data.history.length - 1"
+                class="restart"
+              >
+                <i class="el-icon-refresh" @click="refresh">
                   &nbsp;
-                  {{ $t("agent.refresh") }}
+                  {{ $t('agent.refresh') }}
                 </i>
               </span>
             </div>
@@ -323,13 +330,13 @@
 </template>
 
 <script>
-import smoothscroll from "smoothscroll-polyfill";
-import { md } from "@/mixins/marksown-it";
-import { marked } from "marked";
-var highlight = require("highlight.js");
-import "highlight.js/styles/atom-one-dark.css";
-import commonMixin from "@/mixins/common";
-import { mapGetters } from "vuex";
+import smoothscroll from 'smoothscroll-polyfill';
+import { md } from '@/mixins/marksown-it';
+import { marked } from 'marked';
+var highlight = require('highlight.js');
+import 'highlight.js/styles/atom-one-dark.css';
+import commonMixin from '@/mixins/common';
+import { mapGetters } from 'vuex';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -347,7 +354,7 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ["sessionStatus", "defaultUrl", "type"],
+  props: ['sessionStatus', 'defaultUrl', 'type'],
   data() {
     return {
       md: md,
@@ -355,21 +362,21 @@ export default {
       scrollTimeout: null,
       isDs:
         [
-          "txt2txt-002-001",
-          "txt2txt-002-002",
-          "txt2txt-002-004",
-          "txt2txt-002-005",
-          "txt2txt-002-006",
-          "txt2txt-002-007",
-          "txt2txt-002-008",
+          'txt2txt-002-001',
+          'txt2txt-002-002',
+          'txt2txt-002-004',
+          'txt2txt-002-005',
+          'txt2txt-002-006',
+          'txt2txt-002-007',
+          'txt2txt-002-008',
         ].indexOf(this.$route.params.id) != -1,
       loading: false,
       marked: marked,
       session_data: {
-        tool: "",
+        tool: '',
         searchList: [],
         history: [],
-        response: "",
+        response: '',
       },
       basePath: this.$basePath,
       current_data: [],
@@ -379,7 +386,7 @@ export default {
       canvasShow: false,
       cv: null,
       currImg: {
-        url: "",
+        url: '',
         width: 0, // 原始宽高
         height: 0,
         w: 0, // 压缩后的宽高
@@ -387,19 +394,19 @@ export default {
         roteX: 0, // 压缩后的比例
         roteY: 0,
       },
-      imgConfig: ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"],
-      audioConfig: ["mp3", "wav"],
+      imgConfig: ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'],
+      audioConfig: ['mp3', 'wav'],
       fileScrollStateMap: {},
       resizeTimer: null,
       scrollContainerId: `timeScroll-${this._uid}`,
     };
   },
   computed: {
-    ...mapGetters("user", ["userAvatar"]),
+    ...mapGetters('user', ['userAvatar']),
     userAvatarSrc() {
       return this.userAvatar
-        ? "/user/api/" + this.userAvatar
-        : require("@/assets/imgs/robot-icon.png");
+        ? '/user/api/' + this.userAvatar
+        : require('@/assets/imgs/robot-icon.png');
     },
   },
   watch: {
@@ -407,7 +414,7 @@ export default {
       handler(val, oldVal) {},
       immediate: true,
     },
-    "session_data.history": {
+    'session_data.history': {
       handler() {
         this.$nextTick(() => {
           this.updateAllFileScrollStates();
@@ -419,28 +426,28 @@ export default {
   mounted() {
     this.setupScrollListener();
     smoothscroll.polyfill();
-    document.addEventListener("click", this.handleCitationClick);
-    window.addEventListener("resize", this.handleWindowResize);
+    document.addEventListener('click', this.handleCitationClick);
+    window.addEventListener('resize', this.handleWindowResize);
     this.updateAllFileScrollStates();
   },
   beforeDestroy() {
     if (this.handleCitationClick) {
-      document.removeEventListener("click", this.handleCitationClick);
+      document.removeEventListener('click', this.handleCitationClick);
     }
     const container = document.getElementById(this.scrollContainerId);
     if (container) {
-      container.removeEventListener("scroll", this.handleScroll);
+      container.removeEventListener('scroll', this.handleScroll);
     }
     clearTimeout(this.scrollTimeout);
 
-    window.removeEventListener("resize", this.handleWindowResize);
+    window.removeEventListener('resize', this.handleWindowResize);
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
     }
 
     // 移除图片错误事件监听器
     if (this.imageErrorHandler) {
-      document.body.removeEventListener("error", this.imageErrorHandler, true);
+      document.body.removeEventListener('error', this.imageErrorHandler, true);
     }
   },
   methods: {
@@ -462,8 +469,8 @@ export default {
         if (this.session_data.history[index]) {
           this.$set(
             this.session_data.history[index],
-            "showScrollBtn",
-            canScroll
+            'showScrollBtn',
+            canScroll,
           );
         }
         this.$set(this.fileScrollStateMap, index, canScroll);
@@ -492,7 +499,7 @@ export default {
         const container = containerArray[0];
         container.scrollBy({
           left: -200,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     },
@@ -504,7 +511,7 @@ export default {
         const container = containerArray[0];
         container.scrollBy({
           left: 200,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     },
@@ -515,17 +522,17 @@ export default {
       if (!n.fileList || n.fileList.length === 0 || !file || !file.name) {
         return false;
       }
-      let type = file.name.split(".").pop().toLowerCase();
-      return this.imgConfig.map((t) => t.toLowerCase()).includes(type);
+      let type = file.name.split('.').pop().toLowerCase();
+      return this.imgConfig.map(t => t.toLowerCase()).includes(type);
     },
     handleCitationClick(e) {
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
         sessionData: this.session_data,
-        citationSelector: ".citation",
+        citationSelector: '.citation',
         scrollElementId: this.scrollContainerId,
         onToggleCollapse: (item, collapse) => {
-          this.$set(item, "collapse", collapse);
+          this.$set(item, 'collapse', collapse);
         },
       });
     },
@@ -536,7 +543,7 @@ export default {
       let citation = `#message-container${index} .citation`;
       const allCitations = document.querySelectorAll(citation);
       const citationsSet = new Set();
-      allCitations.forEach((element) => {
+      allCitations.forEach(element => {
         const text = element.textContent.trim();
         if (text) {
           citationsSet.add(Number(text));
@@ -550,50 +557,50 @@ export default {
       let { meta_data } = item;
       let { file_name, download_link, page_num, row_num, sheet_name } =
         meta_data;
-      var index = file_name.lastIndexOf(".");
+      var index = file_name.lastIndexOf('.');
       var ext = file_name.substr(index + 1);
-      let openUrl = "";
+      let openUrl = '';
       let fileUrl = encodeURIComponent(download_link);
-      const fileType = ["docx", "doc", "txt", "pdf", "xlsx"];
+      const fileType = ['docx', 'doc', 'txt', 'pdf', 'xlsx'];
       if (fileType.includes(ext)) {
         switch (ext) {
-          case "docx" || "doc":
+          case 'docx' || 'doc':
             openUrl = `${window.location.origin}/doc?fileUrl=` + fileUrl;
             break;
-          case "txt":
+          case 'txt':
             openUrl = `${window.location.origin}/txtView?fileUrl=` + fileUrl;
             break;
-          case "pdf":
+          case 'pdf':
             if (page_num.length > 0) {
               openUrl =
                 `${window.location.origin}/pdfView?fileUrl=` +
                 fileUrl +
-                "&page=" +
+                '&page=' +
                 page_num[0];
             }
             break;
-          case "xlsx":
+          case 'xlsx':
             openUrl =
               `${window.location.origin}/jsExcel?url=` +
               fileUrl +
-              "&rownum=" +
+              '&rownum=' +
               row_num +
-              "&sheetName=" +
+              '&sheetName=' +
               sheet_name;
             break;
           default:
-            this.$message.warning("暂不支持此格式查看");
+            this.$message.warning('暂不支持此格式查看');
         }
       }
-      if (openUrl !== "") {
-        window.open(openUrl, "_blank", "noopener,noreferrer");
+      if (openUrl !== '') {
+        window.open(openUrl, '_blank', 'noopener,noreferrer');
       } else {
-        this.$message.warning("暂不支持此格式查看");
+        this.$message.warning('暂不支持此格式查看');
       }
     },
     setupScrollListener() {
       const container = document.getElementById(this.scrollContainerId);
-      container.addEventListener("scroll", this.handleScroll);
+      container.addEventListener('scroll', this.handleScroll);
     },
     handleScroll(e) {
       const container = document.getElementById(this.scrollContainerId);
@@ -624,23 +631,23 @@ export default {
 
       // 处理 think 标签
       if (thinkEnd.test(data)) {
-        n.thinkText = "已深度思考";
+        n.thinkText = '已深度思考';
         if (!thinkStart.test(data)) {
-          data = "<think>\n" + data;
+          data = '<think>\n' + data;
         }
       }
 
       // 新增处理 tool 标签
       if (toolEnd.test(data)) {
-        n.toolText = "已使用工具"; // 需要添加对应的翻译
+        n.toolText = '已使用工具'; // 需要添加对应的翻译
         if (!toolStart.test(data)) {
-          data = "<tool>\n" + data;
+          data = '<tool>\n' + data;
         }
       }
       // 统一替换为 section 标签
       return data
-        .replace(/think>/gi, "section>")
-        .replace(/tool>/gi, "section>");
+        .replace(/think>/gi, 'section>')
+        .replace(/tool>/gi, 'section>');
     },
     showDSBtn(data) {
       // const pattern = /<\/?think>/;
@@ -654,50 +661,50 @@ export default {
     toggle(event, index) {
       const name = event.target.className;
       if (
-        name === "deepseek" ||
-        name === "el-icon-arrow-up" ||
-        name === "el-icon-arrow-down"
+        name === 'deepseek' ||
+        name === 'el-icon-arrow-up' ||
+        name === 'el-icon-arrow-down'
       ) {
         this.session_data.history[index].isOpen =
           !this.session_data.history[index].isOpen;
         this.$set(
           this.session_data.history,
           index,
-          this.session_data.history[index]
+          this.session_data.history[index],
         );
         let elm = null;
-        if (name === "el-icon-arrow-up" || name === "el-icon-arrow-down") {
+        if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
           elm = event.target.parentNode.parentNode
-            .getElementsByClassName("answer-content")[0]
-            .getElementsByTagName("section")[0];
+            .getElementsByClassName('answer-content')[0]
+            .getElementsByTagName('section')[0];
         } else {
           elm = event.target.parentNode
-            .getElementsByClassName("answer-content")[0]
-            .getElementsByTagName("section")[0];
+            .getElementsByClassName('answer-content')[0]
+            .getElementsByTagName('section')[0];
         }
         if (!Boolean(this.session_data.history[index].isOpen)) {
-          elm.className = "hideDs";
+          elm.className = 'hideDs';
         } else {
-          elm.className = "";
+          elm.className = '';
         }
       }
     },
     queryCopy(text) {
-      this.$emit("queryCopy", text);
+      this.$emit('queryCopy', text);
     },
     copy(text) {
-      text = text.replaceAll("<br/>", "\n");
-      var textareaEl = document.createElement("textarea");
-      textareaEl.setAttribute("readonly", "readonly"); // 防止手机上弹出软键盘
+      text = text.replaceAll('<br/>', '\n');
+      var textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
       textareaEl.value = text;
       document.body.appendChild(textareaEl);
       textareaEl.select();
-      var res = document.execCommand("copy");
+      var res = document.execCommand('copy');
       document.body.removeChild(textareaEl);
       return res;
     },
     copycb() {
-      this.$message.success(this.$t("agent.copyTips"));
+      this.$message.success(this.$t('agent.copyTips'));
     },
     collapseClick(n, m, j) {
       if (!m.collapse) {
@@ -721,8 +728,8 @@ export default {
     codeScrollBottom() {
       this.$nextTick(() => {
         this.loading = false;
-        document.getElementsByTagName("code").scrollTop =
-          document.getElementsByTagName("code").scrollHeight;
+        document.getElementsByTagName('code').scrollTop =
+          document.getElementsByTagName('code').scrollHeight;
       });
     },
     pushHistory(data) {
@@ -731,19 +738,19 @@ export default {
     },
     replaceLastData(index, data) {
       if (!data.response) {
-        data.response = "无响应数据";
+        data.response = '无响应数据';
       }
       this.$set(this.session_data.history, index, data);
       this.scrollBottom();
       this.codeScrollBottom(); //code内容置底
       if (data.finish === 1) {
         const setCitations = this.setCitations(index);
-        this.$set(this.session_data.history[index], "citations", setCitations);
+        this.$set(this.session_data.history[index], 'citations', setCitations);
       }
     },
     getFileSizeDisplay(fileSize) {
-      if (!fileSize || typeof fileSize !== "number" || isNaN(fileSize)) {
-        return "...";
+      if (!fileSize || typeof fileSize !== 'number' || isNaN(fileSize)) {
+        return '...';
       }
       return fileSize > 1024
         ? `${(fileSize / (1024 * 1024)).toFixed(2)} MB`
@@ -768,10 +775,10 @@ export default {
     },
     clearData() {
       this.session_data = {
-        tool: "",
+        tool: '',
         searchList: [],
         history: [],
-        response: "",
+        response: '',
       };
     },
     loadAllImg() {
@@ -788,16 +795,16 @@ export default {
       });
     },
     gropdownClick() {
-      this.$emit("clearHistory");
+      this.$emit('clearHistory');
     },
     getList() {
       return JSON.parse(
         JSON.stringify(
-          this.session_data.history.filter((item) => {
+          this.session_data.history.filter(item => {
             delete item.operation;
             return item;
-          })
-        )
+          }),
+        ),
       );
       // return JSON.parse(JSON.stringify(this.session_data.history.filter((item)=>{ delete item.operation ; return !item.pending})))
     },
@@ -805,15 +812,15 @@ export default {
       return JSON.parse(JSON.stringify(this.session_data.history));
     },
     stopLoading() {
-      this.session_data.history = this.session_data.history.filter((item) => {
+      this.session_data.history = this.session_data.history.filter(item => {
         return !item.pending;
       });
     },
     stopPending() {
-      this.session_data.history = this.session_data.history.filter((item) => {
+      this.session_data.history = this.session_data.history.filter(item => {
         if (item.pending) {
           item.responseLoading = false;
-          item.pendingResponse = "本次回答已被终止";
+          item.pendingResponse = '本次回答已被终止';
         }
         return item;
       });
@@ -822,7 +829,7 @@ export default {
       if (this.sessionStatus === 0) {
         return;
       }
-      this.$emit("refresh");
+      this.$emit('refresh');
     },
     preZan(index, item) {
       if (this.sessionStatus === 0) {
@@ -852,7 +859,7 @@ export default {
     preTagging(response) {
       // canvas大小重置
       this.currImg = {
-        url: "",
+        url: '',
         width: 0,
         height: 0,
         w: 0,
@@ -869,8 +876,8 @@ export default {
         this.currImg.width = image.width;
         this.currImg.height = image.height;
         //if (!this.c) {
-        this.c = document.getElementById("mycanvas");
-        this.ctx = this.c.getContext("2d");
+        this.c = document.getElementById('mycanvas');
+        this.ctx = this.c.getContext('2d');
         //}
         this.resizeCanvas();
         this.initCanvasUtil();
@@ -892,7 +899,7 @@ export default {
       this.currImg.roteY = 0;
 
       let currImg = this.currImg;
-      let contain = document.getElementById("mycantain");
+      let contain = document.getElementById('mycantain');
       if (currImg.width > contain.offsetWidth) {
         // 宽度大于容器
         this.currImg.roteX = currImg.width / contain.offsetWidth;
@@ -926,23 +933,23 @@ export default {
     },
     listenerImg() {
       //捕获图片加载错误
-      this.imageErrorHandler = (e) => {
-        if (e.target.tagName === "IMG") {
+      this.imageErrorHandler = e => {
+        if (e.target.tagName === 'IMG') {
           this.handleImageError(e.target);
         }
       };
-      document.body.addEventListener("error", this.imageErrorHandler, true);
+      document.body.addEventListener('error', this.imageErrorHandler, true);
     },
     handleImageError(img) {
       // 防止重复处理
-      if (img.classList.contains("failed")) {
+      if (img.classList.contains('failed')) {
         return;
       }
-      img.classList.add("failed");
+      img.classList.add('failed');
 
       // 设置图片为不可见，避免闪烁
-      img.style.visibility = "hidden";
-      img.style.display = "none";
+      img.style.visibility = 'hidden';
+      img.style.display = 'none';
     },
   },
 };
@@ -1344,7 +1351,7 @@ export default {
       }
     }
     /deep/ section::before {
-      content: "";
+      content: '';
       position: absolute;
       height: 100%;
       width: 1px;
@@ -1411,7 +1418,7 @@ img.failed {
 }
 
 img.failed::after {
-  content: "图片加载失败";
+  content: '图片加载失败';
   position: absolute;
   top: 50%;
   left: 50%;

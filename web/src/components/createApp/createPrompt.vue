@@ -21,14 +21,18 @@
           >
             <img
               class="upload-img"
-              :src="form.avatar && form.avatar.path ? basePath + '/user/api/' + form.avatar.path : (defaultIcon || defaultLogo)"
+              :src="
+                form.avatar && form.avatar.path
+                  ? basePath + '/user/api/' + form.avatar.path
+                  : defaultIcon || defaultLogo
+              "
             />
             <p class="upload-hint" v-if="type !== detail">
-              {{$t('common.fileUpload.clickUploadImg')}}
+              {{ $t('common.fileUpload.clickUploadImg') }}
             </p>
           </el-upload>
         </el-form-item>
-        <el-form-item :label="$t('tempSquare.promptName')+':'" prop="name">
+        <el-form-item :label="$t('tempSquare.promptName') + ':'" prop="name">
           <el-input
             :placeholder="$t('tempSquare.namePlaceholder')"
             :disabled="type === detail"
@@ -37,7 +41,7 @@
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('tempSquare.promptDesc')+':'" prop="desc">
+        <el-form-item :label="$t('tempSquare.promptDesc') + ':'" prop="desc">
           <el-input
             type="textarea"
             :placeholder="$t('tempSquare.descPlaceholder')"
@@ -47,7 +51,11 @@
             maxlength="50"
           ></el-input>
         </el-form-item>
-        <el-form-item v-if="type !== 'copy'" :label="$t('tempSquare.promptText')+':'" prop="prompt">
+        <el-form-item
+          v-if="type !== 'copy'"
+          :label="$t('tempSquare.promptText') + ':'"
+          prop="prompt"
+        >
           <el-tooltip
             effect="dark"
             :content="$t('tempSquare.promptOptimize')"
@@ -70,8 +78,12 @@
         </el-form-item>
       </el-form>
       <span v-if="type !== detail" slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{$t('common.button.cancel')}}</el-button>
-        <el-button type="primary" @click="doSubmit">{{$t('common.button.confirm')}}</el-button>
+        <el-button @click="dialogVisible = false">
+          {{ $t('common.button.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="doSubmit">
+          {{ $t('common.button.confirm') }}
+        </el-button>
       </span>
     </el-dialog>
     <PromptOptimize ref="promptOptimize" @promptSubmit="promptSubmit" />
@@ -79,34 +91,38 @@
 </template>
 
 <script>
-import { uploadAvatar } from "@/api/user"
-import { copyPromptTemplate, createCustomPrompt, editCustomPrompt } from "@/api/templateSquare"
-import { PROMPT } from "@/views/tool/constants"
-import PromptOptimize from "@/components/promptOptimize.vue"
+import { uploadAvatar } from '@/api/user';
+import {
+  copyPromptTemplate,
+  createCustomPrompt,
+  editCustomPrompt,
+} from '@/api/templateSquare';
+import { PROMPT } from '@/views/tool/constants';
+import PromptOptimize from '@/components/promptOptimize.vue';
 
 export default {
   components: { PromptOptimize },
   props: {
     type: {
       type: String,
-      default: "create",
+      default: 'create',
     },
-    isCustom: false
+    isCustom: false,
   },
   data() {
     return {
       basePath: this.$basePath,
       dialogVisible: false,
-      defaultLogo: require("@/assets/imgs/bg-logo.png"),
+      defaultLogo: require('@/assets/imgs/bg-logo.png'),
       defaultIcon: '',
       form: {
         name: '',
         desc: '',
         avatar: {
           key: '',
-          path: ''
+          path: '',
         },
-        prompt: ''
+        prompt: '',
       },
       detail: 'detail',
       titleMap: {
@@ -119,68 +135,86 @@ export default {
       customPromptId: '',
       rules: {
         name: [
-          { required: true, message: this.$t('tempSquare.nameRules'), trigger: "change" },
-          { max:30, message:this.$t('tempSquare.promptNameRules'), trigger: "change" },
+          {
+            required: true,
+            message: this.$t('tempSquare.nameRules'),
+            trigger: 'change',
+          },
+          {
+            max: 30,
+            message: this.$t('tempSquare.promptNameRules'),
+            trigger: 'change',
+          },
           {
             validator: (rule, value, callback) => {
               if (/^[A-Za-z0-9.\u4e00-\u9fa5_-]+$/.test(value)) {
                 callback();
               } else {
-                callback(
-                  new Error(
-                    this.$t('tempSquare.namePlaceholder')
-                  )
-                );
+                callback(new Error(this.$t('tempSquare.namePlaceholder')));
               }
             },
-            trigger: "change",
+            trigger: 'change',
           },
         ],
         desc: [
-          { required: true, message: this.$t('tempSquare.descRules'), trigger: "blur" },
-          { max: 50, message: this.$t('tempSquare.promptLimitRules'), trigger: "blur"}
+          {
+            required: true,
+            message: this.$t('tempSquare.descRules'),
+            trigger: 'blur',
+          },
+          {
+            max: 50,
+            message: this.$t('tempSquare.promptLimitRules'),
+            trigger: 'blur',
+          },
         ],
         prompt: [
-          { required: true, message: this.$t('tempSquare.promptRules'), trigger: "blur" },
-        ]
+          {
+            required: true,
+            message: this.$t('tempSquare.promptRules'),
+            trigger: 'blur',
+          },
+        ],
       },
     };
   },
   created() {
-    const { defaultIcon = {} } = this.$store.state.user.commonInfo.data || {}
-    this.defaultIcon = defaultIcon.promptIcon ? this.$basePath + '/user/api/' + defaultIcon.promptIcon :  ''
+    const { defaultIcon = {} } = this.$store.state.user.commonInfo.data || {};
+    this.defaultIcon = defaultIcon.promptIcon
+      ? this.$basePath + '/user/api/' + defaultIcon.promptIcon
+      : '';
   },
   methods: {
     uploadAvatar(file, key) {
-      const formData = new FormData()
-      const config = {headers: { "Content-Type": "multipart/form-data" }}
-      formData.append(key, file)
-      return uploadAvatar(formData, config)
+      const formData = new FormData();
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      formData.append(key, file);
+      return uploadAvatar(formData, config);
     },
     handleUploadImage(data) {
       if (data.file) {
         this.uploadAvatar(data.file, 'avatar').then(res => {
-          const {key, path} = res.data || {}
-          this.form.avatar = {key, path}
-        })
+          const { key, path } = res.data || {};
+          this.form.avatar = { key, path };
+        });
       }
     },
     handleUploadError() {
-      this.$message.error(this.$t('common.message.uploadError'))
+      this.$message.error(this.$t('common.message.uploadError'));
     },
     openDialog(row) {
-      if(row) {
-        const {templateId, name, desc, avatar, prompt, customPromptId} = row
-        this.templateId = templateId
-        this.customPromptId = customPromptId
-        this.form = {name, desc, avatar, prompt}
+      if (row) {
+        const { templateId, name, desc, avatar, prompt, customPromptId } = row;
+        this.templateId = templateId;
+        this.customPromptId = customPromptId;
+        this.form = { name, desc, avatar, prompt };
       } else {
-        this.clearForm()
+        this.clearForm();
       }
-      this.dialogVisible = true
+      this.dialogVisible = true;
       this.$nextTick(() => {
-        this.$refs['form'].clearValidate()
-      })
+        this.$refs['form'].clearValidate();
+      });
     },
     clearForm() {
       this.form = {
@@ -188,46 +222,50 @@ export default {
         desc: '',
         avatar: {
           key: '',
-          path: ''
+          path: '',
         },
-        prompt: ''
+        prompt: '',
       };
     },
     showPromptOptimize() {
       if (!this.form.prompt) {
-        this.$message.warning(this.$t('tempSquare.promptOptimizeHint'))
-        return
+        this.$message.warning(this.$t('tempSquare.promptOptimizeHint'));
+        return;
       }
-      this.$refs.promptOptimize.openDialog(this.form)
+      this.$refs.promptOptimize.openDialog(this.form);
     },
     promptSubmit(prompt) {
-      this.form.prompt = prompt
+      this.form.prompt = prompt;
     },
     async doSubmit() {
-      await this.$refs.form.validate(async (valid) => {
+      await this.$refs.form.validate(async valid => {
         if (valid) {
           if (this.type === 'copy') {
-            const form = {...this.form, templateId: this.templateId}
-            delete form.prompt
-            const res = await copyPromptTemplate(form)
+            const form = { ...this.form, templateId: this.templateId };
+            delete form.prompt;
+            const res = await copyPromptTemplate(form);
             if (res.code === 0) {
-              this.$message.success(this.$t('tempSquare.copySuccess'))
-              this.dialogVisible = false
-              this.$router.push({ path: '/tool', query: { type: PROMPT } })
+              this.$message.success(this.$t('tempSquare.copySuccess'));
+              this.dialogVisible = false;
+              this.$router.push({ path: '/tool', query: { type: PROMPT } });
             }
-            return
+            return;
           }
 
-          const res = this.type === 'create'
-            ? await createCustomPrompt(this.form)
-            : await editCustomPrompt({...this.form, customPromptId: this.customPromptId})
+          const res =
+            this.type === 'create'
+              ? await createCustomPrompt(this.form)
+              : await editCustomPrompt({
+                  ...this.form,
+                  customPromptId: this.customPromptId,
+                });
           if (res.code === 0) {
-            this.$message.success(this.$t('common.message.success'))
-            this.dialogVisible = false
-            this.$emit('reload')
+            this.$message.success(this.$t('common.message.success'));
+            this.dialogVisible = false;
+            this.$emit('reload');
           }
         }
-      })
+      });
     },
   },
 };
@@ -243,7 +281,7 @@ export default {
     height: 98px;
     background: #eee;
     border-radius: 8px;
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
     display: inline-block;
     vertical-align: middle;
   }

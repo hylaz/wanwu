@@ -2,9 +2,13 @@
   <div class="doc-page-container">
     <div class="doc-header">
       <div class="doc-header__left">
-        <img v-if="homeLogoPath" style="height: 50px;" :src="basePath + '/user/api' + homeLogoPath"/>
+        <img
+          v-if="homeLogoPath"
+          style="height: 50px"
+          :src="basePath + '/user/api' + homeLogoPath"
+        />
         <span v-if="homeTitle">
-          {{homeTitle}}
+          {{ homeTitle }}
         </span>
       </div>
       <div class="doc-header__right">
@@ -14,7 +18,7 @@
           clearable
           placeholder=""
           :remote-method="visibleChange"
-          style="width: 500px;"
+          style="width: 500px"
           class="top-search-input"
           popper-class="top-search-popover"
           :popper-append-to-body="false"
@@ -23,27 +27,47 @@
           <i
             slot="prefix"
             class="el-input__icon el-icon-search"
-            style="font-weight: bolder; font-size: 16px;"
+            style="font-weight: bolder; font-size: 16px"
           />
           <div class="header_search-option" v-if="searchText">
-            <el-option v-if="searchList" :value="searchText" style="height: auto; background: #fff">
-              <div v-if="docLoading" style="text-align: center; padding: 50px 0">
-                <i class="el-icon-loading" style="font-size: 28px; "></i>
+            <el-option
+              v-if="searchList"
+              :value="searchText"
+              style="height: auto; background: #fff"
+            >
+              <div
+                v-if="docLoading"
+                style="text-align: center; padding: 50px 0"
+              >
+                <i class="el-icon-loading" style="font-size: 28px"></i>
               </div>
-              <div v-if="!docLoading && !(searchList && searchList.length)" style="text-align: center; padding: 50px 0">
-                <span style="font-size: 14px; font-weight: normal; color: #999">{{$t('header.noData')}}</span>
+              <div
+                v-if="!docLoading && !(searchList && searchList.length)"
+                style="text-align: center; padding: 50px 0"
+              >
+                <span style="font-size: 14px; font-weight: normal; color: #999">
+                  {{ $t('header.noData') }}
+                </span>
               </div>
               <div
                 v-if="!docLoading && searchList && searchList.length"
                 v-for="(item, index) in searchList"
                 :key="`search${item.title + index}`"
               >
-                <div class="header_search-title">{{item.title}}</div>
-                <div class="header_search-item" v-for="(it, i) in item.list" :key="`it${it.title + i}`">
+                <div class="header_search-title">{{ item.title }}</div>
+                <div
+                  class="header_search-item"
+                  v-for="(it, i) in item.list"
+                  :key="`it${it.title + i}`"
+                >
                   <div class="header_search-item-left">
-                    {{it.title}}
+                    {{ it.title }}
                   </div>
-                  <div class="header_search-item-right" @click="jumpMenu(it.url)" v-html="it.content" />
+                  <div
+                    class="header_search-item-right"
+                    @click="jumpMenu(it.url)"
+                    v-html="it.content"
+                  />
                 </div>
               </div>
             </el-option>
@@ -53,25 +77,47 @@
     </div>
     <div class="doc-outer-container">
       <div :class="['doc-inner-container']">
-        <el-aside style="min-width: 200px; width: auto; max-width: 300px" class="full-menu-aside">
+        <el-aside
+          style="min-width: 200px; width: auto; max-width: 300px"
+          class="full-menu-aside"
+        >
           <el-menu
             :default-openeds="defaultOpeneds"
             :default-active="activeIndex"
             class="el-menu-vertical-demo"
           >
-            <div v-for="(n,i) in menuList" :key="`${i}ml`">
+            <div v-for="(n, i) in menuList" :key="`${i}ml`">
               <!--有下一级-->
-              <el-submenu v-if="n.children && checkPerm(n.perm)" :index="n.index">
+              <el-submenu
+                v-if="n.children && checkPerm(n.perm)"
+                :index="n.index"
+              >
                 <template slot="title">
                   <i :class="n.icon || 'el-icon-menu'"></i>
-                  <span>{{n.name}}</span>
+                  <span>{{ n.name }}</span>
                 </template>
-                <div v-for="(m,j) in n.children" v-if="checkPerm(m.perm)" :key="`${j}cl`">
-                  <el-submenu v-if="m.children" :index="m.index" class="menu-indent">
-                    <template slot="title">{{m.name}}</template>
-                    <div v-for="(p,k) in m.children" :key="`${k}pl`" v-if="checkPerm(p.perm)">
-                      <el-submenu v-if="p.children" :index="p.index" class="menu-indent-sub">
-                        <template slot="title">{{p.name}}</template>
+                <div
+                  v-for="(m, j) in n.children"
+                  v-if="checkPerm(m.perm)"
+                  :key="`${j}cl`"
+                >
+                  <el-submenu
+                    v-if="m.children"
+                    :index="m.index"
+                    class="menu-indent"
+                  >
+                    <template slot="title">{{ m.name }}</template>
+                    <div
+                      v-for="(p, k) in m.children"
+                      :key="`${k}pl`"
+                      v-if="checkPerm(p.perm)"
+                    >
+                      <el-submenu
+                        v-if="p.children"
+                        :index="p.index"
+                        class="menu-indent-sub"
+                      >
+                        <template slot="title">{{ p.name }}</template>
                         <el-menu-item
                           v-for="(item, index) in p.children"
                           :key="`${index}itemEl`"
@@ -79,19 +125,36 @@
                           v-if="checkPerm(item.perm)"
                           @click="menuClick(item)"
                         >
-                          {{item.name}}
+                          {{ item.name }}
                         </el-menu-item>
                       </el-submenu>
-                      <el-menu-item v-else :index="p.index" @click="menuClick(p)">{{p.name}}</el-menu-item>
-                    </div >
+                      <el-menu-item
+                        v-else
+                        :index="p.index"
+                        @click="menuClick(p)"
+                      >
+                        {{ p.name }}
+                      </el-menu-item>
+                    </div>
                   </el-submenu>
-                  <el-menu-item v-else :index="m.index" @click="menuClick(m)" class="menu-indent-item">{{m.name}}</el-menu-item>
-                </div >
+                  <el-menu-item
+                    v-else
+                    :index="m.index"
+                    @click="menuClick(m)"
+                    class="menu-indent-item"
+                  >
+                    {{ m.name }}
+                  </el-menu-item>
+                </div>
               </el-submenu>
               <!--没有下一级-->
-              <el-menu-item :index="n.index" v-if="!n.children && checkPerm(n.perm)" @click="menuClick(n)">
+              <el-menu-item
+                :index="n.index"
+                v-if="!n.children && checkPerm(n.perm)"
+                @click="menuClick(n)"
+              >
                 <i :class="n.icon || 'el-icon-menu'"></i>
-                <span slot="title">{{n.name}}</span>
+                <span slot="title">{{ n.name }}</span>
               </el-menu-item>
             </div>
           </el-menu>
@@ -106,17 +169,17 @@
 </template>
 
 <script>
-import DocPage from "./components/docPage.vue"
-import { checkPerm } from "@/router/permission"
-import { DOC_FIRST_KEY } from "./constants"
-import { getDocMenu, getDocSearchContent } from "@/api/docs"
-import { fetchPermFirPath, fetchCurrentPathIndex } from "@/utils/util"
-import { mapGetters } from "vuex"
+import DocPage from './components/docPage.vue';
+import { checkPerm } from '@/router/permission';
+import { DOC_FIRST_KEY } from './constants';
+import { getDocMenu, getDocSearchContent } from '@/api/docs';
+import { fetchPermFirPath, fetchCurrentPathIndex } from '@/utils/util';
+import { mapGetters } from 'vuex';
 
 export default {
   components: { DocPage },
   data() {
-    return{
+    return {
       basePath: this.$basePath,
       homeLogoPath: '',
       homeTitle: '',
@@ -127,111 +190,113 @@ export default {
       searchList: [],
       searchText: '',
       activeIndex: '0',
-    }
+    };
   },
   watch: {
     $route: {
-      handler (val) {
-        this.changeMenuIndex(fetchCurrentPathIndex(val.path, this.menuList))
+      handler(val) {
+        this.changeMenuIndex(fetchCurrentPathIndex(val.path, this.menuList));
       },
       // 深度观察监听
-      deep: true
+      deep: true,
     },
-    commonInfo:{
+    commonInfo: {
       handler(val) {
-        const { home = {} } = val.data || {}
-        this.homeLogoPath = home.logo ? home.logo.path : ''
-        this.homeTitle = home.title || ''
+        const { home = {} } = val.data || {};
+        this.homeLogoPath = home.logo ? home.logo.path : '';
+        this.homeTitle = home.title || '';
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   computed: {
     ...mapGetters('user', ['commonInfo']),
   },
   async created() {
     // 获取菜单
-    this.getCurrentMenu()
+    this.getCurrentMenu();
   },
   methods: {
     checkPerm,
     jumpMenu(url) {
       // location.href = url
-      const [_, path] = url.split(`${this.$basePath}/aibase`)
-      this.$router.push({path})
+      const [_, path] = url.split(`${this.$basePath}/aibase`);
+      this.$router.push({ path });
     },
     loadSearchMenu() {
-      this.docLoading = true
-      this.searchList = []
-      getDocSearchContent({content: this.searchText}).then(res => {
-        this.docLoading = false
-        this.searchList = res.data || []
-      }).catch(() => {
-        this.docLoading = false
-      })
+      this.docLoading = true;
+      this.searchList = [];
+      getDocSearchContent({ content: this.searchText })
+        .then(res => {
+          this.docLoading = false;
+          this.searchList = res.data || [];
+        })
+        .catch(() => {
+          this.docLoading = false;
+        });
     },
     visibleChange(val) {
-      this.searchText = val
+      this.searchText = val;
       if (val) {
-        this.loadSearchMenu()
+        this.loadSearchMenu();
       }
     },
     menuClick(item) {
       if (item.redirect) {
-        item.redirect()
+        item.redirect();
       } else {
         // 文档中心返回不带页面 path 前缀，跳转加上 path 前缀，避免点击路径直接拼到当前链接后面等问题
-        this.$router.push({path: `/docCenter/pages/${item.path}`})
+        this.$router.push({ path: `/docCenter/pages/${item.path}` });
       }
     },
     getDocMenu() {
       return getDocMenu().then(res => {
-        this.docMenuList = res.data || []
-      })
+        this.docMenuList = res.data || [];
+      });
     },
     getCurrentMenu() {
-      const route = this.$route
+      const route = this.$route;
       this.getDocMenu().then(() => {
-        this.getMenuList(route)
-      })
+        this.getMenuList(route);
+      });
     },
     getMenuList() {
-      const { params, path } = this.$route || {}
-      const { id } = params || {}
-      let val = path
+      const { params, path } = this.$route || {};
+      const { id } = params || {};
+      let val = path;
       // 获取当前菜单列表
-      const menus = this.docMenuList
-      this.menuList = menus
-      this.defaultOpeneds = menus.map(item => item.index)
+      const menus = this.docMenuList;
+      this.menuList = menus;
+      this.defaultOpeneds = menus.map(item => item.index);
 
       // 跳转到文档中心第一个菜单栏
       if (id === DOC_FIRST_KEY) {
-        const { path } = fetchPermFirPath(menus)
-        val = path
-        this.$router.push({path})
+        const { path } = fetchPermFirPath(menus);
+        val = path;
+        this.$router.push({ path });
       }
 
       // 给当前 activeIndex 赋值
-      this.changeMenuIndex(fetchCurrentPathIndex(val, menus))
+      this.changeMenuIndex(fetchCurrentPathIndex(val, menus));
     },
     changeMenuIndex(index) {
-      this.activeIndex = index
+      this.activeIndex = index;
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
 .doc-page-container {
-  height:100%;
-  .doc-outer-container{
+  height: 100%;
+  .doc-outer-container {
     height: calc(100% - 90px);
     background: #fff;
     width: calc(100% - 130px);
     margin: 0 auto;
     border-radius: 8px;
     /*element ui 样式重写*/
-    .doc-inner-container{
+    .doc-inner-container {
       height: 100%;
       display: flex;
       .el-aside.full-menu-aside {
@@ -241,7 +306,7 @@ export default {
         overflow-x: auto;
         border-right: 1px solid #ededed;
         border-radius: 8px 0 0 0;
-        .el-menu{
+        .el-menu {
           min-height: 100%;
           width: fit-content;
           overflow-x: auto;
@@ -250,7 +315,7 @@ export default {
           .menu-indent-item {
             padding-left: 49px !important;
           }
-          .menu-indent-sub /deep/ .el-submenu__title{
+          .menu-indent-sub /deep/ .el-submenu__title {
             padding-left: 60px !important;
           }
         }
@@ -298,7 +363,7 @@ export default {
     }
   }
 }
-.doc-header{
+.doc-header {
   padding: 20px 0;
   display: flex;
   justify-content: center;

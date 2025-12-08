@@ -1,12 +1,12 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/6ceb4269-a861-4545-84db-bad322592156" style="width:45%; height:auto;" />
 <p>
-  <a href="#-核心功能模块">核心功能模組</a> •
-  <a href="#-典型應用場景">典型應用場景</a> •
-  <a href="#-快速開始">快速開始</a> •
-  <a href="#-使用萬悟">使用萬悟</a> •
-  <a href="#-q--a">Q & A</a> •
-  <a href="#-聯繫我們">聯繫我們</a> 
+  <a href="#🚩 核心功能模組">核心功能模組</a> •
+  <a href="#x1F3AF; 典型應用場景">典型應用場景</a> •
+  <a href="#🚀 快速開始">快速開始</a> •
+  <a href="#x1F4D1; 使用萬悟">使用萬悟</a> •
+  <a href="#128172; Q & A">Q & A</a> •
+  <a href="#x1F4E9; 聯繫我們">聯繫我們</a> 
 </p>
 <p>
   <img alt="License" src="https://img.shields.io/badge/license-apache2.0-blue.svg">
@@ -22,6 +22,7 @@
     繁體中文
 </p>
 </div>
+
 
 
 &emsp;&emsp;**元景萬悟智能體平台**是一款面向**企業級**場景的**一站式**、**商用license友好**的**智能體開發平台**，致力於為企業提供安全、高效、合規的一站式AI解決方案。我們以「技術開放、生態共建」為核心理念，透過整合大語言模型、業務流程自動化等前沿技術，構建了覆蓋模型全生命週期管理、MCP、聯網檢索、智能體快速開發、企業知識庫建設、複雜工作流編排等完整功能體系的AI工程化平台。平台採用模組化架構設計，支援靈活的功能擴展和二次開發，在確保企業數據安全和隱私保護的同時，大幅降低了AI技術的應用門檻。無論是中小型企業快速構建智能化應用，還是大型企業實現複雜業務場景的智能化改造，元景萬悟智能體平台都能提供強有力的技術支撐，助力企業加速數字化轉型進程，實現降本增效和業務創新。
@@ -66,7 +67,7 @@
 
 ▸ **內置豐富精選推薦**：整合100+行業MCP介面，讓用戶方便快捷，輕鬆調用
 
-#### **3. 聯網檢索**（Web Search）
+#### **3. 聯網檢索（Web Search）**
 ▸ **即時信息獲取**：具備強大的聯網檢索能力，能夠即時從互聯網獲取最新的信息。在問答場景中，當用戶的問題需要最新的新聞、數據等信息時，平台可以快速檢索並返回準確的結果，提升回答的時效性和準確性
 
 ▸ **多源數據整合**：整合了多種互聯網數據源，包括新聞網站、學術資料庫、行業報告等。透過對多源數據的整合和分析，為用戶提供更全面、更深入的信息。例如，在市場調研場景中，可以同時從多個數據源獲取相關數據，進行綜合分析和評估
@@ -205,6 +206,20 @@
 
 ------
 
+### ✨ 新版智能體
+
+- 自v0.3.0起：我們上線了基於Go實現的新版智能體，完全相容舊版智能體的使用方式；目前預設仍使用舊版智能體，歡迎啟用新版
+
+1. 修改.env文件中的`WANWU_BFF_USE_NEW_AGENT`變量，啟用新版智能體
+    ```bash
+    # bff agent
+    WANWU_BFF_USE_NEW_AGENT=1
+    ```
+
+2. 基於上述Docker安裝步驟，將系統服務完整啟動
+
+------
+
 ### ⬆️ 版本升級
 
 1. 基於上述Docker安裝步驟，將系統服務完整停止
@@ -231,6 +246,28 @@
 
 ------
 
+### ➡️ 信創適配（TiDB & OceanBase）
+
+1. 基於上述Docker安裝步驟，完成首次運行前的設定
+
+2. 根據需要修改.env文件中的`WANWU_DB_NAME`變量（以TiDB為例）
+   ```bash
+   # db: mysql | tidb | oceanbase
+   WANWU_DB_NAME=tidb
+   ```
+
+3. 啟動資料庫（以amd64為例）
+   ```bash
+   # tidb
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.tidb.yaml up -d
+   # oceanbase
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.oceanbase.yaml up -d
+   ```
+
+4. 基於上述Docker安裝步驟，將系統服務完整啟動
+
+------
+
 ### &#x1F4D1; 使用萬悟
 為了幫助您快速上手本項目，我們強烈推薦先查看[ 文檔操作手冊](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual)。我們為用戶提供了交互式、結構化的操作指南，您可以直接在其中查看操作說明、接口文檔等，極大地降低了學習和使用的門檻。詳細功能清單如下：
 
@@ -248,6 +285,7 @@
 | [MCP廣場](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.MCP%E5%B9%BF%E5%9C%BA.md) |          內建 100+ 精選行業 MCP server，即選即用。           |
 | [模板廣場](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.模板广场.md) |              內建 50 + 優選行業提示詞，即選即用              |
 | [設定](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | 平台支援多租戶，允許使用者進行組織、角色、使用者管理、平台基礎配置。 |
+| [知識圖譜UniAI-GraphRAG](https://github.com/UnicomAI/wanwu/blob/66539378255f9a1da80b02a83e75c7a5155f7f87/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E3%80%81%E9%97%AE%E7%AD%94%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md) | UniAI-GraphRAG 結合領域知識本體建模、知識圖譜與社區報告構建、圖檢索增強生成等技術，可有效提升知識問答的完整性、邏輯性與可信度。可顯著提升跨多文檔總結與多跳關係推理等複雜問答場景的問答效果。 |
 
 ------
 

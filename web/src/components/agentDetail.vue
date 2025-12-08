@@ -1,14 +1,8 @@
 <template>
-  <div
-    class="mcp-detail"
-    id="timeScroll"
-  >
-    <span
-      class="back"
-      @click="back"
-    >
-    <span class="el-icon-arrow-left"></span>
-     {{ $t('menu.back')}}
+  <div class="mcp-detail" id="timeScroll">
+    <span class="back" @click="back">
+      <span class="el-icon-arrow-left"></span>
+      {{ $t('menu.back') }}
     </span>
     <div class="mcp-title">
       <img
@@ -16,25 +10,17 @@
         v-if="detail.avatar && detail.avatar.path"
         :src="basePath + '/user/api/' + detail.avatar.path"
       />
-      <div :class="['info',{fold:foldStatus}]">
-        <p class="name">{{detail.name}}</p>
-        <p
-          v-if="detail.desc && detail.desc.length > 260"
-          class="desc"
-        >
-          {{foldStatus ? detail.desc : detail.desc.slice(0,268) + '...'}}
-          <span
-            class="arrow"
-            v-show="detail.desc.length > 260"
-            @click="fold"
-          >
-            {{foldStatus ? $t('common.button.fold') : $t('common.button.detail')}}
+      <div :class="['info', { fold: foldStatus }]">
+        <p class="name">{{ detail.name }}</p>
+        <p v-if="detail.desc && detail.desc.length > 260" class="desc">
+          {{ foldStatus ? detail.desc : detail.desc.slice(0, 268) + '...' }}
+          <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
+            {{
+              foldStatus ? $t('common.button.fold') : $t('common.button.detail')
+            }}
           </span>
         </p>
-        <p
-          v-else
-          class="desc"
-        >{{detail.desc}}</p>
+        <p v-else class="desc">{{ detail.desc }}</p>
       </div>
     </div>
     <div class="main">
@@ -43,17 +29,11 @@
           <div class="overview bg-border">
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.summary') }}</div>
-              <div
-                class="item-desc"
-                v-html="parseTxt(detail.summary)"
-              ></div>
+              <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
             </div>
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.feature') }}</div>
-              <div
-                class="item-desc"
-                v-html="parseTxt(detail.feature)"
-              ></div>
+              <div class="item-desc" v-html="parseTxt(detail.feature)"></div>
             </div>
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.scenario') }}</div>
@@ -64,7 +44,9 @@
           </div>
           <div class="overview bg-border">
             <div class="overview-item">
-              <div class="item-title" style="width:110px;">• &nbsp;{{ $t('agent.agentDetail.workFlowInstruction') }}</div>
+              <div class="item-title" style="width: 110px">
+                • &nbsp;{{ $t('agent.agentDetail.workFlowInstruction') }}
+              </div>
               <div
                 class="item-desc"
                 v-html="parseTxt(detail.workFlowInstruction)"
@@ -75,10 +57,12 @@
       </div>
 
       <div class="right-recommend">
-        <p style="margin: 20px 0;color: #333;">{{ $t('agent.agentDetail.recommend') }}</p>
+        <p style="margin: 20px 0; color: #333">
+          {{ $t('agent.agentDetail.recommend') }}
+        </p>
         <div
           class="recommend-item"
-          v-for="(item ,i) in recommendList"
+          v-for="(item, i) in recommendList"
           :key="`${i}rc`"
           @click="handleClick(item)"
         >
@@ -87,83 +71,88 @@
             v-if="item.avatar && item.avatar.path"
             :src="basePath + '/user/api/' + item.avatar.path"
           />
-          <p class="name">{{item.name}}</p>
-          <p class="intro">{{item.desc}}</p>
+          <p class="name">{{ item.name }}</p>
+          <p class="intro">{{ item.desc }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { md } from '@/mixins/marksown-it'
-import { agnetTemplateList,agnetTemplateDetail } from "@/api/appspace"
+import { md } from '@/mixins/marksown-it';
+import { agnetTemplateList, agnetTemplateDetail } from '@/api/appspace';
 
 export default {
   data() {
     return {
       basePath: this.$basePath,
-      md:md,
+      md: md,
       detail: {},
-      foldStatus:false,
+      foldStatus: false,
       recommendList: [],
-      assistantTemplateId:''
+      assistantTemplateId: '',
     };
   },
   watch: {
     $route: {
       handler() {
-        this.initData()
+        this.initData();
       },
       // 深度观察监听
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
-    this.initData()
-    this.getRecommendList()
+    this.initData();
+    this.getRecommendList();
   },
   methods: {
-    fold(){
-      this.foldStatus = !this.foldStatus
+    fold() {
+      this.foldStatus = !this.foldStatus;
     },
-    initData(){
-      this.assistantTemplateId = this.$route.query.id
-      this.getDetailData()
+    initData() {
+      this.assistantTemplateId = this.$route.query.id;
+      this.getDetailData();
 
       //滚动到顶部
-      const main = document.querySelector(".el-main > .page-container")
-      if (main) main.scrollTop = 0
+      const main = document.querySelector('.el-main > .page-container');
+      if (main) main.scrollTop = 0;
     },
-    getDetailData(){
-      agnetTemplateDetail({assistantTemplateId:this.assistantTemplateId}).then((res) => {
-          this.detail = res.data || {}
-      })
+    getDetailData() {
+      agnetTemplateDetail({
+        assistantTemplateId: this.assistantTemplateId,
+      }).then(res => {
+        this.detail = res.data || {};
+      });
     },
     getRecommendList() {
-      agnetTemplateList({category:'',name:''}).then((res) => {
-        this.recommendList = [...(res.data.list || [])].splice(0, 5)
-      })
+      agnetTemplateList({ category: '', name: '' }).then(res => {
+        this.recommendList = [...(res.data.list || [])].splice(0, 5);
+      });
     },
-    handleClick(item){
+    handleClick(item) {
       this.assistantTemplateId = item.assistantTemplateId;
       this.getDetailData();
     },
     // 解析文本，遇到.换行等
-    parseTxt(txt){
-      if (!txt) return ''
-      const text = txt.replaceAll('\n\t','<br/>&nbsp;').replaceAll('\n','<br/>').replaceAll('\t', '   &nbsp;')
-      return text
+    parseTxt(txt) {
+      if (!txt) return '';
+      const text = txt
+        .replaceAll('\n\t', '<br/>&nbsp;')
+        .replaceAll('\n', '<br/>')
+        .replaceAll('\t', '   &nbsp;');
+      return text;
     },
     back() {
-      this.$router.push({path: '/appSpace/agent'})
+      this.$router.push({ path: '/appSpace/agent' });
     },
-  }
+  },
 };
 </script>
 <style lang="scss">
-@import "@/style/markdown.scss";
+@import '@/style/markdown.scss';
 .markdown-body {
-  font-family: "Microsoft YaHei", Arial, sans-serif;
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
   color: #333;
 }
 .mcp-detail {

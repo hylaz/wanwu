@@ -346,13 +346,69 @@ func (s *Service) GetKnowledgeGraph(ctx context.Context, req *knowledgebase_serv
 	}, nil
 }
 
+func (s *Service) GetExportRecordList(ctx context.Context, req *knowledgebase_service.GetExportRecordListReq) (*knowledgebase_service.GetExportRecordListResp, error) {
+	userId, orgId := req.UserId, req.OrgId
+	permission, err := orm.SelectUserKnowledgePermission(ctx, req.UserId, req.OrgId, req.KnowledgeId)
+	if err != nil {
+		log.Errorf(fmt.Sprintf("CheckKnowledgeUserPermission 失败(%v)  参数(%v)", err, req))
+		return nil, util.ErrCode(errs.Code_KnowledgePermissionDeny)
+	}
+	if permission.PermissionType == model.PermissionTypeGrant || permission.PermissionType == model.PermissionTypeSystem {
+		userId, orgId = "", ""
+	}
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	list, err := orm.SelectKnowledgeExportTaskByKnowledgeId(ctx, req.KnowledgeId, userId, orgId, req.PageSize, req.PageNum)
+	if err != nil {
+		log.Errorf("select QA export task failed err: (%v) req:(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeExportRecordsSelectFailed)
+	}
+	return buildExportRecordListResp(knowledge, list, int64(len(list)), req.PageSize, req.PageNum), nil
+}
+
+func (s *Service) DeleteExportRecord(ctx context.Context, req *knowledgebase_service.DeleteExportRecordReq) (*emptypb.Empty, error) {
+	err := orm.DeleteExportTaskById(ctx, req.ExportRecordId)
+	if err != nil {
+		log.Errorf("delete knowledge qa export record fail: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeDeleteExportRecordFailed)
+	}
+	return nil, nil
+}
+
+// buildExportRecordListResp 构造问答库导出记录列表
+func buildExportRecordListResp(knowledge *model.KnowledgeBase, list []*model.KnowledgeExportTask, total int64, pageSize int32, pageNum int32) *knowledgebase_service.GetExportRecordListResp {
+	var retList = make([]*knowledgebase_service.ExportRecordInfo, 0)
+	if len(list) > 0 {
+		for _, item := range list {
+			retList = append(retList, &knowledgebase_service.ExportRecordInfo{
+				ExportRecordId: item.ExportId,
+				Status:         int32(item.Status),
+				ErrorMsg:       item.ErrorMsg,
+				FilePath:       item.ExportFilePath,
+				UserId:         item.UserId,
+				ExportTime:     pkg_util.Time2Str(item.CreatedAt),
+				KnowledgeName:  knowledge.Name,
+			})
+		}
+	}
+	return &knowledgebase_service.GetExportRecordListResp{
+		ExportRecordInfos: retList,
+		Total:             total,
+		PageSize:          pageSize,
+		PageNum:           pageNum,
+	}
+}
+
 func buildDocMetaMap(docMetaList []*model.KnowledgeDocMeta) map[string]map[string][]*model.KnowledgeDocMeta {
 	docMetaMap := make(map[string]map[string][]*model.KnowledgeDocMeta)
 	for _, v := range docMetaList {
 		if _, exists := docMetaMap[v.DocId]; !exists {
 			docMetaMap[v.DocId] = make(map[string][]*model.KnowledgeDocMeta)
 		}
-		if v.Value != "" {
+		if v.ValueMain != "" {
 			docMetaMap[v.DocId][v.Key] = append(docMetaMap[v.DocId][v.Key], v)
 		}
 	}
@@ -405,8 +461,9 @@ func handleAddMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, meta 
 	for _, docId := range req.DocIdList {
 		existMetaList := docMetaMap[docId][meta.MetaInfo.Key]
 		if len(existMetaList) > 0 {
-			existMetaList[0].Value = meta.MetaInfo.Value
+			existMetaList[0].ValueMain = meta.MetaInfo.Value
 			*updateList = append(*updateList, existMetaList[0])
+			// 删除多余的元数据,只保留更新后的
 			for i := 1; i < len(existMetaList); i++ {
 				*deleteList = append(*deleteList, existMetaList[i].MetaId)
 			}
@@ -418,7 +475,7 @@ func handleAddMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, meta 
 				UserId:      req.UserId,
 				OrgId:       req.OrgId,
 				Key:         meta.MetaInfo.Key,
-				Value:       meta.MetaInfo.Value,
+				ValueMain:   meta.MetaInfo.Value,
 				ValueType:   meta.MetaInfo.Type,
 			})
 		}
@@ -429,8 +486,9 @@ func handleUpdateMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, me
 	for _, docId := range req.DocIdList {
 		existMetaList := docMetaMap[docId][meta.MetaInfo.Key]
 		if len(existMetaList) > 0 {
-			existMetaList[0].Value = meta.MetaInfo.Value
+			existMetaList[0].ValueMain = meta.MetaInfo.Value
 			*updateList = append(*updateList, existMetaList[0])
+			// 删除多余的元数据,只保留更新后的
 			for i := 1; i < len(existMetaList); i++ {
 				*deleteList = append(*deleteList, existMetaList[i].MetaId)
 			}
@@ -442,7 +500,7 @@ func handleUpdateMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, me
 				UserId:      req.UserId,
 				OrgId:       req.OrgId,
 				Key:         meta.MetaInfo.Key,
-				Value:       meta.MetaInfo.Value,
+				ValueMain:   meta.MetaInfo.Value,
 				ValueType:   meta.MetaInfo.Type,
 			})
 		}
@@ -849,7 +907,7 @@ func buildKnowledgeMetaValueListResp(metaList []*model.KnowledgeDocMeta) *knowle
 	retMap := make(map[string]*knowledgebase_service.KnowledgeMetaValues)
 	var retList []*knowledgebase_service.KnowledgeMetaValues
 	for _, meta := range metaList {
-		if meta.Value == "" || meta.Key == "" || meta.ValueType == "" {
+		if meta.ValueMain == "" || meta.Key == "" || meta.ValueType == "" {
 			continue
 		}
 		if _, exists := retMap[meta.Key]; !exists {
@@ -857,10 +915,10 @@ func buildKnowledgeMetaValueListResp(metaList []*model.KnowledgeDocMeta) *knowle
 				MetaId:    meta.MetaId,
 				Key:       meta.Key,
 				Type:      meta.ValueType,
-				ValueList: []string{meta.Value},
+				ValueList: []string{meta.ValueMain},
 			}
 		} else {
-			retMap[meta.Key].ValueList = append(retMap[meta.Key].ValueList, meta.Value)
+			retMap[meta.Key].ValueList = append(retMap[meta.Key].ValueList, meta.ValueMain)
 		}
 	}
 	for _, retMeta := range retMap {

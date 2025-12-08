@@ -13,6 +13,8 @@ service KnowledgeBaseDocService {
   rpc GetDocDetail(GetDocDetailReq) returns (DocInfo) {}
   // 上传文档
   rpc ImportDoc(ImportDocReq) returns (google.protobuf.Empty) {}
+  // 导出文档
+  rpc ExportDoc(ExportDocReq) returns (google.protobuf.Empty) {}
   // 更新文档状态
   rpc UpdateDocStatus(UpdateDocStatusReq) returns (google.protobuf.Empty) {}
   // 更新文档元数据
@@ -60,6 +62,7 @@ message GetDocListReq{
   string userId = 6;
   string orgId = 7;
   string docTag = 8; //文档标签
+  string metaValue = 9;
 }
 
 message GetDocDetailReq{
@@ -94,6 +97,13 @@ message ImportDocReq {
   string ocrModelId = 8; //ocr模型id
   repeated string docPreprocess = 9;//文本预处理规则
   repeated DocMetaData docMetaDataList = 10; // 元数据列表
+}
+
+message ExportDocReq {
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3; //知识库id
+  repeated string docIdList = 4;//文档id列表
 }
 
 message DocMetaData{

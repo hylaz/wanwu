@@ -1,5 +1,10 @@
 <template>
-  <iframe id="pdf-view-iframe" :src="fileUrl" width="100%" height="100%"></iframe>
+  <iframe
+    id="pdf-view-iframe"
+    :src="fileUrl"
+    width="100%"
+    height="100%"
+  ></iframe>
 </template>
 <script>
 export default {
@@ -7,28 +12,26 @@ export default {
   components: {},
   data() {
     return {
-      fileUrl: "",
-    }
+      fileUrl: '',
+    };
   },
   watch: {
     $route: {
       deep: true,
       handler: function (to) {
         if (to.query) {
-          let fileUrl = to.query.fileUrl
-          this.fileUrl = fileUrl
+          let fileUrl = to.query.fileUrl;
+          this.fileUrl = fileUrl;
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
-  created() { },
+  created() {},
   mounted() {
-    this.$nextTick(() => {
-    })
+    this.$nextTick(() => {});
   },
-  methods: {
-  }
-}
+  methods: {},
+};
 </script>
 <style lang="scss" scoped></style>

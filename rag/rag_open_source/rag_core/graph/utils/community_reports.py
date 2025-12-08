@@ -60,6 +60,19 @@ class CommunityReportsResult:
     structured_output: list[dict]
 
 
+def is_valid_name(name: str) -> bool:
+    """判断名称或属性是否有效：非空、非全标点、长度大于1且不是常见无效符号。"""
+    if not name or not isinstance(name, str):
+        return False
+    name = name.strip()
+    if not name or len(name) <= 1:
+        return False
+    # 只包含标点或特殊符号
+    if re.fullmatch(r'[:：,，.。;；!！?？\-_=+\s]+', name):
+        return False
+    return True
+
+
 class CommunityReportsExtractor:
     """Community reports extractor class definition."""
 
@@ -130,7 +143,7 @@ class CommunityReportsExtractor:
             nonlocal res_str, res_dict
             cm_id, cm = community
             ents = cm["nodes"]
-            if len(ents) < 2:
+            if len(ents) <= 2:
                 return
 
             new_ents = copy.deepcopy(ents)
@@ -174,13 +187,31 @@ class CommunityReportsExtractor:
             if edge[2]["relation"] == "has_attribute":
                 target_node = edge[1]
                 source_node = edge[0]
+                # 过滤无效实体/属性
+                if not is_valid_name(target_node) or not is_valid_name(source_node):
+                    continue
                 if target_node not in attribute_comm:
                     attribute_comm[target_node] = [source_node, target_node]  # 直接加上自身
                 else:
                     attribute_comm[target_node].append(source_node)
 
-        # 过滤掉节点数量<=2的社区
-        attribute_comm = {k: {"nodes": v} for k, v in attribute_comm.items() if len(v) > 2}
+        # 过滤掉节点数量<=3的社区
+        attribute_comm = {k: {"nodes": v} for k, v in attribute_comm.items() if len(v) > 3}
+
+        attribute_keys_to_remove = set()
+        attribute_sets = {k: set(v["nodes"]) for k, v in attribute_comm.items()}
+        # 只考虑 level==0 的社区
+        for level, comm in communities.items():
+            if int(level) > 0:
+                continue
+            for cm_id, cm in comm.items():
+                comm_nodes_set = set(cm["nodes"])
+                for attr_key, attr_nodes_set in attribute_sets.items():
+                    if attr_nodes_set == comm_nodes_set:
+                        attribute_keys_to_remove.add(attr_key)
+        for k in attribute_keys_to_remove:
+            attribute_comm.pop(k, None)
+
         logger.info(f"attribute_comm: {attribute_comm}")
 
         with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:

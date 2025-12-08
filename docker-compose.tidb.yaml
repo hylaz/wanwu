@@ -1,0 +1,44 @@
+services:
+
+  # ------ middleware ------
+
+  tidb:
+    restart: always
+    image: ${WANWU_TIDB_IMAGE}
+    container_name: ${WANWU_TIDB_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 4000:4000
+    volumes:
+      - wanwu_tidb_data:/tmp/tidb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10080/status"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  tidb-setup:
+    depends_on:
+      tidb:
+        condition: service_healthy
+    restart: on-failure
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: ${WANWU_TIDB_HOST}-setup
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    environment:
+      WANWU_TIDB_HOST: ${WANWU_TIDB_HOST}
+      WANWU_TIDB_PORT: ${WANWU_TIDB_PORT}
+      WANWU_TIDB_USER: ${WANWU_TIDB_USER}
+      WANWU_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      WANWU_TIDB_SQL_FILE: configs/middleware/mysql/initdb.d/init.sql
+    command: ./bin/tidb-setup
+
+networks:
+  wanwu-net:
+    external: true
+
+volumes:
+  wanwu_tidb_data:

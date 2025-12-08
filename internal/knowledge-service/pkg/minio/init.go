@@ -32,12 +32,21 @@ func (c ClientMinio) Load() error {
 	if err != nil {
 		return err
 	}
-	//初始化对外公开bucket
+	//初始化Rag对外公开bucket
 	err = minio.InitKnowledge(context.Background(), minio.Config{
 		Endpoint: minioConfig.EndPoint,
 		User:     minioConfig.User,
 		Password: minioConfig.Password,
 	}, minioConfig.PublicRagBucket, true)
+	if err != nil {
+		return err
+	}
+	//初始化导出文件对外公开bucket
+	err = minio.InitKnowledge(context.Background(), minio.Config{
+		Endpoint: minioConfig.EndPoint,
+		User:     minioConfig.User,
+		Password: minioConfig.Password,
+	}, minioConfig.PublicExportBucket, true)
 	if err != nil {
 		return err
 	}

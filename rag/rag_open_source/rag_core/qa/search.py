@@ -59,12 +59,17 @@ def search_qa_base(question, top_k, threshold=0.0, return_meta=False, retrieve_m
             return response_info
         if rerank_mod == "rerank_model":
             documents = [{"text": qa_info["question"]} for qa_info in qa_result_list]
-            sorted_scores, sorted_search_list = rerank_utils.get_model_rerank(question, top_k, documents,
-                                                                              qa_result_list, rerank_model_id)
+            rerank_result = rerank_utils.get_model_rerank(question, top_k, documents,
+                                                          qa_result_list, rerank_model_id)
         elif rerank_mod == "weighted_score":
-            sorted_scores, sorted_search_list = es_utils.qa_weighted_rerank(question, weights, top_k, search_list_infos)
+            rerank_result = es_utils.qa_weighted_rerank(question, weights, top_k, search_list_infos)
         else:
             raise Exception("rerank_mod is not valid")
+        if rerank_result["code"] != 0:
+            logger.warn(f"rerank failed, rerank method: {rerank_mod}, rerank result: {rerank_result}")
+            raise RuntimeError(rerank_result["message"])
+        sorted_scores = rerank_result['data']["sorted_scores"]
+        sorted_search_list = rerank_result['data']["sorted_search_list"]
 
         if not return_meta:
             for x in sorted_search_list:

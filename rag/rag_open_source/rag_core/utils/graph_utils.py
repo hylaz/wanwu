@@ -326,9 +326,13 @@ def update_community_reports(user_id: str, kb_name: str, report:dict, kb_id = ""
     }
 
     old_content_id = report["report_id"]
+    embedding_content = report['content']
+    if report['title'] not in report['content']:
+        embedding_content = f"# {report['title']} \n\n {report['content']}"
     chunk = {
-        "content": report["content"],
-        "embedding_content": report["title"],
+        "title": report["title"],
+        "content": embedding_content,
+        "embedding_content": embedding_content[:200],
     }
 
     report_response = milvus_utils.get_content_by_ids(user_id, kb_name, [old_content_id],
@@ -382,9 +386,11 @@ def batch_add_community_reports(user_id: str, kb_name: str, reports:list, kb_id:
 
     chunks = []
     for item in reports:
+        embedding_content = f"# {item['title']} \n\n {item['content']}"
         chunks.append({
-            "content": f"# {item['title']} \n\n {item['content']}",
-            "embedding_content": item["title"],
+            "title": item["title"],
+            "content": embedding_content,
+            "embedding_content": embedding_content[:200],
             "create_time": str(int(time.time() * 1000))
         })
 
@@ -454,7 +460,11 @@ def get_community_report_list(user_id: str, kb_name: str, page_size: int, search
     if response_info["code"] == 0:
         content_list = response_info["data"]["content_list"]
         for content_info in content_list:
-            content_info["report_title"] = content_info["embedding_content"]
+            if "title" in content_info:
+                content_info["report_title"] = content_info["title"]
+            else:
+                # 兼容旧字段
+                content_info["report_title"] = content_info["embedding_content"]
             content_info.pop("embedding_content")
     logger.info(f"get_community_report_list end: {user_id}, kb_name: {kb_name}, kb_id: {kb_id}, "
                 f"page_size:{page_size}, search_after:{search_after}, response: {response_info}")

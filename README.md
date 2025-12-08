@@ -1,12 +1,12 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/6ceb4269-a861-4545-84db-bad322592156" style="width:45%; height:auto;" />
 <p>
-  <a href="#-Using Wanwu">Feature List</a> •
-  <a href="#-Typical Application Scenarios">Typical Application Scenarios</a> •
-  <a href="#-Quick Start">Quick Start</a> •
-  <a href="#-Using Wanwu">Using Wanwu</a> •
-  <a href="#-q--a">Q & A</a> •
-  <a href="#-Contact Us">Contact Us</a> 
+  <a href="#🚩 Core Function Modules">Core Function Modules</a> •
+  <a href="#x1F3AF; Typical Application Scenarios">Typical Application Scenarios</a> •
+  <a href="#🚀 Quick Start">Quick Start</a> •
+  <a href="#x1F4D1; Using Wanwu">Using Wanwu</a> •
+  <a href="#128172; Q & A">Q & A</a> •
+  <a href="#x1F4E9; Contact Us">Contact Us</a> 
 </p>
 <p>
   <img alt="License" src="https://img.shields.io/badge/license-apache2.0-blue.svg">
@@ -53,7 +53,7 @@
 
 ### 🚩 Core Function Modules
 
-#### **1. Model Management (Model Hub**)
+#### **1. Model Management (Model Hub)**
 ▸ Supports the unified access and lifecycle management of **hundreds of proprietary/open-source large models** (including GPT, Claude, Llama, etc.)
 
 ▸ Deeply adapts to **OpenAI API standards** and **Unicom Yuanjing** ecological models, realizing seamless switching of heterogeneous models
@@ -72,7 +72,7 @@
 
 ▸ **Intelligent search strategy**: Adopt intelligent search algorithms, automatically optimize search strategies based on user questions to improve search efficiency and accuracy. Support keyword search, semantic search and other search methods to meet the needs of different users. At the same time, intelligently sort and filter search results, prioritize the display of the most relevant and valuable information
 
-#### **4. Visual Workflow (Workflow Studio**)
+#### **4. Visual Workflow (Workflow Studio)**
 ▸ Quickly build complex AI business processes through **low-code drag-and-drop canvas**
 
 ▸ Built-in **conditional branching, API, large model, knowledge base, code, MCP** and other nodes, support end-to-end process debugging and performance analysis
@@ -82,12 +82,12 @@
 
 ▸ Integrates **multi-modal retrieval**, **cascading segmentation** and **adaptive segmentation**, significantly improves the accuracy of Q&A
 
-#### **6. AI Agent Development Framework (Agent Framework**)
-▸ Can be based on the **function call (Function Calling**) agent construction paradigm, supports tool expansion, private knowledge base association and multi-round dialogue
+#### **6. AI Agent Development Framework (Agent Framework)**
+▸ Can be based on the **function call (Function Calling)** agent construction paradigm, supports tool expansion, private knowledge base association and multi-round dialogue
 
 ▸ Support **online debugging**
 
-#### **7. Backend as a Service (BaaS**)
+#### **7. Backend as a Service (BaaS)**
 ▸ Provides **RESTful API**, supports deep integration with existing enterprise systems (OA/CRM/ERP, etc.)
 
 ▸ Provides **fine-grained permission control** to ensure stable operation in production environments
@@ -128,7 +128,7 @@ The platform has been successfully applied in multiple industries such as **fina
   - v0.1.8 and earlier: wanwu-agentscope project
   - v0.2.0 and later: [wanwu-workflow](https://github.com/UnicomAI/wanwu-workflow/tree/dev/wanwu-backend) project
 
-- **Docker Installation (Recommended**)
+- **Docker Installation (Recommended)**
 
 1. Before the first run
 
@@ -182,7 +182,7 @@ The platform has been successfully applied in multiple industries such as **fina
     docker compose --env-file .env --env-file .env.image.arm64 down
     ```
 
-- **Source Code Start (Development**)
+- **Source Code Start (Development)**
 
 1. Based on the above Docker installation steps, start the system service completely
 
@@ -205,6 +205,20 @@ The platform has been successfully applied in multiple industries such as **fina
     ```
     make -f Makefile.develop run-bff
     ```
+
+------
+
+### ✨ New Intelligent Agent
+
+- Starting from v0.3.0: We have launched a new version of the intelligent agent implemented in Go, which is fully compatible with the legacy agent. By default, the system currently uses the legacy agent, feel free to enable the new one
+
+1. Modify the `WANWU_BFF_USE_NEW_AGENT` variable in the .env file to enable the new agent
+    ```bash
+    # bff agent
+    WANWU_BFF_USE_NEW_AGENT=1
+    ```
+
+2. Based on the above Docker installation steps, completely start the system service
 
 ------
 
@@ -234,6 +248,24 @@ The platform has been successfully applied in multiple industries such as **fina
 
 ------
 
+### ➡️ Xinchuang Adaptation (TiDB & OceanBase)
+
+1. Based on the above Docker installation steps, complete step before the first run
+
+2. Modify the `WANWU_DB_NAME` variable in the .env file according to the database
+
+3. Start the database (using amd64 as an example)
+   ```bash
+   # tidb
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.tidb.yaml up -d
+   # oceanbase
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.oceanbase.yaml up -d
+   ```
+
+4. Based on the above Docker installation steps, completely start the system service
+
+------
+
 ### &#x1F4D1; Using Wanwu
 To help you quickly get started with this project, we strongly recommend that you first check out the [ Documentation Operation Manual](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual). We provide users with interactive and structured operation guides, where you can directly view operation instructions, interface documents, etc., greatly reducing the threshold for learning and use. The detailed function list is as follows:
 
@@ -250,6 +282,7 @@ To help you quickly get started with this project, we strongly recommend that yo
 | [MCP Hub](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.MCP%E5%B9%BF%E5%9C%BA.md) | Features 100+ pre-selected industry-specific MCP servers, ready for immediate use. |
 | [Template Plaza](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.%E6%A8%A1%E6%9D%BF%E5%B9%BF%E5%9C%BA.md) | Built-in with 50+ optimized industry prompts, available for immediate use. |
 | [Settings](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | The platform supports multi-tenancy, allowing users to manage organizations, roles, users, and perform basic platform configuration. |
+| [UniAI-GraphRAG](https://github.com/UnicomAI/wanwu/blob/66539378255f9a1da80b02a83e75c7a5155f7f87/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E3%80%81%E9%97%AE%E7%AD%94%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md) | UniAI-GraphRAG integrates techniques such as domain knowledge ontology modeling, knowledge graph and community report construction, and Graph Retrieval-Augmented Generation to effectively enhance the completeness, logical coherence, and credibility of knowledge question answering. It significantly improves performance in complex QA scenarios like cross-document summarization and multi-hop relational reasoning. |
 
 ------
 

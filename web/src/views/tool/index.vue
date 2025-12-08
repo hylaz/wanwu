@@ -2,27 +2,42 @@
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/tool.svg" alt=""/>
+        <img class="page-title-img" src="@/assets/imgs/tool.svg" alt="" />
         <span class="page-title-name">{{ $t('menu.tool') }}</span>
       </div>
       <!-- tabs -->
       <div class="mcp-tabs">
-        <div :class="['mcp-tab',{ 'active': ![tool, prompt].includes(tabActive) }]" @click="tabClick(mcp)">{{ $t('tool.mcp') }}</div>
-        <div :class="['mcp-tab',{ 'active': tabActive === tool }]" @click="tabClick(tool)">{{ $t('tool.tool') }}</div>
-        <div :class="['mcp-tab',{ 'active': tabActive === prompt }]" @click="tabClick(prompt)">{{ $t('tool.prompt.title') }}</div>
+        <div
+          :class="['mcp-tab', { active: ![tool, prompt].includes(tabActive) }]"
+          @click="tabClick(mcp)"
+        >
+          {{ $t('tool.mcp') }}
+        </div>
+        <div
+          :class="['mcp-tab', { active: tabActive === tool }]"
+          @click="tabClick(tool)"
+        >
+          {{ $t('tool.tool') }}
+        </div>
+        <div
+          :class="['mcp-tab', { active: tabActive === prompt }]"
+          @click="tabClick(prompt)"
+        >
+          {{ $t('tool.prompt.title') }}
+        </div>
       </div>
 
-      <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)"/>
-      <tool ref="tool" v-if="tabActive === tool"/>
-      <prompt ref="prompt" v-if="tabActive === prompt"/>
+      <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)" />
+      <tool ref="tool" v-if="tabActive === tool" />
+      <prompt ref="prompt" v-if="tabActive === prompt" />
     </div>
   </div>
 </template>
 <script>
-import mcp from './mcp'
-import tool from './tool'
-import prompt from './prompt'
-import { MCP, TOOL, PROMPT } from './constants'
+import mcp from './mcp';
+import tool from './tool';
+import prompt from './prompt';
+import { MCP, TOOL, PROMPT } from './constants';
 
 export default {
   data() {
@@ -36,26 +51,26 @@ export default {
   watch: {
     $route: {
       handler() {
-        const {type} = this.$route.query || {}
-        this.tabActive = type
+        const { type } = this.$route.query || {};
+        this.tabActive = type;
       },
       // 深度观察监听
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
-    const {type} = this.$route.query || {}
-    this.tabActive = type
+    const { type } = this.$route.query || {};
+    this.tabActive = type;
   },
   methods: {
     tabClick(type) {
-      this.tabActive = type
+      this.tabActive = type;
     },
   },
   components: {
     mcp,
     tool,
-    prompt
+    prompt,
   },
 };
 </script>
@@ -145,7 +160,9 @@ export default {
 
       &:hover {
         cursor: pointer;
-        box-shadow: 0 2px 8px #171a220d, 0 4px 16px #0000000f;
+        box-shadow:
+          0 2px 8px #171a220d,
+          0 4px 16px #0000000f;
         border: 1px solid $border_color;
       }
 

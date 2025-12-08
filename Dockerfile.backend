@@ -6,6 +6,7 @@ ARG WANWU_ARCH
 WORKDIR /app
 COPY . .
 
+RUN make build-tidb-setup-$WANWU_ARCH
 RUN make build-bff-$WANWU_ARCH
 RUN make build-iam-$WANWU_ARCH
 RUN make build-model-$WANWU_ARCH
@@ -13,6 +14,7 @@ RUN make build-mcp-$WANWU_ARCH
 RUN make build-knowledge-$WANWU_ARCH
 RUN make build-rag-$WANWU_ARCH
 RUN make build-assistant-$WANWU_ARCH
+RUN make build-agent-$WANWU_ARCH
 RUN make build-app-$WANWU_ARCH
 RUN make build-operate-$WANWU_ARCH
 
@@ -21,7 +23,10 @@ FROM --platform=linux/$WANWU_ARCH golang:1.24-alpine
 ARG WANWU_ARCH
 WORKDIR /app
 
-COPY configs/microservice ./configs/microservice
+COPY configs ./configs
+
+# tidb-setup
+COPY --from=builder /app/bin/$WANWU_ARCH/tidb-setup ./bin/tidb-setup
 
 # bff-service
 COPY --from=builder /app/bin/$WANWU_ARCH/bff-service ./bin/bff-service
@@ -50,6 +55,10 @@ EXPOSE 9640
 # assistant-servie
 COPY --from=builder /app/bin/$WANWU_ARCH/assistant-service ./bin/assistant-service
 EXPOSE 8890
+
+# agent-servie
+COPY --from=builder /app/bin/$WANWU_ARCH/agent-service ./bin/agent-service
+EXPOSE 8990
 
 # app-servie
 COPY --from=builder /app/bin/$WANWU_ARCH/app-service ./bin/app-service

@@ -1,9 +1,35 @@
 import networkx as nx
-import editdistance
 import re
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple
 from graph.config import get_config
 from graph.utils import call_llm_api
+
+def _levenshtein_distance(a: str, b: str) -> int:
+    """Compute Levenshtein edit distance between two strings"""
+    if a == b:
+        return 0
+    la, lb = len(a), len(b)
+    if la == 0:
+        return lb
+    if lb == 0:
+        return la
+
+    # ensure a is the shorter string to use less memory
+    if la > lb:
+        a, b = b, a
+        la, lb = lb, la
+
+    previous_row = list(range(la + 1))
+    for i in range(1, lb + 1):
+        c = b[i - 1]
+        current_row = [i] + [0] * la
+        for j in range(1, la + 1):
+            insertions = previous_row[j] + 1
+            deletions = current_row[j - 1] + 1
+            substitutions = previous_row[j - 1] + (a[j - 1] != c)
+            current_row[j] = min(insertions, deletions, substitutions)
+        previous_row = current_row
+    return previous_row[la]
 
 
 class LLMEntityResolver:
@@ -27,8 +53,11 @@ class LLMEntityResolver:
         # 1. 基于名称找到候选对
         candidate_pairs = self._find_similar_entities(old_graph, new_graph)
 
-        # 2. 使用LLM辅助决策
-        confirmed_mappings = self._llm_decision(candidate_pairs, old_graph, new_graph)
+        # 2. 归一：每个node_i只保留最相似的目标
+        best_pairs = self._select_best_match(candidate_pairs)
+
+        # 3. 使用LLM辅助决策
+        confirmed_mappings = self._llm_decision(best_pairs, old_graph, new_graph)
 
         return confirmed_mappings
 
@@ -37,9 +66,9 @@ class LLMEntityResolver:
             old_graph: nx.Graph,
             new_graph: nx.Graph
     ) -> List[Tuple[str, str]]:
-        """基于名称相似性找到候选实体对"""
-        temp_nodes = []
+        """基于名称相似性找到候选实体对，包括new_graph内部归一"""
         candidates = []
+        # 1. old_graph vs new_graph
         for new_node in new_graph.nodes():
             new_attrs = new_graph.nodes[new_node]
             new_type = new_attrs.get('label')
@@ -54,20 +83,38 @@ class LLMEntityResolver:
                 if new_type == old_type and new_schema_type == old_schema_type and self._is_name_similar(new_node, old_node):
                     candidates.append((new_node, old_node))
 
+        # 2. new_graph 内部归一（两两组合）
+        new_nodes = list(new_graph.nodes())
+        n = len(new_nodes)
+        for i in range(n):
+            node_i = new_nodes[i]
+            attrs_i = new_graph.nodes[node_i]
+            type_i = attrs_i.get('label')
+            schema_type_i = attrs_i['properties'].get('schema_type', '')
+            for j in range(i + 1, n):
+                node_j = new_nodes[j]
+                attrs_j = new_graph.nodes[node_j]
+                type_j = attrs_j.get('label')
+                schema_type_j = attrs_j['properties'].get('schema_type', '')
+                # 类型和schema_type相同且名称相似
+                if type_i == type_j and schema_type_i == schema_type_j and self._is_name_similar(node_i, node_j):
+                    candidates.append((node_i, node_j))
         return candidates
 
     def _is_name_similar(self, name1: str, name2: str) -> bool:
         """判断两个名称是否相似"""
+        distance = _levenshtein_distance(name1.lower(), name2.lower())
+        return distance <= min(len(name1), len(name2)) // 2
         # 英文使用编辑距离
-        if self._is_english(name1) and self._is_english(name2):
-            distance = editdistance.eval(name1.lower(), name2.lower())
-            return distance <= min(len(name1), len(name2)) // 2
-
-        # 中文使用字符重叠
-        chars1, chars2 = set(name1), set(name2)
-        overlap = len(chars1 & chars2)
-        total = len(chars1 | chars2)
-        return overlap / total > 0.6 if total > 0 else False
+        # if self._is_english(name1) and self._is_english(name2):
+        #     distance = _levenshtein_distance(name1.lower(), name2.lower())
+        #     return distance <= min(len(name1), len(name2)) // 2
+        #
+        # # 中文使用字符重叠
+        # chars1, chars2 = set(name1), set(name2)
+        # overlap = len(chars1 & chars2)
+        # total = len(chars1 | chars2)
+        # return overlap / total > 0.6 if total > 0 else False
 
     def _is_english(self, text: str) -> bool:
         """判断是否为英文文本"""
@@ -123,7 +170,13 @@ class LLMEntityResolver:
         ]
         for idx, (new_name, old_name) in enumerate(candidate_pairs, 1):
             new_attrs = new_graph.nodes[new_name]['properties']
-            old_attrs = old_graph.nodes[old_name]['properties']
+            # 判断 old_name 属于哪个图
+            if old_name in old_graph.nodes:
+                old_attrs = old_graph.nodes[old_name]['properties']
+            elif old_name in new_graph.nodes:
+                old_attrs = new_graph.nodes[old_name]['properties']
+            else:
+                continue
 
             if new_graph.nodes[new_name].get('label') == "entity":
                 prompt_lines.append(f"实体对 {idx}:")
@@ -172,3 +225,11 @@ class LLMEntityResolver:
 
         return mappings
 
+    def _select_best_match(self, candidate_pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+        """对每个node_i只保留编辑距离最小的归一目标"""
+        best_map = {}
+        for node_i, node_j in candidate_pairs:
+            dist = _levenshtein_distance(node_i.lower(), node_j.lower())
+            if node_i not in best_map or dist < best_map[node_i][1]:
+                best_map[node_i] = (node_j, dist)
+        return [(node_i, node_j) for node_i, (node_j, _) in best_map.items()]

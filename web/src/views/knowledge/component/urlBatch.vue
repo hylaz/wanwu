@@ -31,15 +31,18 @@
               v-if="fileList.length > 0 && fileList[0].back === 'true'"
             ></i>
             <div class="el-upload__text" v-if="fileList.length <= 0">
-              {{ $t('common.fileUpload.uploadText') }}<em>&nbsp;{{ $t('common.fileUpload.uploadClick') }}</em>
+              {{ $t('common.fileUpload.uploadText') }}
+              <em>&nbsp;{{ $t('common.fileUpload.uploadClick') }}</em>
             </div>
           </div>
 
           <div class="el-upload__tip" slot="tip" style="color: red">
-            {{$t('knowledgeManage.clickUploadTips')}}&nbsp;&nbsp;
-            <a :href="templateUrl">{{ $t('common.fileUpload.templateClick') }}</a>
+            {{ $t('knowledgeManage.clickUploadTips') }}&nbsp;&nbsp;
+            <a :href="templateUrl">
+              {{ $t('common.fileUpload.templateClick') }}
+            </a>
             <br />
-            {{$t('knowledgeManage.notReshContent')}}
+            {{ $t('knowledgeManage.notReshContent') }}
           </div>
         </el-upload>
         <div
@@ -51,38 +54,51 @@
             :loading="loading.start"
             v-if="fileList[0].agin !== true"
             @click="handleClick('start')"
-            >{{$t('knowledgeManage.startAnalysis')}}</el-button
           >
+            {{ $t('knowledgeManage.startAnalysis') }}
+          </el-button>
           <el-button
             type="primary"
             :loading="loading.agin"
             v-if="fileList[0].agin === true"
             @click="handleClick('agin')"
-            >{{$t('knowledgeManage.refreshAnalysis')}}</el-button
           >
+            {{ $t('knowledgeManage.refreshAnalysis') }}
+          </el-button>
           <div>
-            {{$t('knowledgeManage.total')}}<span>{{
-              Number(batchRes.fail_count) + Number(batchRes.success_count) || 0
-            }}</span
-            >{{$t('knowledgeManage.Piece')}}，<span>{{ batchRes.success_count || 0 }}</span>
-           {{$t('knowledgeManage.analysisFinish')}}，<span>{{ batchRes.fail_count || 0 }}</span>
-            {{$t('knowledgeManage.analysisFail')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {{ $t('knowledgeManage.total') }}
+            <span>
+              {{
+                Number(batchRes.fail_count) + Number(batchRes.success_count) ||
+                0
+              }}
+            </span>
+            {{ $t('knowledgeManage.Piece') }}，
+            <span>{{ batchRes.success_count || 0 }}</span>
+            {{ $t('knowledgeManage.analysisFinish') }}，
+            <span>{{ batchRes.fail_count || 0 }}</span>
+            {{
+              $t('knowledgeManage.analysisFail')
+            }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <!-- v-if="fileList.length > 0 && fileList[0].agin === true" -->
 
             <a
               href="#"
               v-if="fileList.length > 0 && fileList[0].agin === true"
               @click.prevent="drawer = true"
-              >{{$t('knowledgeManage.viewDetail')}}</a
             >
+              {{ $t('knowledgeManage.viewDetail') }}
+            </a>
           </div>
-          <div>{{$t('knowledgeManage.analysisFailTips')}}</div>
+          <div>{{ $t('knowledgeManage.analysisFailTips') }}</div>
         </div>
         <div
           class="aginUp"
           v-if="fileList.length > 0 && fileList[0].back === 'error'"
         >
-          <el-button type="primary" @click="submitVisible">{{$t('knowledgeManage.reUpload')}}</el-button>
+          <el-button type="primary" @click="submitVisible">
+            {{ $t('knowledgeManage.reUpload') }}
+          </el-button>
         </div>
         <transition name="el-zoom-in-top">
           <ul class="document_lises">
@@ -105,8 +121,9 @@
                   <i class="el-icon-warning" v-if="item.back === 'error'"></i>
                 </span>
               </div>
-            </li></ul
-        ></transition>
+            </li>
+          </ul>
+        </transition>
       </el-form-item>
     </el-form>
 
@@ -121,7 +138,7 @@
     >
       <div class="content">
         <div class="item">
-          <h4>{{$t('knowledgeManage.analysisSuccess')}}</h4>
+          <h4>{{ $t('knowledgeManage.analysisSuccess') }}</h4>
           <el-table
             border
             :data="batchRes.success"
@@ -137,14 +154,16 @@
               :label="$t('knowledgeManage.ID')"
               align="center"
               width="50"
-            >
-            </el-table-column>
-            <el-table-column prop="url" label="URL" align="center">
-            </el-table-column>
+            ></el-table-column>
+            <el-table-column
+              prop="url"
+              label="URL"
+              align="center"
+            ></el-table-column>
           </el-table>
         </div>
         <div class="item">
-          <h4>{{$t('knowledgeManage.fail')}}</h4>
+          <h4>{{ $t('knowledgeManage.fail') }}</h4>
           <el-table
             border
             :data="batchRes.error"
@@ -160,36 +179,36 @@
               :label="$t('knowledgeManage.ID')"
               width="50"
               align="center"
-            >
-            </el-table-column>
+            ></el-table-column>
             <el-table-column
               prop="url"
               label="URL"
               show-overflow-tooltip
               align="center"
-            >
-            </el-table-column>
+            ></el-table-column>
           </el-table>
         </div>
       </div>
       <div class="demo-drawer__footer">
-        <el-button @click="handleClose">{{$t('knowledgeManage.backAnalysis')}}</el-button>
-        <el-button type="primary" @click="handleSave" :loading="loading.btn"
-          >{{$t('knowledgeManage.saveIntoData')}}</el-button
-        >
+        <el-button @click="handleClose">
+          {{ $t('knowledgeManage.backAnalysis') }}
+        </el-button>
+        <el-button type="primary" @click="handleSave" :loading="loading.btn">
+          {{ $t('knowledgeManage.saveIntoData') }}
+        </el-button>
       </div>
     </el-drawer>
   </div>
 </template>
 <script>
-import { batchurl, batchUrlTaskStatus, importBatchUrl } from "@/api/knowledge";
-import axios from "axios";
+import { batchurl, batchUrlTaskStatus, importBatchUrl } from '@/api/knowledge';
+import axios from 'axios';
 
 export default {
   props: {
     categoryId: {
       type: String,
-      default: "",
+      default: '',
     },
     validate: {
       type: Boolean,
@@ -198,11 +217,11 @@ export default {
   },
   data() {
     return {
-      templateUrl: "",
+      templateUrl: '',
       source: [],
-      backId: "", // 上传文档返回的id
+      backId: '', // 上传文档返回的id
       batchRes: {}, // 解析结果
-      maxHeight: "",
+      maxHeight: '',
       drawer: false,
       fileList: [],
       urlConut: 1,
@@ -213,7 +232,7 @@ export default {
         agin: false,
         btn: false,
       },
-      oldList: [{ value: "" }], //保存上一次url结果
+      oldList: [{ value: '' }], //保存上一次url结果
     };
   },
   created() {
@@ -222,33 +241,34 @@ export default {
     this.templateUrl = window.location.origin + '/img/downFile/' + fileName;
   },
   mounted() {
-    this.$emit("handleSetDisabled", true);
+    this.$emit('handleSetDisabled', true);
   },
   methods: {
     handleDisClick() {
       if (!this.categoryId) {
-        this.$emit("handleValidate");
+        this.$emit('handleValidate');
       }
     },
     handleClose() {
       this.drawer = false;
     },
     handleClick(type) {
-      if (type === "start") {
+      if (type === 'start') {
         this.loading.start = true;
-        this.$set(this.fileList[0], "loading", true);
+        this.$set(this.fileList[0], 'loading', true);
         this.startPolling();
       } else {
         this.loading.start = false;
         this.loading.agin = true;
-        this.$set(this.fileList[0], "loading", true);
+        this.$set(this.fileList[0], 'loading', true);
         this.aginPolling();
       }
     },
     startPolling() {
       batchUrlTaskStatus({
         taskId: this.backId,
-      }).then((res) => {
+      })
+        .then(res => {
           if (res.code === 0) {
             if (res.data.completed !== true) {
               setTimeout(() => {
@@ -257,33 +277,34 @@ export default {
               return;
             } else {
               this.batchRes = res.data;
-              this.batchRes.success = this.batchRes.url_list.filter((item) => {
+              this.batchRes.success = this.batchRes.url_list.filter(item => {
                 return item.status === 10;
               });
-              this.batchRes.error = this.batchRes.url_list.filter((item) => {
+              this.batchRes.error = this.batchRes.url_list.filter(item => {
                 return item.status === 57;
               });
               console.log(this.batchRes);
-              this.$emit("handleSetBatchDisabled", false);
+              this.$emit('handleSetBatchDisabled', false);
             }
           } else {
-            this.$emit("handleSetBatchDisabled", true);
+            this.$emit('handleSetBatchDisabled', true);
           }
           this.loading.start = false;
-          this.$set(this.fileList[0], "agin", true);
-          this.$set(this.fileList[0], "loading", false);
-        }).catch((err) => {
+          this.$set(this.fileList[0], 'agin', true);
+          this.$set(this.fileList[0], 'loading', false);
+        })
+        .catch(err => {
           this.loading.start = false;
-          this.$set(this.fileList[0], "agin", true);
-          this.$set(this.fileList[0], "loading", false);
-          this.$emit("handleSetBatchDisabled", true);
+          this.$set(this.fileList[0], 'agin', true);
+          this.$set(this.fileList[0], 'loading', false);
+          this.$emit('handleSetBatchDisabled', true);
         });
     },
     aginPolling() {
       batchUrlTaskStatus({
         taskId: this.backId,
       })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             if (res.data.completed !== true) {
               setTimeout(() => {
@@ -292,28 +313,28 @@ export default {
               return;
             } else {
               this.batchRes = res.data;
-              this.batchRes.success = this.batchRes.url_list.filter((item) => {
+              this.batchRes.success = this.batchRes.url_list.filter(item => {
                 return item.status === 10;
               });
-              this.batchRes.error = this.batchRes.url_list.filter((item) => {
+              this.batchRes.error = this.batchRes.url_list.filter(item => {
                 return item.status === 57;
               });
             }
           } else {
-            this.$emit("handleSetBatchDisabled", true);
+            this.$emit('handleSetBatchDisabled', true);
           }
-          this.$emit("handleSetBatchDisabled", false);
+          this.$emit('handleSetBatchDisabled', false);
           this.loading.agin = false;
-          this.$set(this.fileList[0], "loading", false);
+          this.$set(this.fileList[0], 'loading', false);
         })
-        .catch((err) => {
+        .catch(err => {
           this.loading.agin = false;
-          this.$set(this.fileList[0], "loading", false);
-          this.$emit("handleSetBatchDisabled", true);
+          this.$set(this.fileList[0], 'loading', false);
+          this.$emit('handleSetBatchDisabled', true);
         });
     },
     async handleChange(file, fileList) {
-      await this.$emit("handleValidate");
+      await this.$emit('handleValidate');
       if (this.validate) {
         if (!this.verifyFormat(file) || !this.verifyEmpty(file)) return false;
         this.fileList = fileList;
@@ -325,18 +346,18 @@ export default {
     handleRemove() {
       this.fileList = [];
       this.batchRes = {};
-      this.$emit("handleSetBatchDisabled", true);
-      this.$set(this.fileList[0], "loading", false);
+      this.$emit('handleSetBatchDisabled', true);
+      this.$set(this.fileList[0], 'loading', false);
       this.loading.start = false;
       this.loading.agin = false;
     },
     //  验证文件为空
     verifyEmpty(file) {
       if (file.size <= 0) {
-        this.$message.warning(file.name + this.$t('knowledgeManage.filterFile'));
-        this.fileList = this.fileList.filter(
-          (files) => files.name !== file.name
+        this.$message.warning(
+          file.name + this.$t('knowledgeManage.filterFile'),
         );
+        this.fileList = this.fileList.filter(files => files.name !== file.name);
         return false;
       }
       return true;
@@ -348,12 +369,12 @@ export default {
         this.$message.warning(this.$t('knowledgeManage.selectFile'));
         return;
       }
-      if (this.fileList[0].status === "ready") {
+      if (this.fileList[0].status === 'ready') {
         // const type = this.fileList[0].name.split(".")[1];
         let formData = new FormData();
-        formData.append("file", this.fileList[0].raw);
+        formData.append('file', this.fileList[0].raw);
         // formData.append("fileType", type);
-        formData.append("categoryId", this.categoryId);
+        formData.append('categoryId', this.categoryId);
         this.importDoc(formData, 0);
       }
       // }
@@ -361,50 +382,50 @@ export default {
     },
     importDoc(data, index) {
       // this.uploading = true;
-      this.$set(this.fileList[index], "loading", true);
-      this.$set(this.fileList[index], "back", null);
+      this.$set(this.fileList[index], 'loading', true);
+      this.$set(this.fileList[index], 'back', null);
       const cancel = axios.CancelToken.source();
       this.source.push(cancel);
       batchurl(data, cancel.token)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.backId = res.data;
             // this.$set(this.fileList[index], "id", res.data);
-            this.$set(this.fileList[index], "back", "true");
-            this.$set(this.fileList[index], "loading", false);
+            this.$set(this.fileList[index], 'back', 'true');
+            this.$set(this.fileList[index], 'loading', false);
             // this.resultDisabled = false;
             this.$message.success(this.$t('knowledgeManage.uploadSuccess'));
             // this.uploading = false;
           } else {
             // this.uploading = false;
-            this.$set(this.fileList[index], "back", "error");
-            this.$set(this.fileList[index], "loading", false);
+            this.$set(this.fileList[index], 'back', 'error');
+            this.$set(this.fileList[index], 'loading', false);
             // this.$message.error(res.message);
           }
         })
-        .catch((err) => {
-          this.$set(this.fileList[index], "back", "error");
-          this.$set(this.fileList[index], "loading", false);
+        .catch(err => {
+          this.$set(this.fileList[index], 'back', 'error');
+          this.$set(this.fileList[index], 'loading', false);
         });
     },
     //  验证文件格式大小
     verifyFormat(file) {
-      var testmsg = file.name.substring(file.name.lastIndexOf(".") + 1);
+      var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1);
 
-      const extension = testmsg === "xlsx";
+      const extension = testmsg === 'xlsx';
 
       if (!extension) {
-        this.$message.warning(file.name + this.$t('knowledgeManage.fileTypeError'));
-        this.fileList = this.fileList.filter(
-          (files) => files.name !== file.name
+        this.$message.warning(
+          file.name + this.$t('knowledgeManage.fileTypeError'),
         );
+        this.fileList = this.fileList.filter(files => files.name !== file.name);
         return false;
       } else {
         const isLt15 = file.size / 1024 / 1024 < 15;
         if (!isLt15) {
           this.$message.error(this.$t('knowledgeManage.fileSizeTips'));
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
           return false;
         }
@@ -412,56 +433,56 @@ export default {
       return true;
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleSave(type) {
       this.loading.btn = true;
-      this.$emit("handleSetBatchStatus", { type: "loading", value: true });
+      this.$emit('handleSetBatchStatus', { type: 'loading', value: true });
       importBatchUrl({ taskId: this.backId })
-        .then((res) => {
+        .then(res => {
           this.drawer = false;
           this.loading.btn = false;
-          this.$emit("handleSetBatchStatus", {
-            type: "result",
-            value: "success",
+          this.$emit('handleSetBatchStatus', {
+            type: 'result',
+            value: 'success',
           });
         })
-        .catch((err) => {
+        .catch(err => {
           this.loading.btn = false;
-          this.$emit("handleSetBatchStatus", {
-            type: "result",
-            value: "error",
+          this.$emit('handleSetBatchStatus', {
+            type: 'result',
+            value: 'error',
           });
         });
     },
     handlebtnSave() {
       this.loading.btn = true;
-      this.$emit("handleSetBatchStatus", { type: "loading", value: true });
+      this.$emit('handleSetBatchStatus', { type: 'loading', value: true });
       importBatchUrl({ taskId: this.backId })
-        .then((res) => {
+        .then(res => {
           this.drawer = false;
           this.loading.btn = false;
           setTimeout(() => {
-            this.$emit("handleSetBatchStatus", {
-              type: "result",
-              value: "success",
+            this.$emit('handleSetBatchStatus', {
+              type: 'result',
+              value: 'success',
             });
           }, 500);
         })
-        .catch((err) => {
+        .catch(err => {
           this.loading.btn = false;
           setTimeout(() => {
-            this.$emit("handleSetBatchStatus", {
-              type: "result",
-              value: "success",
+            this.$emit('handleSetBatchStatus', {
+              type: 'result',
+              value: 'success',
             });
           }, 500);
         });
@@ -493,6 +514,7 @@ export default {
     height: 50px;
     text-align: center;
   }
+
   .content {
     display: flex;
     height: calc(100% - 50px);
@@ -509,6 +531,7 @@ export default {
       &:last-child {
         border-right: 0;
       }
+
       h4 {
         padding-bottom: 10px;
         font-size: 16px;
@@ -517,14 +540,17 @@ export default {
     }
   }
 }
+
 .urlBatch {
   .el-upload {
     width: 100%;
+
     em {
       color: #f72324;
       font-weight: bold;
     }
   }
+
   .el-upload-dragger {
     background-color: #fff !important;
     border: 1px dashed #d9d9d9 !important;
@@ -534,6 +560,7 @@ export default {
     height: 160px !important;
     margin: 0 auto;
   }
+
   .aginUp {
     position: absolute;
     top: 0;
@@ -544,6 +571,7 @@ export default {
     z-index: 1;
     padding-top: 110px;
   }
+
   .start {
     position: absolute;
     top: 0;
@@ -556,13 +584,16 @@ export default {
 
     .el-button {
       margin-bottom: 5px;
+
       &.el-button--mini {
         height: auto;
       }
+
       span {
         font-size: 12px;
       }
     }
+
     div {
       margin: 0;
       padding: 0;
@@ -578,12 +609,14 @@ export default {
         font-size: 18px;
         font-weight: bold;
       }
+
       a {
         color: #f72324;
         font-size: 12px;
       }
     }
   }
+
   .el-upload-dragger .el-icon-refresh {
     font-size: 50px;
     color: #f72324 !important;
@@ -594,6 +627,7 @@ export default {
       animation: infinite-rotation 1.3s linear infinite;
     }
   }
+
   @keyframes infinite-rotation {
     from {
       transform: rotate(0deg);
@@ -602,9 +636,11 @@ export default {
       transform: rotate(-360deg);
     }
   }
+
   .el-upload-dragger .el-upload__text {
     color: #afafaf !important;
   }
+
   .document_lises {
     list-style: none;
 
@@ -619,9 +655,11 @@ export default {
       .el-icon-success {
         display: block;
       }
+
       .el-icon-error {
         display: none;
       }
+
       &:hover {
         cursor: pointer;
         background: #eee;
@@ -629,28 +667,35 @@ export default {
         .el-icon-success {
           display: none;
         }
+
         .el-icon-warning {
           display: none;
         }
+
         .el-icon-error {
           display: block;
         }
       }
+
       &.document_loading {
         .el-icon-error {
           display: none;
         }
+
         .el-icon-success {
           display: none;
         }
+
         .el-icon-warning {
           display: none;
         }
+
         &:hover {
           cursor: pointer;
           background: #eee;
         }
       }
+
       .el-icon-success {
         color: #67c23a;
       }
@@ -658,10 +703,12 @@ export default {
       .result_icon {
         float: right;
       }
+
       .size {
         font-weight: bold;
       }
     }
+
     .document_error {
       color: #e60001;
     }

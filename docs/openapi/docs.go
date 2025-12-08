@@ -307,7 +307,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "oauth"
+                    "openapi.OIDC"
                 ],
                 "summary": "授权码方式",
                 "parameters": [

@@ -46,9 +46,23 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 		log.Errorf("没有操作该知识库的权限 错误(%v) 参数(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
 	}
-	//入口层已经校验过用户权限，此处无需校验
+	docIdList := make([]string, 0)
+	//查找元数据值所对应的文档列表
+	if req.MetaValue != "" {
+		docIdList, err = orm.SelectDocIdListByMetaValue(ctx, "", "", req.KnowledgeId, req.MetaValue)
+		if err != nil {
+			log.Errorf("获取知识库元数据失败(%v)  参数(%v)", err, req)
+			return nil, util.ErrCode(errs.Code_KnowledgeMetaFetchFailed)
+		}
+		//无结果直接返回
+		if len(docIdList) == 0 {
+			return buildDocListResp(nil, nil, knowledge, 0, req.PageSize, req.PageNum), nil
+		}
+	}
+
+	//按文档名字查询列表
 	list, total, err := orm.GetDocList(ctx, "", "", req.KnowledgeId,
-		req.DocName, req.DocTag, util.BuildDocReqStatusList(int(req.Status)), req.PageSize, req.PageNum)
+		req.DocName, req.DocTag, util.BuildDocReqStatusList(int(req.Status)), docIdList, req.PageSize, req.PageNum)
 	if err != nil {
 		log.Errorf("获取知识库列表失败(%v)  参数(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
@@ -84,6 +98,20 @@ func (s *Service) ImportDoc(ctx context.Context, req *knowledgebase_doc_service.
 	if err != nil {
 		log.Errorf("import doc fail %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocImportFail)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) ExportDoc(ctx context.Context, req *knowledgebase_doc_service.ExportDocReq) (*emptypb.Empty, error) {
+	task, err := buildDocExportTask(req)
+	if err != nil {
+		return nil, err
+	}
+	//创建导出任务
+	err = orm.CreateKnowledgeDocExportTask(ctx, task)
+	if err != nil {
+		log.Errorf("export doc fail %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocExportFail)
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -690,7 +718,7 @@ func buildImportTask(req *knowledgebase_doc_service.ImportDocReq) (*model.Knowle
 		for _, metaData := range req.DocMetaDataList {
 			metaList = append(metaList, &model.KnowledgeDocMeta{
 				Key:       metaData.Key,
-				Value:     metaData.Value,
+				ValueMain: metaData.Value,
 				ValueType: metaData.ValueType,
 				Rule:      metaData.Rule,
 			})
@@ -717,6 +745,28 @@ func buildImportTask(req *knowledgebase_doc_service.ImportDocReq) (*model.Knowle
 		MetaData:      docImportMetaData,
 		UserId:        req.UserId,
 		OrgId:         req.OrgId,
+	}, nil
+}
+
+// buildExportTask 构造知识库导出任务
+func buildDocExportTask(req *knowledgebase_doc_service.ExportDocReq) (*model.KnowledgeExportTask, error) {
+	params := model.KnowledgeExportTaskParams{
+		KnowledgeId: req.KnowledgeId,
+		DocIdList:   req.DocIdList,
+	}
+	exportParam, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	return &model.KnowledgeExportTask{
+		ExportId:     generator.GetGenerator().NewID(),
+		KnowledgeId:  req.KnowledgeId,
+		CreatedAt:    time.Now().UnixMilli(),
+		UpdatedAt:    time.Now().UnixMilli(),
+		Status:       model.KnowledgeExportInit,
+		ExportParams: string(exportParam),
+		UserId:       req.UserId,
+		OrgId:        req.OrgId,
 	}, nil
 }
 
@@ -805,7 +855,7 @@ func buildMetaList(metaDataList []*model.KnowledgeDocMeta) []*knowledgebase_doc_
 		return &knowledgebase_doc_service.MetaData{
 			MetaId:    item.MetaId,
 			Key:       item.Key,
-			Value:     item.Value,
+			Value:     item.ValueMain,
 			ValueType: valueType,
 			Rule:      item.Rule,
 		}
@@ -818,9 +868,9 @@ func buildMetaParamsList(metaDataList []*knowledgebase_doc_service.MetaData) []*
 	}
 	return lo.Map(metaDataList, func(item *knowledgebase_doc_service.MetaData, index int) *model.KnowledgeDocMeta {
 		return &model.KnowledgeDocMeta{
-			MetaId: item.MetaId,
-			Key:    item.Key,
-			Value:  item.Value,
+			MetaId:    item.MetaId,
+			Key:       item.Key,
+			ValueMain: item.Value,
 		}
 	})
 }
@@ -858,7 +908,7 @@ func buildDocMetaModelList(metaDataList []*knowledgebase_doc_service.MetaData, o
 				MetaId:    data.MetaId,
 				DocId:     docId,
 				Key:       data.Key,
-				Value:     data.Value,
+				ValueMain: data.Value,
 				ValueType: data.ValueType,
 			})
 			continue
@@ -869,7 +919,7 @@ func buildDocMetaModelList(metaDataList []*knowledgebase_doc_service.MetaData, o
 				MetaId:      generator.GetGenerator().NewID(),
 				DocId:       docId,
 				Key:         data.Key,
-				Value:       data.Value,
+				ValueMain:   data.Value,
 				ValueType:   data.ValueType,
 				Rule:        "",
 				OrgId:       orgId,

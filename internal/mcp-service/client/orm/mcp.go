@@ -65,6 +65,18 @@ func (c *Client) CreateMCP(ctx context.Context, tab *model.MCPClient) *errs.Stat
 }
 
 func (c *Client) UpdateMCP(ctx context.Context, tab *model.MCPClient) *errs.Status {
+	var info model.MCPClient
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithName(tab.Name),
+		sqlopt.WithOrgID(tab.OrgID),
+		sqlopt.WithUserID(tab.UserID),
+	).Apply(c.db).First(&info).Error; err == nil {
+		if tab.ID != info.ID {
+			return toErrStatus("mcp_update_duplicate_name")
+		}
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return toErrStatus("mcp_update_err", err.Error())
+	}
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithID(tab.ID),
 	).Apply(c.db).WithContext(ctx).Model(tab).Updates(map[string]interface{}{

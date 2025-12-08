@@ -14,26 +14,26 @@
             />
           </div>
           <div class="basicInfo-desc">
-            <span class="basicInfo-title">{{ editForm.name || "" }}</span>
+            <span class="basicInfo-title">{{ editForm.name || '' }}</span>
             <span
               class="el-icon-edit-outline editIcon"
               @click="editAgent"
             ></span>
             <LinkIcon type="rag" />
-            <p>{{ editForm.desc || "" }}</p>
+            <p>{{ editForm.desc || '' }}</p>
           </div>
         </div>
       </div>
       <div class="header-right">
         <div class="header-api">
           <el-tag effect="plain" class="root-url">
-            {{ $t("rag.form.apiRootUrl") }}
+            {{ $t('rag.form.apiRootUrl') }}
           </el-tag>
           {{ apiURL }}
         </div>
         <el-button @click="openApiDialog" plain class="apikeyBtn" size="small">
           <img :src="require('@/assets/imgs/apikey.png')" />
-          {{ $t("rag.form.apiKey") }}
+          {{ $t('rag.form.apiKey') }}
         </el-button>
         <el-button
           size="small"
@@ -41,28 +41,28 @@
           @click="handlePublish"
           style="padding: 13px 12px"
         >
-          {{ $t("common.button.publish") }}
+          {{ $t('common.button.publish') }}
           <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
         </el-button>
         <div class="popover-operation" v-if="showOperation">
           <div>
             <el-radio :label="'private'" v-model="scope">
-              {{ $t("rag.publishType.private") }}
+              {{ $t('agent.form.publishType') }}
             </el-radio>
           </div>
           <div>
             <el-radio :label="'organization'" v-model="scope">
-              {{ $t("rag.publishType.organization") }}
+              {{ $t('agent.form.publishType1') }}
             </el-radio>
           </div>
           <div>
             <el-radio :label="'public'" v-model="scope">
-              {{ $t("rag.publishType.public") }}
+              {{ $t('agent.form.publishType2') }}
             </el-radio>
           </div>
           <div class="saveBtn">
             <el-button size="mini" type="primary" @click="savePublish">
-              {{ $t("common.button.save") }}
+              {{ $t('common.button.save') }}
             </el-button>
           </div>
         </div>
@@ -78,8 +78,8 @@
                   :src="require('@/assets/imgs/require.png')"
                   class="required-label"
                 />
-                {{ $t("agent.form.modelSelect") }}
-                <span class="model-tips">[ {{ $t("app.modelTips") }} ]</span>
+                {{ $t('agent.form.modelSelect') }}
+                <span class="model-tips">[ {{ $t('app.modelTips') }} ]</span>
               </span>
               <span
                 class="el-icon-s-operation operation"
@@ -116,8 +116,9 @@
                         v-for="(tag, tagIdx) in item.tags"
                         :key="tagIdx"
                         class="model-select-tag"
-                        >{{ tag.text }}</span
                       >
+                        {{ tag.text }}
+                      </span>
                     </div>
                   </div>
                 </el-option>
@@ -127,28 +128,26 @@
         </div>
         <!-- 问答库配置 -->
         <div class="block safety-box">
-          <knowledgeDataField 
-            :knowledgeConfig="editForm.qaKnowledgeBaseConfig" 
-            :category="1" 
-            @getSelectKnowledge="getSelectKnowledge" 
+          <knowledgeDataField
+            :knowledgeConfig="editForm.qaKnowledgeBaseConfig"
+            :category="1"
+            @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
-            :setType="'rag'"
             :labelText="$t('app.linkQaDatabase')"
             :type="'qaKnowledgeBaseConfig'"
           />
         </div>
         <!-- 知识库库配置 -->
-         <div class="block safety-box">
-          <knowledgeDataField 
-            :knowledgeConfig="editForm.knowledgeBaseConfig" 
-            :category="0" 
-            @getSelectKnowledge="getSelectKnowledge" 
+        <div class="block safety-box">
+          <knowledgeDataField
+            :knowledgeConfig="editForm.knowledgeBaseConfig"
+            :category="0"
+            @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
-            :setType="'rag'"
             :labelText="$t('agent.form.linkKnowledge')"
             :type="'knowledgeBaseConfig'"
           />
@@ -156,7 +155,7 @@
         <div class="block prompt-box safety-box">
           <p class="block-title tool-title">
             <span class="block-title-text">
-              {{ $t("agent.form.safetyConfig") }}
+              {{ $t('agent.form.safetyConfig') }}
               <el-tooltip
                 class="item"
                 effect="dark"
@@ -170,14 +169,13 @@
               <span @click="showSafety">
                 <span class="el-icon-s-operation"></span>
                 <span class="handleBtn" style="margin-right: 10px">
-                  {{ $t("agent.form.config") }}
+                  {{ $t('agent.form.config') }}
                 </span>
               </span>
               <el-switch
                 v-model="editForm.safetyConfig.enable"
                 :disabled="!(editForm.safetyConfig.tables || []).length"
-              >
-              </el-switch>
+              ></el-switch>
             </span>
           </p>
         </div>
@@ -212,21 +210,21 @@
 </template>
 
 <script>
-import { getApiKeyRoot, appPublish } from "@/api/appspace";
-import CreateTxtQues from "@/components/createApp/createRag.vue";
-import ModelSet from "./modelSetDialog.vue";
-import metaSet from "@/components/metaSet";
-import knowledgeSet from "./knowledgeSetDialog.vue";
-import ApiKeyDialog from "./ApiKeyDialog";
-import setSafety from "@/components/setSafety";
-import { getRerankList, selectModelList } from "@/api/modelAccess";
-import { getRagInfo, updateRagConfig } from "@/api/rag";
-import Chat from "./chat";
-import searchConfig from "@/components/searchConfig.vue";
-import chiChat from "@/components/app/chiChat.vue";
-import LinkIcon from "@/components/linkIcon.vue";
-import knowledgeSelect from "@/components/knowledgeSelect.vue";
-import knowledgeDataField from "@/components/app/knowledgeDataField.vue";
+import { getApiKeyRoot, appPublish } from '@/api/appspace';
+import CreateTxtQues from '@/components/createApp/createRag.vue';
+import ModelSet from './modelSetDialog.vue';
+import metaSet from '@/components/metaSet';
+import knowledgeSet from './knowledgeSetDialog.vue';
+import ApiKeyDialog from './ApiKeyDialog';
+import setSafety from '@/components/setSafety';
+import { getRerankList, selectModelList } from '@/api/modelAccess';
+import { getRagInfo, updateRagConfig } from '@/api/rag';
+import Chat from './chat';
+import searchConfig from '@/components/searchConfig.vue';
+import chiChat from '@/components/app/chiChat.vue';
+import LinkIcon from '@/components/linkIcon.vue';
+import knowledgeSelect from '@/components/knowledgeSelect.vue';
+import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 export default {
   components: {
     LinkIcon,
@@ -240,20 +238,20 @@ export default {
     knowledgeSelect,
     metaSet,
     chiChat,
-    knowledgeDataField
+    knowledgeDataField,
   },
   data() {
     return {
       rerankOptions: [],
       showOperation: false,
-      scope: "public",
+      scope: 'public',
       localKnowledgeConfig: {},
       editForm: {
-        appId: "",
+        appId: '',
         avatar: {},
-        name: "",
-        desc: "",
-        modelParams: "",
+        name: '',
+        desc: '',
+        modelParams: '',
         modelConfig: {
           temperature: 0.14,
           topP: 0.85,
@@ -263,11 +261,11 @@ export default {
           frequencyPenaltyEnable: true,
         },
         knowledgeBaseConfig: {
-          config:{
+          config: {
             keywordPriority: 0.8, //关键词权重
-            matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+            matchType: 'mix', //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
             priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
-            rerankModelId: "", //rerank模型id
+            rerankModelId: '', //rerank模型id
             semanticsPriority: 0.2, //语义权重
             topK: 5, //topK 获取最高的几行
             threshold: 0.4, //过滤分数阈值
@@ -275,23 +273,23 @@ export default {
             useGraph: false,
             chiChat: false,
           },
-          knowledgebases: []
+          knowledgebases: [],
         },
-        knowledgeConfig:{},
-        qaKnowledgeBaseConfig:{
-          knowledgebases:[],
-          config:{
+        knowledgeConfig: {},
+        qaKnowledgeBaseConfig: {
+          knowledgebases: [],
+          config: {
             keywordPriority: 0.8, //关键词权重
-            matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+            matchType: 'mix', //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
             priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
-            rerankModelId: "", //rerank模型id
+            rerankModelId: '', //rerank模型id
             semanticsPriority: 0.2, //语义权重
             topK: 5, //topK 获取最高的几行
             threshold: 0.4, //过滤分数阈值
             maxHistory: 0, //
             useGraph: false,
             chiChat: false,
-          }
+          },
         },
         safetyConfig: {
           enable: false,
@@ -299,18 +297,18 @@ export default {
         },
       },
       initialEditForm: null,
-      apiURL: "",
+      apiURL: '',
       modelLoading: false,
       wfDialogVisible: false,
       workFlowInfos: [],
       workflowList: [],
-      modelParams: "",
+      modelParams: '',
       platform: this.$platform,
       isPublish: false,
       modleOptions: [],
       selectKnowledge: [],
       loadingPercent: 10,
-      nameStatus: "",
+      nameStatus: '',
       saved: false, //按钮
       loading: false, //按钮
       t: null,
@@ -333,13 +331,13 @@ export default {
         }
         this.debounceTimer = setTimeout(() => {
           const props = [
-            "modelParams",
-            "modelConfig",
-            "knowledgeBaseConfig",
-            "safetyConfig",
-            "qaKnowledgeBaseConfig"
+            'modelParams',
+            'modelConfig',
+            'knowledgeBaseConfig',
+            'safetyConfig',
+            'qaKnowledgeBaseConfig',
           ];
-          const changed = props.some((prop) => {
+          const changed = props.some(prop => {
             return (
               JSON.stringify(newVal[prop]) !==
               JSON.stringify((this.initialEditForm || {})[prop])
@@ -347,12 +345,12 @@ export default {
           });
           if (changed && !this.isUpdating) {
             const isMixPriorityMatch =
-              newVal["knowledgeBaseConfig"]['config']["matchType"] === "mix" &&
-              newVal["knowledgeBaseConfig"]['config']["priorityMatch"];
+              newVal['knowledgeBaseConfig']['config']['matchType'] === 'mix' &&
+              newVal['knowledgeBaseConfig']['config']['priorityMatch'];
             if (
-              newVal["modelParams"] !== "" ||
+              newVal['modelParams'] !== '' ||
               (isMixPriorityMatch &&
-                !newVal["knowledgeBaseConfig"]['config']["rerankModelId"])
+                !newVal['knowledgeBaseConfig']['config']['rerankModelId'])
             ) {
               this.updateInfo();
             }
@@ -362,17 +360,8 @@ export default {
       deep: true,
     },
   },
-  computed: {
-    showGraphSwitch() {
-      return (
-        this.editForm.knowledgebases &&
-        this.editForm.knowledgebases.some((item) => item.graphSwitch === 1)
-      );
-    },
-  },
   mounted() {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
-    this.$set(this.editForm, "knowledgeConfig", this.editForm.knowledgeBaseConfig.config);
   },
   created() {
     this.getModelData(); //获取模型列表
@@ -391,18 +380,18 @@ export default {
   },
   methods: {
     //获取知识库或问答库选中数据
-    getSelectKnowledge(data,type){
+    getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
     },
     //删除知识库或问答库
-    knowledgeDelete(index,type){
-      this.editForm[type]['knowledgebases'].splice(index,1);
+    knowledgeDelete(index, type) {
+      this.editForm[type]['knowledgebases'].splice(index, 1);
     },
     //设置知识库或问答库召回参数
-    knowledgeRecallSet(data,type){
-      if(data){
+    knowledgeRecallSet(data, type) {
+      if (data) {
         this.editForm[type]['config'] = data;
-      }else{
+      } else {
         this.editForm[type]['config'] = this.editForm[type]['config'];
       }
     },
@@ -410,7 +399,7 @@ export default {
       this.$set(this.editForm.knowledgeBaseConfig.config, 'chiChat', value);
     },
     //更新知识库元数据
-    updateMetaData(data,index,type){
+    updateMetaData(data, index, type) {
       this.$set(this.editForm[type]['knowledgebases'], index, {
         ...this.editForm[type]['knowledgebases'][index],
         ...data,
@@ -433,23 +422,35 @@ export default {
       //获取详情
       this.isSettingFromDetail = true; // 设置标志位，防止触发更新逻辑
       getRagInfo({ ragId: this.editForm.appId })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.editForm.avatar = res.data.avatar;
             this.editForm.name = res.data.name;
             this.editForm.desc = res.data.desc;
-            this.editForm.modelParams = res.data.modelConfig.modelId;
+            this.setModelInfo(res.data.modelConfig.modelId);
 
-            if(res.data.qaKnowledgeBaseConfig && res.data.qaKnowledgeBaseConfig !== null){
-              this.editForm.qaKnowledgeBaseConfig.knowledgebases = res.data.qaKnowledgeBaseConfig.knowledgebases;
-              this.editForm.qaKnowledgeBaseConfig.config = 
-              res.data.qaKnowledgeBaseConfig.config !== null ? res.data.qaKnowledgeBaseConfig.config : this.editForm.qaKnowledgeBaseConfig.config;
+            if (
+              res.data.qaKnowledgeBaseConfig &&
+              res.data.qaKnowledgeBaseConfig !== null
+            ) {
+              this.editForm.qaKnowledgeBaseConfig.knowledgebases =
+                res.data.qaKnowledgeBaseConfig.knowledgebases;
+              this.editForm.qaKnowledgeBaseConfig.config =
+                res.data.qaKnowledgeBaseConfig.config !== null
+                  ? res.data.qaKnowledgeBaseConfig.config
+                  : this.editForm.qaKnowledgeBaseConfig.config;
             }
 
-            if(res.data.knowledgeBaseConfig && res.data.knowledgeBaseConfig !== null){
-              this.editForm.knowledgeBaseConfig.knowledgebases = res.data.knowledgeBaseConfig.knowledgebases;
-              this.editForm.knowledgeBaseConfig.config = 
-              res.data.knowledgeBaseConfig.config !== null ? res.data.knowledgeBaseConfig.config : this.editForm.knowledgeBaseConfig.config;
+            if (
+              res.data.knowledgeBaseConfig &&
+              res.data.knowledgeBaseConfig !== null
+            ) {
+              this.editForm.knowledgeBaseConfig.knowledgebases =
+                res.data.knowledgeBaseConfig.knowledgebases;
+              this.editForm.knowledgeBaseConfig.config =
+                res.data.knowledgeBaseConfig.config !== null
+                  ? res.data.knowledgeBaseConfig.config
+                  : this.editForm.knowledgeBaseConfig.config;
             }
 
             if (res.data.safetyConfig && res.data.safetyConfig !== null) {
@@ -460,9 +461,11 @@ export default {
               this.editForm.modelConfig = res.data.modelConfig.config;
             }
 
-            this.editForm.knowledgeBaseConfig.config.rerankModelId = res.data.rerankConfig.modelId;
-            this.editForm.qaKnowledgeBaseConfig.config.rerankModelId = res.data.qaRerankConfig.modelId;
-            
+            this.editForm.knowledgeBaseConfig.config.rerankModelId =
+              res.data.rerankConfig.modelId;
+            this.editForm.qaKnowledgeBaseConfig.config.rerankModelId =
+              res.data.qaRerankConfig.modelId;
+
             this.$nextTick(() => {
               this.isSettingFromDetail = false;
             });
@@ -474,8 +477,19 @@ export default {
           this.isSettingFromDetail = false;
         });
     },
+    setModelInfo(val) {
+      const selectedModel = this.modleOptions.find(
+        item => item.modelId === val,
+      );
+      if (selectedModel) {
+        this.editForm.modelParams = val;
+      } else {
+        this.editForm.modelParams = '';
+        this.$message.warning(this.$t('agent.form.modelNotSupport'));
+      }
+    },
     getRerankData() {
-      getRerankList().then((res) => {
+      getRerankList().then(res => {
         if (res.code === 0) {
           this.rerankOptions = res.data.list || [];
         }
@@ -486,36 +500,45 @@ export default {
     },
     savePublish() {
       const { matchType, priorityMatch, rerankModelId } =
-        this.editForm.knowledgeConfig;
-      const isMixPriorityMatch = matchType === "mix" && priorityMatch;
-      if (this.editForm.modelParams === "") {
-        this.$message.warning(this.$t("agent.form.selectModel"));
+        this.editForm.qaKnowledgeBaseConfig.config;
+      const isMixPriorityMatch = matchType === 'mix' && priorityMatch;
+
+      if (this.editForm.modelParams === '') {
+        this.$message.warning(this.$t('agent.form.selectModel'));
         return false;
       }
-      if (!isMixPriorityMatch && !rerankModelId) {
-        this.$message.warning(this.$t("app.selectRerank"));
+      if (
+        this.editForm.knowledgeBaseConfig.knowledgebases.length === 0 &&
+        this.editForm.qaKnowledgeBaseConfig.knowledgebases.length === 0
+      ) {
+        this.$message.warning(this.$t('app.selectKnowledge'));
         return false;
       }
-      if (this.editForm.knowledgebases.length === 0) {
-        this.$message.warning(this.$t("app.selectKnowledge"));
-        return false;
+      if (
+        !this.editForm.knowledgeBaseConfig.knowledgebases.length &&
+        this.editForm.qaKnowledgeBaseConfig.knowledgebases.length > 0
+      ) {
+        if (!isMixPriorityMatch && !rerankModelId) {
+          this.$message.warning(this.$t('app.selectRerank'));
+          return false;
+        }
       }
       const data = {
         appId: this.editForm.appId,
-        appType: "rag",
+        appType: 'rag',
         publishType: this.scope,
       };
-      appPublish(data).then((res) => {
+      appPublish(data).then(res => {
         if (res.code === 0) {
-          this.$router.push({ path: "/explore" });
+          this.$router.push({ path: '/explore' });
         }
       });
     },
     apiKeyRootUrl() {
-      const data = { appId: this.editForm.appId, appType: "rag" };
-      getApiKeyRoot(data).then((res) => {
+      const data = { appId: this.editForm.appId, appType: 'rag' };
+      getApiKeyRoot(data).then(res => {
         if (res.code === 0) {
-          this.apiURL = res.data || "";
+          this.apiURL = res.data || '';
         }
       });
     },
@@ -548,8 +571,8 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modleOptions = (res.data.list || []).filter((item) => {
-          return item.config && item.config.visionSupport !== "support";
+        this.modleOptions = (res.data.list || []).filter(item => {
+          return item.config && item.config.visionSupport !== 'support';
         });
 
         this.modelLoading = false;
@@ -563,24 +586,34 @@ export default {
       try {
         //模型数据
         const modeInfo = this.modleOptions.find(
-          (item) => item.modelId === this.editForm.modelParams
+          item => item.modelId === this.editForm.modelParams,
         );
         if (
-          this.editForm.knowledgeBaseConfig.config.matchType === "mix" &&
+          this.editForm.knowledgeBaseConfig.config.matchType === 'mix' &&
           this.editForm.knowledgeBaseConfig.config.priorityMatch === 1
         ) {
-          this.editForm.knowledgeBaseConfig.config.rerankModelId = "";
+          this.editForm.knowledgeBaseConfig.config.rerankModelId = '';
         }
-        const rerankInfo = this.editForm.knowledgeBaseConfig.knowledgebases.length ? this.rerankOptions.find(
-          (item) => item.modelId === this.editForm.knowledgeBaseConfig.config.rerankModelId
-        ):{};
-        const qaRerankInfo = this.editForm.qaKnowledgeBaseConfig.knowledgebases.length ? this.rerankOptions.find(
-          (item) => item.modelId === this.editForm.qaKnowledgeBaseConfig.config.rerankModelId
-        ):{};
+        const rerankInfo = this.editForm.knowledgeBaseConfig.knowledgebases
+          .length
+          ? this.rerankOptions.find(
+              item =>
+                item.modelId ===
+                this.editForm.knowledgeBaseConfig.config.rerankModelId,
+            )
+          : {};
+        const qaRerankInfo = this.editForm.qaKnowledgeBaseConfig.knowledgebases
+          .length
+          ? this.rerankOptions.find(
+              item =>
+                item.modelId ===
+                this.editForm.qaKnowledgeBaseConfig.config.rerankModelId,
+            )
+          : {};
         let fromParams = {
           ragId: this.editForm.appId,
-          knowledgeBaseConfig:this.editForm.knowledgeBaseConfig,
-          qaKnowledgeBaseConfig:this.editForm.qaKnowledgeBaseConfig,
+          knowledgeBaseConfig: this.editForm.knowledgeBaseConfig,
+          qaKnowledgeBaseConfig: this.editForm.qaKnowledgeBaseConfig,
           modelConfig: {
             config: this.editForm.modelConfig,
             displayName: modeInfo.displayName,
@@ -590,18 +623,18 @@ export default {
             provider: modeInfo.provider,
           },
           rerankConfig: {
-            displayName: rerankInfo ? rerankInfo.displayName : "",
-            model: rerankInfo ? rerankInfo.model : "",
-            modelId: rerankInfo ? rerankInfo.modelId : "",
-            modelType: rerankInfo ? rerankInfo.modelType : "",
-            provider: rerankInfo ? rerankInfo.provider : "",
+            displayName: rerankInfo ? rerankInfo.displayName : '',
+            model: rerankInfo ? rerankInfo.model : '',
+            modelId: rerankInfo ? rerankInfo.modelId : '',
+            modelType: rerankInfo ? rerankInfo.modelType : '',
+            provider: rerankInfo ? rerankInfo.provider : '',
           },
-          qaRerankConfig:{
-            displayName: qaRerankInfo ? qaRerankInfo.displayName : "",
-            model: qaRerankInfo ? qaRerankInfo.model : "",
-            modelId: qaRerankInfo ? qaRerankInfo.modelId : "",
-            modelType: qaRerankInfo ? qaRerankInfo.modelType : "",
-            provider: qaRerankInfo ? qaRerankInfo.provider : "",
+          qaRerankConfig: {
+            displayName: qaRerankInfo ? qaRerankInfo.displayName : '',
+            model: qaRerankInfo ? qaRerankInfo.model : '',
+            modelId: qaRerankInfo ? qaRerankInfo.modelId : '',
+            modelType: qaRerankInfo ? qaRerankInfo.modelType : '',
+            provider: qaRerankInfo ? qaRerankInfo.provider : '',
           },
           safetyConfig: this.editForm.safetyConfig,
         };
@@ -826,7 +859,7 @@ export default {
     /deep/.el-textarea__inner {
       background-color: transparent !important;
       border: 1px solid #d3d7dd !important;
-      font-family: "Microsoft YaHei", Arial, sans-serif;
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
       padding: 15px;
     }
     .flex {
@@ -1152,10 +1185,10 @@ export default {
   background-color: #fff; /* 设置背景颜色 */
   color: #666; /* 设置文字颜色 */
 }
-.custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
+.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
   border-top-color: #fff !important;
 }
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
+.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
   border-top-color: #ccc !important;
 }
 </style>

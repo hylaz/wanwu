@@ -1,9 +1,9 @@
 <template>
-  <div style="height: 100vh; overflow: auto;" ref="container">
+  <div style="height: 100vh; overflow: auto" ref="container">
     <VueOfficeExcel
       :src="page.url"
       :options="options"
-      style="height: 100vh;"
+      style="height: 100vh"
       @rendered="renderedHandler"
       @error="errorHandler"
     />
@@ -11,19 +11,19 @@
 </template>
 
 <script>
-import  VueOfficeExcel  from '@vue-office/excel';
+import VueOfficeExcel from '@vue-office/excel';
 import '@vue-office/excel/lib/index.css';
 
 export default {
   name: 'ExcelPreview',
   components: {
-    VueOfficeExcel
+    VueOfficeExcel,
   },
 
   data() {
     return {
       page: {},
-      options: {}
+      options: {},
     };
   },
 
@@ -35,7 +35,9 @@ export default {
 
   methods: {
     initPreviewer() {
-      const highlightRowNum = this.page.rownum ? parseInt(this.page.rownum) - 1 : null; // 高亮行索引（0开始）
+      const highlightRowNum = this.page.rownum
+        ? parseInt(this.page.rownum) - 1
+        : null; // 高亮行索引（0开始）
       let dataIndex = -1;
 
       this.options = {
@@ -44,9 +46,11 @@ export default {
         minRowLength: 0,
         widthOffset: 20,
         heightOffset: 10,
-        transformData: (workbookData) => {
+        transformData: workbookData => {
           // 查找指定 sheet
-          dataIndex = workbookData.findIndex(item => item.name === this.page.sheetName);
+          dataIndex = workbookData.findIndex(
+            item => item.name === this.page.sheetName,
+          );
 
           if (dataIndex === -1) {
             console.warn('未找到指定的 sheet:', this.page.sheetName);
@@ -54,7 +58,10 @@ export default {
           }
 
           // 高亮指定行
-          if (highlightRowNum !== null && workbookData[dataIndex].rows[highlightRowNum]) {
+          if (
+            highlightRowNum !== null &&
+            workbookData[dataIndex].rows[highlightRowNum]
+          ) {
             const row = workbookData[dataIndex].rows[highlightRowNum];
             if (row.cells) {
               for (let key in row.cells) {
@@ -71,7 +78,7 @@ export default {
           }
 
           return workbookData;
-        }
+        },
       };
     },
 
@@ -81,7 +88,7 @@ export default {
 
     errorHandler(err) {
       console.error('Excel 加载失败:', err);
-    }
+    },
   },
 
   watch: {
@@ -91,9 +98,9 @@ export default {
         this.page = newQuery || {};
         this.initPreviewer();
       },
-      immediate: false
-    }
-  }
+      immediate: false,
+    },
+  },
 };
 </script>
 

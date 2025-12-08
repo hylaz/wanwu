@@ -9,7 +9,7 @@
     height: 100%;
   }
 
-  .tempSquare-third{
+  .tempSquare-third {
     min-height: 600px;
     .tab-span {
       display: inline-block;
@@ -24,16 +24,16 @@
       background: #fff;
       font-weight: bold;
     }
-    .tempSquare-main{
+    .tempSquare-main {
       display: flex;
       padding: 0 20px;
       height: 100%;
-      .tempSquare-content{
+      .tempSquare-content {
         display: flex;
-        width:100%;
+        width: 100%;
         padding: 0;
         height: 100%;
-        .tempSquare-menu{
+        .tempSquare-menu {
           margin-top: 10px;
           margin-right: 20px;
           width: 90px;
@@ -42,21 +42,21 @@
           text-align: center;
           border-radius: 6px;
           color: #333;
-          p{
+          p {
             line-height: 28px;
-            margin:10px 0;
+            margin: 10px 0;
           }
-          .active{
+          .active {
             background: rgba(253, 231, 231, 1);
           }
         }
-        .tempSquare-card-box{
+        .tempSquare-card-box {
           width: 100%;
           height: 100%;
           .input-with-select {
             width: 300px;
           }
-          .card-loading-box{
+          .card-loading-box {
             .card-box {
               display: flex;
               flex-wrap: wrap;
@@ -79,7 +79,9 @@
                 border: 1px solid rgba(0, 0, 0, 0);
                 &:hover {
                   cursor: pointer;
-                  box-shadow: 0 2px 8px #171a220d, 0 4px 16px #0000000f;
+                  box-shadow:
+                    0 2px 8px #171a220d,
+                    0 4px 16px #0000000f;
                   border: 1px solid $border_color;
 
                   .action-icon {
@@ -163,13 +165,13 @@
                 }
               }
 
-              .loading-tips{
+              .loading-tips {
                 height: 20px;
                 color: #999;
                 text-align: center;
                 display: block;
                 width: 100%;
-                i{
+                i {
                   font-size: 18px;
                 }
               }
@@ -178,7 +180,7 @@
         }
       }
     }
-    .card-logo{
+    .card-logo {
       width: 50px;
       height: 50px;
       object-fit: cover;
@@ -193,7 +195,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  .empty{
+  .empty {
     width: 200px;
     height: 100px;
     margin: 50px auto;

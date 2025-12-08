@@ -280,9 +280,11 @@ def generate_community_report(user_id, kb_name, enable_knowledge_graph, graph_mo
         chunk_total_num = len(reports)
         file_name = "社区报告"
         for report_data in reports:
+            embedding_content = f"# {report_data['report_title']} \n\n {report_data['report_summary']}"
             sub_chunks.append({
                 "content": report_data["report"],
-                "embedding_content": report_data["report_title"],
+                "title": report_data["report_title"],
+                "embedding_content": embedding_content[:200],
                 "meta_data": {
                     "file_name": file_name,
                     "entities": report_data["entities"],

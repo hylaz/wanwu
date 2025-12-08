@@ -1,28 +1,28 @@
-"use strict";
+'use strict';
 
-const path = require("path");
-const {name} = require('./package.json')
-const webpack = require('webpack')
+const path = require('path');
+const { name } = require('./package.json');
+const webpack = require('webpack');
 
 function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
-const isProdOrTest = process.env.NODE_ENV !== 'development'
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+const isProdOrTest = process.env.NODE_ENV !== 'development';
 
 module.exports = {
   // 基础配置 详情看文档
-  publicPath: process.env.VUE_APP_BASE_PATH + "/aibase",
-  outputDir: "dist",
-  assetsDir: "static",
-  lintOnSave: process.env.NODE_ENV === "development",
-  productionSourceMap: false,//源码映射
+  publicPath: process.env.VUE_APP_BASE_PATH + '/aibase',
+  outputDir: 'dist',
+  assetsDir: 'static',
+  lintOnSave: process.env.NODE_ENV === 'development',
+  productionSourceMap: false, //源码映射
   transpileDependencies: [
     'ml-matrix',
     '@antv/layout',
     '@antv/g6',
-    '@antv/graphlib'
+    '@antv/graphlib',
   ],
   chainWebpack(config) {
     config.module
@@ -33,43 +33,43 @@ module.exports = {
       .end()
       .use('markdown-loader')
       .loader('markdown-loader')
-      .end()
+      .end();
 
-    config.plugins.delete('prefetch')
+    config.plugins.delete('prefetch');
     if (isProdOrTest) {
       // 对超过10kb的文件gzip压缩
       config.plugin('compressionPlugin').use(
         new CompressionWebpackPlugin({
           test: /\.(css|html)$/,
           threshold: 10240,
-        })
-      )
+        }),
+      );
     }
 
     config.module
       .rule('svg')
-      .exclude.add(resolve('src/assets/icons'))  //svg文件位置
-      .end()
+      .exclude.add(resolve('src/assets/icons')) //svg文件位置
+      .end();
     config.module
       .rule('icons')
       .test(/\.svg$/)
-      .include.add(resolve('src/assets/icons'))  //svg文件位置
+      .include.add(resolve('src/assets/icons')) //svg文件位置
       .end()
       .use('svg-sprite-loader')
       .loader('svg-sprite-loader')
       .options({
-        symbolId: 'icon-[name]'
+        symbolId: 'icon-[name]',
       })
-      .end()
+      .end();
 
     // 生产环境去掉 console 打印
     config.when(process.env.NODE_ENV === 'production', config => {
-      config.optimization.minimize(true)
+      config.optimization.minimize(true);
       config.optimization.minimizer('terser').tap(args => {
-        args[0].terserOptions.compress.drop_console = true
-        return args
-      })
-    })
+        args[0].terserOptions.compress.drop_console = true;
+        return args;
+      });
+    });
   },
   devServer: {
     port: 8080,
@@ -85,128 +85,128 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
     proxy: {
-      "/openAi": {
-        target: "http://192.168.0.21:8081",
+      '/openAi': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/api": {
-        target: "http://192.168.0.21:8081",
+      '/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/workflow/api": {
-        target: "http://192.168.0.21:8081",
+      '/workflow/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/user/api": {
-        target: "http://192.168.0.21:8081",
+      '/user/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/service/url/openurl/v1": {
-        target: "http://192.168.0.21:8081",
+      '/service/url/openurl/v1': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/service/api": {
-        target: "http://192.168.0.21:8081",
+      '/service/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/training/api": {
-        target: "http://192.168.0.21:8081",
+      '/training/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/resource/api": {
-        target: "http://192.168.0.21:8081",
+      '/resource/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/datacenter/api": {
-        target: "http://192.168.0.21:8081",
+      '/datacenter/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/modelprocess/api": {
-        target: "http://192.168.0.21:8081",
+      '/modelprocess/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/expand/api": {
-        target: "http://192.168.0.21:8081",
+      '/expand/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/record/api": {
-        target: "http://192.168.0.21:8081",
+      '/record/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/img": {
-        target: "http://192.168.0.21:8081",
+      '/img': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/konwledgeServe": {
-        target: "http://192.168.0.21:8081",
+      '/konwledgeServe': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/proxyupload": {
-        target: "http://192.168.0.21:8081",
+      '/proxyupload': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/use/model/api": {
-        target: "http://192.168.0.21:8081",
+      '/use/model/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
       },
-      "/prompt/api": {
-        target: "http://192.168.0.21:8081",
+      '/prompt/api': {
+        target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,
-      }
+      },
     },
   },
   css: {
     sourceMap: false,
     loaderOptions: {
       sass: {
-        prependData: `@import "~@/style/theme/vars_blue.scss";@import "~@/style/theme/common.scss";` // 假设variables.scss位于src/styles目录下
-      }
-    }
+        prependData: `@import "~@/style/theme/vars_blue.scss";@import "~@/style/theme/common.scss";`, // 假设variables.scss位于src/styles目录下
+      },
+    },
   },
   configureWebpack: {
     cache: {
       type: 'filesystem',
       buildDependencies: {
-        config: [__filename]
+        config: [__filename],
       },
-      cacheDirectory: path.resolve(__dirname, 'node_modules/.cache/webpack')
+      cacheDirectory: path.resolve(__dirname, 'node_modules/.cache/webpack'),
     },
     // @路径走src文件夹
     module: {
       rules: [
         {
           test: /\.swf$/,
-          loader: "url-loader",
+          loader: 'url-loader',
           options: {
             limit: 10000,
-            name: "static/media/[name].[hash:7].[ext]",
+            name: 'static/media/[name].[hash:7].[ext]',
           },
         },
       ],
     },
     resolve: {
       alias: {
-        'vue$': 'vue/dist/vue.esm.js',
-        "@": resolve("src"),
-        "@common": resolve("common"),
-        "@antv/g6": path.resolve(__dirname, 'node_modules/@antv/g6'),
+        vue$: 'vue/dist/vue.esm.js',
+        '@': resolve('src'),
+        '@common': resolve('common'),
+        '@antv/g6': path.resolve(__dirname, 'node_modules/@antv/g6'),
       },
     },
     output: {
@@ -220,8 +220,8 @@ module.exports = {
         maxChunks: 10, // 来限制 chunk 的最大数量
       }),
       new webpack.optimize.MinChunkSizePlugin({
-        minChunkSize: 50000 // Minimum number of characters
+        minChunkSize: 50000, // Minimum number of characters
       }),
-    ]
+    ],
   },
 };

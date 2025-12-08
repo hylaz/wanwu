@@ -1,11 +1,17 @@
 <template>
   <div class="statistics_search_time">
-    <label>{{$t('common.datePicker.data')}}:</label>
+    <label>{{ $t('common.datePicker.data') }}:</label>
     <div class="search_content">
       <el-radio-group v-model="radio" size="mini" @change="handleRadio">
-        <el-radio-button :label="'day'">{{$t('common.datePicker.day')}}</el-radio-button>
-        <el-radio-button :label="'week'">{{$t('common.datePicker.week')}}</el-radio-button>
-        <el-radio-button :label="'month'">{{$t('common.datePicker.oneMonth')}}</el-radio-button>
+        <el-radio-button :label="'day'">
+          {{ $t('common.datePicker.day') }}
+        </el-radio-button>
+        <el-radio-button :label="'week'">
+          {{ $t('common.datePicker.week') }}
+        </el-radio-button>
+        <el-radio-button :label="'month'">
+          {{ $t('common.datePicker.oneMonth') }}
+        </el-radio-button>
       </el-radio-group>
       <el-date-picker
         ref="time"
@@ -22,21 +28,20 @@
         :picker-options="pickerOptions"
         :disabled-date="handleFilterTime"
         @change="handleDateChange"
-      >
-      </el-date-picker>
+      ></el-date-picker>
       <el-button
         type="primary"
         size="mini"
         :loading="btnLoading"
         @click="handleSearch"
       >
-        {{$t('common.button.search')}}
+        {{ $t('common.button.search') }}
       </el-button>
     </div>
   </div>
 </template>
 <script>
-import {i18n} from "@/lang";
+import { i18n } from '@/lang';
 
 const obj = {
   day: i18n.t('common.datePicker.day'),
@@ -49,7 +54,7 @@ export default {
     const that = this;
     return {
       btnLoading: false,
-      radio: "day",
+      radio: 'day',
       time: [],
       nowTime: null,
     };
@@ -58,13 +63,13 @@ export default {
     // 赋予默认值
     this.time = this.shortcuts;
     // 触发父级事件，传递参数
-    this.$emit("handleSetTime", { type: obj[this.radio], time: this.time });
+    this.$emit('handleSetTime', { type: obj[this.radio], time: this.time });
   },
   methods: {
     handleRadio(val) {
       this.time = this.shortcuts;
       this.radio = val;
-      this.$emit("handleSetTime", { type: obj[this.radio], time: this.time });
+      this.$emit('handleSetTime', { type: obj[this.radio], time: this.time });
     },
     handleFilterTime(time) {
       // let time = new Date();
@@ -78,12 +83,12 @@ export default {
     timestampToDateFormat(timestamp) {
       const dateObj = new Date(timestamp); // 创建Date对象
       const year = dateObj.getFullYear(); // 获取年份
-      const month = ("0" + (dateObj.getMonth() + 1)).slice(-2); // 获取月份，并补零
-      const day = ("0" + dateObj.getDate()).slice(-2); // 获取日期，并补零
+      const month = ('0' + (dateObj.getMonth() + 1)).slice(-2); // 获取月份，并补零
+      const day = ('0' + dateObj.getDate()).slice(-2); // 获取日期，并补零
       return `${year}-${month}-${day}`; // 返回转换后的日期格式
     },
     handleSearch() {
-      this.$emit("handleSetTime", { type: obj["cust"], time: this.time });
+      this.$emit('handleSetTime', { type: obj['cust'], time: this.time });
     },
   },
   computed: {
@@ -98,7 +103,7 @@ export default {
               const start = new Date();
               start.setTime(start.getTime());
               end.setTime(end.getTime());
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
@@ -108,7 +113,7 @@ export default {
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 6);
               end.setTime(end.getTime());
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
@@ -118,7 +123,7 @@ export default {
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 29);
               end.setTime(end.getTime());
-              picker.$emit("pick", [start, end]);
+              picker.$emit('pick', [start, end]);
             },
           },
         ],
@@ -144,10 +149,10 @@ export default {
     shortcuts() {
       const end = new Date();
       const start = new Date();
-      if (this.radio === "day") {
+      if (this.radio === 'day') {
         start.setTime(start.getTime());
         end.setTime(end.getTime());
-      } else if (this.radio === "week") {
+      } else if (this.radio === 'week') {
         start.setTime(start.getTime() - 3600 * 1000 * 24 * 6);
         end.setTime(end.getTime());
       } else {

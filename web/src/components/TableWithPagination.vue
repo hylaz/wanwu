@@ -17,10 +17,16 @@
         <slot name="checkbox"></slot>
 
         <!-- 多选区 -->
-        <slot name="selection" ></slot>
+        <slot name="selection"></slot>
 
         <!-- 索引区 -->
-        <el-table-column v-if="index" type="index" :index="indexMethod" width="62" :label="$t('common.table.num')"></el-table-column>
+        <el-table-column
+          v-if="index"
+          type="index"
+          :index="indexMethod"
+          width="62"
+          :label="$t('common.table.num')"
+        ></el-table-column>
 
         <!-- 头部 -->
         <slot name="haed"></slot>
@@ -35,7 +41,7 @@
           :formatter="column.formatter"
           :fixed="column.fixed"
         >
-          <span v-if="column.html" >{{column.formatter()}}</span>
+          <span v-if="column.html">{{ column.formatter() }}</span>
         </el-table-column>
 
         <!-- 设置区 -->
@@ -64,23 +70,23 @@
 
 <script>
 export default {
-  name: "tableWithPagination",
-  props: ["noCreate","table","index","select",'pageSize','noborder'],
+  name: 'tableWithPagination',
+  props: ['noCreate', 'table', 'index', 'select', 'pageSize', 'noborder'],
   data() {
     return {
       // 表格分页参数
       page: {
         pageNo: 1,
-        pageSize: 5
+        pageSize: 5,
       },
       // 表格多选集合
-      selection: []
+      selection: [],
     };
   },
-  created: function() {
+  created: function () {
     // 初始化加载
-    this.page.pageSize=this.pageSize||5
-    if(!this.noCreate){
+    this.page.pageSize = this.pageSize || 5;
+    if (!this.noCreate) {
       this.handlePagination();
     }
   },
@@ -96,7 +102,7 @@ export default {
     // 执行分页逻辑
     handlePagination() {
       this.selection = [];
-      this.$emit("handlePagination", this.page);
+      this.$emit('handlePagination', this.page);
     },
     handleSizeChange(val) {
       this.page.pageSize = val;
@@ -117,15 +123,15 @@ export default {
         row: row,
         column: column,
         cell: cell,
-        event: event
+        event: event,
       };
-      this.$emit("handCellClick", params);
+      this.$emit('handCellClick', params);
     },
-    handelInitPage(){
-      this.page.pageNo= 1
-      this.page.pageSize = this.pageSize||5
-    }
-  }
+    handelInitPage() {
+      this.page.pageNo = 1;
+      this.page.pageSize = this.pageSize || 5;
+    },
+  },
 };
 </script>
 
@@ -134,7 +140,7 @@ export default {
   margin-top: 20px;
   text-align: right;
 }
-.el-pager li.active{
-  color: #D33A3A;
+.el-pager li.active {
+  color: #d33a3a;
 }
 </style>

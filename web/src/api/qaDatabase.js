@@ -1,92 +1,101 @@
-import service from "@/utils/request";
-import { USER_API } from "@/utils/requestConstants";
+import service from '@/utils/request';
+import { USER_API } from '@/utils/requestConstants';
 
 //问答库文档导出
-export const qaDocExport = (data) => {
+export const qaDocExport = data => {
   return service({
     url: `${USER_API}/knowledge/qa/export`,
-    method: "get",
+    method: 'get',
     params: data,
   });
 };
 
 //删除问答库记录
-export const delQaRecord = (data) => {
+export const delQaRecord = data => {
   return service({
-    url: `${USER_API}/knowledge/qa/export/record`,
-    method: "delete",
+    url: `${USER_API}/knowledge/export/record`,
+    method: 'delete',
     data,
   });
 };
 
 //获取问答库导出记录列表
-export const getQaExportRecordList = (data) => {
+export const getQaExportRecordList = data => {
   return service({
-    url: `${USER_API}/knowledge/qa/export/record/list`,
-    method: "get",
+    url: `${USER_API}/knowledge/export/record/list`,
+    method: 'get',
     params: data,
   });
 };
 
 //编辑问答对
-export const editQaPair = (data) => {
+export const editQaPair = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair`,
-    method: "put",
+    method: 'put',
     data,
   });
 };
 
 //新增问答对
-export const addQaPair = (data) => {
+export const addQaPair = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair`,
-    method: "post",
+    method: 'post',
     data,
   });
 };
 
 //删除问答对
-export const delQaPair = (data) => {
+export const delQaPair = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair`,
-    method: "delete",
+    method: 'delete',
     data,
   });
 };
 
 //问答库文档导入
-export const qaDocImport = (data) => {
+export const qaDocImport = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair/import`,
-    method: "post",
+    method: 'post',
     data,
   });
 };
 
 //获取问答对列表
-export const getQaPairList = (data) => {
+export const getQaPairList = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair/list`,
-    method: "get",
+    method: 'get',
     params: data,
   });
 };
 
 //启动问答对
-export const switchQaPair = (data) => {
+export const switchQaPair = data => {
   return service({
     url: `${USER_API}/knowledge/qa/pair/switch`,
-    method: "put",
+    method: 'put',
     data,
   });
 };
 
 //问答库命中测试
-export const qaHitTest = (data) => {
+export const qaHitTest = data => {
   return service({
     url: `${USER_API}/knowledge/qa/hit`,
-    method: "post",
+    method: 'post',
     data,
+  });
+};
+
+//问答库异步上传任务提示
+export const qaTips = data => {
+  return service({
+    url: `${USER_API}/knowledge/qa/pair/import/tip`,
+    method: 'get',
+    params: data,
   });
 };

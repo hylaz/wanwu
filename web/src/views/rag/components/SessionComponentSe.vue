@@ -1,16 +1,8 @@
-<!--http流式 前端保存点赞效果，后端不保存-->
 <template>
   <div class="session rl">
     <div class="session-setting">
-      <el-dropdown
-        class="right-setting"
-        @command="gropdownClick"
-      >
-        <i
-          class="el-icon-more"
-          trigger="click"
-          style="color:var(--color);"
-        ></i>
+      <el-dropdown class="right-setting" @command="gropdownClick">
+        <i class="el-icon-more" trigger="click" style="color: var(--color)"></i>
         <el-dropdown-menu
           :append-to-body="false"
           placement="bottom-end"
@@ -21,25 +13,12 @@
       </el-dropdown>
     </div>
 
-    <div
-      class="history-box showScroll"
-      id="timeScroll"
-      v-loading="loading"
-    >
-      <div
-        v-for="(n,i) in session_data.history"
-        :key="`${i}sdhs`"
-      >
+    <div class="history-box showScroll" id="timeScroll" v-loading="loading">
+      <div v-for="(n, i) in session_data.history" :key="`${i}sdhs`">
         <!--问题-->
-        <div
-          v-if="n.query"
-          class="session-question"
-        >
-          <div :class="['session-item','rl']">
-            <img
-              class="logo"
-              :src="'/user/api/'+ userAvatar"
-            />
+        <div v-if="n.query" class="session-question">
+          <div :class="['session-item', 'rl']">
+            <img class="logo" :src="'/user/api/' + userAvatar" />
             <div class="answer-content">
               <div class="answer-content-query">
                 <!-- <span class="session-setting-id" v-if="$route.params && $route.params.id">ragID: {{$route.params.id}}</span> -->
@@ -56,13 +35,10 @@
                     style="cursor: pointer"
                   >
                     <i class="el-icon-s-order"></i>
-                    &nbsp;{{$t('agent.copyToInput')}}
+                    &nbsp;{{ $t('agent.copyToInput') }}
                   </p>
-                  <span
-                    slot="reference"
-                    class="answer-text"
-                  >
-                    {{n.query}}
+                  <span slot="reference" class="answer-text">
+                    {{ n.query }}
                   </span>
                 </el-popover>
               </div>
@@ -70,66 +46,50 @@
           </div>
         </div>
         <!--loading-->
-        <div
-          v-if="n.responseLoading"
-          class="session-answer"
-        >
+        <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
-        <div
-          v-if="n.pendingResponse"
-          class="session-answer"
-        >
+        <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
-            <div
-              class="answer-content"
-              style="padding:0 10px;color:#E6A23C;"
-            >
-              {{n.pendingResponse}}
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <div class="answer-content" style="padding: 0 10px; color: #e6a23c">
+              {{ n.pendingResponse }}
             </div>
           </div>
         </div>
         <!-- 回答故障  code:7-->
-        <div
-          class="session-error"
-          v-if="n.error"
-        >
+        <div class="session-error" v-if="n.error">
           <i class="el-icon-warning"></i>
-          &nbsp;{{n.response}}
+          &nbsp;{{ n.response }}
         </div>
 
         <!--回答 文字+图片-->
         <div
-          v-if="(!n.error) && (n.response || n.msg_type)"
+          v-if="!n.error && (n.response || n.msg_type)"
           class="session-answer"
-          :id="'message-container'+i"
+          :id="'message-container' + i"
         >
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="'/user/api/'+ defaultUrl"
-            />
-            <div
-              class="session-wrap"
-              style="width:calc(100% - 30px);"
-            >
-              <div class="deepseek" v-if="n.msg_type && ['qa_start','qa_finish','knowledge_start'].includes(n.msg_type)">
+            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <div class="session-wrap" style="width: calc(100% - 30px)">
+              <div
+                class="deepseek"
+                v-if="
+                  n.msg_type &&
+                  ['qa_start', 'qa_finish', 'knowledge_start'].includes(
+                    n.msg_type,
+                  )
+                "
+              >
                 <img
                   :src="require('@/assets/imgs/think-icon.png')"
                   class="think_icon"
                 />
-                {{getTitle(n.msg_type) }}
+                {{ getTitle(n.msg_type) }}
               </div>
               <template v-else>
                 <img
@@ -139,24 +99,37 @@
                 <div
                   v-if="showDSBtn(n.response)"
                   class="deepseek"
-                  @click="toggle($event,i)"
+                  @click="toggle($event, i)"
                 >
-                  {{n.thinkText}}
-                  <i v-bind:class="{'el-icon-arrow-down': !n.isOpen,'el-icon-arrow-up': n.isOpen}"></i>
+                  {{ n.thinkText }}
+                  <i
+                    v-bind:class="{
+                      'el-icon-arrow-down': !n.isOpen,
+                      'el-icon-arrow-up': n.isOpen,
+                    }"
+                  ></i>
                 </div>
-                <span v-else class="deepseek">{{$t('menu.knowledge')}}</span>
+                <span v-else class="deepseek">{{ $t('menu.knowledge') }}</span>
               </template>
               <!--内容-->
               <div
                 v-if="n.response"
                 class="answer-content"
                 :id="i"
-                v-bind:class="{'ds-res':showDSBtn(n.response)}"
-                v-html="showDSBtn(n.response)?replaceHTML(n.response,n):n.response"
+                v-bind:class="{ 'ds-res': showDSBtn(n.response) }"
+                v-html="
+                  showDSBtn(n.response)
+                    ? replaceHTML(n.response, n)
+                    : n.response
+                "
               ></div>
               <!--loading-->
               <div
-                v-if="n.finish === 0 && sessionStatus == 0 && i === session_data.history.length - 1"
+                v-if="
+                  n.finish === 0 &&
+                  sessionStatus == 0 &&
+                  i === session_data.history.length - 1
+                "
                 class="text-loading"
               >
                 <div></div>
@@ -168,42 +141,63 @@
                 v-if="n.searchList && n.searchList.length && n.finish === 1"
                 class="search-list"
               >
-                <h2 class="recommended-question-title" v-if="n.msg_type && ['qa_finish'].includes(n.msg_type)">{{$t('app.recommendedQuestion')}}</h2>
+                <h2
+                  class="recommended-question-title"
+                  v-if="n.msg_type && ['qa_finish'].includes(n.msg_type)"
+                >
+                  {{ $t('app.recommendedQuestion') }}
+                </h2>
                 <div
-                  v-for="(m,j) in n.searchList"
+                  v-for="(m, j) in n.searchList"
                   :key="`${j}sdsl`"
                   class="search-list-item"
                 >
-                  <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content" @click="handleRecommendedQuestion(m)">
-                    <span>{{j+1}}. {{m.question}}</span>
+                  <div
+                    v-if="m.content_type && m.content_type === 'qa'"
+                    class="qa_content"
+                    @click="handleRecommendedQuestion(m)"
+                  >
+                    <span>{{ j + 1 }}. {{ m.question }}</span>
                   </div>
                   <template v-else>
                     <div
                       class="serach-list-item"
-                      v-if="n.citations && n.citations.includes(j+1)"
+                      v-if="n.citations && n.citations.includes(j + 1)"
                     >
-                      <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
+                      <span @click="collapseClick(n, m, j)">
+                        <i
+                          :class="[
+                            '',
+                            m.collapse
+                              ? 'el-icon-caret-bottom'
+                              : 'el-icon-caret-right',
+                          ]"
+                        ></i>
+                        出处：
+                      </span>
                       <a
                         v-if="m.link"
                         :href="m.link"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="link"
-                      >{{m.link}}</a>
+                      >
+                        {{ m.link }}
+                      </a>
                       <span v-if="m.title">
                         <sub
                           class="subTag"
                           :data-parents-index="i"
-                          :data-collapse="m.collapse?'true':'false'"
-                        >{{j + 1}}</sub> {{m.title}}
+                          :data-collapse="m.collapse ? 'true' : 'false'"
+                        >
+                          {{ j + 1 }}
+                        </sub>
+                        {{ m.title }}
                       </span>
                       <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                     </div>
                     <el-collapse-transition>
-                      <div
-                        v-show="m.collapse?true:false"
-                        class="snippet"
-                      >
+                      <div v-show="m.collapse ? true : false" class="snippet">
                         <p v-html="m.snippet"></p>
                       </div>
                     </el-collapse-transition>
@@ -219,12 +213,12 @@
 </template>
 
 <script>
-import { marked } from "marked";
-import smoothscroll from "smoothscroll-polyfill";
-var highlight = require("highlight.js");
-import "highlight.js/styles/atom-one-dark.css";
-import commonMixin from "@/mixins/common";
-import { mapGetters } from "vuex";
+import { marked } from 'marked';
+import smoothscroll from 'smoothscroll-polyfill';
+var highlight = require('highlight.js');
+import 'highlight.js/styles/atom-one-dark.css';
+import commonMixin from '@/mixins/common';
+import { mapGetters } from 'vuex';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -240,9 +234,8 @@ marked.setOptions({
   },
 });
 
-
 export default {
-  props: ["sessionStatus", "defaultUrl"],
+  props: ['sessionStatus', 'defaultUrl'],
   mixins: [commonMixin],
   data() {
     return {
@@ -250,21 +243,21 @@ export default {
       scrollTimeout: null,
       isDs:
         [
-          "txt2txt-002-001",
-          "txt2txt-002-002",
-          "txt2txt-002-004",
-          "txt2txt-002-005",
-          "txt2txt-002-006",
-          "txt2txt-002-007",
-          "txt2txt-002-008",
+          'txt2txt-002-001',
+          'txt2txt-002-002',
+          'txt2txt-002-004',
+          'txt2txt-002-005',
+          'txt2txt-002-006',
+          'txt2txt-002-007',
+          'txt2txt-002-008',
         ].indexOf(this.$route.params.id) != -1,
       loading: false,
       marked: marked,
       session_data: {
-        tool: "",
+        tool: '',
         searchList: [],
         history: [],
-        response: "",
+        response: '',
       },
       basePath: this.$basePath,
       current_data: [],
@@ -274,7 +267,7 @@ export default {
       canvasShow: false,
       cv: null,
       currImg: {
-        url: "",
+        url: '',
         width: 0, // 原始宽高
         height: 0,
         w: 0, // 压缩后的宽高
@@ -282,12 +275,12 @@ export default {
         roteX: 0, // 压缩后的比例
         roteY: 0,
       },
-      imgConfig: ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"],
-      audioConfig: ["mp3", "wav"],
+      imgConfig: ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'],
+      audioConfig: ['mp3', 'wav'],
     };
   },
   computed: {
-    ...mapGetters('user', ['userAvatar'])
+    ...mapGetters('user', ['userAvatar']),
   },
   watch: {
     sessionStatus: {
@@ -302,18 +295,18 @@ export default {
     document.addEventListener('click', this.handleCitationClick);
   },
   beforeDestroy() {
-    if(this.handleCitationClick) {
+    if (this.handleCitationClick) {
       document.removeEventListener('click', this.handleCitationClick);
     }
-    const container = document.getElementById("timeScroll");
+    const container = document.getElementById('timeScroll');
     if (container) {
-      container.removeEventListener("scroll", this.handleScroll);
+      container.removeEventListener('scroll', this.handleScroll);
     }
     clearTimeout(this.scrollTimeout);
   },
   methods: {
-    handleRecommendedQuestion(m){
-      this.$emit("handleRecommendedQuestion", m.question);
+    handleRecommendedQuestion(m) {
+      this.$emit('handleRecommendedQuestion', m.question);
     },
     handleCitationClick(e) {
       // 调用 common.js 中的通用方法
@@ -325,7 +318,7 @@ export default {
         onToggleCollapse: (item, collapse) => {
           // 使用 Vue.set 确保响应式更新
           this.$set(item, 'collapse', collapse);
-        }
+        },
       });
     },
     setCitations(index) {
@@ -333,7 +326,7 @@ export default {
       const allCitations = document.querySelectorAll(citation);
       const citationsSet = new Set();
 
-      allCitations.forEach((element) => {
+      allCitations.forEach(element => {
         const text = element.textContent.trim();
         if (text) {
           citationsSet.add(Number(text));
@@ -347,74 +340,74 @@ export default {
       let { meta_data } = item;
       let { file_name, download_link, page_num, row_num, sheet_name } =
         meta_data;
-      var index = file_name.lastIndexOf(".");
+      var index = file_name.lastIndexOf('.');
       var ext = file_name.substr(index + 1);
-      let openUrl = "";
+      let openUrl = '';
       let fileUrl = encodeURIComponent(download_link);
-      const fileType = ["docx", "doc", "txt", "pdf", "xlsx"];
+      const fileType = ['docx', 'doc', 'txt', 'pdf', 'xlsx'];
       if (fileType.includes(ext)) {
         switch (ext) {
-          case "docx" || "doc":
+          case 'docx' || 'doc':
             openUrl = `${window.location.origin}/aibase/doc?fileUrl=` + fileUrl;
             break;
-          case "txt":
+          case 'txt':
             openUrl =
               `${window.location.origin}/aibase/txtView?fileUrl=` + fileUrl;
             break;
-          case "pdf":
+          case 'pdf':
             if (page_num.length > 0) {
               openUrl =
                 `${window.location.origin}/aibase/pdfView?fileUrl=` +
                 fileUrl +
-                "&page=" +
+                '&page=' +
                 page_num[0];
             }
             break;
-          case "xlsx":
+          case 'xlsx':
             openUrl =
               `${window.location.origin}/aibase/jsExcel?url=` +
               fileUrl +
-              "&rownum=" +
+              '&rownum=' +
               row_num +
-              "&sheetName=" +
+              '&sheetName=' +
               sheet_name;
             break;
           default:
-            this.$message.warning("暂不支持此格式查看");
+            this.$message.warning('暂不支持此格式查看');
         }
       }
-      if (openUrl !== "") {
-        window.open(openUrl, "_blank","noopener,noreferrer");
+      if (openUrl !== '') {
+        window.open(openUrl, '_blank', 'noopener,noreferrer');
       } else {
-        this.$message.warning("暂不支持此格式查看");
+        this.$message.warning('暂不支持此格式查看');
       }
     },
     listenerImg() {
       //捕获图片加载错误
-      this.imageErrorHandler = (e) => {
-        if (e.target.tagName === "IMG") {
+      this.imageErrorHandler = e => {
+        if (e.target.tagName === 'IMG') {
           this.handleImageError(e.target);
         }
       };
-      document.body.addEventListener("error", this.imageErrorHandler, true);
+      document.body.addEventListener('error', this.imageErrorHandler, true);
     },
     handleImageError(img) {
       // 防止重复处理
-      if (img.classList.contains("failed")) {
+      if (img.classList.contains('failed')) {
         return;
       }
-      img.classList.add("failed");
+      img.classList.add('failed');
 
       // // 设置图片为不可见，避免闪烁
-      img.style.visibility = "hidden";
-      img.style.display = "none";
+      img.style.visibility = 'hidden';
+      img.style.display = 'none';
     },
     setupScrollListener() {
-      const container = document.getElementById("timeScroll");
-      container.addEventListener("scroll", this.handleScroll);
+      const container = document.getElementById('timeScroll');
+      container.addEventListener('scroll', this.handleScroll);
     },
     handleScroll(e) {
-      const container = document.getElementById("timeScroll");
+      const container = document.getElementById('timeScroll');
       const { scrollTop, clientHeight, scrollHeight } = container;
       // 检测是否接近底部（5px容差）
       const nearBottom = scrollHeight - (scrollTop + clientHeight) < 5;
@@ -433,29 +426,29 @@ export default {
         }
       }, 500); // 500ms内没有新滚动视为停止
     },
-    getTitle(type){
-      if(type === 'qa_start'){
-        return this.$t('app.qaSearching')
-      }else if(type === 'knowledge_start'){
-        return this.$t('app.knowledgeSearch')
-      }else if(type === 'qa_finish'){
-        return this.$t('knowledgeManage.qaDatabase.name')
-      }else{
-        return this.$t('menu.knowledge')
+    getTitle(type) {
+      if (type === 'qa_start') {
+        return this.$t('app.qaSearching');
+      } else if (type === 'knowledge_start') {
+        return this.$t('app.knowledgeSearch');
+      } else if (type === 'qa_finish') {
+        return this.$t('knowledgeManage.qaDatabase.name');
+      } else {
+        return this.$t('menu.knowledge');
       }
     },
     replaceHTML(data, n) {
       let _data = data;
-      var a = new RegExp("<think>");
-      var b = new RegExp("</think>");
+      var a = new RegExp('<think>');
+      var b = new RegExp('</think>');
       if (b.test(data)) {
         n.thinkText = this.$t('agent.alreadyThink');
       }
       // 如果没有返回前缀，则补上
       if (b.test(data) && !a.test(data)) {
-        _data = "<think>\n" + data;
+        _data = '<think>\n' + data;
       }
-      return _data.replace(/think>/g, "section>");
+      return _data.replace(/think>/g, 'section>');
     },
     showDSBtn(data) {
       const pattern = /<\/?think>/;
@@ -468,45 +461,45 @@ export default {
     toggle(event, index) {
       const name = event.target.className;
       if (
-        name === "deepseek" ||
-        name === "el-icon-arrow-up" ||
-        name === "el-icon-arrow-down"
+        name === 'deepseek' ||
+        name === 'el-icon-arrow-up' ||
+        name === 'el-icon-arrow-down'
       ) {
         this.session_data.history[index].isOpen =
           !this.session_data.history[index].isOpen;
         this.$set(
           this.session_data.history,
           index,
-          this.session_data.history[index]
+          this.session_data.history[index],
         );
         let elm = null;
-        if (name === "el-icon-arrow-up" || name === "el-icon-arrow-down") {
+        if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
           elm = event.target.parentNode.parentNode
-            .getElementsByClassName("answer-content")[0]
-            .getElementsByTagName("section")[0];
+            .getElementsByClassName('answer-content')[0]
+            .getElementsByTagName('section')[0];
         } else {
           elm = event.target.parentNode
-            .getElementsByClassName("answer-content")[0]
-            .getElementsByTagName("section")[0];
+            .getElementsByClassName('answer-content')[0]
+            .getElementsByTagName('section')[0];
         }
         if (!Boolean(this.session_data.history[index].isOpen)) {
-          elm.className = "hideDs";
+          elm.className = 'hideDs';
         } else {
-          elm.className = "";
+          elm.className = '';
         }
       }
     },
     queryCopy(text) {
-      this.$emit("queryCopy", text);
+      this.$emit('queryCopy', text);
     },
     copy(text) {
-      text = text.replaceAll("<br/>", "\n");
-      var textareaEl = document.createElement("textarea");
-      textareaEl.setAttribute("readonly", "readonly"); // 防止手机上弹出软键盘
+      text = text.replaceAll('<br/>', '\n');
+      var textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
       textareaEl.value = text;
       document.body.appendChild(textareaEl);
       textareaEl.select();
-      var res = document.execCommand("copy");
+      var res = document.execCommand('copy');
       document.body.removeChild(textareaEl);
       return res;
     },
@@ -527,8 +520,8 @@ export default {
       if (!this.autoScroll) return;
       this.$nextTick(() => {
         this.loading = false;
-        document.getElementById("timeScroll").scrollTop =
-          document.getElementById("timeScroll").scrollHeight;
+        document.getElementById('timeScroll').scrollTop =
+          document.getElementById('timeScroll').scrollHeight;
       });
     },
     pushHistory(data) {
@@ -536,19 +529,19 @@ export default {
       this.scrollBottom();
     },
     replaceLastData(index, data) {
-      if (!data.response && data.finish === 1 ) {
+      if (!data.response && data.finish === 1) {
         data.response = this.$t('app.noResponse');
       }
       this.scrollBottom();
       this.$set(this.session_data.history, index, data);
       if (data.finish === 1) {
         const setCitations = this.setCitations(index);
-        this.$set(this.session_data.history[index], "citations", setCitations);
+        this.$set(this.session_data.history[index], 'citations', setCitations);
       }
     },
     getFileSizeDisplay(fileSize) {
-      if (!fileSize || typeof fileSize !== "number" || isNaN(fileSize)) {
-        return "...";
+      if (!fileSize || typeof fileSize !== 'number' || isNaN(fileSize)) {
+        return '...';
       }
       return fileSize > 1024
         ? `${(fileSize / (1024 * 1024)).toFixed(2)} MB`
@@ -573,10 +566,10 @@ export default {
     },
     clearData() {
       this.session_data = {
-        tool: "",
+        tool: '',
         searchList: [],
         history: [],
-        response: "",
+        response: '',
       };
     },
     loadAllImg() {
@@ -593,7 +586,7 @@ export default {
       });
     },
     gropdownClick() {
-      this.$emit("clearHistory");
+      this.$emit('clearHistory');
     },
     getSessionData() {
       return this.session_data;
@@ -601,11 +594,11 @@ export default {
     getList() {
       return JSON.parse(
         JSON.stringify(
-          this.session_data.history.filter((item) => {
+          this.session_data.history.filter(item => {
             delete item.operation;
             return item;
-          })
-        )
+          }),
+        ),
       );
       // return JSON.parse(JSON.stringify(this.session_data.history.filter((item)=>{ delete item.operation ; return !item.pending})))
     },
@@ -613,13 +606,13 @@ export default {
       return JSON.parse(JSON.stringify(this.session_data.history));
     },
     stopLoading() {
-      this.session_data.history = this.session_data.history.filter((item) => {
+      this.session_data.history = this.session_data.history.filter(item => {
         return !item.pending;
       });
     },
     stopPending() {
       // this.session_data.history = this.session_data.history.filter(item =>{
-      this.session_data.history = this.session_data.history.map((item) => {
+      this.session_data.history = this.session_data.history.map(item => {
         if (item.pending) {
           return {
             ...item,
@@ -636,7 +629,7 @@ export default {
       if (this.sessionStatus === 0) {
         return;
       }
-      this.$emit("refresh");
+      this.$emit('refresh');
     },
     preZan(index, item) {
       if (this.sessionStatus === 0) {
@@ -668,7 +661,7 @@ export default {
     preTagging(response) {
       // canvas大小重置
       this.currImg = {
-        url: "",
+        url: '',
         width: 0,
         height: 0,
         w: 0,
@@ -685,8 +678,8 @@ export default {
         this.currImg.width = image.width;
         this.currImg.height = image.height;
         //if (!this.c) {
-        this.c = document.getElementById("mycanvas");
-        this.ctx = this.c.getContext("2d");
+        this.c = document.getElementById('mycanvas');
+        this.ctx = this.c.getContext('2d');
         //}
         this.resizeCanvas();
         this.initCanvasUtil();
@@ -708,7 +701,7 @@ export default {
       this.currImg.roteY = 0;
 
       let currImg = this.currImg;
-      let contain = document.getElementById("mycantain");
+      let contain = document.getElementById('mycantain');
       if (currImg.width > contain.offsetWidth) {
         // 宽度大于容器
         this.currImg.roteX = currImg.width / contain.offsetWidth;
@@ -783,7 +776,7 @@ img.failed {
 }
 
 img.failed::after {
-  content: "图片加载失败";
+  content: '图片加载失败';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -801,7 +794,7 @@ img.failed::after {
     white-space: pre-wrap !important;
   }
   .answer-content {
-    margin-top:5px !important;
+    margin-top: 5px !important;
     img {
       // height:100px;
       width: 100%;
@@ -858,12 +851,12 @@ img.failed::after {
       border-radius: 6px;
     }
     .answer-content {
-      width:100%;
+      width: 100%;
       position: relative;
       margin-left: 14px;
       color: #333;
       .answer-content-query {
-        width:100%;
+        width: 100%;
         display: flex;
         flex-wrap: wrap;
         flex-direction: column;
@@ -873,9 +866,9 @@ img.failed::after {
           color: #fff;
           border-radius: 10px 0 10px 10px;
           padding: 10px 10px 10px 20px;
-          margin:0!important;
-          display:inline-block;
-          line-height:1.5;
+          margin: 0 !important;
+          display: inline-block;
+          line-height: 1.5;
         }
         .session-setting-id {
           color: rgba(98, 98, 98, 0.5);
@@ -915,7 +908,7 @@ img.failed::after {
   .session-answer {
     // background-color: #eceefe;
     border-radius: 10px;
-    
+
     .session-answer-wrapper {
       display: flex;
       align-items: flex-start;
@@ -923,7 +916,7 @@ img.failed::after {
       padding: 20px 20px 0 20px;
       min-height: 80px;
       background: none; /* 确保外层容器无背景色 */
-      
+
       .logo {
         width: 30px;
         height: 30px;
@@ -932,7 +925,7 @@ img.failed::after {
         flex-shrink: 0; /* 防止头像被压缩 */
         background: none; /* 头像无背景色 */
       }
-      
+
       .answer-content {
         flex: 1;
         background-color: #eceefe; /* 只有内容区域有背景色 */
@@ -942,7 +935,7 @@ img.failed::after {
       }
     }
   }
-  
+
   /* 问题在右侧，答案在左侧 */
   .session-question {
     .session-item {
@@ -954,7 +947,7 @@ img.failed::after {
       align-items: flex-start;
     }
   }
-  
+
   .session-answer {
     .answer-annotation {
       line-height: 0 !important;
@@ -979,12 +972,12 @@ img.failed::after {
     /*出处*/
     .search-list {
       padding: 10px 20px 3px 0;
-      .qa_content{
+      .qa_content {
         display: flex;
         gap: 10px;
-        margin-top:5px;
+        margin-top: 5px;
       }
-      .recommended-question-title{
+      .recommended-question-title {
         border-bottom: 1px solid #e5e5e5;
         padding: 5px 0;
       }
@@ -1139,7 +1132,7 @@ img.failed::after {
       }
     }
     /deep/ section::before {
-      content: "";
+      content: '';
       position: absolute;
       height: 100%;
       width: 1px;

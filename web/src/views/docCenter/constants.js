@@ -1,1 +1,1 @@
-export const DOC_FIRST_KEY = 'doc_first'
+export const DOC_FIRST_KEY = 'doc_first';

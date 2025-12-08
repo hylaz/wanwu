@@ -243,8 +243,11 @@ func appModelRerankProto2Model(ctx *gin.Context, resp *rag_service.RagInfo) (req
 
 func ragSafetyConfigProto2Model(ctx *gin.Context, sensitiveCfg *rag_service.RagSensitiveConfig) request.AppSafetyConfig {
 	var sensitiveTableList []request.SensitiveTable
-	if len(sensitiveCfg.GetTableIds()) != 0 {
-		sensitiveWordTable, _ := safety.GetSensitiveWordTableListByIDs(ctx, &safety_service.GetSensitiveWordTableListByIDsReq{TableIds: sensitiveCfg.GetTableIds()})
+	tableIds := sensitiveCfg.GetTableIds()
+
+	if len(tableIds) != 0 {
+		sensitiveWordTable, _ := safety.GetSensitiveWordTableListByIDs(ctx, &safety_service.GetSensitiveWordTableListByIDsReq{TableIds: tableIds})
+
 		if sensitiveWordTable != nil {
 			for _, table := range sensitiveWordTable.List {
 				sensitiveTableList = append(sensitiveTableList, request.SensitiveTable{
@@ -254,8 +257,14 @@ func ragSafetyConfigProto2Model(ctx *gin.Context, sensitiveCfg *rag_service.RagS
 			}
 		}
 	}
+
+	enable := sensitiveCfg.Enable
+	if len(sensitiveTableList) == 0 {
+		enable = false
+	}
+
 	safetyConfig := request.AppSafetyConfig{
-		Enable: sensitiveCfg.Enable,
+		Enable: enable,
 		Tables: sensitiveTableList,
 	}
 	return safetyConfig

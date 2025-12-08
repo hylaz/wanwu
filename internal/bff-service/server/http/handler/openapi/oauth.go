@@ -11,7 +11,7 @@ import (
 
 // OAuthAuthorize
 //
-//	@Tags			oauth
+//	@Tags			openapi.OIDC
 //	@Summary		授权码方式
 //	@Description	授权码方式-获取授权码
 //	@Accept			json

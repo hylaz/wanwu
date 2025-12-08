@@ -1,10 +1,9 @@
 // 文本颜色
-$txt_color: rgba(0,0,0,0.85); // 文本内容色
+$txt_color: rgba(0, 0, 0, 0.85); // 文本内容色
 $btn_color: #fff; // 按钮文本颜色
-$disabled_color:#999999; // 禁用文本颜色
+$disabled_color: #999999; // 禁用文本颜色
 $desc_color: #666666;
-$placeholder: rgba(0,0,0,0.25);
-
+$placeholder: rgba(0, 0, 0, 0.25);
 
 // font
 $font_title: 16px; // 页面级title大小
@@ -15,20 +14,20 @@ $font_btn: 14px; // 按钮字体大小
 $table_title: #425466;
 
 // box-shaow
-$box_shaow: 0px 2px 4px 0px rgba(0,0,0,0.1); // 阴影
+$box_shaow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1); // 阴影
 
 // inactivate
-$inactivate_color: #77869E;
+$inactivate_color: #77869e;
 
 // background
 $select_bg: #fff; // 下拉背景色
-$select_hover_bg: #F5F5F5; // 下拉鼠标移入色
+$select_hover_bg: #f5f5f5; // 下拉鼠标移入色
 
 // 状态
-$complete_status: #1CC78D; // 完成状态色
-$normal_status: #1990FF; // 新建状态色
-$pendding_status: #FF9902; // 进行时状态色
-$error_status: #FF4C4C; // 失败状态色
+$complete_status: #1cc78d; // 完成状态色
+$normal_status: #1990ff; // 新建状态色
+$pendding_status: #ff9902; // 进行时状态色
+$error_status: #ff4c4c; // 失败状态色
 
 //  border-倒角
 $borde_radius_two: 2px; // 按钮倒角
