@@ -121,10 +121,28 @@
                 >
                   {{ $t('common.button.delete') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="export">
+                <el-dropdown-item
+                  command="export"
+                  v-if="
+                    [
+                      POWER_TYPE_EDIT,
+                      POWER_TYPE_ADMIN,
+                      POWER_TYPE_SYSTEM_ADMIN,
+                    ].includes(n.permissionType)
+                  "
+                >
                   {{ $t('common.button.export') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="exportRecord">
+                <el-dropdown-item
+                  command="exportRecord"
+                  v-if="
+                    [
+                      POWER_TYPE_EDIT,
+                      POWER_TYPE_ADMIN,
+                      POWER_TYPE_SYSTEM_ADMIN,
+                    ].includes(n.permissionType)
+                  "
+                >
                   {{ $t('knowledgeManage.qaDatabase.exportRecord') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="power">
