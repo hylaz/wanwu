@@ -1,23 +1,17 @@
 {
   "name": "aibase",
-  "version": "0.2.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint:prettier": "prettier --check .",
-    "lintfix": "prettier --write --list-different .",
+    "lint:fix": "prettier --write --list-different .",
     "prepare": "cd .. && husky install web/.husky",
     "lint-staged": "lint-staged"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "cd web && npm run lint:prettier"
-    }
-  },
   "lint-staged": {
-    "*.{md}": [
-      "npm run lintfix"
+    "*.{js,jsx,ts,tsx,css,md,json}": [
+      "npm run lint:fix"
     ]
   },
   "dependencies": {
