@@ -2,7 +2,7 @@
   <div class="popup-overlay">
     <div class="auth-popup">
       <div class="popup-header">
-        <img src="@/assets/imgs/logo_icon.png" alt="Logo" class="logo"/>
+        <img src="@/assets/imgs/logo_icon.png" alt="Logo" class="logo" />
         <span class="title">{{ $t('oauth.popup.title') }}</span>
       </div>
       <div class="popup-content">
@@ -17,16 +17,20 @@
         </ul>
       </div>
       <div class="popup-footer">
-        <el-button type="primary" @click="handleCancel">{{ $t('common.button.cancel') }}</el-button>
-        <el-button type="success" @click="handleConfirm">{{ $t('common.button.confirm') }}</el-button>
+        <el-button type="primary" @click="handleCancel">{{
+          $t('common.button.cancel')
+        }}</el-button>
+        <el-button type="success" @click="handleConfirm">{{
+          $t('common.button.confirm')
+        }}</el-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {OAUTH_API} from "@/utils/requestConstants";
-import {store} from "@/store";
+import { OAUTH_API } from '@/utils/requestConstants';
+import { store } from '@/store';
 
 export default {
   data() {
@@ -37,42 +41,41 @@ export default {
         scope: '',
         response_type: '',
         state: '',
-        client_name: ''
+        client_name: '',
       },
       token: store.getters['user/token'],
-    }
+    };
   },
   watch: {
     $route: {
       handler() {
-        this.params = this.$route.query
+        this.params = this.$route.query;
       },
       // 深度观察监听
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
-    this.params = this.$route.query
+    this.params = this.$route.query;
   },
 
   methods: {
     handleCancel() {
-      window.open("about:blank", "_top")
+      window.open('about:blank', '_top');
     },
     handleConfirm() {
       const queryParams = new URLSearchParams({
         ...this.params,
-        jwt_token: this.token
+        jwt_token: this.token,
       }).toString();
 
       window.location.href = `${OAUTH_API}/oauth/code/authorize?${queryParams}`;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .popup-overlay {
   position: fixed;
   top: 0;

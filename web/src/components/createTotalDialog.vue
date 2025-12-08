@@ -11,11 +11,21 @@
     >
       <div>
         <div class="create-card-total" v-if="list && list.length">
-          <div class="create-card-item" @click="showCreate(item.key)" v-for="(item, index) in list" :key="item.name + index">
-            <img class="create-card-img" v-if="item.img" :src="item.img" alt="" />
+          <div
+            class="create-card-item"
+            @click="showCreate(item.key)"
+            v-for="(item, index) in list"
+            :key="item.name + index"
+          >
+            <img
+              class="create-card-img"
+              v-if="item.img"
+              :src="item.img"
+              alt=""
+            />
             <div class="create-card-right">
-              <div class="create-card-name">{{item.name}}</div>
-              <div class="create-card-desc">{{item.desc}}</div>
+              <div class="create-card-name">{{ item.name }}</div>
+              <div class="create-card-desc">{{ item.desc }}</div>
             </div>
           </div>
         </div>
@@ -29,11 +39,11 @@
 </template>
 
 <script>
-import CreateWorkflow from "./createApp/createWorkflow.vue"
-import CreateChat from "./createApp/createChat.vue"
-import CreateIntelligent from "./createApp/createIntelligent"
-import CreateTxtQues from "./createApp/createRag.vue"
-import { CHAT, RAG, AGENT } from "@/utils/commonSet"
+import CreateWorkflow from './createApp/createWorkflow.vue';
+import CreateChat from './createApp/createChat.vue';
+import CreateIntelligent from './createApp/createIntelligent';
+import CreateTxtQues from './createApp/createRag.vue';
+import { CHAT, RAG, AGENT } from '@/utils/commonSet';
 
 export default {
   components: { CreateWorkflow, CreateChat, CreateIntelligent, CreateTxtQues },
@@ -41,56 +51,56 @@ export default {
     return {
       dialogVisible: false,
       list: this.$t('createTotal.list'),
-    }
+    };
   },
   mounted() {},
   methods: {
     openDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     showCreate(key) {
-      this.handleClose()
+      this.handleClose();
       this.$nextTick(() => {
-        this.showCreateDialog(key)
-      })
+        this.showCreateDialog(key);
+      });
     },
     showCreateIntelligent() {
       // 显示创建智能体
-      this.$refs.createIntelligentDialog.openDialog()
+      this.$refs.createIntelligentDialog.openDialog();
     },
     showCreateTxtQues() {
       // 显示创建文本问答
-      this.$refs.createTxtQuesDialog.openDialog()
+      this.$refs.createTxtQuesDialog.openDialog();
     },
     showCreateWorkflow() {
       // 显示创建工作流
-      this.$refs.createWorkflowDialog.openDialog()
+      this.$refs.createWorkflowDialog.openDialog();
     },
     showCreateChat() {
       // 显示创建对话流
-      this.$refs.createChatDialog.openDialog()
+      this.$refs.createChatDialog.openDialog();
     },
     showCreateDialog(key) {
       switch (key) {
         case AGENT:
-          this.showCreateIntelligent()
-          break
+          this.showCreateIntelligent();
+          break;
         case RAG:
-          this.showCreateTxtQues()
-          break
+          this.showCreateTxtQues();
+          break;
         case CHAT:
-          this.showCreateChat()
-          break
+          this.showCreateChat();
+          break;
         default:
-          this.showCreateWorkflow()
-          break
+          this.showCreateWorkflow();
+          break;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -100,7 +110,7 @@ export default {
     margin-bottom: 10px;
     border-radius: 6px;
     padding: 10px;
-    border: 1px solid #D9D9D9;
+    border: 1px solid #d9d9d9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -123,7 +133,7 @@ export default {
     }
   }
   .create-card-item:hover {
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
     border: 1px solid $border_color;
     .create-card-name {
       color: $color;
@@ -132,7 +142,13 @@ export default {
 }
 .createTotalDialog /deep/ {
   .el-dialog {
-    background: linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%);
+    background: linear-gradient(
+      1deg,
+      #ffffff 42%,
+      #ffffff 42%,
+      #ebedfe 98%,
+      #eef0ff 98%
+    );
   }
   .el-dialog__title {
     color: $color_title;

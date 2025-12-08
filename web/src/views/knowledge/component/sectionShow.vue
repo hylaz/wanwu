@@ -10,16 +10,33 @@
       <!-- 父分段区域 -->
       <div class="parent-segment" v-if="parentSegment">
         <div class="segment-header">
-          <span class="parent-badge"
-                v-if="['graph','community_report'].includes(parentSegment.contentType)">{{ parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告' }}</span>
-          <span class="parent-badge" v-else>{{ segmentList.length > 0 ? '父分段' : '通用分段' }}</span>
+          <span
+            class="parent-badge"
+            v-if="
+              ['graph', 'community_report'].includes(parentSegment.contentType)
+            "
+            >{{
+              parentSegment.contentType === 'graph' ? '知识图谱' : '社区报告'
+            }}</span
+          >
+          <span class="parent-badge" v-else>{{
+            segmentList.length > 0 ? '父分段' : '通用分段'
+          }}</span>
           <div class="parent-score">
             <span class="score-label">命中得分:</span>
-            <span class="score-value">{{ formatScore(parentSegment.score) }}</span>
+            <span class="score-value">{{
+              formatScore(parentSegment.score)
+            }}</span>
           </div>
         </div>
-        <div class="parent-content" v-html="parentSegment.content ? md.render(parentSegment.content) : '暂无内容'">
-        </div>
+        <div
+          class="parent-content"
+          v-html="
+            parentSegment.content
+              ? md.render(parentSegment.content)
+              : '暂无内容'
+          "
+        ></div>
       </div>
 
       <!-- 子分段区域 -->
@@ -43,11 +60,16 @@
             <template slot="title">
               <span class="segment-badge">C-{{ index + 1 }}</span>
               <span class="segment-score">
-              <span class="score-label">命中得分:</span>
-              <span class="score-value">{{ formatScore(childscore[index]) }}</span>
-            </span>
+                <span class="score-label">命中得分:</span>
+                <span class="score-value">{{
+                  formatScore(childscore[index])
+                }}</span>
+              </span>
             </template>
-            <div class="segment-content" v-html="segment.content ? md.render(segment.content) : '暂无内容'"></div>
+            <div
+              class="segment-content"
+              v-html="segment.content ? md.render(segment.content) : '暂无内容'"
+            ></div>
           </el-collapse-item>
         </el-collapse>
       </div>
@@ -56,8 +78,8 @@
 </template>
 
 <script>
-import {formatScore} from '@/utils/util'
-import {md} from "@/mixins/marksown-it";
+import { formatScore } from '@/utils/util';
+import { md } from '@/mixins/marksown-it';
 
 export default {
   name: 'SectionShow',
@@ -68,8 +90,8 @@ export default {
       activeNames: [],
       parentSegment: {},
       segmentList: [],
-      childscore: []
-    }
+      childscore: [],
+    };
   },
   methods: {
     formatScore,
@@ -81,23 +103,24 @@ export default {
           this.parentSegment = {
             score: parseFloat(data.score) || 0,
             content: data.searchList.snippet || '暂无内容',
-            contentType: data.searchList.contentType
+            contentType: data.searchList.contentType,
           };
         }
 
         // 更新子分段数据
-        if (data.searchList && Array.isArray(data.searchList.childContentList)) {
+        if (
+          data.searchList &&
+          Array.isArray(data.searchList.childContentList)
+        ) {
           this.childscore = data.searchList.childScore;
           this.segmentList = data.searchList.childContentList.map(segment => ({
             content: segment.childSnippet || '',
             autoSave: Boolean(segment.autoSave),
-            score: parseFloat(segment.score) || 0
+            score: parseFloat(segment.score) || 0,
           }));
           // 设置所有折叠项为展开状态
           this.activeNames = this.segmentList.map((_, index) => index);
         }
-
-
       }
       this.dialogVisible = true;
     },
@@ -105,8 +128,8 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -227,7 +250,6 @@ export default {
       margin-bottom: 0 !important;
       background: transparent !important;
     }
-
 
     /deep/ .el-collapse-item__header {
       background: transparent;

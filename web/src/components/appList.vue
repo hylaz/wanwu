@@ -17,7 +17,7 @@
             />
             <div class="create-filter"></div>
           </div>
-          <span>{{ `${$t("common.button.add")}${apptype[type] || ""}` }}</span>
+          <span>{{ `${$t('common.button.add')}${apptype[type] || ''}` }}</span>
         </div>
       </div>
       <div
@@ -36,7 +36,7 @@
           :key="`${i}-${n.appId}-avatar`"
         ></el-image>
         <span :class="['tag-app', `${n.appType}-tag`]">
-          {{ apptype[n.appType] || "" }}
+          {{ apptype[n.appType] || '' }}
         </span>
         <img
           v-if="apptype[n.appType]"
@@ -75,9 +75,9 @@
                 {{
                   n.user
                     ? n.user.userName.length > 6
-                      ? n.user.userName.substring(0, 6) + "..."
+                      ? n.user.userName.substring(0, 6) + '...'
                       : n.user.userName
-                    : ""
+                    : ''
                 }}
               </span>
             </el-tooltip>
@@ -99,10 +99,10 @@
         </div>
         <div v-if="isShowPublished && n.publishType" class="publishType">
           <span v-if="n.publishType === 'private'" class="publishType-tag">
-            <span class="el-icon-lock"></span> {{ $t("appSpace.private") }}
+            <span class="el-icon-lock"></span> {{ $t('appSpace.private') }}
           </span>
           <span v-else class="publishType-tag">
-            <span class="el-icon-unlock"></span> {{ $t("appSpace.public") }}
+            <span class="el-icon-unlock"></span> {{ $t('appSpace.public') }}
           </span>
         </div>
         <div class="editor" v-if="isShowTool">
@@ -112,13 +112,13 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="edit" v-if="isCanClick(n)">
-                {{ $t("common.button.edit") }}
+                {{ $t('common.button.edit') }}
               </el-dropdown-item>
               <el-dropdown-item command="delete">
-                {{ $t("common.button.delete") }}
+                {{ $t('common.button.delete') }}
               </el-dropdown-item>
               <el-dropdown-item command="copy">
-                {{ $t("common.button.copy") }}
+                {{ $t('common.button.copy') }}
               </el-dropdown-item>
               <!--不在卡片进行发布-->
               <!--<el-dropdown-item
@@ -128,26 +128,26 @@
                 {{$t('common.button.publish')}}
               </el-dropdown-item>-->
               <el-dropdown-item command="cancelPublish" v-if="n.publishType">
-                {{ $t("common.button.cancelPublish") }}
+                {{ $t('common.button.cancelPublish') }}
               </el-dropdown-item>
               <el-dropdown-item command="publishSet">
-                {{ $t("appSpace.publishSet") }}
+                {{ $t('appSpace.publishSet') }}
               </el-dropdown-item>
               <el-dropdown-item
                 command="export"
                 v-if="[workflow, chat].includes(n.appType)"
               >
-                {{ $t("common.button.export") }}
+                {{ $t('common.button.export') }}
               </el-dropdown-item>
               <el-dropdown-item
                 command="transform"
                 v-if="[workflow, chat].includes(n.appType) && !n.publishType"
               >
                 {{
-                  $t("common.button.transform") +
+                  $t('common.button.transform') +
                   (n.appType === workflow
-                    ? $t("appSpace.chat")
-                    : $t("appSpace.workflow"))
+                    ? $t('appSpace.chat')
+                    : $t('appSpace.workflow'))
                 }}
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -181,7 +181,7 @@
         </div>
         <div style="text-align: right; margin-top: 15px; margin-bottom: -10px">
           <el-button size="mini" type="primary" @click="doPublish">
-            {{ $t("common.button.confirm") }}
+            {{ $t('common.button.confirm') }}
           </el-button>
         </div>
       </div>
@@ -190,21 +190,21 @@
 </template>
 
 <script>
-import { AppType } from "@/utils/commonSet";
+import { AppType } from '@/utils/commonSet';
 import {
   deleteApp,
   appCancelPublish,
   appPublish,
   copyTextQues,
   copyAgentApp,
-} from "@/api/appspace";
+} from '@/api/appspace';
 import {
   copyWorkFlow,
   exportWorkflow,
   transformWorkflow,
-} from "@/api/workflow";
-import { setFavorite } from "@/api/explore";
-import { AGENT, RAG, CHAT, WORKFLOW } from "@/utils/commonSet";
+} from '@/api/workflow';
+import { setFavorite } from '@/api/explore';
+import { AGENT, RAG, CHAT, WORKFLOW } from '@/utils/commonSet';
 
 export default {
   props: {
@@ -219,7 +219,7 @@ export default {
     isShowPublished: false,
     appFrom: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   watch: {
@@ -239,12 +239,12 @@ export default {
       chat: CHAT,
       listData: [],
       row: {},
-      publishType: "private",
+      publishType: 'private',
       dialogVisible: false,
       publishList: [
-        { key: "private", value: this.$t("workflow.publishText") },
-        { key: "organization", value: this.$t("workflow.publicOrgText") },
-        { key: "public", value: this.$t("workflow.publicTotalText") },
+        { key: 'private', value: this.$t('workflow.publishText') },
+        { key: 'organization', value: this.$t('workflow.publicOrgText') },
+        { key: 'public', value: this.$t('workflow.publicTotalText') },
       ],
       imgObj: {
         [WORKFLOW]: require(`@/assets/imgs/create_workflow.png`),
@@ -272,22 +272,22 @@ export default {
       };
       const res = await deleteApp(params);
       if (res.code === 0) {
-        this.$message.success(this.$t("list.delSuccess"));
-        this.$emit("reloadData");
+        this.$message.success(this.$t('list.delSuccess'));
+        this.$emit('reloadData');
       }
     },
     workflowEdit(row) {
       const querys = {
         id: row.appId,
       };
-      this.$router.push({ path: "/workflow", query: querys });
+      this.$router.push({ path: '/workflow', query: querys });
     },
     workflowDelete(row) {
       this.row = row;
-      this.$alert(this.$t("list.deleteTips"), this.$t("list.tips"), {
-        confirmButtonText: this.$t("list.confirm"),
-        callback: (action) => {
-          if (action === "confirm") {
+      this.$alert(this.$t('list.deleteTips'), this.$t('list.tips'), {
+        confirmButtonText: this.$t('list.confirm'),
+        callback: action => {
+          if (action === 'confirm') {
             this.handleDelete();
           }
         },
@@ -299,7 +299,7 @@ export default {
 
       if (res.code === 0) {
         this.$router.push({
-          path: "/workflow",
+          path: '/workflow',
           query: { id: res.data.workflow_id },
         });
       }
@@ -307,7 +307,7 @@ export default {
     workflowPublish(row) {
       this.row = row;
       this.dialogVisible = true;
-      this.publishType = "private";
+      this.publishType = 'private';
     },
     async doPublish() {
       const params = {
@@ -317,9 +317,9 @@ export default {
       };
       const res = await appPublish(params);
       if (res.code === 0) {
-        this.$message.success(this.$t("list.publicSuccess"));
+        this.$message.success(this.$t('list.publicSuccess'));
         this.handleClose();
-        this.$emit("reloadData");
+        this.$emit('reloadData');
       }
     },
     async cancelPublish(row) {
@@ -331,29 +331,27 @@ export default {
 
       //工作流取消发布，需弹窗提示
       if (row.appType === WORKFLOW) {
-        confirmed = await this.showDeleteConfirm(this.$t("list.cancelHint"));
+        confirmed = await this.showDeleteConfirm(this.$t('list.cancelHint'));
       }
 
       if (confirmed) {
         const res = await appCancelPublish(params);
         if (res.code === 0) {
-          this.$message.success(this.$t("common.message.success"));
-          this.$emit("reloadData");
+          this.$message.success(this.$t('common.message.success'));
+          this.$emit('reloadData');
         }
       }
     },
     workflowExport(row) {
-      exportWorkflow({ workflow_id: row.appId }, row.appType).then(
-        (response) => {
-          const blob = new Blob([response], { type: response.type });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = row.name + ".json";
-          link.click();
-          window.URL.revokeObjectURL(link.href);
-        }
-      );
+      exportWorkflow({ workflow_id: row.appId }, row.appType).then(response => {
+        const blob = new Blob([response], { type: response.type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = row.name + '.json';
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      });
     },
     jumpToWorkflowPublicSet(row) {
       this.$router.push({
@@ -363,43 +361,43 @@ export default {
     },
     workflowTransform(row) {
       transformWorkflow({ workflow_id: row.appId }, row.appType).then(() => {
-        this.$emit("reloadData");
+        this.$emit('reloadData');
       });
     },
     workflowOperation(method, row) {
       switch (method) {
-        case "edit":
+        case 'edit':
           this.workflowEdit(row);
           break;
-        case "delete":
+        case 'delete':
           this.workflowDelete(row);
           break;
-        case "copy":
+        case 'copy':
           this.workflowCopy(row);
           break;
-        case "publish":
+        case 'publish':
           this.workflowPublish(row);
           break;
-        case "cancelPublish":
+        case 'cancelPublish':
           this.cancelPublish(row);
           break;
-        case "publishSet":
+        case 'publishSet':
           this.jumpToWorkflowPublicSet(row);
           break;
-        case "export":
+        case 'export':
           this.workflowExport(row);
           break;
-        case "transform":
+        case 'transform':
           this.workflowTransform(row);
           break;
       }
     },
     chatDelete(row) {
       this.row = row;
-      this.$alert(this.$t("list.deleteChatTips"), this.$t("list.tips"), {
-        confirmButtonText: this.$t("list.confirm"),
-        callback: (action) => {
-          if (action === "confirm") {
+      this.$alert(this.$t('list.deleteChatTips'), this.$t('list.tips'), {
+        confirmButtonText: this.$t('list.confirm'),
+        callback: action => {
+          if (action === 'confirm') {
             this.handleDelete();
           }
         },
@@ -407,33 +405,33 @@ export default {
     },
     chatOperation(method, row) {
       switch (method) {
-        case "edit":
+        case 'edit':
           this.workflowEdit(row);
           break;
-        case "delete":
+        case 'delete':
           this.chatDelete(row);
           break;
-        case "copy":
+        case 'copy':
           this.workflowCopy(row);
           break;
-        case "cancelPublish":
+        case 'cancelPublish':
           this.cancelPublish(row);
           break;
-        case "publishSet":
+        case 'publishSet':
           this.jumpToWorkflowPublicSet(row);
           break;
-        case "export":
+        case 'export':
           this.workflowExport(row);
           break;
-        case "transform":
+        case 'transform':
           this.workflowTransform(row);
           break;
       }
     },
     async showDeleteConfirm(tips) {
       try {
-        await this.$alert(tips, this.$t("list.tips"), {
-          confirmButtonText: this.$t("list.confirm"),
+        await this.$alert(tips, this.$t('list.tips'), {
+          confirmButtonText: this.$t('list.confirm'),
         });
         return true;
       } catch (err) {
@@ -442,10 +440,10 @@ export default {
     },
     intelligentEdit(row) {
       this.$router.push({
-        path: "/agent/test",
+        path: '/agent/test',
         query: {
           id: row.appId,
-          ...(row.publishType !== "" && { publish: true }),
+          ...(row.publishType !== '' && { publish: true }),
         },
       });
     },
@@ -455,10 +453,10 @@ export default {
     },
     intelligentCopy(row) {
       copyAgentApp({ assistantId: row.appId })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             const id = res.data.assistantId;
-            this.$message.success(this.$t("list.copySuccess"));
+            this.$message.success(this.$t('list.copySuccess'));
             this.$router.push({ path: `/agent/test?id=${id}` });
           }
         })
@@ -466,22 +464,22 @@ export default {
     },
     intelligentOperation(method, row) {
       switch (method) {
-        case "edit":
+        case 'edit':
           // 智能体编辑
           this.intelligentEdit(row);
           break;
-        case "delete":
+        case 'delete':
           // 智能体删除
           this.intelligentDelete(row);
           break;
-        case "copy":
+        case 'copy':
           // 智能体复制
           this.intelligentCopy(row);
           break;
-        case "cancelPublish":
+        case 'cancelPublish':
           this.cancelPublish(row);
           break;
-        case "publishSet":
+        case 'publishSet':
           //发布设置
           this.$router.push({
             path: `/agent/publishSet`,
@@ -492,10 +490,10 @@ export default {
     },
     txtQuesEdit(row) {
       this.$router.push({
-        path: "/rag/test",
+        path: '/rag/test',
         query: {
           id: row.appId,
-          ...(row.publishType !== "" && { publish: true }),
+          ...(row.publishType !== '' && { publish: true }),
         },
       });
     },
@@ -505,10 +503,10 @@ export default {
     },
     txtQuesCopy(row) {
       copyTextQues({ ragId: row.appId })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             const id = res.data.ragId;
-            this.$message.success(this.$t("list.copySuccess"));
+            this.$message.success(this.$t('list.copySuccess'));
             this.$router.push({ path: `/rag/test?id=${id}` });
           }
         })
@@ -516,22 +514,22 @@ export default {
     },
     txtQuesOperation(method, row) {
       switch (method) {
-        case "edit":
+        case 'edit':
           // 文本问答编辑
           this.txtQuesEdit(row);
           break;
-        case "delete":
+        case 'delete':
           // 文本问答删除
           this.txtQuesDelete(row);
           break;
-        case "copy":
+        case 'copy':
           // 文本问答复制
           this.txtQuesCopy(row);
           break;
-        case "cancelPublish":
+        case 'cancelPublish':
           this.cancelPublish(row);
           break;
-        case "publishSet":
+        case 'publishSet':
           this.$router.push({
             path: `/rag/publishSet`,
             query: { appId: row.appId, appType: row.appType, name: row.name },
@@ -544,16 +542,16 @@ export default {
       switch (type) {
         case AGENT:
           this.$router.push({
-            path: "/explore/agent",
+            path: '/explore/agent',
             query: { id: row.appId },
           });
           break;
         case RAG:
-          this.$router.push({ path: "/explore/rag", query: { id: row.appId } });
+          this.$router.push({ path: '/explore/rag', query: { id: row.appId } });
           break;
         case WORKFLOW:
           this.$router.push({
-            path: "/explore/workflow",
+            path: '/explore/workflow',
             query: { id: row.appId },
           });
           break;
@@ -580,36 +578,36 @@ export default {
       this.commonMethods(command, row);
     },
     toEdit(row) {
-      if (this.appFrom === "explore") {
+      if (this.appFrom === 'explore') {
         this.commonToChat(row);
       } else {
-        this.commonMethods("edit", row);
+        this.commonMethods('edit', row);
       }
     },
     handelMark(e, n, i) {
       e.stopPropagation();
       this.$confirm(
         n.isFavorite
-          ? this.$t("explore.unFavorite")
-          : this.$t("explore.favorite"),
-        this.$t("common.confirm.title"),
+          ? this.$t('explore.unFavorite')
+          : this.$t('explore.favorite'),
+        this.$t('common.confirm.title'),
         {
-          confirmButtonText: this.$t("common.confirm.confirm"),
-          cancelButtonText: this.$t("common.confirm.cancel"),
-          type: "warning",
-        }
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+        },
       )
         .then(() => {
           setFavorite({
             appId: n.appId,
             appType: n.appType,
             isFavorite: !n.isFavorite,
-          }).then((res) => {
+          }).then(res => {
             if (res.code === 0) {
               this.$message.success(
                 n.isFavorite
-                  ? this.$t("explore.delSuccess")
-                  : this.$t("explore.setSuccess")
+                  ? this.$t('explore.delSuccess')
+                  : this.$t('explore.setSuccess'),
               );
               const list = [...this.listData];
               list[i].isFavorite = !n.isFavorite;
@@ -625,7 +623,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/appCard.scss";
+@import '@/style/appCard.scss';
 .noData {
   padding: 30px 0;
 }

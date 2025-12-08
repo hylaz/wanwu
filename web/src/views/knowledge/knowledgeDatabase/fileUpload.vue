@@ -1,42 +1,39 @@
 <template>
   <div class="page-wrapper full-content">
     <div class="page-title">
-      <span
-        class="el-icon-arrow-left back"
-        @click="goBack"
-      ></span>
+      <span class="el-icon-arrow-left back" @click="goBack"></span>
       {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile') }}
-      <LinkIcon type="knowledge"/>
+      <LinkIcon type="knowledge" />
     </div>
     <div class="table-box">
       <div class="fileUpload">
-        <el-steps
-          :active="active"
-          class="fileStep"
-          align-center
-        >
-          <el-step :title="$t('knowledgeManage.knowledgeDatabase.fileUpload.fileUpload')"></el-step>
-          <el-step :title="$t('knowledgeManage.knowledgeDatabase.fileUpload.paramSetting')"></el-step>
+        <el-steps :active="active" class="fileStep" align-center>
+          <el-step
+            :title="
+              $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUpload')
+            "
+          ></el-step>
+          <el-step
+            :title="
+              $t('knowledgeManage.knowledgeDatabase.fileUpload.paramSetting')
+            "
+          ></el-step>
         </el-steps>
 
         <!-- 文件上传 -->
         <div v-if="active === 1">
           <div class="fileBtn">
-            <el-radio-group
-              v-model="fileType"
-              @change="fileTypeChage"
-            >
-              <el-radio-button label="file">{{
-                  $t('knowledgeManage.knowledgeDatabase.fileUpload.file')
-                }}
+            <el-radio-group v-model="fileType" @change="fileTypeChage">
+              <el-radio-button label="file"
+                >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}
               </el-radio-button>
-              <el-radio-button label="fileUrl">{{
+              <el-radio-button label="fileUrl"
+                >{{
                   $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUrl')
                 }}
               </el-radio-button>
-              <el-radio-button label="url">{{
-                  $t('knowledgeManage.knowledgeDatabase.fileUpload.url')
-                }}
+              <el-radio-button label="url"
+                >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.url') }}
               </el-radio-button>
             </el-radio-group>
           </div>
@@ -62,32 +59,62 @@
                       :src="require('@/assets/imgs/uploadImg.png')"
                       class="upload-img"
                     />
-                    <p class="click-text">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickText') }}<span
-                      class="clickUpload">{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.clickUpload') }}</span>
+                    <p class="click-text">
+                      {{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.clickText',
+                        )
+                      }}<span class="clickUpload">{{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.clickUpload',
+                        )
+                      }}</span>
                     </p>
                   </div>
                   <div class="tips">
-                    <p v-if="fileType === 'file'"><span
-                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips1') }}</p>
-                    <p v-if="fileType === 'file'"><span
-                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips2') }}</p>
-                    <p v-if="fileType === 'fileUrl'"><span
-                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips3') }}<a
-                      class="template_downLoad"
-                      href="#"
-                      @click.prevent.stop="downloadTemplate"
-                    >{{ $t('common.fileUpload.templateClick') }}</a></p>
-                    <p v-if="fileType === 'fileUrl'"><span
-                      class="red">*</span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.uploadTips4') }}</p>
+                    <p v-if="fileType === 'file'">
+                      <span class="red">*</span
+                      >{{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.uploadTips1',
+                        )
+                      }}
+                    </p>
+                    <p v-if="fileType === 'file'">
+                      <span class="red">*</span
+                      >{{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.uploadTips2',
+                        )
+                      }}
+                    </p>
+                    <p v-if="fileType === 'fileUrl'">
+                      <span class="red">*</span
+                      >{{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.uploadTips3',
+                        )
+                      }}<a
+                        class="template_downLoad"
+                        href="#"
+                        @click.prevent.stop="downloadTemplate"
+                        >{{ $t('common.fileUpload.templateClick') }}</a
+                      >
+                    </p>
+                    <p v-if="fileType === 'fileUrl'">
+                      <span class="red">*</span
+                      >{{
+                        $t(
+                          'knowledgeManage.knowledgeDatabase.fileUpload.uploadTips4',
+                        )
+                      }}
+                    </p>
                   </div>
                 </div>
               </el-upload>
             </div>
           </div>
-          <div
-            class="el-upload-url"
-            v-else
-          >
+          <div class="el-upload-url" v-else>
             <div class="upload-url">
               <urlAnalysis
                 :categoryId="knowledgeId"
@@ -100,10 +127,7 @@
         </div>
 
         <!-- 参数设置 -->
-        <div
-          v-else
-          class="params_form"
-        >
+        <div v-else class="params_form">
           <el-form
             :model="ruleForm"
             ref="ruleForm"
@@ -112,17 +136,28 @@
             @submit.native.prevent
             label-position="left"
           >
-            <el-form-item :label="$t('knowledgeManage.knowledgeDatabase.fileUpload.segmentSetting')">
+            <el-form-item
+              :label="
+                $t(
+                  'knowledgeManage.knowledgeDatabase.fileUpload.segmentSetting',
+                )
+              "
+            >
               <div class="segmentList">
                 <div
                   v-for="segmentItem in segmentList"
                   :key="segmentItem.text"
-                  :class="['segmentItem',ruleForm.docSegment.segmentMethod === segmentItem.label ? 'activeAnalyzer' : '']"
-                  style="width:50%;"
+                  :class="[
+                    'segmentItem',
+                    ruleForm.docSegment.segmentMethod === segmentItem.label
+                      ? 'activeAnalyzer'
+                      : '',
+                  ]"
+                  style="width: 50%"
                   @click="segmentSetClick(segmentItem.label)"
                 >
                   <div class="itemImg">
-                    <img :src="require(`@/assets/imgs/${segmentItem.img}`)"/>
+                    <img :src="require(`@/assets/imgs/${segmentItem.img}`)" />
                   </div>
                   <div>
                     <p class="analyzerItem_text">{{ segmentItem.text }}</p>
@@ -137,12 +172,19 @@
                   <div
                     v-for="segmentCommon in segmentCommonList"
                     :key="segmentCommon.text"
-                    :class="['segmentItem',ruleForm.docSegment.segmentType === segmentCommon.label ? 'activeAnalyzer' : '']"
+                    :class="[
+                      'segmentItem',
+                      ruleForm.docSegment.segmentType === segmentCommon.label
+                        ? 'activeAnalyzer'
+                        : '',
+                    ]"
                     @click="segmentClick(segmentCommon.label)"
                   >
                     <div>
                       <p class="analyzerItem_text">{{ segmentCommon.text }}</p>
-                      <h3 class="analyzerItem_desc">{{ segmentCommon.desc }}</h3>
+                      <h3 class="analyzerItem_desc">
+                        {{ segmentCommon.desc }}
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -150,12 +192,25 @@
               <el-form-item
                 v-if="ruleForm.docSegment.segmentType == '1'"
                 prop="docSegment.splitter"
-                :rules="ruleForm.docSegment.segmentType === '1'
-                  ? [{ required: true,validator: validateSplitter('splitter'), message: $t('knowledgeManage.markTips'), trigger: 'blur' }] 
-                  : []"
+                :rules="
+                  ruleForm.docSegment.segmentType === '1'
+                    ? [
+                        {
+                          required: true,
+                          validator: validateSplitter('splitter'),
+                          message: $t('knowledgeManage.markTips'),
+                          trigger: 'blur',
+                        },
+                      ]
+                    : []
+                "
               >
                 <template #label>
-                  <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
+                  <span>{{
+                    $t(
+                      'knowledgeManage.knowledgeDatabase.fileUpload.segmentTips',
+                    )
+                  }}</span>
                   <el-tooltip
                     :content="$t('knowledgeManage.splitOptionsTips')"
                     placement="right"
@@ -164,8 +219,8 @@
                   </el-tooltip>
                 </template>
                 <el-tag
-                  v-for="(tag,index) in checkSplitter['splitter']"
-                  :key="'tag'+index"
+                  v-for="(tag, index) in checkSplitter['splitter']"
+                  :key="'tag' + index"
                   :disable-transitions="false"
                   class="splitterTag"
                 >
@@ -175,16 +230,30 @@
                   class="button-new-tag"
                   size="small"
                   @click="showSplitterSet('splitter')"
-                >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}
+                  >{{
+                    $t(
+                      'knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting',
+                    )
+                  }}
                 </el-button>
               </el-form-item>
               <el-form-item
                 v-if="ruleForm.docSegment.segmentType == '1'"
                 prop="docSegment.maxSplitter"
                 :rules="[
-                  { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
-                  { type:'number',min:200,max:4000,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
-                  ]"
+                  {
+                    required: true,
+                    message: $t('knowledgeManage.splitMax'),
+                    trigger: 'blur',
+                  },
+                  {
+                    type: 'number',
+                    min: 200,
+                    max: 4000,
+                    message: $t('knowledgeManage.splitMaxMsg'),
+                    trigger: 'blur',
+                  },
+                ]"
               >
                 <template #label>
                   <span>{{ $t('knowledgeManage.splitMax') }}</span>
@@ -195,9 +264,20 @@
                     <span class="el-icon-question question"></span>
                   </el-tooltip>
                 </template>
-                <div :class="[['0','1','3','4'].includes(ruleForm.docSegment.segmentType)?'':'set']">
-                  <el-input type="number" v-model.number="ruleForm.docSegment.maxSplitter"
-                            :placeholder="$t('knowledgeManage.splitMax')"></el-input>
+                <div
+                  :class="[
+                    ['0', '1', '3', '4'].includes(
+                      ruleForm.docSegment.segmentType,
+                    )
+                      ? ''
+                      : 'set',
+                  ]"
+                >
+                  <el-input
+                    type="number"
+                    v-model.number="ruleForm.docSegment.maxSplitter"
+                    :placeholder="$t('knowledgeManage.splitMax')"
+                  ></el-input>
                 </div>
               </el-form-item>
               <el-form-item
@@ -205,9 +285,19 @@
                 :label="$t('knowledgeManage.overLapNum')"
                 prop="docSegment.overlap"
                 :rules="[
-                    { required: true, message:$t('knowledgeManage.overLapNumTips'),trigger:'blur'},
-                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumMsg'),trigger: 'blur'}
-                  ]"
+                  {
+                    required: true,
+                    message: $t('knowledgeManage.overLapNumTips'),
+                    trigger: 'blur',
+                  },
+                  {
+                    type: 'number',
+                    min: 0,
+                    max: 1,
+                    message: $t('knowledgeManage.overLapNumMsg'),
+                    trigger: 'blur',
+                  },
+                ]"
               >
                 <el-input
                   :min="0"
@@ -229,11 +319,20 @@
                 <el-form-item
                   :prop="item.splitterProp"
                   :rules="[
-                    { required: true,validator: validateSplitter(item.key), message: $t('knowledgeManage.markTips'), trigger: 'blur' }
-                    ]"
+                    {
+                      required: true,
+                      validator: validateSplitter(item.key),
+                      message: $t('knowledgeManage.markTips'),
+                      trigger: 'blur',
+                    },
+                  ]"
                 >
                   <template #label>
-                    <span>{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTips') }}</span>
+                    <span>{{
+                      $t(
+                        'knowledgeManage.knowledgeDatabase.fileUpload.segmentTips',
+                      )
+                    }}</span>
                     <el-tooltip
                       :content="$t('knowledgeManage.splitOptionsTips')"
                       placement="right"
@@ -242,8 +341,8 @@
                     </el-tooltip>
                   </template>
                   <el-tag
-                    v-for="(tag,index) in checkSplitter[item.key]"
-                    :key="'tag'+index"
+                    v-for="(tag, index) in checkSplitter[item.key]"
+                    :key="'tag' + index"
                     :disable-transitions="false"
                     class="splitterTag"
                   >
@@ -253,15 +352,29 @@
                     class="button-new-tag"
                     size="small"
                     @click="showSplitterSet(item.key)"
-                  >{{ $t('knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting') }}
+                    >{{
+                      $t(
+                        'knowledgeManage.knowledgeDatabase.fileUpload.segmentTipsSetting',
+                      )
+                    }}
                   </el-button>
                 </el-form-item>
                 <el-form-item
                   :prop="item.maxSplitterProp"
                   :rules="[
-                    { required: true, message: $t('knowledgeManage.splitMax'),trigger:'blur'},
-                    { type:'number',min:200,max:item.maxSplitterNum,message: $t('knowledgeManage.splitMaxMsg'),trigger: 'blur'}
-                    ]"
+                    {
+                      required: true,
+                      message: $t('knowledgeManage.splitMax'),
+                      trigger: 'blur',
+                    },
+                    {
+                      type: 'number',
+                      min: 200,
+                      max: item.maxSplitterNum,
+                      message: $t('knowledgeManage.splitMaxMsg'),
+                      trigger: 'blur',
+                    },
+                  ]"
                 >
                   <template #label>
                     <span>{{ $t('knowledgeManage.splitMax') }}</span>
@@ -272,9 +385,14 @@
                       <span class="el-icon-question question"></span>
                     </el-tooltip>
                   </template>
-                  <el-input type="number" :min="200" :max="item.maxSplitterNum"
-                            v-model.number="ruleForm.docSegment[item.maxSplitter]"
-                            :placeholder="$t('knowledgeManage.splitMax')" @change="maxSplitterChange(item)"></el-input>
+                  <el-input
+                    type="number"
+                    :min="200"
+                    :max="item.maxSplitterNum"
+                    v-model.number="ruleForm.docSegment[item.maxSplitter]"
+                    :placeholder="$t('knowledgeManage.splitMax')"
+                    @change="maxSplitterChange(item)"
+                  ></el-input>
                 </el-form-item>
               </div>
             </template>
@@ -284,8 +402,12 @@
               v-if="ruleForm.docSegment.segmentType == '1'"
             >
               <el-checkbox-group v-model="ruleForm.docPreprocess">
-                <el-checkbox label="replaceSymbols">{{ $t('knowledgeManage.replaceSymbols') }}</el-checkbox>
-                <el-checkbox label="deleteLinks">{{ $t('knowledgeManage.deleteLinks') }}</el-checkbox>
+                <el-checkbox label="replaceSymbols">{{
+                  $t('knowledgeManage.replaceSymbols')
+                }}</el-checkbox>
+                <el-checkbox label="deleteLinks">{{
+                  $t('knowledgeManage.deleteLinks')
+                }}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item
@@ -298,12 +420,17 @@
               >
                 <div
                   v-for="analyzerItem in docAnalyzerList"
-                  :class="['docAnalyzerList',ruleForm.docAnalyzer.includes(analyzerItem.label) ? 'activeAnalyzer' : '']"
+                  :class="[
+                    'docAnalyzerList',
+                    ruleForm.docAnalyzer.includes(analyzerItem.label)
+                      ? 'activeAnalyzer'
+                      : '',
+                  ]"
                 >
                   <el-checkbox
                     :label="analyzerItem.label"
                     :disabled="analyzerDisabled(analyzerItem.label)"
-                  >{{ analyzerItem.text }}
+                    >{{ analyzerItem.text }}
                   </el-checkbox>
                   <h3 class="analyzerItem_desc">{{ analyzerItem.desc }}</h3>
                 </div>
@@ -311,13 +438,22 @@
             </el-form-item>
             <el-form-item
               prop="parserModelId"
-              v-if="ruleForm.docAnalyzer.includes('ocr')||ruleForm.docAnalyzer.includes('model')"
+              v-if="
+                ruleForm.docAnalyzer.includes('ocr') ||
+                ruleForm.docAnalyzer.includes('model')
+              "
               :rules="[
-                    { required: true, message:$t('knowledgeManage.parsingMethodMsg'),trigger:'blur'}
-                ]"
+                {
+                  required: true,
+                  message: $t('knowledgeManage.parsingMethodMsg'),
+                  trigger: 'blur',
+                },
+              ]"
             >
               <template #label>
-                <span>{{ modelTypeTip[ruleForm.docAnalyzer[1]]['label'] }}</span>
+                <span>{{
+                  modelTypeTip[ruleForm.docAnalyzer[1]]['label']
+                }}</span>
                 <el-tooltip
                   :content="modelTypeTip[ruleForm.docAnalyzer[1]]['desc']"
                   placement="right"
@@ -352,10 +488,7 @@
           </el-form>
         </div>
         <!-- 上传文件的列表 -->
-        <div
-          class="file-list"
-          v-if="fileList.length > 0 && active === 1 "
-        >
+        <div class="file-list" v-if="fileList.length > 0 && active === 1">
           <transition name="el-zoom-in-top">
             <ul class="document_lise">
               <li
@@ -363,12 +496,9 @@
                 :key="index"
                 class="document_lise_item"
               >
-                <div
-                  style="padding:8px 0;"
-                  class="lise_item_box"
-                >
+                <div style="padding: 8px 0" class="lise_item_box">
                   <span class="size">
-                    <img :src="require('@/assets/imgs/fileicon.png')"/>
+                    <img :src="require('@/assets/imgs/fileicon.png')" />
                     {{ file.name }}
                     <span class="file-size">
                       {{ filterSize(file.size) }}
@@ -388,20 +518,19 @@
                           class="el-icon-check check success"
                           v-if="file.progressStatus === 'success'"
                         ></i>
-                        <i
-                          class="el-icon-close close fail"
-                          v-else
-                        ></i>
+                        <i class="el-icon-close close fail" v-else></i>
                       </span>
                       <i
                         class="el-icon-loading"
-                        v-else-if="file.percentage !== 100 && index === fileIndex"
+                        v-else-if="
+                          file.percentage !== 100 && index === fileIndex
+                        "
                       ></i>
                     </span>
-                    <span style="margin-left:30px;">
+                    <span style="margin-left: 30px">
                       <i
                         class="el-icon-error error"
-                        @click="handleRemove(file,index)"
+                        @click="handleRemove(file, index)"
                       ></i>
                     </span>
                   </span>
@@ -416,7 +545,7 @@
             size="mini"
             @click="preStep"
             v-if="active === 2"
-          >{{ $t('knowledgeManage.prevStep') }}
+            >{{ $t('knowledgeManage.prevStep') }}
           </el-button>
           <el-button
             type="primary"
@@ -424,20 +553,17 @@
             @click="nextStep"
             v-if="active === 1"
             :loading="urlLoading"
-          >{{ $t('knowledgeManage.nextStep') }}
+            >{{ $t('knowledgeManage.nextStep') }}
           </el-button>
           <el-button
             type="primary"
             size="mini"
             @click="submitInfo"
             v-if="active === 2"
-          >{{ $t('common.button.confirm') }}
+            >{{ $t('common.button.confirm') }}
           </el-button>
-          <el-button
-            size="mini"
-            @click="formReset"
-            v-if="active === 2"
-          >{{ $t('common.button.restore') }}
+          <el-button size="mini" @click="formReset" v-if="active === 2"
+            >{{ $t('common.button.restore') }}
           </el-button>
         </div>
       </div>
@@ -456,8 +582,8 @@
   </div>
 </template>
 <script>
-import urlAnalysis from "../component/urlAnalysis.vue";
-import uploadChunk from "@/mixins/uploadChunk";
+import urlAnalysis from '../component/urlAnalysis.vue';
+import uploadChunk from '@/mixins/uploadChunk';
 import {
   docImport,
   ocrSelectList,
@@ -466,72 +592,72 @@ import {
   createSplitter,
   editSplitter,
   parserSelect,
-} from "@/api/knowledge";
-import {delfile} from "@/api/chunkFile";
-import LinkIcon from "@/components/linkIcon.vue";
-import splitterDialog from "../component/splitterDialog.vue";
-import mataData from "../component/metadata.vue";
-import {USER_API} from "@/utils/requestConstants"
+} from '@/api/knowledge';
+import { delfile } from '@/api/chunkFile';
+import LinkIcon from '@/components/linkIcon.vue';
+import splitterDialog from '../component/splitterDialog.vue';
+import mataData from '../component/metadata.vue';
+import { USER_API } from '@/utils/requestConstants';
 import {
   SEGMENT_COMMON_LIST,
   SEGMENT_LIST,
   DOC_ANALYZER_LIST,
   FAT_SON_BLOCK,
-  MODEL_TYPE_TIP
-} from "../config";
+  MODEL_TYPE_TIP,
+} from '../config';
 
 export default {
-  components: {LinkIcon, urlAnalysis, splitterDialog, mataData},
+  components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
   mixins: [uploadChunk],
   data() {
-    const validateSplitter = (type) => {
+    const validateSplitter = type => {
       return (rule, value, callback) => {
         if (this.checkSplitter[type].length === 0) {
-          callback(new Error(this.$t("knowledgeManage.splitterRequired")));
+          callback(new Error(this.$t('knowledgeManage.splitterRequired')));
         } else {
           callback();
         }
-      }
+      };
     };
     return {
       validateSplitter: validateSplitter,
-      placeholderText: this.$t("knowledgeManage.placeholderText"),
-      titleText: this.$t("knowledgeManage.titleText"),
-      splitterValue: "",
+      placeholderText: this.$t('knowledgeManage.placeholderText'),
+      titleText: this.$t('knowledgeManage.titleText'),
+      splitterValue: '',
       tableData: [],
       modelOptions: [],
       urlValidate: false,
       active: 1,
-      fileType: "file",
+      fileType: 'file',
       knowledgeId: this.$route.query.id,
       knowledgeName: this.$route.query.name,
       fileList: [],
-      fileUrl: "",
+      fileUrl: '',
       docInfoList: [],
       segmentType: '',
       ruleForm: {
-        docAnalyzer: ["text"],
+        docAnalyzer: ['text'],
         docMetaData: [], //元数据管理数据
-        docPreprocess: ["replaceSymbols"], //'deleteLinks','replaceSymbols'
+        docPreprocess: ['replaceSymbols'], //'deleteLinks','replaceSymbols'
         docSegment: {
-          segmentType: "0",
+          segmentType: '0',
           // splitter: ["！", "。", "？", "?", "!", ".", "......"],
-          splitter: ["\n\n"],
+          splitter: ['\n\n'],
           maxSplitter: 1024,
           overlap: 0.2,
-          segmentMethod: "0",//0是通用分段，1是父子分段
-          subMaxSplitter: 200,//父子分段必填
+          segmentMethod: '0', //0是通用分段，1是父子分段
+          subMaxSplitter: 200, //父子分段必填
           // subSplitter:["！", "。", "？", "?", "!", ".", "......"]//父子分段必填
-          subSplitter: ["\n"]
+          subSplitter: ['\n'],
         },
         docInfoList: [],
         docImportType: 0,
         knowledgeId: this.$route.query.id,
-        parserModelId: "",
+        parserModelId: '',
       },
       checkSplitter: {
         splitter: [],
-        subSplitter: []
+        subSplitter: [],
       },
       splitOptions: [],
       urlLoading: false,
@@ -539,11 +665,11 @@ export default {
       segmentList: SEGMENT_LIST,
       docAnalyzerList: DOC_ANALYZER_LIST,
       fatSonBlock: FAT_SON_BLOCK,
-      modelTypeTip: MODEL_TYPE_TIP
+      modelTypeTip: MODEL_TYPE_TIP,
     };
   },
   async created() {
-    await this.getSplitterList("");
+    await this.getSplitterList('');
     await this.custom();
   },
   methods: {
@@ -555,7 +681,11 @@ export default {
           sonBlock.maxSplitterNum = parentMaxValue;
           if (this.ruleForm.docSegment.subMaxSplitter > parentMaxValue) {
             this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-            this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjusted', {parentMaxValue}));
+            this.$message.warning(
+              this.$t('knowledgeManage.childSegmentMaxAdjusted', {
+                parentMaxValue,
+              }),
+            );
           }
         }
       } else if (item.level === 'son') {
@@ -563,29 +693,32 @@ export default {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
         if (sonMaxValue > parentMaxValue) {
           this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjustedTips', {parentMaxValue}));
+          this.$message.warning(
+            this.$t('knowledgeManage.childSegmentMaxAdjustedTips', {
+              parentMaxValue,
+            }),
+          );
         }
       }
     },
     getParserList() {
       parserSelect()
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
             this.modelOptions = res.data.list || [];
           }
         })
-        .catch(() => {
-        });
+        .catch(() => {});
     },
     docAnalyzerChange(val) {
-      this.ruleForm.parserModelId = "";
+      this.ruleForm.parserModelId = '';
       this.modelOptions = [];
       if (val.length === 3) {
-        this.ruleForm.docAnalyzer = [val[0], val[2]]
+        this.ruleForm.docAnalyzer = [val[0], val[2]];
       }
-      if (this.ruleForm.docAnalyzer.includes("ocr")) {
+      if (this.ruleForm.docAnalyzer.includes('ocr')) {
         this.getOcrList();
-      } else if (val.includes("model")) {
+      } else if (val.includes('model')) {
         this.getParserList();
       }
     },
@@ -596,18 +729,19 @@ export default {
       this.ruleForm.docSegment.segmentMethod = label;
     },
     analyzerDisabled(label) {
-      if (label === "text") return true;
+      if (label === 'text') return true;
     },
     custom() {
       this.$nextTick(() => {
-        const {splitter, subSplitter} = this.ruleForm.docSegment;
-        const filterByType = (values) =>
-          this.splitOptions.filter(item =>
-            values.includes(item.splitterValue) && item.type === "preset"
+        const { splitter, subSplitter } = this.ruleForm.docSegment;
+        const filterByType = values =>
+          this.splitOptions.filter(
+            item =>
+              values.includes(item.splitterValue) && item.type === 'preset',
           );
         this.checkSplitter = {
           splitter: filterByType(splitter),
-          subSplitter: filterByType(subSplitter)
+          subSplitter: filterByType(subSplitter),
         };
       });
     },
@@ -615,19 +749,19 @@ export default {
       this.ruleForm.docMetaData = data;
     },
     validateMetaData() {
-      const hasEmptyField = this.ruleForm.docMetaData.some((item) => {
+      const hasEmptyField = this.ruleForm.docMetaData.some(item => {
         const isMetaKeyEmpty =
           !item.metaKey ||
-          (typeof item.metaKey === "string" && item.metaKey.trim() === "");
-        const isMetaRuleRequired = item.metadataType !== "value";
+          (typeof item.metaKey === 'string' && item.metaKey.trim() === '');
+        const isMetaRuleRequired = item.metadataType !== 'value';
         const isMetaRuleEmpty =
           isMetaRuleRequired &&
           (!item.metaRule ||
-            (typeof item.metaRule === "string" && item.metaRule.trim() === ""));
+            (typeof item.metaRule === 'string' && item.metaRule.trim() === ''));
         return isMetaKeyEmpty || isMetaRuleEmpty;
       });
       if (hasEmptyField) {
-        this.$message.error(this.$t("knowledgeManage.metadataRequired"));
+        this.$message.error(this.$t('knowledgeManage.metadataRequired'));
         return false;
       }
       return true;
@@ -635,21 +769,21 @@ export default {
     checkData(data) {
       this.checkSplitter[this.segmentType] = data;
       this.ruleForm.docSegment[this.segmentType] = data.map(
-        (item) => item.splitterValue
+        item => item.splitterValue,
       );
     },
     relodData(name) {
       this.getSplitterList(name);
     },
     async getSplitterList(splitterName) {
-      const res = await getSplitter({splitterName});
+      const res = await getSplitter({ splitterName });
       if (res.code === 0) {
         this.splitOptions = (res.data.knowledgeSplitterList || []).map(
-          (item) => ({
+          item => ({
             ...item,
             showDel: false,
             showIpt: false,
-          })
+          }),
         );
       }
     },
@@ -658,10 +792,10 @@ export default {
         splitterId: item.splitterId,
         splitterName: item.splitterName,
         splitterValue: item.splitterName,
-      }).then((res) => {
+      }).then(res => {
         if (res.code === 0) {
           item.showIpt = false;
-          this.getSplitterList("");
+          this.getSplitterList('');
         }
       });
     },
@@ -669,42 +803,49 @@ export default {
       createSplitter({
         splitterName: item.splitterName,
         splitterValue: item.splitterName,
-      }).then((res) => {
+      }).then(res => {
         if (res.code === 0) {
           item.showIpt = false;
-          this.getSplitterList("");
+          this.getSplitterList('');
         }
       });
     },
     async delSplitterItem(item) {
       this.$confirm(
-        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterConfirm', {splitterName: item.splitterName}),
-        this.$t('knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterTitle'),
+        this.$t(
+          'knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterConfirm',
+          { splitterName: item.splitterName },
+        ),
+        this.$t(
+          'knowledgeManage.knowledgeDatabase.fileUpload.deleteSplitterTitle',
+        ),
         {
           confirmButtonText: this.$t('common.confirm.confirm'),
           cancelButtonText: this.$t('common.confirm.cancel'),
-          type: "warning",
-        }
+          type: 'warning',
+        },
       )
         .then(async () => {
-          const res = await delSplitter({splitterId: item.splitterId});
+          const res = await delSplitter({ splitterId: item.splitterId });
           if (res.code === 0) {
-            this.getSplitterList("");
+            this.getSplitterList('');
           }
         })
-        .catch((error) => {
-          this.getSplitterList("");
+        .catch(error => {
+          this.getSplitterList('');
         });
     },
     showSplitterSet(type) {
       this.segmentType = type;
-      this.$refs.splitterDialog.showDiaglog(this.checkSplitter[this.segmentType]);
+      this.$refs.splitterDialog.showDiaglog(
+        this.checkSplitter[this.segmentType],
+      );
     },
     goBack() {
       this.$router.go(-1);
     },
     getOcrList() {
-      ocrSelectList().then((res) => {
+      ocrSelectList().then(res => {
         if (res.code === 0) {
           this.modelOptions = res.data.list || [];
         }
@@ -712,38 +853,39 @@ export default {
     },
     handleSetData(data) {
       this.docInfoList = [];
-      data.map((item) => {
+      data.map(item => {
         this.docInfoList.push({
           docName: item.fileName,
           docSize: item.fileSize,
           docUrl: item.url,
-          docType: "url",
+          docType: 'url',
         });
       });
     },
     async downloadTemplate() {
       const url = `${USER_API}/static/docs/url_import_template.xlsx`;
-      const fileName = "url_import_template.xlsx";
+      const fileName = 'url_import_template.xlsx';
       try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(this.$t("knowledgeManage.fileNotFoundOrServerError"));
+        if (!response.ok)
+          throw new Error(this.$t('knowledgeManage.fileNotFoundOrServerError'));
 
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
 
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = blobUrl;
         a.download = fileName;
         a.click();
 
         URL.revokeObjectURL(blobUrl); // 释放内存
       } catch (error) {
-        this.$message.error(this.$t("knowledgeManage.fileDownloadFailed"));
+        this.$message.error(this.$t('knowledgeManage.fileDownloadFailed'));
       }
     },
     handleLoading(val, result) {
       this.urlLoading = val;
-      if (result === "success") {
+      if (result === 'success') {
         this.reset();
       }
     },
@@ -755,12 +897,12 @@ export default {
       }
       let ids = [];
       if (this.fileList.length > 0) {
-        this.fileList.map((item) => {
+        this.fileList.map(item => {
           if (item.id) {
-            if (item.id.includes(",")) {
+            if (item.id.includes(',')) {
               //rag一体机没有此逻辑
-              const list = item.id.split(",");
-              list.map((item) => {
+              const list = item.id.split(',');
+              list.map(item => {
                 ids.push(item);
               });
             } else {
@@ -769,30 +911,30 @@ export default {
           }
         });
         if (ids.length > 0) {
-          this.deleteData({id: ids}); //取消时删除文件
+          this.deleteData({ id: ids }); //取消时删除文件
         }
       }
-      this.$refs["uplodForm"].resetFields();
+      this.$refs['uplodForm'].resetFields();
       this.uplodForm.knowValue = null;
       this.fileList = [];
       this.resultDisabled = true;
       this.source = [];
-      this.fileUuid = "";
-      this.$emit("handleSetOpen", {isShow: false, knowValue: null});
+      this.fileUuid = '';
+      this.$emit('handleSetOpen', { isShow: false, knowValue: null });
       this.uploading = false;
     },
     // 删除已上传文件
     handleRemove(item, index) {
       if (item.percentage < 100) {
         this.fileList.splice(index, 1);
-        this.cancelAllRequests();//取消所有请求
+        this.cancelAllRequests(); //取消所有请求
         return;
       }
       this.delfile({
-        fileList: [this.resList[index]["name"]],
+        fileList: [this.resList[index]['name']],
         isExpired: true,
       });
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
         this.file = null;
       } else {
@@ -803,22 +945,22 @@ export default {
       }
     },
     delfile(data) {
-      delfile(data).then((res) => {
+      delfile(data).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t("common.info.delete"));
+          this.$message.success(this.$t('common.info.delete'));
         }
       });
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     fileTypeChage() {
       // 取消所有正在进行的上传请求
@@ -833,29 +975,36 @@ export default {
       this.fileList = [];
     },
     submitInfo() {
-      const {segmentMethod, segmentType, splitter, subSplitter} = this.ruleForm.docSegment;
-      this.$refs.ruleForm.validate((valid) => {
+      const { segmentMethod, segmentType, splitter, subSplitter } =
+        this.ruleForm.docSegment;
+      this.$refs.ruleForm.validate(valid => {
         if (!valid) {
           return false;
         }
         if (
-          (segmentMethod === '1' && (splitter.length === 0 || subSplitter.length === 0)) ||
-          (segmentMethod !== '1' && segmentType === '1' && splitter.length === 0)
+          (segmentMethod === '1' &&
+            (splitter.length === 0 || subSplitter.length === 0)) ||
+          (segmentMethod !== '1' &&
+            segmentType === '1' &&
+            splitter.length === 0)
         ) {
           this.$refs.ruleForm.validate();
           return false;
         }
-        this.$refs.ruleForm.clearValidate(["docSegment.splitter", "docSegment.subSplitter"]);
-          if (!this.validateMetaData()) {
-            return false;
+        this.$refs.ruleForm.clearValidate([
+          'docSegment.splitter',
+          'docSegment.subSplitter',
+        ]);
+        if (!this.validateMetaData()) {
+          return false;
         }
-        this.ruleForm.docMetaData.forEach((item) => {
+        this.ruleForm.docMetaData.forEach(item => {
           delete item.metadataType;
         });
 
-        if (this.fileType === "file") {
+        if (this.fileType === 'file') {
           this.ruleForm.docImportType = 0;
-        } else if (this.fileType === "fileUrl") {
+        } else if (this.fileType === 'fileUrl') {
           this.ruleForm.docImportType = 2;
         } else {
           this.ruleForm.docImportType = 1;
@@ -863,7 +1012,10 @@ export default {
 
         this.ruleForm.docInfoList = this.docInfoList;
         let data = null;
-        if (this.ruleForm.docSegment.segmentType == "0" && this.ruleForm.docSegment.segmentMethod !== "1") {
+        if (
+          this.ruleForm.docSegment.segmentType == '0' &&
+          this.ruleForm.docSegment.segmentMethod !== '1'
+        ) {
           data = this.ruleForm;
           delete data.docSegment.splitter;
           delete data.docSegment.maxSplitter;
@@ -871,11 +1023,11 @@ export default {
         } else {
           data = this.ruleForm;
         }
-        docImport(data).then((res) => {
+        docImport(data).then(res => {
           if (res.code === 0) {
             this.$router.push({
               path: `/knowledge/doclist/${this.knowledgeId}`,
-              query: {name: this.knowledgeName, done: "fileUpload"},
+              query: { name: this.knowledgeName, done: 'fileUpload' },
             });
           }
         });
@@ -883,9 +1035,9 @@ export default {
     },
     formReset() {
       this.ruleForm = {
-        docAnalyzer: ["text"],
+        docAnalyzer: ['text'],
         docMetaData: [], //元数据管理数据
-        docPreprocess: ["replaceSymbols"], //'deleteLinks','replaceSymbols'
+        docPreprocess: ['replaceSymbols'], //'deleteLinks','replaceSymbols'
         docSegment: {
           segmentType: this.ruleForm.docSegment.segmentType,
           splitter: [], //"！","。","？","?","!",".","......"
@@ -895,13 +1047,13 @@ export default {
         docInfoList: [],
         docImportType: 0,
         knowledgeId: this.$route.query.id,
-        ocrModelId: "",
+        ocrModelId: '',
       };
       this.checkSplitter = {
         splitter: [],
-        subSplitter: []
+        subSplitter: [],
       };
-      this.splitOptions = this.splitOptions.map((item) => ({
+      this.splitOptions = this.splitOptions.map(item => ({
         ...item,
         checked: false,
       }));
@@ -917,15 +1069,15 @@ export default {
       ) {
         setTimeout(() => {
           this.fileList.map((file, index) => {
-            if (file.progressStatus && file.progressStatus !== "success") {
-              this.$set(file, "progressStatus", "exception");
-              this.$set(file, "showRetry", "false");
-              this.$set(file, "showResume", "false");
-              this.$set(file, "showRemerge", "false");
+            if (file.progressStatus && file.progressStatus !== 'success') {
+              this.$set(file, 'progressStatus', 'exception');
+              this.$set(file, 'showRetry', 'false');
+              this.$set(file, 'showResume', 'false');
+              this.$set(file, 'showRemerge', 'false');
               if (file.size > this.maxSizeBytes) {
-                this.$set(file, "fileType", "maxFile");
+                this.$set(file, 'fileType', 'maxFile');
               } else {
-                this.$set(file, "fileType", "minFile");
+                this.$set(file, 'fileType', 'minFile');
               }
             }
           });
@@ -935,7 +1087,7 @@ export default {
           this.startUpload();
         } else {
           //如果上传当中有新的文件加入
-          if (this.file.progressStatus === "success") {
+          if (this.file.progressStatus === 'success') {
             this.startUpload(this.fileIndex);
           }
         }
@@ -943,13 +1095,13 @@ export default {
     },
     refreshFile(index) {
       //重新上传文件
-      this.fileList[index]["showRetry"] = "false";
-      this.fileList[index]["percentage"] = 0;
+      this.fileList[index]['showRetry'] = 'false';
+      this.fileList[index]['percentage'] = 0;
       this.startUpload(index);
     },
     resumeFile(index) {
       //续传文件
-      this.fileList[index]["showResume"] = "false";
+      this.fileList[index]['showResume'] = 'false';
       this.nextChunkIndex = this.uploadedChunks;
       this.processNextChunk();
     },
@@ -958,9 +1110,9 @@ export default {
       this.mergeChunks();
     },
     uploadFile(fileName, oldName) {
-      let type = oldName.split(".").pop();
+      let type = oldName.split('.').pop();
       const docType =
-        type === "gz" ? ".tar.gz" : "." + oldName.split(".").pop();
+        type === 'gz' ? '.tar.gz' : '.' + oldName.split('.').pop();
       this.docInfoList.push({
         docId: fileName,
         docName: oldName,
@@ -977,10 +1129,10 @@ export default {
       if (file.size <= 0) {
         setTimeout(() => {
           this.$message.warning(
-            file.name + this.$t("knowledgeManage.filterFile")
+            file.name + this.$t('knowledgeManage.filterFile'),
           );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
         return false;
@@ -990,48 +1142,48 @@ export default {
     //  验证文件格式
     verifyFormat(file) {
       const nameType = [
-        "pdf",
-        "docx",
-        "doc",
-        "pptx",
-        "zip",
-        "tar.gz",
-        "xlsx",
-        "xls",
-        "csv",
-        "txt",
-        "html",
-        "md",
-        "ofd",
-        "wps",
+        'pdf',
+        'docx',
+        'doc',
+        'pptx',
+        'zip',
+        'tar.gz',
+        'xlsx',
+        'xls',
+        'csv',
+        'txt',
+        'html',
+        'md',
+        'ofd',
+        'wps',
       ];
       const fileName = file.name;
-      const isSupportedFormat = nameType.some((ext) =>
-        fileName.endsWith(`.${ext}`)
+      const isSupportedFormat = nameType.some(ext =>
+        fileName.endsWith(`.${ext}`),
       );
       if (!isSupportedFormat) {
         setTimeout(() => {
           this.$message.warning(
-            file.name + this.$t("knowledgeManage.fileTypeError")
+            file.name + this.$t('knowledgeManage.fileTypeError'),
           );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
         return false;
       } else {
-        const fileType = file.name.split(".").pop();
+        const fileType = file.name.split('.').pop();
         const limit200 = [
-          "pdf",
-          "docx",
-          "doc",
-          "pptx",
-          "zip",
-          "tar.gz",
-          "ofd",
-          "wps",
+          'pdf',
+          'docx',
+          'doc',
+          'pptx',
+          'zip',
+          'tar.gz',
+          'ofd',
+          'wps',
         ];
-        const limit20 = ["xlsx", "xls", "csv", "txt", "html", "md"];
+        const limit20 = ['xlsx', 'xls', 'csv', 'txt', 'html', 'md'];
         let isLimit200 = file.size / 1024 / 1024 < 200;
         let isLimit20 = file.size / 1024 / 1024 < 20;
         let num = 0;
@@ -1040,10 +1192,10 @@ export default {
           if (!isLimit200) {
             setTimeout(() => {
               this.$message.error(
-                this.$t("knowledgeManage.limitSize") + `${num}MB!`
+                this.$t('knowledgeManage.limitSize') + `${num}MB!`,
               );
               this.fileList = this.fileList.filter(
-                (files) => files.name !== file.name
+                files => files.name !== file.name,
               );
             }, 50);
             return false;
@@ -1054,10 +1206,10 @@ export default {
           if (!isLimit20) {
             setTimeout(() => {
               this.$message.error(
-                this.$t("knowledgeManage.limitSize") + `${num}MB!`
+                this.$t('knowledgeManage.limitSize') + `${num}MB!`,
               );
               this.fileList = this.fileList.filter(
-                (files) => files.name !== file.name
+                files => files.name !== file.name,
               );
             }, 50);
             return false;
@@ -1073,13 +1225,13 @@ export default {
       setTimeout(() => {
         this.fileList = this.fileList.reduce((accumulator, current) => {
           const length = accumulator.filter(
-            (obj) => obj.name === current.name
+            obj => obj.name === current.name,
           ).length;
           if (length === 0) {
             accumulator.push(current);
           } else {
             this.$message.warning(
-              current.name + this.$t("knowledgeManage.fileExist")
+              current.name + this.$t('knowledgeManage.fileExist'),
             );
             res = false;
           }
@@ -1090,20 +1242,20 @@ export default {
     },
     nextStep() {
       //上传文件类型
-      if (this.fileType === "file" || this.fileType === "fileUrl") {
+      if (this.fileType === 'file' || this.fileType === 'fileUrl') {
         if (this.fileIndex < this.fileList.length) {
-          this.$message.warning("文件上传中...");
+          this.$message.warning('文件上传中...');
           return false;
         }
         if (this.fileList.length === 0) {
-          this.$message.warning("请上传文件!");
+          this.$message.warning('请上传文件!');
           return false;
         }
       }
       //url逐条上传
-      if (this.fileType === "url") {
+      if (this.fileType === 'url') {
         if (this.docInfoList.length === 0) {
-          this.$message.warning("请上输入url!");
+          this.$message.warning('请上输入url!');
           return false;
         }
       }

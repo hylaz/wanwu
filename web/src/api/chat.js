@@ -1,61 +1,61 @@
-import request from "@/utils/request";
-import {MODEL_API, SERVICE_API} from "@/utils/requestConstants"
+import request from '@/utils/request';
+import { MODEL_API, SERVICE_API } from '@/utils/requestConstants';
 
-export const createApp = (data) => {
+export const createApp = data => {
   return request({
     url: `${MODEL_API}/assistant/create`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
-export const updateApp = (data) => {
+export const updateApp = data => {
   return request({
     url: `${MODEL_API}/assistant/update`,
     method: 'put',
-    data
-  })
+    data,
+  });
 };
-export const getAppDetail = (data) => {
+export const getAppDetail = data => {
   return request({
     url: `${MODEL_API}/assistant/info`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
-export const deleteApp = (data) => {
+export const deleteApp = data => {
   return request({
     url: `${MODEL_API}/assistant/delete`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
-export const publishApp = (data) => {
+export const publishApp = data => {
   return request({
     url: `${MODEL_API}/assistant/publish`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
-export const getAppDraftList = (data) => {
+export const getAppDraftList = data => {
   return request({
     url: `${MODEL_API}/assistant/draft_list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
-export const getAppMoreList = (data) => {
+export const getAppMoreList = data => {
   return request({
     url: `${MODEL_API}/assistant/more_list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
-export const getMyAppList = (data) => {
+export const getMyAppList = data => {
   return request({
     url: `${MODEL_API}/assistant/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //头像上传
 export const fileUpload = (data, config) => {
@@ -63,8 +63,8 @@ export const fileUpload = (data, config) => {
     url: `${SERVICE_API}/model/expansion/file/batch/upload`,
     method: 'post',
     data,
-    config
-  })
+    config,
+  });
 };
 //知识增强文件上传
 export const knowledgeFileUpload = (data, config) => {
@@ -72,105 +72,105 @@ export const knowledgeFileUpload = (data, config) => {
     url: `${MODEL_API}/assistant/knowledge/file/upload`,
     method: 'post',
     data,
-    config
-  })
+    config,
+  });
 };
 //查询已上传文件列表
-export const getKnowledgeFileList = (data) => {
+export const getKnowledgeFileList = data => {
   return request({
     url: `${MODEL_API}/assistant/knowledge/file/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
-export const deleteKnowledgeFile = (data) => {
+export const deleteKnowledgeFile = data => {
   return request({
     url: `${MODEL_API}/assistant/knowledge/file/delete`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 //常用应用
-export const getRecentApp = (data) => {
+export const getRecentApp = data => {
   return request({
     url: `${MODEL_API}/assistant/common/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //删除常用应用
-export const deleteRecentApp = (data) => {
+export const deleteRecentApp = data => {
   return request({
     url: `${MODEL_API}/assistant/common/delete`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 
 //对话列表
-export const getConversationList = (data) => {
+export const getConversationList = data => {
   return request({
     url: `${MODEL_API}/assistant/conversation/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //创建对话
-export const createConversation = (data) => {
+export const createConversation = data => {
   return request({
     url: `${MODEL_API}/assistant/conversation/create`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 //删除对话
-export const deleteConversation = (data) => {
+export const deleteConversation = data => {
   return request({
     url: `${MODEL_API}/assistant/conversation/delete`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 //对话详情
-export const getConversationDetail = (data) => {
+export const getConversationDetail = data => {
   return request({
     url: `${MODEL_API}/assistant/conversation/detail`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 /*----元景------*/
 //对话列表
-export const getConversationListCUBM = (data) => {
+export const getConversationListCUBM = data => {
   return request({
     url: `${MODEL_API}/chatllm/conversation/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //创建对话
-export const createConversationCUBM = (data) => {
+export const createConversationCUBM = data => {
   return request({
     url: `${MODEL_API}/chatllm/conversation/create`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 //删除对话
-export const deleteConversationCUBM = (data) => {
+export const deleteConversationCUBM = data => {
   return request({
     url: `${MODEL_API}/chatllm/conversation/delete`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 //对话详情
-export const getConversationDetailCUBM = (data) => {
+export const getConversationDetailCUBM = data => {
   return request({
     url: `${MODEL_API}/chatllm/conversation/detail`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //批量文件上传
 export const batchUpload = (data, config) => {
@@ -178,40 +178,40 @@ export const batchUpload = (data, config) => {
     url: `${MODEL_API}/file/batch/upload`,
     method: 'post',
     data,
-    config
-  })
+    config,
+  });
 };
 // app接入
-export const linkAPP = (data) => {
+export const linkAPP = data => {
   return request({
     url: `${MODEL_API}/assistant/app/publish`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 
 //推荐智能体列表
-export const recommendList = (data) => {
+export const recommendList = data => {
   return request({
     url: `${MODEL_API}/assistant/recommend/list`,
     method: 'get',
-    params: data
-  })
+    params: data,
+  });
 };
 //标记推荐智能体
-export const recommendMark = (data) => {
+export const recommendMark = data => {
   return request({
     url: `${MODEL_API}/assistant/recommend/update`,
     method: 'put',
-    data
-  })
+    data,
+  });
 };
 
 //上传文件确认路径
-export const confirmPath = (data) => {
+export const confirmPath = data => {
   return request({
     url: `${MODEL_API}/file/confirmPath`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };

@@ -11,7 +11,7 @@
       <div class="item_box">
         <div class="dataOverview">
           <span class="title">
-            {{$t('statistics.overview')}}
+            {{ $t('statistics.overview') }}
           </span>
           <div class="client_dataOverview_content" v-loading="loading">
             <div v-for="(item, index) in count" :key="index" class="card">
@@ -38,9 +38,7 @@
                       item.des_value === 0 || item.des_value === -9999,
                   }"
                 >
-                  {{
-                    item.des_value === -9999 ? "-" : item.des_value + "%"
-                  }}
+                  {{ item.des_value === -9999 ? '-' : item.des_value + '%' }}
                 </label>
                 <img
                   v-if="item.des_value < 0 && item.des_value !== -9999"
@@ -80,11 +78,11 @@
   </div>
 </template>
 <script>
-import Search from "./components/search.vue";
-import UserEchart from "./components/userEchart.vue";
-import PcuEchart from "./components/pcuEchart.vue";
-import { formatAmount } from "@/utils/util.js";
-import { getData } from "@/api/permission/statistic.js";
+import Search from './components/search.vue';
+import UserEchart from './components/userEchart.vue';
+import PcuEchart from './components/pcuEchart.vue';
+import { formatAmount } from '@/utils/util.js';
+import { getData } from '@/api/permission/statistic.js';
 
 export default {
   components: {
@@ -97,35 +95,35 @@ export default {
       loading: false,
       content: {}, // 存储返回的总揽数据
       echartContent: {}, // 存储返回的echart数据
-      type: "model",
+      type: 'model',
       concurrentUser: {},
       count: [
         {
           name: this.$t('statistics.cumulativeClient'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: "cumulativeClient",
+          key: 'cumulativeClient',
           des_value: -9999,
         },
         {
           name: this.$t('statistics.additionClient'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: "additionClient",
+          key: 'additionClient',
           des_value: -9999,
         },
         {
           name: this.$t('statistics.activeClient'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: "activeClient",
+          key: 'activeClient',
           des_value: -9999,
         },
         {
           name: this.$t('statistics.browse'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: "browse",
+          key: 'browse',
           des_value: -9999,
         },
       ],
@@ -150,21 +148,21 @@ export default {
       this.$refs.search && this.$refs.search.$refs.time.handleClose();
       this.$refs.adminDetail && this.$refs.adminDetail.$refs.sign.handleClose();
       this.$refs.adminDetail &&
-      this.$refs.adminDetail.$refs.cycle.handleClose();
+        this.$refs.adminDetail.$refs.cycle.handleClose();
 
       if (val.target.scrollTop >= 50) {
         this.searchShow = false;
 
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
-          document.getElementsByClassName("statistics_search_time")[0].style =
-              "background: #fff;box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1)";
+          document.getElementsByClassName('statistics_search_time')[0].style =
+            'background: #fff;box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1)';
           this.searchShow = true;
         }, 500);
       } else {
         clearTimeout(this.timeout);
-        document.getElementsByClassName("statistics_search_time")[0].style =
-            "background: transparent;box-shadow: none";
+        document.getElementsByClassName('statistics_search_time')[0].style =
+          'background: transparent;box-shadow: none';
         this.searchShow = true;
       }
     },
@@ -175,19 +173,23 @@ export default {
       const params = {
         startDate: val.time[0],
         endDate: val.time[1],
-      }
-      getData(params).then((res) => {
-        const {overview, trend} = res.data || {}
-        this.content = overview || {}
-        this.echartContent = trend || {}
-        // 解构后台返回的数据，暂存和 count 数组中key对应的数据
-        this.count.map((item) => {
-          item.value = overview[item.key] ? overview[item.key].value : 0;
-          item.des_value = overview[item.key] ? overview[item.key].periodOverPeriod : -9999;
+      };
+      getData(params)
+        .then(res => {
+          const { overview, trend } = res.data || {};
+          this.content = overview || {};
+          this.echartContent = trend || {};
+          // 解构后台返回的数据，暂存和 count 数组中key对应的数据
+          this.count.map(item => {
+            item.value = overview[item.key] ? overview[item.key].value : 0;
+            item.des_value = overview[item.key]
+              ? overview[item.key].periodOverPeriod
+              : -9999;
+          });
+        })
+        .finally(() => {
+          this.loading = false;
         });
-      }).finally(() => {
-        this.loading = false;
-      });
     },
   },
 };
@@ -198,7 +200,7 @@ export default {
   height: 100%;
   padding: 0;
   padding-top: 48px !important;
-  background: #FFF;
+  background: #fff;
   overflow: hidden;
   z-index: 100;
   .statistics_content_box {
@@ -273,7 +275,7 @@ export default {
   }
   .el-empty {
     position: absolute;
-    top:50%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 0;
@@ -289,7 +291,7 @@ export default {
   height: 48px;
   padding-left: 24px;
   background: #fff;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   width: 100%;
@@ -453,7 +455,7 @@ export default {
       padding-left: 10px;
 
       &::after {
-        content: "";
+        content: '';
         width: 3px;
         height: 15px;
         background: $color;

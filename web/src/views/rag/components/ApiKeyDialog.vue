@@ -28,7 +28,7 @@
   </div>
 </template>
 <script>
-import { createApiKey, delApiKey, getApiKeyList } from "@/api/appspace"
+import { createApiKey, delApiKey, getApiKeyList } from '@/api/appspace';
 export default {
   props: {
     appType: {
@@ -44,70 +44,70 @@ export default {
     return {
       tableData: [],
       dialogVisible: false,
-    }
+    };
   },
   created() {
-    this.getTableData()
+    this.getTableData();
   },
   methods: {
     showDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     handleCopy(row) {
-      let text = row.apiKey
-      var textareaEl = document.createElement("textarea")
-      textareaEl.setAttribute("readonly", "readonly")
-      textareaEl.value = text
-      document.body.appendChild(textareaEl)
-      textareaEl.select()
-      var res = document.execCommand("copy")
-      document.body.removeChild(textareaEl)
-      return res
+      let text = row.apiKey;
+      var textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly');
+      textareaEl.value = text;
+      document.body.appendChild(textareaEl);
+      textareaEl.select();
+      var res = document.execCommand('copy');
+      document.body.removeChild(textareaEl);
+      return res;
     },
     copycb() {
-      this.$message.success("内容已复制到粘贴板")
+      this.$message.success('内容已复制到粘贴板');
     },
     handleCreate() {
-      const data = { appId: this.appId, appType: this.appType }
-      createApiKey(data).then((res) => {
+      const data = { appId: this.appId, appType: this.appType };
+      createApiKey(data).then(res => {
         if (res.code === 0) {
-          this.tableData.push(res.data)
+          this.tableData.push(res.data);
         }
-      })
+      });
     },
     getTableData() {
-      const data = { appId: this.appId, appType: this.appType }
-      getApiKeyList(data).then((res) => {
+      const data = { appId: this.appId, appType: this.appType };
+      getApiKeyList(data).then(res => {
         if (res.code === 0) {
-          this.tableData = res.data || []
+          this.tableData = res.data || [];
         }
-      })
+      });
     },
     handleDelete(row) {
       this.$confirm(
-        "确定要删除当前APIkey吗？",
-        this.$t("knowledgeManage.tip"),
+        '确定要删除当前APIkey吗？',
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: this.$t("common.confirm.confirm"),
-          cancelButtonText: "删除",
-          type: "warning",
-        }
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: '删除',
+          type: 'warning',
+        },
       )
         .then(() => {
-          delApiKey({ apiId: row.apiId }).then((res) => {
+          delApiKey({ apiId: row.apiId }).then(res => {
             if (res.code === 0) {
-              this.$message.success("删除成功")
-              this.getTableData()
+              this.$message.success('删除成功');
+              this.getTableData();
             }
-          })
+          });
         })
-        .catch((error) => {
-          this.getTableData()
-        })
+        .catch(error => {
+          this.getTableData();
+        });
     },
   },
-}
+};
 </script>

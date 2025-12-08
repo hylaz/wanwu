@@ -63,11 +63,11 @@
                   type="primary"
                   @click="
                     $router.push(
-                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&type=qa`
+                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&type=qa`,
                     )
                   "
                 >
-                  {{ $t("knowledgeManage.hitTest.name") }}
+                  {{ $t('knowledgeManage.hitTest.name') }}
                 </el-button>
                 <el-button
                   size="mini"
@@ -75,11 +75,11 @@
                   @click="showMeta"
                   v-if="hasManagePerm"
                 >
-                  {{ $t("knowledgeManage.docList.metaDataManagement") }}
+                  {{ $t('knowledgeManage.docList.metaDataManagement') }}
                 </el-button>
                 <template v-if="hasManagePerm">
                   <el-dropdown
-                    v-for="(group,index) in dropdownGroups"
+                    v-for="(group, index) in dropdownGroups"
                     :key="group.label"
                     @command="handleCommand"
                     :style="{ margin: index === 0 ? '0 10px' : '' }"
@@ -132,7 +132,7 @@
                       <span slot="reference">
                         {{
                           scope.row.question.length > 20
-                            ? scope.row.question.slice(0, 20) + "..."
+                            ? scope.row.question.slice(0, 20) + '...'
                             : scope.row.question
                         }}
                       </span>
@@ -154,7 +154,7 @@
                       <span slot="reference">
                         {{
                           scope.row.answer.length > 20
-                            ? scope.row.answer.slice(0, 20) + "..."
+                            ? scope.row.answer.slice(0, 20) + '...'
                             : scope.row.answer
                         }}
                       </span>
@@ -206,7 +206,7 @@
                         scope.row &&
                         scope.row.status !== undefined
                           ? qaImportStatus[Number(scope.row.status)]
-                          : "--"
+                          : '--'
                       }}
                     </span>
                   </template>
@@ -229,18 +229,26 @@
                       :type="
                         scope.row &&
                         scope.row.status &&
-                        [QA_STATUS_PENDING, QA_STATUS_PROCESSING, QA_STATUS_FAILED].includes(Number(scope.row.status))
+                        [
+                          QA_STATUS_PENDING,
+                          QA_STATUS_PROCESSING,
+                          QA_STATUS_FAILED,
+                        ].includes(Number(scope.row.status))
                           ? 'info'
                           : ''
                       "
                       :disabled="
                         scope.row &&
                         scope.row.status &&
-                        [QA_STATUS_PENDING, QA_STATUS_PROCESSING, QA_STATUS_FAILED].includes(Number(scope.row.status))
+                        [
+                          QA_STATUS_PENDING,
+                          QA_STATUS_PROCESSING,
+                          QA_STATUS_FAILED,
+                        ].includes(Number(scope.row.status))
                       "
                       @click="handleEdit(scope.row)"
                     >
-                      {{ $t("common.button.edit") }}
+                      {{ $t('common.button.edit') }}
                     </el-button>
                     <el-button
                       size="mini"
@@ -249,17 +257,25 @@
                       :disabled="
                         scope.row &&
                         scope.row.status &&
-                        [QA_STATUS_PENDING, QA_STATUS_PROCESSING, QA_STATUS_FAILED].includes(Number(scope.row.status))
+                        [
+                          QA_STATUS_PENDING,
+                          QA_STATUS_PROCESSING,
+                          QA_STATUS_FAILED,
+                        ].includes(Number(scope.row.status))
                       "
                       :type="
                         scope.row &&
                         scope.row.status &&
-                        [QA_STATUS_PENDING, QA_STATUS_PROCESSING, QA_STATUS_FAILED].includes(Number(scope.row.status))
+                        [
+                          QA_STATUS_PENDING,
+                          QA_STATUS_PROCESSING,
+                          QA_STATUS_FAILED,
+                        ].includes(Number(scope.row.status))
                           ? 'info'
                           : ''
                       "
                     >
-                      {{ $t("common.button.delete") }}
+                      {{ $t('common.button.delete') }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -293,13 +309,13 @@
       />
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">
-          {{ $t("common.button.cancel") }}
+          {{ $t('common.button.cancel') }}
         </el-button>
         <el-button type="primary" @click="createMeta">
-          {{ $t("common.button.create") }}
+          {{ $t('common.button.create') }}
         </el-button>
         <el-button type="primary" @click="submitMeta" :disabled="isDisabled">
-          {{ $t("common.button.confirm") }}
+          {{ $t('common.button.confirm') }}
         </el-button>
       </span>
     </el-dialog>
@@ -333,29 +349,33 @@
       :knowledgeId="docQuery.knowledgeId"
     />
     <!-- 导出记录 -->
-    <exportRecord ref="exportRecord"/>
+    <exportRecord ref="exportRecord" />
   </div>
 </template>
 
 <script>
-import Pagination from "@/components/pagination.vue";
-import SearchInput from "@/components/searchInput.vue";
-import mataData from "../component/metadata.vue";
-import batchMetaData from "../component/meta/batchMetaData.vue";
-import BatchMetaButton from "../component/meta/batchMetaButton.vue";
-import createQa from "./createQa.vue";
-import fileUpload from "./fileUpload.vue";
-import exportRecord from "./exportRecord.vue";
-import {updateDocMeta} from "@/api/knowledge";
+import Pagination from '@/components/pagination.vue';
+import SearchInput from '@/components/searchInput.vue';
+import mataData from '../component/metadata.vue';
+import batchMetaData from '../component/meta/batchMetaData.vue';
+import BatchMetaButton from '../component/meta/batchMetaButton.vue';
+import createQa from './createQa.vue';
+import fileUpload from './fileUpload.vue';
+import exportRecord from './exportRecord.vue';
+import { updateDocMeta } from '@/api/knowledge';
 import {
   getQaPairList,
   delQaPair,
   switchQaPair,
   qaDocExport,
-  qaTips
-} from "@/api/qaDatabase";
-import {mapGetters} from "vuex";
-import {COMMUNITY_IMPORT_STATUS, DROPDOWN_GROUPS, QA_STATUS_OPTIONS} from "../config";
+  qaTips,
+} from '@/api/qaDatabase';
+import { mapGetters } from 'vuex';
+import {
+  COMMUNITY_IMPORT_STATUS,
+  DROPDOWN_GROUPS,
+  QA_STATUS_OPTIONS,
+} from '../config';
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -367,7 +387,7 @@ import {
   QA_STATUS_FINISHED,
   QA_STATUS_PENDING,
   QA_STATUS_PROCESSING,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
   components: {
@@ -384,13 +404,13 @@ export default {
     return {
       title_tips: '',
       showTips: false,
-      batchMetaType: "single",
-      knowledgeName: "",
+      batchMetaType: 'single',
+      knowledgeName: '',
       loading: false,
       tableLoading: false,
       docQuery: {
-        name: "",
-        metaValue: "",
+        name: '',
+        metaValue: '',
         knowledgeId: this.$route.params.id,
         status: QA_STATUS_ALL,
       },
@@ -413,14 +433,14 @@ export default {
       QA_STATUS_FAILED,
       QA_STATUS_FINISHED,
       QA_STATUS_PENDING,
-      QA_STATUS_PROCESSING
+      QA_STATUS_PROCESSING,
     };
   },
   watch: {
     metaData: {
       handler(val) {
         if (
-          val.some((item) => !item.metaKey || !item.metaValueType) ||
+          val.some(item => !item.metaKey || !item.metaValueType) ||
           !val.length
         ) {
           this.isDisabled = true;
@@ -431,10 +451,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("app", ["permissionType"]),
+    ...mapGetters('app', ['permissionType']),
     hasManagePerm() {
-      return [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(this.permissionType);
-    }
+      return [
+        POWER_TYPE_EDIT,
+        POWER_TYPE_ADMIN,
+        POWER_TYPE_SYSTEM_ADMIN,
+      ].includes(this.permissionType);
+    },
   },
   mounted() {
     this.getTableData(this.docQuery);
@@ -443,17 +467,19 @@ export default {
       this.permissionType === null ||
       this.permissionType === undefined
     ) {
-      const savedData = localStorage.getItem("permission_data");
+      const savedData = localStorage.getItem('permission_data');
       if (savedData) {
         try {
           const parsed = JSON.parse(savedData);
           const savedPermissionType =
             parsed && parsed.app && parsed.app.permissionType;
-          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-            this.$store.dispatch("app/setPermissionType", savedPermissionType);
+          if (
+            savedPermissionType !== undefined &&
+            savedPermissionType !== INITIAL
+          ) {
+            this.$store.dispatch('app/setPermissionType', savedPermissionType);
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
     }
   },
@@ -475,14 +501,14 @@ export default {
     },
     updateData(type = '') {
       if (type !== '') {
-        this.startTimer()
+        this.startTimer();
       } else {
         this.getTableData(this.docQuery);
       }
     },
     exportData() {
       if (!this.docQuery.knowledgeId) {
-        this.$message.warning(this.$t("common.noData"));
+        this.$message.warning(this.$t('common.noData'));
         return;
       }
       if (this.loading) return;
@@ -491,20 +517,19 @@ export default {
       };
       this.loading = true;
       qaDocExport(params)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
+            this.$message.success(this.$t('common.message.success'));
             const data = res.data || {};
             const url = data.fileUrl || data.downloadUrl;
             if (url) {
-              window.open(url, "_blank");
+              window.open(url, '_blank');
             } else if (data.recordCreated) {
               this.exportRecord();
             }
           }
         })
-        .catch(() => {
-        })
+        .catch(() => {})
         .finally(() => {
           this.loading = false;
         });
@@ -514,19 +539,17 @@ export default {
     },
     handleEditMetaData(row) {
       this.$refs.batchMetaData.showDialog(row);
-      this.batchMetaType = "single";
+      this.batchMetaType = 'single';
       this.selectedTableData = [row];
       this.selectedDocIds = [row.qaPairId];
     },
     handleSwitch(row) {
-      switchQaPair({qaPairId: row.qaPairId, switch: row.switch}).then(
-        (res) => {
-          if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
-            this.getTableData(this.docQuery);
-          }
+      switchQaPair({ qaPairId: row.qaPairId, switch: row.switch }).then(res => {
+        if (res.code === 0) {
+          this.$message.success(this.$t('common.message.success'));
+          this.getTableData(this.docQuery);
         }
-      );
+      });
     },
     handleMetaCancel() {
       this.selectedTableData = [];
@@ -555,7 +578,7 @@ export default {
     showBatchMeta() {
       if (!this.selectedTableData || this.selectedTableData.length === 0) {
         this.$message.warning(
-          this.$t("knowledgeManage.docList.pleaseSelectDocFirst")
+          this.$t('knowledgeManage.docList.pleaseSelectDocFirst'),
         );
         return;
       }
@@ -564,19 +587,19 @@ export default {
     handleSelectionChange(val) {
       if (val.length > 100) {
         this.$message.warning(
-          this.$t("knowledgeManage.docList.maxSelect100Files")
+          this.$t('knowledgeManage.docList.maxSelect100Files'),
         );
         return;
       }
       this.selectedTableData = val;
-      this.batchMetaType = "multiple";
-      this.selectedDocIds = val.map((item) => item.qaPairId);
+      this.batchMetaType = 'multiple';
+      this.selectedDocIds = val.map(item => item.qaPairId);
     },
     getMetaDataText(list) {
       if (!list || !Array.isArray(list) || list.length === 0) {
-        return "";
+        return '';
       }
-      return list.map((item) => item.metaKey).join(", ");
+      return list.map(item => item.metaKey).join(', ');
     },
     createMeta() {
       this.$refs.mataData.createMetaData();
@@ -593,22 +616,22 @@ export default {
     submitMeta() {
       this.isDisabled = true;
       const metaList = this.metaData
-        .filter((item) => item.option !== "")
-        .map(({metaId, metaKey, metaValueType, option}) => ({
+        .filter(item => item.option !== '')
+        .map(({ metaId, metaKey, metaValueType, option }) => ({
           metaKey,
-          ...(option === "add" ? {metaValueType} : {}),
+          ...(option === 'add' ? { metaValueType } : {}),
           option,
-          ...(option === "update" || option === "delete" ? {metaId} : {}),
+          ...(option === 'update' || option === 'delete' ? { metaId } : {}),
         }));
       const data = {
-        docId: "",
+        docId: '',
         knowledgeId: this.docQuery.knowledgeId,
         metaDataList: metaList,
       };
       updateDocMeta(data)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
+            this.$message.success(this.$t('common.message.success'));
             this.$refs.mataData.getList();
             this.metaVisible = false;
             this.isDisabled = false;
@@ -646,7 +669,7 @@ export default {
       }
     },
     goBack() {
-      this.$router.push({path: "/knowledge"});
+      this.$router.push({ path: '/knowledge' });
     },
     reload() {
       this.getTableData(this.docQuery);
@@ -664,10 +687,10 @@ export default {
       try {
         let res = await delQaPair({
           QAPairIdList,
-          knowledgeId: this.docQuery.knowledgeId
+          knowledgeId: this.docQuery.knowledgeId,
         });
         if (res.code === 0) {
-          this.$message.success(this.$t("common.info.delete"));
+          this.$message.success(this.$t('common.info.delete'));
         }
       } finally {
         this.reLoadDocList();
@@ -676,47 +699,49 @@ export default {
     },
     handleDel(data) {
       this.$confirm(
-        this.$t("knowledgeManage.deleteTips"),
-        this.$t("knowledgeManage.tip"),
+        this.$t('knowledgeManage.deleteTips'),
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: this.$t("common.button.confirm"),
-          cancelButtonText: this.$t("common.button.cancel"),
-          type: "warning",
-        }
-      ).then(() => {
-        this.handleDelete([data.qaPairId]);
-      }).catch(() => {
-      });
+          confirmButtonText: this.$t('common.button.confirm'),
+          cancelButtonText: this.$t('common.button.cancel'),
+          type: 'warning',
+        },
+      )
+        .then(() => {
+          this.handleDelete([data.qaPairId]);
+        })
+        .catch(() => {});
     },
     handleBatchDelete() {
       this.$confirm(
-        this.$t("knowledgeManage.deleteBatchTips"),
-        this.$t("knowledgeManage.tip"),
+        this.$t('knowledgeManage.deleteBatchTips'),
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: this.$t("common.button.confirm"),
-          cancelButtonText: this.$t("common.button.cancel"),
-          type: "warning",
-        }
-      ).then(() => {
-        this.handleDelete(this.selectedDocIds);
-      }).catch(() => {
-      });
+          confirmButtonText: this.$t('common.button.confirm'),
+          cancelButtonText: this.$t('common.button.cancel'),
+          type: 'warning',
+        },
+      )
+        .then(() => {
+          this.handleDelete(this.selectedDocIds);
+        })
+        .catch(() => {});
     },
     async getTableData(data) {
       this.tableLoading = true;
-      this.tableData = await this.$refs["pagination"].getTableData(data);
+      this.tableData = await this.$refs['pagination'].getTableData(data);
       this.tableLoading = false;
       this.getTips();
     },
     getTips() {
-      qaTips({knowledgeId: this.docQuery.knowledgeId}).then((res) => {
+      qaTips({ knowledgeId: this.docQuery.knowledgeId }).then(res => {
         if (res.code === 0) {
           if (res.data.uploadstatus === 1) {
             this.showTips = true;
-            this.title_tips = this.$t("knowledgeManage.refreshTips");
+            this.title_tips = this.$t('knowledgeManage.refreshTips');
           } else if (res.data.uploadstatus === 2) {
             this.showTips = false;
-            this.title_tips = "";
+            this.title_tips = '';
           } else {
             this.showTips = true;
             this.title_tips = res.data.msg;
@@ -726,7 +751,7 @@ export default {
     },
     changeOption(data) {
       this.docQuery.status = data;
-      this.getTableData({...this.docQuery, pageNo: 1});
+      this.getTableData({ ...this.docQuery, pageNo: 1 });
     },
 
     handleEdit(row) {
@@ -770,8 +795,8 @@ export default {
   }
 
   .el-tree--highlight-current
-  .el-tree-node.is-current
-  > .el-tree-node__content {
+    .el-tree-node.is-current
+    > .el-tree-node__content {
     background: #ffefef;
   }
 
@@ -1018,11 +1043,11 @@ export default {
   color: #666; /* 设置文字颜色 */
 }
 
-.custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
+.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
   border-top-color: #fff !important;
 }
 
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
+.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
   border-top-color: #ccc !important;
 }
 </style>

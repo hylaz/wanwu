@@ -7,30 +7,31 @@
     :close-on-click-modal="false"
   >
     <div style="text-align: center; margin-bottom: 25px">
-      <div>{{$t('tempSquare.tempHint')}}</div>
-      <div class="link-text" @click="jumpToPublicTemplate">{{templateUrl || $t('tempSquare.jump')}}</div>
+      <div>{{ $t('tempSquare.tempHint') }}</div>
+      <div class="link-text" @click="jumpToPublicTemplate">
+        {{ templateUrl || $t('tempSquare.jump') }}
+      </div>
     </div>
   </el-dialog>
 </template>
 
 <script>
-
 export default {
   props: {
-    templateUrl: ''
+    templateUrl: '',
   },
   data() {
     return {
-      dialogVisible: false
-    }
+      dialogVisible: false,
+    };
   },
   methods: {
     openDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     jumpToPublicTemplate() {
-      if (this.templateUrl) window.open(this.templateUrl)
-    }
+      if (this.templateUrl) window.open(this.templateUrl);
+    },
   },
 };
 </script>

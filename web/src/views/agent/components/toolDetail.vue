@@ -8,7 +8,9 @@
     <template slot="title">
       <div class="custom-title">
         <div class="header-section">
-          <h2 class="dialog-title">{{actionDetail.action && actionDetail.action.name}}</h2>
+          <h2 class="dialog-title">
+            {{ actionDetail.action && actionDetail.action.name }}
+          </h2>
           <!-- <p class="dialog-subtitle">{{actionDetail.action && actionDetail.action.description}}</p> -->
         </div>
       </div>
@@ -26,15 +28,28 @@
           @input="inputApiKey"
         />
         <div class="api-key-buttons">
-          <el-button style="width: 100px" size="mini" type="primary"  @click="changeApiKey" :disabled="isDisabled">
-            {{actionDetail.apiKey ? $t('tool.builtIn.update') : $t('common.confirm.confirm')}}
+          <el-button
+            style="width: 100px"
+            size="mini"
+            type="primary"
+            @click="changeApiKey"
+            :disabled="isDisabled"
+          >
+            {{
+              actionDetail.apiKey
+                ? $t('tool.builtIn.update')
+                : $t('common.confirm.confirm')
+            }}
           </el-button>
         </div>
       </div>
     </div>
     <!-- rerank 部分 -->
-    <div class="api-key-section rerank-section" v-if="currentItem && currentItem.toolId === 'bochawebsearch'">
-    <div class="api-key-label">Rerank</div>
+    <div
+      class="api-key-section rerank-section"
+      v-if="currentItem && currentItem.toolId === 'bochawebsearch'"
+    >
+      <div class="api-key-label">Rerank</div>
       <el-select
         v-model="rerankId"
         :placeholder="$t('agent.toolDetail.selectRerank')"
@@ -42,7 +57,7 @@
         @change="rerankChange"
         :loading-text="$t('agent.toolDetail.modelLoadingText')"
         class="cover-input-icon"
-        style="width:100%;"
+        style="width: 100%"
         filterable
         clearable
       >
@@ -58,15 +73,29 @@
 
     <div class="parameters-section">
       <el-table :data="parametersData" border class="parameters-table">
-        <el-table-column prop="key" :label="$t('agent.toolDetail.parameters')" width="120" />
-        <el-table-column prop="type" :label="$t('agent.toolDetail.type')" width="100" />
-        <el-table-column prop="description" :label="$t('agent.toolDetail.description')" />
+        <el-table-column
+          prop="key"
+          :label="$t('agent.toolDetail.parameters')"
+          width="120"
+        />
+        <el-table-column
+          prop="type"
+          :label="$t('agent.toolDetail.type')"
+          width="100"
+        />
+        <el-table-column
+          prop="description"
+          :label="$t('agent.toolDetail.description')"
+        />
         <el-table-column
           prop="required"
           :label="$t('agent.toolDetail.required')"
           width="100"
           align="center"
-          :formatter="(row, column, cellValue) => (cellValue ? $t('agent.toolDetail.yes'): $t('agent.toolDetail.no'))"
+          :formatter="
+            (row, column, cellValue) =>
+              cellValue ? $t('agent.toolDetail.yes') : $t('agent.toolDetail.no')
+          "
         />
       </el-table>
     </div>
@@ -74,123 +103,134 @@
 </template>
 
 <script>
-import {toolActionDetail,updateRerank} from "@/api/agent";
-import { changeApiKey } from "@/api/mcp";
-import { getRerankList} from "@/api/modelAccess";
+import { toolActionDetail, updateRerank } from '@/api/agent';
+import { changeApiKey } from '@/api/mcp';
+import { getRerankList } from '@/api/modelAccess';
 export default {
   data() {
     return {
       dialogVisible: false,
-      actionDetail:{
+      actionDetail: {
         action: {
           name: '',
-          description: ''
+          description: '',
         },
-        apiKey: ''
+        apiKey: '',
       },
       apiKey: '',
       parametersData: [],
-      currentItem:null,
-      rerankOptions:[],
-      rerankId:'',
-      isDisabled:false
-    }
+      currentItem: null,
+      rerankOptions: [],
+      rerankId: '',
+      isDisabled: false,
+    };
   },
   methods: {
-    inputApiKey(){
+    inputApiKey() {
       this.isDisabled = false;
     },
-     rerankVisible(val){
-      if(val){
-          this.getRerankData();
+    rerankVisible(val) {
+      if (val) {
+        this.getRerankData();
       }
     },
-    rerankChange(val){
-      if(val){
+    rerankChange(val) {
+      if (val) {
         const data = {
-          assistantId:this.$route.query.id,
-          toolId:this.currentItem.toolId,
-          toolConfig:{
-            rerankId:this.rerankId
-          }
-        }
-        updateRerank(data).then(res =>{
-          if(res.code === 0){
-            this.$emit('updateDetail')
-          }
-        }).catch(() =>{})
+          assistantId: this.$route.query.id,
+          toolId: this.currentItem.toolId,
+          toolConfig: {
+            rerankId: this.rerankId,
+          },
+        };
+        updateRerank(data)
+          .then(res => {
+            if (res.code === 0) {
+              this.$emit('updateDetail');
+            }
+          })
+          .catch(() => {});
       }
     },
-    getRerankData(){
-      getRerankList().then(res =>{
-          if(res.code === 0){
-          this.rerankOptions = res.data.list || []
-          }
-      })
+    getRerankData() {
+      getRerankList().then(res => {
+        if (res.code === 0) {
+          this.rerankOptions = res.data.list || [];
+        }
+      });
     },
-    changeApiKey(){
+    changeApiKey() {
       changeApiKey({
         apiKey: this.apiKey,
-        toolSquareId: this.currentItem.toolId
-      }).then((res) => {
+        toolSquareId: this.currentItem.toolId,
+      }).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t('common.message.success'))
-          this.getDeatil(this.currentItem)
+          this.$message.success(this.$t('common.message.success'));
+          this.getDeatil(this.currentItem);
         }
-      })
+      });
     },
     handleClose() {
       this.dialogVisible = false;
     },
-    showDiaglog(n){
+    showDiaglog(n) {
       this.dialogVisible = true;
       this.currentItem = n;
-      if(n.toolId === 'bochawebsearch'){
+      if (n.toolId === 'bochawebsearch') {
         this.getRerankData();
         this.rerankId = n.toolConfig.rerankId || '';
       }
       this.getDeatil(n);
     },
-    getDeatil(n){
-      toolActionDetail({actionName:n.actionName,toolId:n.toolId,toolType:n.toolType}).then(res =>{
-        if(res.code === 0){
-          if(res.data.apiKey !== ''){
-            this.isDisabled = true
+    getDeatil(n) {
+      toolActionDetail({
+        actionName: n.actionName,
+        toolId: n.toolId,
+        toolType: n.toolType,
+      })
+        .then(res => {
+          if (res.code === 0) {
+            if (res.data.apiKey !== '') {
+              this.isDisabled = true;
+            }
+            this.actionDetail = res.data || {};
+            const base = { action: { name: '', description: '' }, apiKey: '' };
+            const payload = res.data || {};
+            this.actionDetail = Object.assign({}, base, payload, {
+              action: Object.assign({}, base.action, payload.action || {}),
+              apiKey: typeof payload.apiKey === 'string' ? payload.apiKey : '',
+            });
+            this.apiKey = res.data.apiKey;
+            const { properties, required } =
+              this.actionDetail.action && this.actionDetail.action.inputSchema
+                ? this.actionDetail.action.inputSchema
+                : { properties: {}, required: [] };
+            this.parametersData = this.toParametersData(properties, required);
           }
-          this.actionDetail = res.data || {}
-          const base = { action: { name: '', description: '' }, apiKey: '' }
-          const payload = res.data || {}
-          this.actionDetail = Object.assign({}, base, payload, {
-            action: Object.assign({}, base.action, (payload.action || {})),
-            apiKey: typeof payload.apiKey === 'string' ? payload.apiKey : ''
-          })
-          this.apiKey = res.data.apiKey
-          const {properties,required} = (this.actionDetail.action && this.actionDetail.action.inputSchema) ? this.actionDetail.action.inputSchema : { properties: {}, required: [] };
-          this.parametersData = this.toParametersData(properties,required);
-        }
-      }).catch(() =>{})
+        })
+        .catch(() => {});
     },
-    toParametersData(schemaObject, requiredKeys){
+    toParametersData(schemaObject, requiredKeys) {
       return Object.entries(schemaObject).map(([key, def]) => ({
         key,
         type: def.type,
         description: def.description || '',
-        required: requiredKeys.includes(key)
+        required: requiredKeys.includes(key),
       }));
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-/deep/{
+/deep/ {
   .el-dialog__body {
-    padding:20px!important;
+    padding: 20px !important;
   }
-  .el-dialog__header{
-    padding:10px 20px !important; 
-    height:45px !important;
-    border-bottom:1px solid #dbdbdb;
+  .el-dialog__header {
+    padding: 10px 20px !important;
+    height: 45px !important;
+    border-bottom: 1px solid #dbdbdb;
   }
 }
 
@@ -201,7 +241,7 @@ export default {
     color: #333;
     margin: 0 0 8px 0;
   }
-  
+
   .dialog-subtitle {
     font-size: 14px;
     color: #666;
@@ -210,25 +250,25 @@ export default {
 }
 
 .api-key-section {
-  margin-bottom:15px;
-  display:flex;
+  margin-bottom: 15px;
+  display: flex;
   .api-key-label {
     font-size: 14px;
     font-weight: 500;
     color: #333;
-    min-width:56px;
+    min-width: 56px;
     white-space: nowrap;
   }
-  
+
   .api-key-input-group {
     display: flex;
     align-items: center;
-    flex:1;
+    flex: 1;
     gap: 12px;
     .api-key-input {
       flex: 1;
     }
-    
+
     .api-key-buttons {
       display: flex;
       flex-direction: row;
@@ -251,7 +291,7 @@ export default {
 .dialog-footer {
   text-align: center;
   padding: 20px 0 0 0;
-  
+
   .final-confirm-btn {
     width: 120px;
     height: 40px;

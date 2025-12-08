@@ -1,48 +1,53 @@
-import request from "@/utils/request";
-import {SERVICE_API} from "@/utils/requestConstants"
+import request from '@/utils/request';
+import { SERVICE_API } from '@/utils/requestConstants';
 
-export const uploadChunks = (data, config) => {//切片上传
+export const uploadChunks = (data, config) => {
+  //切片上传
   return request({
     url: `${SERVICE_API}/file/upload`,
-    method: "post",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    method: 'post',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data,
     cancelToken: config,
   });
-}
-export const checkChunks = (data) => {//检测切片
+};
+export const checkChunks = data => {
+  //检测切片
   return request({
     url: `${SERVICE_API}/file/check`,
-    method: "get",
+    method: 'get',
     params: data,
   });
-}
-export const mergeChunks = (data) => {//合并切片
+};
+export const mergeChunks = data => {
+  //合并切片
   return request({
     url: `${SERVICE_API}/file/merge`,
-    method: "post",
-    data
+    method: 'post',
+    data,
   });
-}
-export const clearChunks = (data) => {//清除切片
+};
+export const clearChunks = data => {
+  //清除切片
   return request({
     url: `${SERVICE_API}/file/clean`,
-    method: "post",
-    data
+    method: 'post',
+    data,
   });
-}
-export const delfile = (data) => {//清除切片
+};
+export const delfile = data => {
+  //清除切片
   return request({
     url: `${SERVICE_API}/file/delete`,
-    method: "delete",
-    data
+    method: 'delete',
+    data,
   });
-}
-export const continueChunks = (data) => {//断点续传,获取已经上传的切片
+};
+export const continueChunks = data => {
+  //断点续传,获取已经上传的切片
   return request({
     url: `${SERVICE_API}/file/check/chunk/list`,
-    method: "get",
-    params: data
+    method: 'get',
+    params: data,
   });
-}
-
+};

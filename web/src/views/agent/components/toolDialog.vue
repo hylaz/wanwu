@@ -133,15 +133,15 @@ import {
   mcptoolList,
   mcpActionList,
   getWorkflowList,
-} from "@/api/agent"
+} from '@/api/agent';
 export default {
-  props: ["assistantId"],
+  props: ['assistantId'],
   data() {
     return {
-      toolName: "",
+      toolName: '',
       dialogVisible: false,
       toolIndex: 0,
-      activeValue: "tool",
+      activeValue: 'tool',
       workFlowInfos: [],
       mcpInfos: [],
       customInfos: [],
@@ -151,19 +151,19 @@ export default {
       builtInInfos: [],
       toolList: [
         {
-          value: "tool",
-          name: "工具",
+          value: 'tool',
+          name: '工具',
         },
         {
-          value: "mcp",
-          name: "MCP",
+          value: 'mcp',
+          name: 'MCP',
         },
         {
-          value: "workflow",
-          name: "工作流",
+          value: 'workflow',
+          name: '工作流',
         },
       ],
-    }
+    };
   },
   computed: {
     contentMap() {
@@ -172,98 +172,96 @@ export default {
         builtIn: this.builtInInfos,
         mcp: this.mcpInfos,
         workflow: this.workFlowInfos,
-      }
+      };
     },
   },
   created() {
-    this.getMcpSelect("")
-    this.getWorkflowList("")
-    this.getCustomList("")
+    this.getMcpSelect('');
+    this.getWorkflowList('');
+    this.getCustomList('');
   },
   methods: {
     handleToolChange(id) {
-      let toolId = id[0]
-      if (this.activeValue === "tool") {
+      let toolId = id[0];
+      if (this.activeValue === 'tool') {
         const targetItem = this.customInfos.find(
-          (item) => item.toolId === toolId
-        )
+          item => item.toolId === toolId,
+        );
         if (targetItem) {
-          const { toolId, toolType } = targetItem
+          const { toolId, toolType } = targetItem;
           const index = this.customInfos.findIndex(
-            (item) => item.toolId === toolId
-          )
-          this.getToolAction(toolId, toolType, index)
+            item => item.toolId === toolId,
+          );
+          this.getToolAction(toolId, toolType, index);
         }
-      } else if (this.activeValue === "mcp") {
-        const targetItem = this.mcpInfos.find((item) => item.toolId === toolId)
+      } else if (this.activeValue === 'mcp') {
+        const targetItem = this.mcpInfos.find(item => item.toolId === toolId);
         if (targetItem) {
-          const { toolId, toolType } = targetItem
-          const index = this.mcpInfos.findIndex(
-            (item) => item.toolId === toolId
-          )
-          this.getMcpAction(toolId, toolType, index)
+          const { toolId, toolType } = targetItem;
+          const index = this.mcpInfos.findIndex(item => item.toolId === toolId);
+          this.getMcpAction(toolId, toolType, index);
         }
       }
     },
     getCustomList(name) {
       //获取自定义和内置工具
-      toolList({ name }).then((res) => {
+      toolList({ name }).then(res => {
         if (res.code === 0) {
-          this.customInfos = (res.data.list || []).map((m) => ({
+          this.customInfos = (res.data.list || []).map(m => ({
             ...m,
             loading: false,
             children: [],
-          }))
+          }));
         }
-      })
+      });
     },
     getToolAction(toolId, toolType, index) {
-      this.$set(this.customInfos[index], "loading", true)
+      this.$set(this.customInfos[index], 'loading', true);
       toolActionList({ toolId, toolType })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$set(this.customInfos[index], "children", res.data.actions)
-            this.$set(this.customInfos[index], "loading", false)
-            this.customInfos[index]["children"].forEach((m) => {
+            this.$set(this.customInfos[index], 'children', res.data.actions);
+            this.$set(this.customInfos[index], 'loading', false);
+            this.customInfos[index]['children'].forEach(m => {
               m.checked = this.customList.some(
-                (item) => item.actionName === m.name && item.toolId === toolId
-              )
-            })
+                item => item.actionName === m.name && item.toolId === toolId,
+              );
+            });
           }
         })
         .catch(() => {
-          this.$set(this.customInfos[index], "loading", false)
-        })
+          this.$set(this.customInfos[index], 'loading', false);
+        });
     },
     goCreate() {
-      if (this.activeValue === "tool") {
-        this.$router.push({ path: "/tool?type=tool&mcp=custom" })
-      } else if (this.activeValue === "mcp") {
-        this.$router.push({ path: "/tool?type=mcp&mcp=integrate" })
+      if (this.activeValue === 'tool') {
+        this.$router.push({ path: '/tool?type=tool&mcp=custom' });
+      } else if (this.activeValue === 'mcp') {
+        this.$router.push({ path: '/tool?type=mcp&mcp=integrate' });
       } else {
-        this.$router.push({ path: "/appSpace/workflow" })
+        this.$router.push({ path: '/appSpace/workflow' });
       }
     },
     createText() {
-      if (this.activeValue === "tool") {
-        return "创建自定义工具"
-      } else if (this.activeValue === "mcp") {
-        return "导入MCP"
+      if (this.activeValue === 'tool') {
+        return '创建自定义工具';
+      } else if (this.activeValue === 'mcp') {
+        return '导入MCP';
       } else {
-        return "创建工作流"
+        return '创建工作流';
       }
     },
     openTool(e, item, type, action) {
-      if (!e) return
-      if (type === "workflow") {
-        this.addWorkFlow(item)
-      } else if (type === "mcp") {
-        this.addMcpItem(item, action)
+      if (!e) return;
+      if (type === 'workflow') {
+        this.addWorkFlow(item);
+      } else if (type === 'mcp') {
+        this.addMcpItem(item, action);
       } else {
         if (item.needApiKeyInput && !item.apiKey.length) {
-          this.$message.warning("该内置工具暂未绑定API Key，会导致调用失败!")
+          this.$message.warning('该内置工具暂未绑定API Key，会导致调用失败!');
         }
-        this.addCustomBuiltIn(item, action)
+        this.addCustomBuiltIn(item, action);
       }
     },
     addCustomBuiltIn(n, action) {
@@ -273,14 +271,14 @@ export default {
         actionName: action.name,
         toolId: n.toolId,
         toolType: n.toolType,
-      }).then((res) => {
+      }).then(res => {
         if (res.code === 0) {
-          this.$set(action, "checked", true)
-          this.$forceUpdate()
-          this.$message.success("工具添加成功")
-          this.$emit("updateDetail")
+          this.$set(action, 'checked', true);
+          this.$forceUpdate();
+          this.$message.success('工具添加成功');
+          this.$emit('updateDetail');
         }
-      })
+      });
     },
     addMcpItem(n, action) {
       addMcp({
@@ -288,112 +286,112 @@ export default {
         actionName: action.name,
         mcpId: n.toolId,
         mcpType: n.toolType,
-      }).then((res) => {
+      }).then(res => {
         if (res.code === 0) {
-          this.$set(action, "checked", true)
-          this.$forceUpdate()
-          this.$message.success("工具添加成功")
-          this.$emit("updateDetail")
+          this.$set(action, 'checked', true);
+          this.$forceUpdate();
+          this.$message.success('工具添加成功');
+          this.$emit('updateDetail');
         }
-      })
+      });
     },
     addWorkFlow(n) {
-      his.doCreateWorkFlow(n, n.appId)
+      his.doCreateWorkFlow(n, n.appId);
     },
     async doCreateWorkFlow(n, workFlowId, schema) {
       let params = {
         assistantId: this.assistantId,
         workFlowId,
-      }
-      let res = await addWorkFlowInfo(params)
+      };
+      let res = await addWorkFlowInfo(params);
       if (res.code === 0) {
-        n.checked = true
-        this.$message.success(this.$t("agent.addPluginTips"))
-        this.$emit("updateDetail")
+        n.checked = true;
+        this.$message.success(this.$t('agent.addPluginTips'));
+        this.$emit('updateDetail');
       }
     },
     searchTool() {
-      if (this.activeValue === "tool") {
-        this.getCustomList(this.toolName)
-      } else if (this.activeValue === "mcp") {
-        this.getMcpSelect(this.toolName)
+      if (this.activeValue === 'tool') {
+        this.getCustomList(this.toolName);
+      } else if (this.activeValue === 'mcp') {
+        this.getMcpSelect(this.toolName);
       } else {
-        this.getWorkflowList(this.toolName)
+        this.getWorkflowList(this.toolName);
       }
     },
     getMcpSelect(name) {
       //获取mcp工具
-      mcptoolList({ name }).then((res) => {
+      mcptoolList({ name }).then(res => {
         if (res.code === 0) {
-          this.mcpInfos = (res.data.list || []).map((m) => ({
+          this.mcpInfos = (res.data.list || []).map(m => ({
             ...m,
             children: [],
             loading: false,
-          }))
+          }));
         }
-      })
+      });
     },
     getMcpAction(toolId, toolType, index) {
-      this.$set(this.mcpInfos[index], "loading", true)
+      this.$set(this.mcpInfos[index], 'loading', true);
       mcpActionList({ toolId, toolType })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$set(this.mcpInfos[index], "children", res.data.actions)
-            this.$set(this.mcpInfos[index], "loading", false)
-            this.mcpInfos[index]["children"].forEach((m) => {
+            this.$set(this.mcpInfos[index], 'children', res.data.actions);
+            this.$set(this.mcpInfos[index], 'loading', false);
+            this.mcpInfos[index]['children'].forEach(m => {
               m.checked = this.mcpList.some(
-                (item) => item.actionName === m.name && item.mcpId === toolId
-              )
-            })
+                item => item.actionName === m.name && item.mcpId === toolId,
+              );
+            });
           }
         })
         .catch(() => {
-          this.$set(this.mcpInfos[index], "loading", false)
-        })
+          this.$set(this.mcpInfos[index], 'loading', false);
+        });
     },
     getWorkflowList(name) {
-      getWorkflowList({ name }).then((res) => {
+      getWorkflowList({ name }).then(res => {
         if (res.code === 0) {
-          this.workFlowInfos = (res.data.list || []).map((m) => ({
+          this.workFlowInfos = (res.data.list || []).map(m => ({
             ...m,
             checked: this.workFlowList.some(
-              (item) => item.workFlowId === m.appId
+              item => item.workFlowId === m.appId,
             ),
-          }))
+          }));
         }
-      })
+      });
     },
     showDialog(row) {
-      this.dialogVisible = true
-      this.setWorkflow(row.workFlowInfos)
-      this.mcpList = row.mcpInfos || []
-      this.workFlowList = row.workFlowInfos || []
-      this.customList = row.customInfos || []
+      this.dialogVisible = true;
+      this.setWorkflow(row.workFlowInfos);
+      this.mcpList = row.mcpInfos || [];
+      this.workFlowList = row.workFlowInfos || [];
+      this.customList = row.customInfos || [];
     },
     setWorkflow(data) {
-      this.workFlowInfos = this.workFlowInfos.map((m) => ({
+      this.workFlowInfos = this.workFlowInfos.map(m => ({
         ...m,
-        checked: data.some((item) => item.workFlowId === m.appId),
-      }))
+        checked: data.some(item => item.workFlowId === m.appId),
+      }));
     },
     handleClose() {
-      this.toolIndex = -1
-      this.activeValue = "tool"
-      this.dialogVisible = false
+      this.toolIndex = -1;
+      this.activeValue = 'tool';
+      this.dialogVisible = false;
     },
     clickTool(item, i) {
-      this.toolIndex = i
-      this.activeValue = item.value
-      if (this.activeValue === "tool") {
-        this.getCustomList("")
-      } else if (this.activeValue === "mcp") {
-        this.getMcpSelect("")
+      this.toolIndex = i;
+      this.activeValue = item.value;
+      if (this.activeValue === 'tool') {
+        this.getCustomList('');
+      } else if (this.activeValue === 'mcp') {
+        this.getMcpSelect('');
       } else {
-        this.getWorkflowList("")
+        this.getWorkflowList('');
       }
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 /deep/ {

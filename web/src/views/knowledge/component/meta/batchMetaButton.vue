@@ -21,7 +21,11 @@
         <span class="item-text">{{ $t('metaData.batchDelete') }}</span>
       </div>
       <div class="toolbar-divider" v-if="type === 'knowledge'"></div>
-      <div class="toolbar-item"  v-if="type === 'knowledge'" @click="handleBatchExport">
+      <div
+        class="toolbar-item"
+        v-if="type === 'knowledge'"
+        @click="handleBatchExport"
+      >
         <span class="item-text">{{ $t('metaData.batchExport') }}</span>
       </div>
       <div class="toolbar-divider"></div>
@@ -38,12 +42,12 @@ export default {
   props: {
     selectedCount: {
       type: Number,
-      default: 0
+      default: 0,
     },
     type: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   methods: {
     handleMetadata() {
@@ -57,8 +61,8 @@ export default {
     },
     handleCancel() {
       this.$emit('handleMetaCancel');
-    }
-  }
+    },
+  },
 };
 </script>
 

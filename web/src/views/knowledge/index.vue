@@ -2,7 +2,7 @@
   <div class="page-wrapper">
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/knowledge.svg" alt="" />
-      <span class="page-title-name">{{ $t("knowledgeManage.knowledge") }}</span>
+      <span class="page-title-name">{{ $t('knowledgeManage.knowledge') }}</span>
     </div>
     <div style="padding: 20px">
       <div class="knowledge-tabs">
@@ -10,13 +10,13 @@
           :class="['knowledge-tab', { active: category === 0 }]"
           @click="tabClick(0)"
         >
-          {{ $t("menu.knowledge") }}
+          {{ $t('menu.knowledge') }}
         </div>
         <div
           :class="['knowledge-tab', { active: category === 1 }]"
           @click="tabClick(1)"
         >
-          {{ $t("knowledgeManage.qaDatabase.name") }}
+          {{ $t('knowledgeManage.qaDatabase.name') }}
         </div>
       </div>
       <div class="search-box">
@@ -55,7 +55,7 @@
             @click="$router.push('/knowledge/keyword')"
             v-if="category === 0"
           >
-            {{ $t("knowledgeManage.keyWordManage") }}
+            {{ $t('knowledgeManage.keyWordManage') }}
           </el-button>
           <el-button
             size="mini"
@@ -63,7 +63,7 @@
             @click="showCreate()"
             icon="el-icon-plus"
           >
-            {{ $t("common.button.create") }}
+            {{ $t('common.button.create') }}
           </el-button>
         </div>
       </div>
@@ -85,17 +85,17 @@
   </div>
 </template>
 <script>
-import { getKnowledgeList, tagList, exportDoc } from "@/api/knowledge"
-import SearchInput from "@/components/searchInput.vue"
-import knowledgeList from "./component/knowledgeList.vue"
-import createKnowledge from "./component/create.vue"
-import { qaDocExport } from "@/api/qaDatabase"
+import { getKnowledgeList, tagList, exportDoc } from '@/api/knowledge';
+import SearchInput from '@/components/searchInput.vue';
+import knowledgeList from './component/knowledgeList.vue';
+import createKnowledge from './component/create.vue';
+import { qaDocExport } from '@/api/qaDatabase';
 export default {
   components: { SearchInput, knowledgeList, createKnowledge },
   provide() {
     return {
       reloadKnowledgeData: this.getTableData,
-    }
+    };
   },
   data() {
     return {
@@ -104,85 +104,85 @@ export default {
       tagOptions: [],
       tagIds: [],
       category: 0,
-    }
+    };
   },
   beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      vm.handleRouteFrom(from)
-    })
+    next(vm => {
+      vm.handleRouteFrom(from);
+    });
   },
   mounted() {
-    this.getTableData()
-    this.getList()
+    this.getTableData();
+    this.getList();
   },
   methods: {
     handleRouteFrom(from) {
-      if (from.path.includes("/qa/docList")) {
-        this.category = 1
+      if (from.path.includes('/qa/docList')) {
+        this.category = 1;
       } else {
-        this.category = 0
+        this.category = 0;
       }
     },
     tabClick(status) {
-      this.category = status
-      this.getTableData()
+      this.category = status;
+      this.getTableData();
     },
     getList() {
-      tagList({ knowledgeId: "", tagName: "" }).then((res) => {
+      tagList({ knowledgeId: '', tagName: '' }).then(res => {
         if (res.code === 0) {
-          this.tagOptions = res.data.knowledgeTagList || []
+          this.tagOptions = res.data.knowledgeTagList || [];
         }
-      })
+      });
     },
     tagChange(val) {
       if (!val && this.tagIds.length > 0) {
-        this.getTableData()
+        this.getTableData();
       } else {
-        this.getList()
+        this.getList();
       }
     },
     removeTag() {
-      this.getTableData()
+      this.getTableData();
     },
     getTableData() {
-      const searchInput = this.$refs.searchInput.value
-      this.tableLoading = true
+      const searchInput = this.$refs.searchInput.value;
+      this.tableLoading = true;
       getKnowledgeList({
         name: searchInput,
         tagId: this.tagIds,
         category: this.category,
       })
-        .then((res) => {
-          this.knowledgeData = res.data.knowledgeList || []
-          this.tableLoading = false
+        .then(res => {
+          this.knowledgeData = res.data.knowledgeList || [];
+          this.tableLoading = false;
         })
-        .catch((error) => {
-          this.tableLoading = false
-          this.$message.error(error)
-        })
+        .catch(error => {
+          this.tableLoading = false;
+          this.$message.error(error);
+        });
     },
     clearIptValue() {
-      this.$refs.searchInput.clearValue()
+      this.$refs.searchInput.clearValue();
     },
     editItem(row) {
-      this.$refs.createKnowledge.showDialog(row)
+      this.$refs.createKnowledge.showDialog(row);
     },
     exportItem(row) {
       const params = {
         knowledgeId: row.knowledgeId,
-      }
-      const exportApi = this.category === 0 ? exportDoc : qaDocExport
-      exportApi(params).then((res) => {
+      };
+      const exportApi = this.category === 0 ? exportDoc : qaDocExport;
+      exportApi(params).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t("common.message.success"))
+          this.$message.success(this.$t('common.message.success'));
         }
-      })
+      });
     },
     showCreate(row) {
-      this.$refs.createKnowledge.showDialog(row)
+      this.$refs.createKnowledge.showDialog(row);
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .search-box {

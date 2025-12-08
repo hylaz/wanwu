@@ -1,113 +1,112 @@
-import request from "@/utils/request";
-import {USER_API} from "@/utils/requestConstants"
+import request from '@/utils/request';
+import { USER_API } from '@/utils/requestConstants';
 
 // 生成apikey
-export const createApiKey = (data) => {
+export const createApiKey = data => {
   return request({
     url: `${USER_API}/appspace/app/key`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 // 删除apikey
-export const delApiKey = (data) => {
+export const delApiKey = data => {
   return request({
     url: `${USER_API}/appspace/app/key`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 // 获取apikey列表
-export const getApiKeyList = (params) => {
+export const getApiKeyList = params => {
   return request({
     url: `${USER_API}/appspace/app/key/list`,
     method: 'get',
-    params
-  })
+    params,
+  });
 };
 // 获取apikey根地址
-export const getApiKeyRoot = (params) => {
+export const getApiKeyRoot = params => {
   return request({
     url: `${USER_API}/appspace/app/url`,
     method: 'get',
-    params
-  })
+    params,
+  });
 };
 
 // 获取智能体/文本问答/工作流列表
-export const getAppSpaceList = (params) => {
+export const getAppSpaceList = params => {
   return request({
     url: `${USER_API}/appspace/app/list`,
     method: 'get',
-    params
-  })
-}
+    params,
+  });
+};
 
 //发布app
-export const appPublish = (data) => {
+export const appPublish = data => {
   return request({
     url: `${USER_API}/appspace/app/publish`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 
 // 取消发布app
-export const appCancelPublish = (data) => {
+export const appCancelPublish = data => {
   return request({
     url: `${USER_API}/appspace/app/publish`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 
 //统一删除工作室应用接口
-export const deleteApp = (data) => {
+export const deleteApp = data => {
   return request({
     url: `${USER_API}/appspace/app`,
     method: 'delete',
-    data
-  })
+    data,
+  });
 };
 
 //智能体模版
-export const agnetTemplateList = (params) => {
+export const agnetTemplateList = params => {
   return request({
     url: `${USER_API}/assistant/template/list`,
     method: 'get',
-    params
-  })
+    params,
+  });
 };
 //复制智能体
-export const copyAgnetTemplate = (data) => {
+export const copyAgnetTemplate = data => {
   return request({
     url: `${USER_API}/assistant/template`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 //智能体模版详情
-export const agnetTemplateDetail = (params) => {
+export const agnetTemplateDetail = params => {
   return request({
     url: `${USER_API}/assistant/template`,
     method: 'get',
-    params
-  })
+    params,
+  });
 };
 //复制文本问答应用
-export const copyTextQues = (data) => {
+export const copyTextQues = data => {
   return request({
     url: `${USER_API}/appspace/rag/copy`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
 //复制智能体应用
-export const copyAgentApp = (data) => {
+export const copyAgentApp = data => {
   return request({
     url: `${USER_API}/assistant/copy`,
     method: 'post',
-    data
-  })
+    data,
+  });
 };
-

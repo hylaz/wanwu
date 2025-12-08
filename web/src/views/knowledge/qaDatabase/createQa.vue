@@ -47,20 +47,20 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleClose">
-        {{ $t("common.confirm.cancel") }}
+        {{ $t('common.confirm.cancel') }}
       </el-button>
       <el-button type="primary" @click="submitForm" :loading="loading">
-        {{ $t("common.confirm.confirm") }}
+        {{ $t('common.confirm.confirm') }}
       </el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
-import {addQaPair, editQaPair} from "@/api/qaDatabase";
+import { addQaPair, editQaPair } from '@/api/qaDatabase';
 
 export default {
-  name: "CreateQa",
+  name: 'CreateQa',
   props: {
     knowledgeId: {
       type: String,
@@ -74,36 +74,36 @@ export default {
       isEdit: false,
       editId: null,
       ruleForm: {
-        question: "",
-        answer: "",
+        question: '',
+        answer: '',
       },
       rules: {
         question: [
           {
             required: true,
-            message: this.$t("common.input.placeholder"),
-            trigger: "blur",
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
           },
           {
             max: 200,
             message:
-              this.$t("knowledgeManage.qaDatabase.question") +
-              this.$t("common.hint.descLimit"),
-            trigger: "blur",
+              this.$t('knowledgeManage.qaDatabase.question') +
+              this.$t('common.hint.descLimit'),
+            trigger: 'blur',
           },
         ],
         answer: [
           {
             required: true,
-            message: this.$t("common.input.placeholder"),
-            trigger: "blur",
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
           },
           {
             max: 5000,
             message:
-              this.$t("knowledgeManage.qaDatabase.answer") +
-              this.$t("common.hint.descLimit"),
-            trigger: "blur",
+              this.$t('knowledgeManage.qaDatabase.answer') +
+              this.$t('common.hint.descLimit'),
+            trigger: 'blur',
           },
         ],
       },
@@ -118,8 +118,8 @@ export default {
         // 编辑模式，填充数据
         this.editId = row.qaPairId;
         this.ruleForm = {
-          question: row.question || "",
-          answer: row.answer || "",
+          question: row.question || '',
+          answer: row.answer || '',
         };
       } else {
         // 创建模式，重置表单
@@ -135,8 +135,8 @@ export default {
     },
     resetForm() {
       this.ruleForm = {
-        question: "",
-        answer: "",
+        question: '',
+        answer: '',
       };
       this.editId = null;
       this.isEdit = false;
@@ -149,7 +149,7 @@ export default {
       }
     },
     submitForm() {
-      this.$refs.ruleForm.validate((valid) => {
+      this.$refs.ruleForm.validate(valid => {
         if (valid) {
           this.loading = true;
           const baseData = {
@@ -158,23 +158,22 @@ export default {
           };
 
           const apiCall = this.isEdit
-            ? editQaPair({...baseData, qaPairId: this.editId})
-            : addQaPair({...baseData, knowledgeId: this.knowledgeId});
+            ? editQaPair({ ...baseData, qaPairId: this.editId })
+            : addQaPair({ ...baseData, knowledgeId: this.knowledgeId });
 
           apiCall
-            .then((res) => {
+            .then(res => {
               if (res.code === 0) {
                 this.$message.success(
                   this.isEdit
-                    ? this.$t("common.info.edit")
-                    : this.$t("common.info.create")
+                    ? this.$t('common.info.edit')
+                    : this.$t('common.info.create'),
                 );
                 this.handleClose();
-                this.$emit("updateData");
+                this.$emit('updateData');
               }
             })
-            .catch(() => {
-            })
+            .catch(() => {})
             .finally(() => {
               this.loading = false;
             });
@@ -248,4 +247,3 @@ export default {
   }
 }
 </style>
-

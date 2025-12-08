@@ -7,7 +7,7 @@
         @click="addMetaItem"
         size="small"
       >
-        {{ $t("metaSet.add") }}
+        {{ $t('metaSet.add') }}
       </el-button>
       <el-switch
         v-model="metaDataFilterParams.filterEnable"
@@ -148,14 +148,14 @@
   </div>
 </template>
 <script>
-import { metaSelect } from "@/api/knowledge";
+import { metaSelect } from '@/api/knowledge';
 
 export default {
   props: {
     knowledgeId: {
       type: String,
       required: true,
-      default: "",
+      default: '',
     },
     currentMetaData: {
       type: Object,
@@ -166,109 +166,109 @@ export default {
     return {
       metaDataFilterParams: {
         filterEnable: false,
-        filterLogicType: "and",
+        filterLogicType: 'and',
         metaFilterParams: [],
       },
       keyOptions: [],
       conditions: [
         {
-          value: "and",
-          label: this.$t("metaSet.and"),
+          value: 'and',
+          label: this.$t('metaSet.and'),
         },
         {
-          value: "or",
-          label: this.$t("metaSet.or"),
+          value: 'or',
+          label: this.$t('metaSet.or'),
         },
       ],
       conditionOptions: {
         time: [
           {
-            value: "is",
-            label: this.$t("metaSet.is"),
+            value: 'is',
+            label: this.$t('metaSet.is'),
           },
           {
-            value: "before",
-            label: this.$t("metaSet.before"),
+            value: 'before',
+            label: this.$t('metaSet.before'),
           },
           {
-            value: "after",
-            label: this.$t("metaSet.after"),
+            value: 'after',
+            label: this.$t('metaSet.after'),
           },
           {
-            value: "empty",
-            label: this.$t("metaSet.empty"),
+            value: 'empty',
+            label: this.$t('metaSet.empty'),
           },
           {
-            value: "not empty",
-            label: this.$t("metaSet.notEmpty"),
+            value: 'not empty',
+            label: this.$t('metaSet.notEmpty'),
           },
         ],
         string: [
           {
-            value: "is",
-            label: this.$t("metaSet.is"),
+            value: 'is',
+            label: this.$t('metaSet.is'),
           },
           {
-            value: "is not",
-            label: this.$t("metaSet.not"),
+            value: 'is not',
+            label: this.$t('metaSet.not'),
           },
           {
-            value: "contains",
-            label: this.$t("metaSet.contains"),
+            value: 'contains',
+            label: this.$t('metaSet.contains'),
           },
           {
-            value: "not contains",
-            label: this.$t("metaSet.notContains"),
+            value: 'not contains',
+            label: this.$t('metaSet.notContains'),
           },
           {
-            value: "start with",
-            label: this.$t("metaSet.startsWith"),
+            value: 'start with',
+            label: this.$t('metaSet.startsWith'),
           },
           {
-            value: "end with",
-            label: this.$t("metaSet.endsWith"),
+            value: 'end with',
+            label: this.$t('metaSet.endsWith'),
           },
           {
-            value: "empty",
-            label: this.$t("metaSet.empty"),
+            value: 'empty',
+            label: this.$t('metaSet.empty'),
           },
           {
-            value: "not empty",
-            label: this.$t("metaSet.notEmpty"),
+            value: 'not empty',
+            label: this.$t('metaSet.notEmpty'),
           },
         ],
         number: [
           {
-            value: "=",
-            label: this.$t("metaSet.equal"),
+            value: '=',
+            label: this.$t('metaSet.equal'),
           },
           {
-            value: "≠",
-            label: this.$t("metaSet.notEqual"),
+            value: '≠',
+            label: this.$t('metaSet.notEqual'),
           },
           {
-            value: ">",
-            label: this.$t("metaSet.moreThan"),
+            value: '>',
+            label: this.$t('metaSet.moreThan'),
           },
           {
-            value: "≥",
-            label: this.$t("metaSet.moreThanOrEqual"),
+            value: '≥',
+            label: this.$t('metaSet.moreThanOrEqual'),
           },
           {
-            value: "<",
-            label: this.$t("metaSet.lessThan"),
+            value: '<',
+            label: this.$t('metaSet.lessThan'),
           },
           {
-            value: "≤",
-            label: this.$t("metaSet.lessThanOrEqual"),
+            value: '≤',
+            label: this.$t('metaSet.lessThanOrEqual'),
           },
           {
-            value: "empty",
-            label: this.$t("metaSet.empty"),
+            value: 'empty',
+            label: this.$t('metaSet.empty'),
           },
           {
-            value: "not empty",
-            label: this.$t("metaSet.notEmpty"),
+            value: 'not empty',
+            label: this.$t('metaSet.notEmpty'),
           },
         ],
       },
@@ -280,7 +280,7 @@ export default {
         if (val === null) {
           this.metaDataFilterParams = {
             filterEnable: false,
-            filterLogicType: "and",
+            filterLogicType: 'and',
             metaFilterParams: [],
           };
           return;
@@ -316,12 +316,12 @@ export default {
       }
     },
     conditionChange(e, item) {
-      item.value = "";
+      item.value = '';
     },
     getMetaData() {
       this.metaDataFilterParams.metaFilterParams =
-        this.metaDataFilterParams.metaFilterParams.map((item) => {
-          if (item.type === "time") {
+        this.metaDataFilterParams.metaFilterParams.map(item => {
+          if (item.type === 'time') {
             return {
               ...item,
               value: String(item.value),
@@ -332,18 +332,18 @@ export default {
       return { metaDataFilterParams: this.metaDataFilterParams };
     },
     getList() {
-      metaSelect({ knowledgeId: this.knowledgeId }).then((res) => {
+      metaSelect({ knowledgeId: this.knowledgeId }).then(res => {
         if (res.code === 0) {
           this.keyOptions = res.data.knowledgeMetaList || [];
         }
       });
     },
     metaValueBlur(item) {
-      if (item.condition === "empty" || item.condition === "not empty") {
+      if (item.condition === 'empty' || item.condition === 'not empty') {
         return true;
       } else {
         if (!item.value) {
-          this.$message.warning(this.$t("metaSet.valuePlaceholder"));
+          this.$message.warning(this.$t('metaSet.valuePlaceholder'));
           return;
         }
       }
@@ -351,65 +351,65 @@ export default {
     isEmpty(value) {
       if (
         value === null ||
-        value === "null" ||
+        value === 'null' ||
         value === undefined ||
-        value === ""
+        value === ''
       )
         return true;
       return false;
     },
     validateRequiredFields(data) {
-      return data.some((field) => {
+      return data.some(field => {
         if (
           field &&
-          typeof field === "object" &&
-          (field.condition === "empty" || field.condition === "not empty")
+          typeof field === 'object' &&
+          (field.condition === 'empty' || field.condition === 'not empty')
         ) {
           return false;
         }
-        if (field && typeof field === "object" && "value" in field) {
+        if (field && typeof field === 'object' && 'value' in field) {
           return this.isEmpty(field.value);
         }
       });
     },
     addMetaItem() {
       if (this.metaDataFilterParams.filterEnable === false) {
-        this.$message.warning(this.$t("metaSet.filterEnable"));
+        this.$message.warning(this.$t('metaSet.filterEnable'));
         return;
       }
       if (this.metaDataFilterParams.metaFilterParams.length > 0) {
         if (
           this.validateRequiredFields(
-            this.metaDataFilterParams.metaFilterParams
+            this.metaDataFilterParams.metaFilterParams,
           )
         ) {
-          this.$message.warning(this.$t("metaSet.filterValidate"));
+          this.$message.warning(this.$t('metaSet.filterValidate'));
           return;
         }
       }
       this.metaDataFilterParams.metaFilterParams.push({
-        key: "",
-        type: "",
-        condition: "",
-        value: "",
+        key: '',
+        type: '',
+        condition: '',
+        value: '',
       });
     },
     clearData() {
       this.metaDataFilterParams.metaFilterParams = [];
-      this.metaDataFilterParams.filterLogicType = "and";
+      this.metaDataFilterParams.filterLogicType = 'and';
       this.metaDataFilterParams.filterEnable = false;
     },
     keyChange(val, item) {
-      item.value = "";
-      item.condition = "";
+      item.value = '';
+      item.condition = '';
       item.type = this.keyOptions
-        .filter((i) => i.metaKey === val)
-        .map((e) => e.metaValueType)[0];
+        .filter(i => i.metaKey === val)
+        .map(e => e.metaValueType)[0];
     },
     delMetaItem(index) {
       this.metaDataFilterParams.metaFilterParams.splice(index, 1);
       if (this.metaDataFilterParams.metaFilterParams.length === 0) {
-        this.metaDataFilterParams.filterLogicType = "and";
+        this.metaDataFilterParams.filterLogicType = 'and';
       }
     },
   },
@@ -430,8 +430,8 @@ export default {
     align-items: center;
     justify-content: center;
   }
-  .el-input__inner{
-    padding: 15px 20px 15px 30px!important;
+  .el-input__inner {
+    padding: 15px 20px 15px 30px !important;
   }
 
   .el-icon-time {
@@ -464,7 +464,7 @@ export default {
     }
 
     .docMetaContainer::after {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       left: -20px;

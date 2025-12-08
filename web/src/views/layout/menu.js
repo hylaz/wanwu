@@ -1,5 +1,5 @@
-import { PERMS } from "@/router/permission"
-import { i18n } from '@/lang'
+import { PERMS } from '@/router/permission';
+import { i18n } from '@/lang';
 
 export const menuList = [
   {
@@ -36,7 +36,7 @@ export const menuList = [
   },
   {
     key: 'line',
-    perm: [PERMS.MODEL, PERMS.KNOWLEDGE, PERMS.TOOL]
+    perm: [PERMS.MODEL, PERMS.KNOWLEDGE, PERMS.TOOL],
   },
   {
     name: i18n.t('menu.app.rag'),
@@ -44,7 +44,7 @@ export const menuList = [
     img: require('@/assets/imgs/rag.svg'),
     imgActive: require('@/assets/imgs/rag_active.svg'),
     path: '/appSpace/rag',
-    perm: PERMS.RAG
+    perm: PERMS.RAG,
   },
   {
     name: i18n.t('menu.app.workflow'),
@@ -52,7 +52,7 @@ export const menuList = [
     img: require('@/assets/imgs/workflow_icon.svg'),
     imgActive: require('@/assets/imgs/workflow_icon_active.svg'),
     path: '/appSpace/workflow',
-    perm: PERMS.WORKFLOW
+    perm: PERMS.WORKFLOW,
   },
   {
     name: i18n.t('menu.app.agent'),
@@ -60,11 +60,11 @@ export const menuList = [
     img: require('@/assets/imgs/agent.svg'),
     imgActive: require('@/assets/imgs/agent_active.svg'),
     path: '/appSpace/agent',
-    perm: PERMS.AGENT
+    perm: PERMS.AGENT,
   },
   {
     key: 'line',
-    perm: [PERMS.RAG, PERMS.WORKFLOW, PERMS.AGENT]
+    perm: [PERMS.RAG, PERMS.WORKFLOW, PERMS.AGENT],
   },
   {
     name: i18n.t('menu.mcp'),
@@ -80,7 +80,7 @@ export const menuList = [
     img: require('@/assets/imgs/explore.svg'),
     imgActive: require('@/assets/imgs/explore_active.svg'),
     path: '/explore',
-    perm: PERMS.EXPLORE
+    perm: PERMS.EXPLORE,
   },
   {
     name: i18n.t('menu.templateSquare'),
@@ -89,4 +89,4 @@ export const menuList = [
     imgActive: require('@/assets/imgs/template_square_active.svg'),
     path: '/templateSquare',
   },
-]
+];

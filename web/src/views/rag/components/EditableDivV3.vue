@@ -16,7 +16,7 @@
           <source :src="fileUrl" type="video/mp3" />
           <source :src="fileUrl" type="audio/ogg" />
           <source :src="fileUrl" type="audio/mpeg" />
-          {{ $t("editavleDiv.autioTips") }}
+          {{ $t('editavleDiv.autioTips') }}
         </audio>
         <i class="el-icon-close echo-close" @click="clearFile"></i>
       </div>
@@ -24,13 +24,13 @@
         <img :src="require('@/assets/imgs/docFile.png')" class="docIcon" />
         <div class="docInfo">
           <p class="docInfo_name">
-            {{ $t("knowledgeManage.fileName") }}：{{ fileList[0]["name"] }}
+            {{ $t('knowledgeManage.fileName') }}：{{ fileList[0]['name'] }}
           </p>
           <p class="docInfo_size">
-            {{ $t("knowledgeManage.fileSize") }}：{{
-              fileList[0]["size"] > 1024
-                ? (fileList[0]["size"] / (1024 * 1024)).toFixed(2) + " MB"
-                : fileList[0]["size"] + " bytes"
+            {{ $t('knowledgeManage.fileSize') }}：{{
+              fileList[0]['size'] > 1024
+                ? (fileList[0]['size'] / (1024 * 1024)).toFixed(2) + ' MB'
+                : fileList[0]['size'] + ' bytes'
             }}
           </p>
         </div>
@@ -65,11 +65,11 @@
               @click="linkSearch"
               v-if="showModelSelect && !isPower && isLink"
             >
-              {{ $t("editavleDiv.connectInternect") }}
+              {{ $t('editavleDiv.connectInternect') }}
             </el-button>
             <!-- <img class="editable--send" :src="require('@/assets/imgs/send.png')" @click="preSend" /> -->
             <el-button type="primary" class="editable--send" @click="preSend"
-              ><span>{{ $t("agent.send") }}</span>
+              ><span>{{ $t('agent.send') }}</span>
               <img :src="require('@/assets/imgs/sendIcon.png')"
             /></el-button>
           </div>
@@ -106,7 +106,9 @@
           </el-popover>
         </div>
         <span class="refresh" @click="getReminderList">
-          <i class="el-icon-loading" v-show="refreshLoading"></i>&nbsp;{{ $t("agent.next") }}
+          <i class="el-icon-loading" v-show="refreshLoading"></i>&nbsp;{{
+            $t('agent.next')
+          }}
         </span>
       </div>
     </transition>
@@ -121,7 +123,7 @@
 </template>
 
 <script>
-import uploadDialog from "./uploadBatchDialog"
+import uploadDialog from './uploadBatchDialog';
 export default {
   props: {
     source: { type: String },
@@ -129,14 +131,14 @@ export default {
       type: Array,
       required: false,
       default: () => {
-        return []
+        return [];
       },
     },
     showModelSelect: { type: Boolean, default: true },
     currentModel: {
       type: Object,
       default: () => {
-        return null
+        return null;
       },
     },
     isModelDisable: { type: Boolean, default: false },
@@ -146,223 +148,224 @@ export default {
     return {
       basePath: this.$basePath,
       isActive: false,
-      isPower: this.$platform === "YWD_RAG" || this.$platform === "HW_RAG",
+      isPower: this.$platform === 'YWD_RAG' || this.$platform === 'HW_RAG',
       isLink: false,
       modelParams: null,
       modleOptions: [],
       colorArr: [
-        "#dca3c2",
-        "#aaa9db",
-        "#d1a69b",
-        "#7894cf",
-        "#4fbed9",
-        "#ebb8bd",
-        "#9b9655",
-        "#3bb4b7",
-        "#61aac5",
-        "#d79ae5",
-        "#51a2da",
-        "#89b0f9",
-        "#738cbd",
+        '#dca3c2',
+        '#aaa9db',
+        '#d1a69b',
+        '#7894cf',
+        '#4fbed9',
+        '#ebb8bd',
+        '#9b9655',
+        '#3bb4b7',
+        '#61aac5',
+        '#d79ae5',
+        '#51a2da',
+        '#89b0f9',
+        '#738cbd',
       ],
-      placeholder: "请输入内容,用Ctrl+Enter可换行",
-      promptHtml: "",
-      promptValue: "",
+      placeholder: '请输入内容,用Ctrl+Enter可换行',
+      promptHtml: '',
+      promptValue: '',
       randomReminderList: [], //随机8个提示词
       randomReminderShow: false,
       refreshLoading: false,
       //文件
       hasFile: false,
       fileIdList: [],
-      fileType: "",
+      fileType: '',
       fileList: [],
-      fileUrl: "",
-      modelType: "",
-    }
+      fileUrl: '',
+      modelType: '',
+    };
   },
   methods: {
     linkSearch() {
-      this.isActive = !this.isActive
+      this.isActive = !this.isActive;
     },
     showBigImg(url) {
-      console.log(url)
+      console.log(url);
     },
     clearFile() {
-      this.fileIdList = []
-      this.fileList = []
-      this.fileType = ""
-      this.fileUrl = ""
-      this.hasFile = false
+      this.fileIdList = [];
+      this.fileList = [];
+      this.fileType = '';
+      this.fileUrl = '';
+      this.hasFile = false;
     },
     /*showFileUpload(status){
       this.hasFile = status
     },*/
     preUpload() {
-      this.$refs["upload"].openDialog()
+      this.$refs['upload'].openDialog();
     },
     setFileId(fileIdList) {
-      this.fileIdList = fileIdList
-      this.fileUrl = fileIdList[0].downloadUrl
+      this.fileIdList = fileIdList;
+      this.fileUrl = fileIdList[0].downloadUrl;
 
-      let fileType = this.fileUrl.split(".")[this.fileUrl.split(".").length - 1]
+      let fileType =
+        this.fileUrl.split('.')[this.fileUrl.split('.').length - 1];
       if (
-        ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"].includes(fileType)
+        ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'].includes(fileType)
       ) {
-        this.fileType = "image/*"
+        this.fileType = 'image/*';
       }
-      if (["mp3", "wav"].includes(fileType)) {
-        this.fileType = "audio/*"
+      if (['mp3', 'wav'].includes(fileType)) {
+        this.fileType = 'audio/*';
       }
       if (
-        ["txt", "csv", "xlsx", "doc", "docx", "html", "pptx", "pdf"].includes(
-          fileType
+        ['txt', 'csv', 'xlsx', 'doc', 'docx', 'html', 'pptx', 'pdf'].includes(
+          fileType,
         )
       ) {
-        this.fileType = "doc/*"
+        this.fileType = 'doc/*';
       }
     },
     setFile(fileList) {
-      this.fileList = fileList
+      this.fileList = fileList;
       if (this.fileList.length > 0) {
-        this.hasFile = true
+        this.hasFile = true;
       }
     },
     getFileList() {
-      return this.fileList
+      return this.fileList;
     },
     getFileIdList() {
-      return this.fileIdList
+      return this.fileIdList;
     },
     setRandomReminder(n) {
-      this.setPrompt(n.prompt)
-      this.randomReminderShow = false
+      this.setPrompt(n.prompt);
+      this.randomReminderShow = false;
     },
     clearInput() {
-      this.$refs.editor.innerHTML = ""
-      this.promptHtml = ""
-      this.promptValue = ""
-      this.randomReminderShow && (this.randomReminderShow = false)
+      this.$refs.editor.innerHTML = '';
+      this.promptHtml = '';
+      this.promptValue = '';
+      this.randomReminderShow && (this.randomReminderShow = false);
     },
     getContentInBraces(str) {
-      const regex = /{([^}]+)}/g
-      let match
-      const matches = []
+      const regex = /{([^}]+)}/g;
+      let match;
+      const matches = [];
 
       while ((match = regex.exec(str))) {
-        matches.push(match[1])
+        matches.push(match[1]);
       }
 
-      return matches
+      return matches;
     },
     setPrompt(data) {
-      this.clearInput()
-      this.promptValue = data
+      this.clearInput();
+      this.promptValue = data;
       this.$refs.editor.innerHTML = data
-        .replaceAll("{", '<div class="light-input" contenteditable="true">')
-        .replaceAll("}", "</div>")
+        .replaceAll('{', '<div class="light-input" contenteditable="true">')
+        .replaceAll('}', '</div>');
     },
     getPrompt() {
-      if (this.source === "perfectReminder") {
-        if (this.$refs.editor.innerHTML === "/") {
-          this.getReminderList()
+      if (this.source === 'perfectReminder') {
+        if (this.$refs.editor.innerHTML === '/') {
+          this.getReminderList();
         } else {
-          this.randomReminderShow = false
+          this.randomReminderShow = false;
         }
       }
-      let prompt = this.$refs.editor.innerText
-      this.promptValue = prompt
-      return prompt
+      let prompt = this.$refs.editor.innerText;
+      this.promptValue = prompt;
+      return prompt;
     },
     getPromptBak() {
-      let prompt = ""
-      if (this.source === "perfectReminder") {
-        if (this.$refs.editor.innerHTML === "/") {
-          this.getReminderList()
+      let prompt = '';
+      if (this.source === 'perfectReminder') {
+        if (this.$refs.editor.innerHTML === '/') {
+          this.getReminderList();
         } else {
-          this.randomReminderShow = false
+          this.randomReminderShow = false;
         }
         prompt = this.$refs.editor.innerHTML
-          .replaceAll('<div class="light-input" contenteditable="true">', "")
-          .replaceAll("</div>", "")
-          .replaceAll(" ", "")
+          .replaceAll('<div class="light-input" contenteditable="true">', '')
+          .replaceAll('</div>', '')
+          .replaceAll(' ', '');
       } else {
-        prompt = this.$refs.editor.innerHTML //从对话框复制过来的会换行，临时处理，后期优化
+        prompt = this.$refs.editor.innerHTML; //从对话框复制过来的会换行，临时处理，后期优化
       }
-      let prompt2 = prompt.replace("<div><br></div>", "")
-      this.promptValue = this.$refs.editor.innerHTML
-      return prompt2
+      let prompt2 = prompt.replace('<div><br></div>', '');
+      this.promptValue = this.$refs.editor.innerHTML;
+      return prompt2;
     },
     onBlur() {
       //勿删，定义此方法用于获取焦点
     },
     async getReminderList() {
       //显示8个提示词
-      this.refreshLoading = true
+      this.refreshLoading = true;
       let res = await this.$api.expand.getPerfectReminderV2({
         pageNo: 1,
         pageSize: 1000,
         randomNum: 8,
-      })
+      });
       if (res.code === 0) {
-        this.refreshLoading = false
-        this.randomReminderShow = true
-        this.randomReminderList = res.data.list.map((item) => {
+        this.refreshLoading = false;
+        this.randomReminderShow = true;
+        this.randomReminderList = res.data.list.map(item => {
           return {
             ...item,
             random: parseInt(Math.random(13) * 10),
-          }
-        })
+          };
+        });
       }
     },
     //换行并重新定位光标位置
     textareaRange() {
-      var el = this.$refs.editor
-      var range = document.createRange()
+      var el = this.$refs.editor;
+      var range = document.createRange();
       //返回用户当前的选区
-      var sel = document.getSelection()
+      var sel = document.getSelection();
       //获取当前光标位置
-      var offset = sel.focusOffset
+      var offset = sel.focusOffset;
       //div当前内容
-      var content = el.innerHTML //添加换行符\n
-      el.innerHTML = content.slice(0, offset) + "\n" + content.slice(offset) //设置光标为当前位置
-      range.setStart(el.childNodes[0], offset + 1)
+      var content = el.innerHTML; //添加换行符\n
+      el.innerHTML = content.slice(0, offset) + '\n' + content.slice(offset); //设置光标为当前位置
+      range.setStart(el.childNodes[0], offset + 1);
       //使得选区(光标)开始与结束位置重叠
-      range.collapse(true)
+      range.collapse(true);
       //移除现有其他的选区
-      sel.removeAllRanges()
+      sel.removeAllRanges();
       //加入光标的选区
-      sel.addRange(range)
+      sel.addRange(range);
     },
     //监听按键操作
     textareaKeydown(event) {
       if (event.ctrlKey && event.keyCode === 13) {
         //ctrl+enter
-        this.textareaRange()
+        this.textareaRange();
       } else if (event.keyCode === 13) {
         //enter
-        this.preSend()
-        event.preventDefault() // 阻止浏览器默认换行操作
-        return false
+        this.preSend();
+        event.preventDefault(); // 阻止浏览器默认换行操作
+        return false;
       }
     },
     getModelInfo() {
-      return this.modelParams || null
+      return this.modelParams || null;
     },
     sendUseSearch() {
-      return this.isActive
+      return this.isActive;
     },
     preSend() {
-      this.hasFile = false
-      this.$emit("preSend")
+      this.hasFile = false;
+      this.$emit('preSend');
     },
     goModelList() {
       //跳转到服务管理
       location.href =
         window.location.origin +
-        `${this.$basePath}/aibase/portal/training/releaseTable`
+        `${this.$basePath}/aibase/portal/training/releaseTable`;
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .tips {

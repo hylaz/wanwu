@@ -7,10 +7,20 @@
     >
       <template slot="title">
         <div class="diglog_title">
-          <h3>{{ category === 0 ? $t("knowledgeSelect.title") : $t("app.selectQAdatabase")}}</h3>
+          <h3>
+            {{
+              category === 0
+                ? $t('knowledgeSelect.title')
+                : $t('app.selectQAdatabase')
+            }}
+          </h3>
           <el-input
             v-model="toolName"
-            :placeholder="category === 0 ? $t('knowledgeSelect.searchPlaceholder') : $t('app.qaSearchPlaceholder')"
+            :placeholder="
+              category === 0
+                ? $t('knowledgeSelect.searchPlaceholder')
+                : $t('app.qaSearchPlaceholder')
+            "
             class="tool-input"
             suffix-icon="el-icon-search"
             @keyup.enter.native="searchTool"
@@ -31,8 +41,8 @@
               <span class="meta-text">
                 {{
                   item.share
-                    ? $t("knowledgeManage.public")
-                    : $t("knowledgeManage.private")
+                    ? $t('knowledgeManage.public')
+                    : $t('knowledgeManage.private')
                 }}
               </span>
               <span v-if="item.share" class="meta-text">
@@ -40,7 +50,7 @@
               </span>
             </div>
             <span class="knowledge-createAt">
-              {{ $t("knowledgeSelect.createTime") }} {{ item.createAt }}
+              {{ $t('knowledgeSelect.createTime') }} {{ item.createAt }}
             </span>
           </div>
           <el-button
@@ -49,49 +59,49 @@
             v-if="!item.checked"
             size="small"
           >
-            {{ $t("knowledgeSelect.add") }}
+            {{ $t('knowledgeSelect.add') }}
           </el-button>
           <el-button type="primary" v-else size="small">
-            {{ $t("knowledgeSelect.added") }}
+            {{ $t('knowledgeSelect.added') }}
           </el-button>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">
-          {{ $t("common.button.cancel") }}
+          {{ $t('common.button.cancel') }}
         </el-button>
         <el-button type="primary" @click="submit">
-          {{ $t("common.button.confirm") }}
+          {{ $t('common.button.confirm') }}
         </el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import { getKnowledgeList } from "@/api/knowledge";
+import { getKnowledgeList } from '@/api/knowledge';
 export default {
-  props:['category'],
+  props: ['category'],
   data() {
     return {
       dialogVisible: false,
       knowledgeData: [],
       knowledgeList: [],
       checkedData: [],
-      toolName: "",
+      toolName: '',
     };
   },
   created() {
-    this.getKnowledgeList("");
+    this.getKnowledgeList('');
   },
   methods: {
     getKnowledgeList(name) {
-      getKnowledgeList({ name,category:this.category })
-        .then((res) => {
+      getKnowledgeList({ name, category: this.category })
+        .then(res => {
           if (res.code === 0) {
-            this.knowledgeData = (res.data.knowledgeList || []).map((m) => ({
+            this.knowledgeData = (res.data.knowledgeList || []).map(m => ({
               ...m,
               checked: this.knowledgeList.some(
-                (item) => item.id === m.knowledgeId
+                item => item.id === m.knowledgeId,
               ),
             }));
           }
@@ -111,9 +121,9 @@ export default {
       this.knowledgeList = data || [];
     },
     setKnowledge(data) {
-      this.knowledgeData = this.knowledgeData.map((m) => ({
+      this.knowledgeData = this.knowledgeData.map(m => ({
         ...m,
-        checked: data.some((item) => item.id === m.knowledgeId),
+        checked: data.some(item => item.id === m.knowledgeId),
       }));
     },
     handleClose() {
@@ -121,20 +131,20 @@ export default {
     },
     submit() {
       const data = this.knowledgeData
-        .filter((item) => item.checked)
-        .map((item) => ({
+        .filter(item => item.checked)
+        .map(item => ({
           id: item.knowledgeId,
           name: item.name,
           graphSwitch: item.graphSwitch,
         }));
-      this.$emit("getKnowledgeData", data);
+      this.$emit('getKnowledgeData', data);
       this.dialogVisible = false;
     },
   },
 };
 </script>
 <style lang="scss" scoped>
-@import "@/style/markdown.scss";
+@import '@/style/markdown.scss';
 /deep/ {
   .el-dialog__body {
     padding: 10px 20px;

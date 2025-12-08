@@ -43,7 +43,7 @@
               编辑
             </el-button>
             <el-button size="mini" round @click="handleDel(scope.row)">
-              {{ $t("common.button.delete") }}
+              {{ $t('common.button.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -195,179 +195,179 @@ import {
   editOpenurl,
   createOpenurl,
   switchOpenurl,
-} from "@/api/agent"
+} from '@/api/agent';
 export default {
-  props: ["appId", "appType"],
+  props: ['appId', 'appType'],
   data() {
     return {
       form: {
-        appId: "",
-        appType: "",
-        copyright: "",
+        appId: '',
+        appType: '',
+        copyright: '',
         copyrightEnable: false,
-        disclaimer: "",
+        disclaimer: '',
         disclaimerEnable: false,
-        expiredAt: "",
-        name: "",
-        description: "",
-        privacyPolicy: "",
+        expiredAt: '',
+        name: '',
+        description: '',
+        privacyPolicy: '',
         privacyPolicyEnable: false,
       },
-      title: "创建URL",
+      title: '创建URL',
       dialogVisible: false,
       tableData: [],
-      urlId: "",
-    }
+      urlId: '',
+    };
   },
   created() {
-    this.form.appId = this.appId
-    this.form.appType = this.appType
-    this.getList()
+    this.form.appId = this.appId;
+    this.form.appType = this.appType;
+    this.getList();
   },
   methods: {
     urlBlur() {
-      const text = this.form.privacyPolicy
+      const text = this.form.privacyPolicy;
       if (!this.isValidUrl(text)) {
-        this.$message.warning("链接效验不合格")
-        this.form.privacyPolicy = ""
+        this.$message.warning('链接效验不合格');
+        this.form.privacyPolicy = '';
       }
     },
     isValidUrl(string) {
       const pattern =
-        /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/
-      return pattern.test(string.trim())
+        /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/;
+      return pattern.test(string.trim());
     },
     handleCopy(row) {
-      let text = row.suffix
-      var textareaEl = document.createElement("textarea")
-      textareaEl.setAttribute("readonly", "readonly")
-      textareaEl.value = text
-      document.body.appendChild(textareaEl)
-      textareaEl.select()
-      var res = document.execCommand("copy")
-      document.body.removeChild(textareaEl)
-      return res
+      let text = row.suffix;
+      var textareaEl = document.createElement('textarea');
+      textareaEl.setAttribute('readonly', 'readonly');
+      textareaEl.value = text;
+      document.body.appendChild(textareaEl);
+      textareaEl.select();
+      var res = document.execCommand('copy');
+      document.body.removeChild(textareaEl);
+      return res;
     },
     copycb() {
-      this.$message.success("内容已复制到粘贴板")
+      this.$message.success('内容已复制到粘贴板');
     },
     getList() {
       getOpenurl({ appId: this.appId, appType: this.appType })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.tableData = res.data || []
+            this.tableData = res.data || [];
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     statusChange(status, row) {
       switchOpenurl({ status, urlId: row.urlId })
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success("操作成功")
-            this.getList()
+            this.$message.success('操作成功');
+            this.getList();
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     showDialog(row = null) {
-      this.dialogVisible = true
+      this.dialogVisible = true;
       if (row === null) {
-        this.title = "创建URL"
-        this.urlId = ""
+        this.title = '创建URL';
+        this.urlId = '';
         this.$nextTick(() => {
           if (this.$refs.form) {
-            this.$refs.form.resetFields()
-            this.$refs.form.clearValidate()
-            this.clear()
+            this.$refs.form.resetFields();
+            this.$refs.form.clearValidate();
+            this.clear();
           }
-        })
+        });
       } else {
-        this.title = "编辑URL"
-        this.urlId = row.urlId
-        Object.keys(row).forEach((key) => {
+        this.title = '编辑URL';
+        this.urlId = row.urlId;
+        Object.keys(row).forEach(key => {
           if (this.form.hasOwnProperty(key)) {
-            this.form[key] = row[key]
+            this.form[key] = row[key];
           }
-        })
+        });
       }
     },
     clear() {
-      this.form.copyright = ""
-      this.form.copyrightEnable = false
-      this.form.disclaimer = ""
-      this.form.disclaimerEnable = false
-      this.form.expiredAt = ""
-      this.form.name = ""
-      this.form.privacyPolicy = ""
-      this.form.privacyPolicyEnable = false
+      this.form.copyright = '';
+      this.form.copyrightEnable = false;
+      this.form.disclaimer = '';
+      this.form.disclaimerEnable = false;
+      this.form.expiredAt = '';
+      this.form.name = '';
+      this.form.privacyPolicy = '';
+      this.form.privacyPolicyEnable = false;
     },
     submit(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
-          if (this.urlId === "") {
-            this.createUrl()
+          if (this.urlId === '') {
+            this.createUrl();
           } else {
-            this.eidtUrl()
+            this.eidtUrl();
           }
         } else {
-          return false
+          return false;
         }
-      })
+      });
     },
     createUrl() {
       createOpenurl(this.form)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success("操作成功")
-            this.dialogVisible = false
-            this.getList()
+            this.$message.success('操作成功');
+            this.dialogVisible = false;
+            this.getList();
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     eidtUrl() {
       const data = {
         ...this.form,
         urlId: this.urlId,
-      }
+      };
       editOpenurl(data)
-        .then((res) => {
+        .then(res => {
           if (res.code === 0) {
-            this.$message.success("操作成功")
-            this.dialogVisible = false
-            this.getList()
+            this.$message.success('操作成功');
+            this.dialogVisible = false;
+            this.getList();
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     handleDel(row) {
       this.$confirm(
-        "确定要删除当前访问URL吗？",
-        this.$t("knowledgeManage.tip"),
+        '确定要删除当前访问URL吗？',
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        },
       )
         .then(() => {
-          delOpenurl({ urlId: row.urlId }).then((res) => {
+          delOpenurl({ urlId: row.urlId }).then(res => {
             if (res.code === 0) {
-              this.$message.success("删除成功")
-              this.getList()
+              this.$message.success('删除成功');
+              this.getList();
             }
-          })
+          });
         })
-        .catch((error) => {
-          this.getList()
-        })
+        .catch(error => {
+          this.getList();
+        });
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .copy {

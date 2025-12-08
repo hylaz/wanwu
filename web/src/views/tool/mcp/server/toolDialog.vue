@@ -4,26 +4,36 @@
       :title="$t('tool.server.bind.title')"
       :visible.sync="dialogVisible"
       width="50%"
-      :before-close="handleClose">
+      :before-close="handleClose"
+    >
       <div class="tool-typ">
         <div class="toolbtn">
           <div
-            v-for="(item,index) in toolList" :key="index" @click="clickTool(item)"
-            :class="[{'active':activeValue === item.value}]">
+            v-for="(item, index) in toolList"
+            :key="index"
+            @click="clickTool(item)"
+            :class="[{ active: activeValue === item.value }]"
+          >
             {{ item.name }}
           </div>
         </div>
         <el-input
-          v-model="toolName" :placeholder="$t('tool.server.bind.search')" class="tool-input"
+          v-model="toolName"
+          :placeholder="$t('tool.server.bind.search')"
+          class="tool-input"
           suffix-icon="el-icon-search"
-          @keyup.enter.native="searchTool" clearable/>
+          @keyup.enter.native="searchTool"
+          clearable
+        />
       </div>
       <div class="toolContent">
-        <div @click="goCreate" class="createTool"><span class="el-icon-plus add"></span>{{ createText() }}</div>
+        <div @click="goCreate" class="createTool">
+          <span class="el-icon-plus add"></span>{{ createText() }}
+        </div>
         <template v-for="(items, type) in contentMap">
           <div
             v-if="activeValue === type"
-            v-for="(item,i) in items"
+            v-for="(item, i) in items"
             :key="item[type + 'Id'] || item.id"
             class="toolContent_item"
           >
@@ -31,27 +41,46 @@
               <el-collapse-item :name="item.toolId">
                 <template slot="title">
                   <div class="tool_img">
-                    <img :src="'/user/api/' + item.avatar.path" v-show="item.avatar && item.avatar.path"/>
+                    <img
+                      :src="'/user/api/' + item.avatar.path"
+                      v-show="item.avatar && item.avatar.path"
+                    />
                   </div>
                   <h3>{{ item.toolName }}</h3>
-                  <span v-if="item.loading" class="el-icon-loading loading-text"></span>
+                  <span
+                    v-if="item.loading"
+                    class="el-icon-loading loading-text"
+                  ></span>
                 </template>
                 <template v-if="item.children && item.children.length">
-                  <div v-for="(tool,index) in item.children" class="tool-action-item" :key="TOOL+index">
-                    <div style="padding-right:5px;">
+                  <div
+                    v-for="(tool, index) in item.children"
+                    class="tool-action-item"
+                    :key="TOOL + index"
+                  >
+                    <div style="padding-right: 5px">
                       <p>
                         <span>{{ tool.name }}</span>
-                        <el-tooltip class="item" effect="dark" :content="tool.description" placement="top-start"
-                                    v-if="tool.description && tool.description.length > 0">
+                        <el-tooltip
+                          class="item"
+                          effect="dark"
+                          :content="tool.description"
+                          placement="top-start"
+                          v-if="tool.description && tool.description.length > 0"
+                        >
                           <span class="el-icon-info desc-info"></span>
                         </el-tooltip>
                       </p>
                     </div>
                     <div>
-                      <el-button type="text" @click="openTool($event,item,type,tool)" v-if="!tool.checked">
+                      <el-button
+                        type="text"
+                        @click="openTool($event, item, type, tool)"
+                        v-if="!tool.checked"
+                      >
                         {{ $t('tool.server.bind.add') }}
                       </el-button>
-                      <el-button type="text" v-else style="color:#ccc;">
+                      <el-button type="text" v-else style="color: #ccc">
                         {{ $t('tool.server.bind.added') }}
                       </el-button>
                     </div>
@@ -67,9 +96,9 @@
 </template>
 
 <script>
-import {addServerTool} from "@/api/mcp";
-import {toolActionList, toolList} from "@/api/agent";
-import {MCP, PROMPT, TOOL} from "@/views/tool/constants";
+import { addServerTool } from '@/api/mcp';
+import { toolActionList, toolList } from '@/api/agent';
+import { MCP, PROMPT, TOOL } from '@/views/tool/constants';
 
 export default {
   data() {
@@ -101,91 +130,102 @@ export default {
         //   value: 'builtin',
         //   name: '内置工具'
         // },
-      ]
-    }
+      ],
+    };
   },
   computed: {
     contentMap() {
       return {
         tool: this.customInfos,
-      }
+      };
     },
     TOOL() {
-      return TOOL
+      return TOOL;
     },
   },
   created() {
-    this.getCustomList('')
+    this.getCustomList('');
   },
   methods: {
     handleToolChange(id) {
       let toolId = id[0];
       if (this.activeValue === TOOL) {
-        const targetItem = this.customInfos.find(item => item.toolId === toolId)
+        const targetItem = this.customInfos.find(
+          item => item.toolId === toolId,
+        );
         if (targetItem) {
-          const {toolId, toolType} = targetItem
-          const index = this.customInfos.findIndex(item => item.toolId === toolId)
-          this.getToolAction(toolId, toolType, index)
+          const { toolId, toolType } = targetItem;
+          const index = this.customInfos.findIndex(
+            item => item.toolId === toolId,
+          );
+          this.getToolAction(toolId, toolType, index);
         }
       }
     },
     getToolAction(toolId, toolType, index) {
-      this.$set(this.customInfos[index], 'loading', true)
-      toolActionList({toolId, toolType}).then(res => {
-        if (res.code === 0) {
-          this.$set(this.customInfos[index], 'children', res.data.actions)
-          this.$set(this.customInfos[index], 'loading', false)
-          this.customInfos[index]['children'].forEach(m => {
-            m.checked = this.customList.some(item => item.methodName === m.name && item.id === toolId)
-          })
-
-        }
-      }).catch(() => {
-        this.$set(this.customInfos[index], 'loading', false)
-      })
+      this.$set(this.customInfos[index], 'loading', true);
+      toolActionList({ toolId, toolType })
+        .then(res => {
+          if (res.code === 0) {
+            this.$set(this.customInfos[index], 'children', res.data.actions);
+            this.$set(this.customInfos[index], 'loading', false);
+            this.customInfos[index]['children'].forEach(m => {
+              m.checked = this.customList.some(
+                item => item.methodName === m.name && item.id === toolId,
+              );
+            });
+          }
+        })
+        .catch(() => {
+          this.$set(this.customInfos[index], 'loading', false);
+        });
     },
     openTool(e, item, type, action) {
       if (!e) return;
       if (type === TOOL) {
         if (item.needApiKeyInput && !item.apiKey.length) {
-          this.$message.warning(this.$t('tool.server.bind.apiWarning'))
+          this.$message.warning(this.$t('tool.server.bind.apiWarning'));
         }
-        this.addCustomTool(item, action)
+        this.addCustomTool(item, action);
       }
     },
     showDialog(detail) {
-      this.mcpServerId = detail.mcpServerId
-      this.customList = detail.tools.filter(tool => tool.type === 'custom' || tool.type === 'builtin');
+      this.mcpServerId = detail.mcpServerId;
+      this.customList = detail.tools.filter(
+        tool => tool.type === 'custom' || tool.type === 'builtin',
+      );
 
       this.customInfos.forEach((item, index) => {
         if (item.children && item.children.length > 0) {
           const toolId = item.toolId;
           this.customInfos[index]['children'].forEach(m => {
-            m.checked = this.customList.some(item => item.methodName === m.name && item.id === toolId)
+            m.checked = this.customList.some(
+              item => item.methodName === m.name && item.id === toolId,
+            );
           });
         }
-      })
-      this.dialogVisible = true
+      });
+      this.dialogVisible = true;
     },
     getCustomList(name) {
-      toolList({name}).then(res => {
+      toolList({ name }).then(res => {
         if (res.code === 0) {
           this.customInfos = (res.data.list || []).map(item => ({
             ...item,
             loading: false,
-            children: []
-          }))
+            children: [],
+          }));
         }
-      })
+      });
     },
     goCreate() {
       if (this.activeValue === TOOL) {
-        this.$router.push({path: '/tool?type=tool&mcp=custom'})
+        this.$router.push({ path: '/tool?type=tool&mcp=custom' });
       }
     },
     createText() {
       if (this.activeValue === TOOL) {
-        return this.$t('common.button.add') + this.$t('menu.app.tool')
+        return this.$t('common.button.add') + this.$t('menu.app.tool');
       }
     },
     addCustomTool(item, method) {
@@ -193,8 +233,8 @@ export default {
         id: item.toolId,
         type: item.toolType,
         methodName: method.name,
-        mcpServerId: this.mcpServerId
-      }
+        mcpServerId: this.mcpServerId,
+      };
       addServerTool(params).then(res => {
         if (res.code === 0) {
           this.$set(method, 'checked', true);
@@ -204,15 +244,15 @@ export default {
             this.$forceUpdate();
           });
         }
-      })
+      });
     },
     searchTool() {
       if (this.activeValue === TOOL) {
-        this.getCustomList(this.toolName)
+        this.getCustomList(this.toolName);
       }
     },
     handleClose() {
-      this.activeValue = TOOL
+      this.activeValue = TOOL;
       this.dialogVisible = false;
     },
     clickTool(item) {
@@ -221,8 +261,8 @@ export default {
         this.getCustomList('');
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -249,7 +289,6 @@ export default {
   .el-collapse-item__content {
     padding-bottom: 0 !important;
   }
-
 }
 
 .createTool {
@@ -328,7 +367,7 @@ export default {
 
     .loading-text {
       margin-left: 4px;
-      color: var($color)
+      color: var($color);
     }
 
     .tool-action-item {

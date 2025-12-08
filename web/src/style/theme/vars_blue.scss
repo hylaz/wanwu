@@ -1,9 +1,9 @@
 // 主题色
-$color: #5983FF ;// 整体主题色（ 蓝：#6B80DF）
-$color_opacity: #F2F7FF; // 主题色透明
+$color: #5983ff; // 整体主题色（ 蓝：#6B80DF）
+$color_opacity: #f2f7ff; // 主题色透明
 $color_highlight: $color; // 文本高亮色
 $select_active_bg: $color_opacity; // 下拉点击选中色
-$content_bg: linear-gradient(1deg, #FFFFFF 50%, #F6F9FF 98%); // 背景渐变色
+$content_bg: linear-gradient(1deg, #ffffff 50%, #f6f9ff 98%); // 背景渐变色
 $btn_bg: $color; // 按钮背景
-$color_title: #434C6C; // 表头、重点突出文字颜色
-$border_color: #2D69DD; // 选中边框颜色
+$color_title: #434c6c; // 表头、重点突出文字颜色
+$border_color: #2d69dd; // 选中边框颜色

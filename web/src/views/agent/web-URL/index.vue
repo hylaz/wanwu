@@ -38,49 +38,49 @@
   </div>
 </template>
 <script>
-import CommonLayout from "@/components/exploreContainer.vue"
-import CreateApi from "./createApi.vue"
-import CreateUrl from "./createUrl.vue"
+import CommonLayout from '@/components/exploreContainer.vue';
+import CreateApi from './createApi.vue';
+import CreateUrl from './createUrl.vue';
 export default {
   components: { CommonLayout, CreateApi, CreateUrl },
   data() {
     return {
-      name: "",
-      appId: "",
-      appType: "",
-      agent: "agent",
-      active: "url",
-      asideWidth: "260px",
+      name: '',
+      appId: '',
+      appType: '',
+      agent: 'agent',
+      active: 'url',
+      asideWidth: '260px',
       toolList: [
         {
-          name: "Web URL",
-          desc: "分享链接后，可通过网页直接访问智能体应用",
-          type: "url",
+          name: 'Web URL',
+          desc: '分享链接后，可通过网页直接访问智能体应用',
+          type: 'url',
         },
         {
-          name: "API",
-          desc: "支持嵌入第三方应用系统",
-          type: "api",
+          name: 'API',
+          desc: '支持嵌入第三方应用系统',
+          type: 'api',
         },
       ],
-    }
+    };
   },
   created() {
-    const { appId, appType, name } = this.$route.query
-    this.appId = appId
-    this.appType = appType
-    this.name = name
-    this.active = appType === this.agent ? "url" : "api"
+    const { appId, appType, name } = this.$route.query;
+    this.appId = appId;
+    this.appType = appType;
+    this.name = name;
+    this.active = appType === this.agent ? 'url' : 'api';
   },
   methods: {
     checkTool(item) {
-      this.active = item.type
+      this.active = item.type;
     },
     goback() {
-      this.$router.back()
+      this.$router.back();
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .activeItem {

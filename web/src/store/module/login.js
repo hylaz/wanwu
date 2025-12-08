@@ -1,4 +1,4 @@
-import {getCommonInfo} from '@/api/user'
+import { getCommonInfo } from '@/api/user';
 
 export const login = {
   namespaced: true,
@@ -14,7 +14,7 @@ export const login = {
       loginEmail: {
         email: {
           status: false,
-        }
+        },
       },
       register: {
         email: {
@@ -31,22 +31,22 @@ export const login = {
 
   mutations: {
     setCommonInfo(state, commonInfo) {
-      state.commonInfo = {...state.commonInfo, ...commonInfo}
-    }
+      state.commonInfo = { ...state.commonInfo, ...commonInfo };
+    },
   },
   actions: {
-    async getCommonInfo({state, commit}) {
-      if (!state.init) return
-      const res = await getCommonInfo() || {}
+    async getCommonInfo({ state, commit }) {
+      if (!state.init) return;
+      const res = (await getCommonInfo()) || {};
       if (res.code === 0) {
-        commit('setCommonInfo', res.data || {})
-        state.init = false
+        commit('setCommonInfo', res.data || {});
+        state.init = false;
       }
-    }
+    },
   },
   getters: {
     commonInfo(state) {
-      return state.commonInfo
+      return state.commonInfo;
     },
-  }
-}
+  },
+};

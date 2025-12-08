@@ -13,8 +13,8 @@ export const PERMS = {
   RAG: 'rag', // 文本问答
   WORKFLOW: 'workflow', // 工作流
   AGENT: 'agent', // 智能体
-  SAFETY: 'safety',//安全护栏
+  SAFETY: 'safety', //安全护栏
 
   STATISTIC: 'statistic_client', // 统计看板
   OAUTH: 'oauth', // oauth
-}
+};

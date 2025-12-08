@@ -1,12 +1,19 @@
 <template>
   <div>
     <el-dialog
-    title="召回参数配置"
-    :visible.sync="dialogVisible"
-    width="50%"
-    :before-close="handleClose">
+      title="召回参数配置"
+      :visible.sync="dialogVisible"
+      width="50%"
+      :before-close="handleClose"
+    >
       <span v-if="dialogVisible">
-        <searchConfig ref='searchConfig' @sendConfigInfo="sendConfigInfo" :setType="'agent'" :config="knowledgeConfig" :showGraphSwitch="showGraphSwitch"/>
+        <searchConfig
+          ref="searchConfig"
+          @sendConfigInfo="sendConfigInfo"
+          :setType="'agent'"
+          :config="knowledgeConfig"
+          :showGraphSwitch="showGraphSwitch"
+        />
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -18,56 +25,57 @@
 <script>
 import searchConfig from '@/components/searchConfig.vue';
 export default {
-  props:['showGraphSwitch'],
-  components:{
-    searchConfig
+  props: ['showGraphSwitch'],
+  components: {
+    searchConfig,
   },
-  data(){
-    return{
-      dialogVisible:false,
-      knowledgeConfig:{}
-    }
+  data() {
+    return {
+      dialogVisible: false,
+      knowledgeConfig: {},
+    };
   },
-  methods:{
-    sendConfigInfo(data){
+  methods: {
+    sendConfigInfo(data) {
       this.knowledgeConfig = { ...data.knowledgeMatchParams };
     },
-    showDialog(row){
+    showDialog(row) {
       this.dialogVisible = true;
       this.knowledgeConfig = row || {};
     },
-    handleClose(){
+    handleClose() {
       this.dialogVisible = false;
     },
-    submit(){
+    submit() {
       // 验证模型选择
       const { matchType, priorityMatch, rerankModelId } = this.knowledgeConfig;
-      const needRerankModel = matchType === 'vector' ||
-          matchType === 'text' ||
-          (matchType === 'mix' && priorityMatch === 0);
+      const needRerankModel =
+        matchType === 'vector' ||
+        matchType === 'text' ||
+        (matchType === 'mix' && priorityMatch === 0);
 
       if (needRerankModel && !rerankModelId) {
         this.$message.error('请选择模型');
         return;
       }
 
-      if(matchType === 'mix' && priorityMatch === 1){
+      if (matchType === 'mix' && priorityMatch === 1) {
         this.knowledgeConfig.rerankModelId = '';
       }
       this.dialogVisible = false;
-      this.$emit('setKnowledgeSet',this.knowledgeConfig)
-    }
-  }
-}
+      this.$emit('setKnowledgeSet', this.knowledgeConfig);
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
-/deep/{
-  .el-input-number--small{
-    line-height: 28px!important;
+/deep/ {
+  .el-input-number--small {
+    line-height: 28px !important;
   }
 }
-.question{
+.question {
   cursor: pointer;
-  color:#ccc;
+  color: #ccc;
 }
 </style>

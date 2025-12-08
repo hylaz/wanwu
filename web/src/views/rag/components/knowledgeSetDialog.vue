@@ -74,53 +74,53 @@ export default {
       },
       konwledgeSet: [
         {
-          label: "最长上下文",
-          desc: "保存的最长的上下文对话轮数",
-          props: "maxHistory",
-          btnProps: "maxHistoryEnable",
+          label: '最长上下文',
+          desc: '保存的最长的上下文对话轮数',
+          props: 'maxHistory',
+          btnProps: 'maxHistoryEnable',
           min: 0,
           max: 100,
           step: 1,
         },
         {
-          label: "过滤阀值",
-          desc: "检索结果匹配度的最小值，小于阈值的结果会被过滤掉",
-          props: "threshold",
-          btnProps: "thresholdEnable",
+          label: '过滤阀值',
+          desc: '检索结果匹配度的最小值，小于阈值的结果会被过滤掉',
+          props: 'threshold',
+          btnProps: 'thresholdEnable',
           precision: 1,
           min: 0,
           max: 1,
           step: 0.1,
         },
         {
-          label: "知识条数",
-          desc: "检索召回的知识片段数量的最大值，当检索到的知识数量大于知识条数，也只返回最大知识条数",
-          props: "topK",
-          btnProps: "topKEnable",
+          label: '知识条数',
+          desc: '检索召回的知识片段数量的最大值，当检索到的知识数量大于知识条数，也只返回最大知识条数',
+          props: 'topK',
+          btnProps: 'topKEnable',
           min: 1,
           max: 20,
           step: 1,
         },
       ],
-    }
+    };
   },
   methods: {
     showDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
       if (this.knowledgeConfig !== null) {
-        const data = JSON.parse(JSON.stringify(this.knowledgeConfig))
-        this.ruleForm = data
+        const data = JSON.parse(JSON.stringify(this.knowledgeConfig));
+        this.ruleForm = data;
       }
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     submit() {
-      this.dialogVisible = false
-      this.$emit("setKnowledgeSet", this.ruleForm)
+      this.dialogVisible = false;
+      this.$emit('setKnowledgeSet', this.ruleForm);
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 /deep/ {

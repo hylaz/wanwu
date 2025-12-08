@@ -6,13 +6,13 @@
       size="mini"
       @click="createMetaData"
       v-if="type !== 'create'"
-    >创建
+      >创建
     </el-button>
     <div class="docMetaData" v-loading="loading">
       <div
-        v-for="(item,index) in docMetaData"
+        v-for="(item, index) in docMetaData"
         class="docItem"
-        :key="'meta'+index"
+        :key="'meta' + index"
       >
         <div class="docItem_data">
           <span class="docItem_data_label">
@@ -23,14 +23,17 @@
               content="只能包含小写字母、数字和下划线，并且必须以小写字母开头"
               placement="top-start"
             >
-              <span class="el-icon-question question" v-if="type === 'create'"></span>
+              <span
+                class="el-icon-question question"
+                v-if="type === 'create'"
+              ></span>
             </el-tooltip>
           </span>
           <template v-if="type === 'create'">
             <el-input
               v-if="item.showEdit"
               v-model="item.metaKey"
-              @blur="metakeyBlur(item,index)"
+              @blur="metakeyBlur(item, index)"
             ></el-input>
             <span v-else class="metaItemKey">{{ item.metaKey }}</span>
           </template>
@@ -38,7 +41,7 @@
             v-else
             v-model="item.metaKey"
             placeholder="请选择"
-            @change="keyChange($event,item)"
+            @change="keyChange($event, item)"
           >
             <el-option
               v-for="meta in keyOptions"
@@ -74,7 +77,7 @@
           <el-select
             v-model="item.metadataType"
             placeholder="请选择"
-            style="margin-right:5px;"
+            style="margin-right: 5px"
             @change="valueChange(item)"
           >
             <el-option
@@ -87,25 +90,31 @@
           </el-select>
           <el-input
             v-model="item.metaValue"
-            v-if="item.metadataType ==='value' && item.metaValueType === 'string'"
+            v-if="
+              item.metadataType === 'value' && item.metaValueType === 'string'
+            "
             @blur="metaValueBlur(item)"
             placeholder="string"
           ></el-input>
           <el-input
             v-model="item.metaValue"
-            v-if="item.metadataType ==='value'  && item.metaValueType === 'number'"
+            v-if="
+              item.metadataType === 'value' && item.metaValueType === 'number'
+            "
             @blur="metaValueBlur(item)"
             type="number"
             placeholder="number"
           ></el-input>
           <el-input
             v-model="item.metaRule"
-            v-if="item.metadataType ==='regExp'"
+            v-if="item.metadataType === 'regExp'"
             @blur="metaRuleBlur(item)"
             placeholder="regExp"
           ></el-input>
           <el-date-picker
-            v-if="item.metaValueType === 'time' && item.metadataType==='value'"
+            v-if="
+              item.metaValueType === 'time' && item.metadataType === 'value'
+            "
             v-model="item.metaValue"
             align="right"
             format="yyyy-MM-dd HH:mm:ss"
@@ -124,7 +133,7 @@
           ></span>
           <span
             class="el-icon-delete setBtn"
-            @click="delMataItem(index,item)"
+            @click="delMataItem(index, item)"
           ></span>
         </div>
       </div>
@@ -132,7 +141,7 @@
   </div>
 </template>
 <script>
-import {metaSelect, updateDocMeta} from "@/api/knowledge"
+import { metaSelect, updateDocMeta } from '@/api/knowledge';
 
 export default {
   props: ['metaData', 'type', 'knowledgeId'],
@@ -149,18 +158,20 @@ export default {
     docMetaData: {
       handler(val) {
         if (this.debounceTimer) clearTimeout(this.debounceTimer);
-        const metaList = Array.isArray(val) ? val : []
+        const metaList = Array.isArray(val) ? val : [];
 
         const payload = metaList.map(item => ({
           ...item,
           metaValue:
             item && item.metaValueType === 'time'
               ? String(item.metaValue)
-              : (item && item.metaValue != null ? String(item.metaValue) : ''),
-        }))
+              : item && item.metaValue != null
+                ? String(item.metaValue)
+                : '',
+        }));
 
         this.debounceTimer = setTimeout(() => {
-          this.$emit("updateMeata", payload);
+          this.$emit('updateMeata', payload);
         }, 500);
       },
       deep: true,
@@ -174,100 +185,110 @@ export default {
       docMetaData: [],
       typeOptions: [
         {
-          label: "String",
-          value: "string",
+          label: 'String',
+          value: 'string',
         },
         {
-          label: "Number",
-          value: "number",
+          label: 'Number',
+          value: 'number',
         },
         {
-          label: "Time",
-          value: "time",
+          label: 'Time',
+          value: 'time',
         },
       ],
       valueOptions: [
         {
-          value: "value",
-          label: "确认值",
+          value: 'value',
+          label: '确认值',
         },
         {
-          value: "regExp",
-          label: "正则表达式",
+          value: 'regExp',
+          label: '正则表达式',
         },
       ],
-      keyOptions: []
+      keyOptions: [],
     };
   },
   created() {
-    this.getList()
+    this.getList();
   },
   methods: {
     getList() {
       this.loading = true;
-      metaSelect({knowledgeId: this.knowledgeId}).then(res => {
-        if (res.code === 0) {
-          this.loading = false;
-          this.keyOptions = res.data.knowledgeMetaList || []
-          if (this.type === 'create') {
-            this.docMetaData = (res.data.knowledgeMetaList || []).map(item => ({
-              ...item,
-              metaValueType: item.metaValueType || 'string',
-              showEdit: false,
-              option: ''
-            }));
+      metaSelect({ knowledgeId: this.knowledgeId })
+        .then(res => {
+          if (res.code === 0) {
+            this.loading = false;
+            this.keyOptions = res.data.knowledgeMetaList || [];
+            if (this.type === 'create') {
+              this.docMetaData = (res.data.knowledgeMetaList || []).map(
+                item => ({
+                  ...item,
+                  metaValueType: item.metaValueType || 'string',
+                  showEdit: false,
+                  option: '',
+                }),
+              );
+            }
           }
-
-        }
-      }).catch(() => {
-        this.loading = false;
-      })
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
     keyChange(val, item) {
-      item.metaValue = ''
-      item.metadataType = 'value'
+      item.metaValue = '';
+      item.metadataType = 'value';
       const opt = Array.isArray(this.keyOptions)
         ? this.keyOptions.find(i => i.metaKey === val)
-        : null
-      item.metaValueType = opt ? opt.metaValueType : ''
+        : null;
+      item.metaValueType = opt ? opt.metaValueType : '';
     },
     createMetaData() {
       if (this.type === 'create' && this.docMetaData.length > 0) {
-        if (this.docMetaData.some(item => item.metaKey === '' || item.metaValueType === '')) {
-          this.$message.error("元数据管理存在未填写的必填字段");
+        if (
+          this.docMetaData.some(
+            item => item.metaKey === '' || item.metaValueType === '',
+          )
+        ) {
+          this.$message.error('元数据管理存在未填写的必填字段');
           return;
         }
       } else {
-        if (this.docMetaData.length > 0 && !this.validateMetaData(this.docMetaData)) {
+        if (
+          this.docMetaData.length > 0 &&
+          !this.validateMetaData(this.docMetaData)
+        ) {
           return;
         }
       }
 
       this.docMetaData.push({
-        metaId: "",
-        metaKey: "",
-        metaRule: "",
-        metaValue: "",
-        metaValueType: "string",
+        metaId: '',
+        metaKey: '',
+        metaRule: '',
+        metaValue: '',
+        metaValueType: 'string',
         showEdit: true,
-        metadataType: "value",
-        option: "add"
+        metadataType: 'value',
+        option: 'add',
       });
     },
     validateMetaData() {
-      const hasEmptyField = this.docMetaData.some((item) => {
+      const hasEmptyField = this.docMetaData.some(item => {
         const isMetaKeyEmpty =
           !item.metaKey ||
-          (typeof item.metaKey === "string" && item.metaKey.trim() === "");
-        const isMetaRuleRequired = item.metadataType !== "value";
+          (typeof item.metaKey === 'string' && item.metaKey.trim() === '');
+        const isMetaRuleRequired = item.metadataType !== 'value';
         const isMetaRuleEmpty =
           isMetaRuleRequired &&
           (!item.metaRule ||
-            (typeof item.metaRule === "string" && item.metaRule.trim() === ""));
+            (typeof item.metaRule === 'string' && item.metaRule.trim() === ''));
         return isMetaKeyEmpty || isMetaRuleEmpty;
       });
       if (hasEmptyField) {
-        this.$message.error("元数据管理存在未填写的必填字段");
+        this.$message.error('元数据管理存在未填写的必填字段');
         return false;
       }
       return true;
@@ -280,48 +301,52 @@ export default {
     },
     delMataItem(i, item) {
       if (item.metaId) {
-        item.option = 'delete'
-        this.delMetaData(item)
+        item.option = 'delete';
+        this.delMetaData(item);
       } else {
         this.docMetaData.splice(i, 1);
       }
     },
     delMetaData(item) {
-      const dataItem = [item]
+      const dataItem = [item];
       const data = {
         docId: '',
         knowledgeId: this.knowledgeId,
-        metaDataList: dataItem.map(({metaId, option}) => ({
+        metaDataList: dataItem.map(({ metaId, option }) => ({
           metaId,
-          option
-        }))
-      }
+          option,
+        })),
+      };
       updateDocMeta(data).then(res => {
         if (res.code === 0) {
-          this.$message.success('操作成功')
+          this.$message.success('操作成功');
           this.getList();
         }
-      })
+      });
     },
     valueChange(item) {
-      item.metaValue = "";
-      item.metaRule = "";
+      item.metaValue = '';
+      item.metaRule = '';
     },
     metakeyBlur(item, index) {
       const regex = /^[a-z][a-z0-9_]*$/;
-      if (!item.metaKey || typeof item.metaKey !== 'string' || item.metaKey.trim() === '') {
-        this.$message.warning('请输入key值')
-        return
+      if (
+        !item.metaKey ||
+        typeof item.metaKey !== 'string' ||
+        item.metaKey.trim() === ''
+      ) {
+        this.$message.warning('请输入key值');
+        return;
       }
       if (!regex.test(item.metaKey)) {
-        this.$message.warning("请输入符合标准的key值");
+        this.$message.warning('请输入符合标准的key值');
         item.metaKey = '';
         return;
       }
 
       if (this.isFound()) {
-        this.$message.warning("存在相同key值");
-        item.metaKey = ''
+        this.$message.warning('存在相同key值');
+        item.metaKey = '';
         return;
       }
 
@@ -334,24 +359,24 @@ export default {
     },
     metaValueBlur(item) {
       if (!item.metaValue) {
-        this.$message.warning("请输入value值");
+        this.$message.warning('请输入value值');
         return;
       }
     },
     metaRuleBlur(item) {
       if (!item.metaRule) {
-        this.showWarning("请输入正则值", item);
+        this.showWarning('请输入正则值', item);
         return;
       }
       if (!this.isValidRegex(item.metaRule)) {
-        this.showWarning("请输入合法正则值", item);
-        item.metaRule = "";
+        this.showWarning('请输入合法正则值', item);
+        item.metaRule = '';
         return;
       }
     },
     showWarning(message, item) {
       this.$message.warning(message);
-      item.metaRule = "";
+      item.metaRule = '';
     },
     isValidRegex(str) {
       try {

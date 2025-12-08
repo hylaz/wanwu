@@ -74,52 +74,52 @@ export default {
       },
       modelSet: [
         {
-          label: "温度",
-          desc: "增加温度将使模型的回答更具创造性",
-          props: "temperature",
-          btnProps: "temperatureEnable",
+          label: '温度',
+          desc: '增加温度将使模型的回答更具创造性',
+          props: 'temperature',
+          btnProps: 'temperatureEnable',
           min: 0,
           max: 1,
           step: 0.01,
         },
         {
-          label: "多样性",
-          desc: "生成过程中核采样方法概率阈值。取值越大，生成的随机性越高；取值越小，生成的确定性越高",
-          props: "topP",
-          btnProps: "topPEnable",
+          label: '多样性',
+          desc: '生成过程中核采样方法概率阈值。取值越大，生成的随机性越高；取值越小，生成的确定性越高',
+          props: 'topP',
+          btnProps: 'topPEnable',
           min: 0,
           max: 10,
           step: 0.01,
         },
         {
-          label: "重复惩罚",
-          desc: "用于控制模型已使用字词的重复率。提高此项可以降低模型在输出中重复相同字词的重复度。",
-          props: "frequencyPenalty",
-          btnProps: "frequencyPenaltyEnable",
+          label: '重复惩罚',
+          desc: '用于控制模型已使用字词的重复率。提高此项可以降低模型在输出中重复相同字词的重复度。',
+          props: 'frequencyPenalty',
+          btnProps: 'frequencyPenaltyEnable',
           min: 1,
           max: 10,
           step: 0.1,
         },
       ],
-    }
+    };
   },
   methods: {
     showDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
       if (this.modelConfig !== null) {
-        const data = JSON.parse(JSON.stringify(this.modelConfig))
-        this.ruleForm = data
+        const data = JSON.parse(JSON.stringify(this.modelConfig));
+        this.ruleForm = data;
       }
     },
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     submit() {
-      this.dialogVisible = false
-      this.$emit("setModelSet", this.ruleForm)
+      this.dialogVisible = false;
+      this.$emit('setModelSet', this.ruleForm);
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 /deep/ {

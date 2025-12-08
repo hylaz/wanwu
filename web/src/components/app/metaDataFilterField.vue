@@ -7,8 +7,12 @@
   >
     <template #title>
       <div class="metaHeader">
-        <h3>{{ $t("agent.form.configMetaDataFilter") }}</h3>
-        <span>{{ category === 0 ? $t("agent.form.metaDataFilterDesc") : $t("agent.form.metaDataQaFilterDesc") }}</span>
+        <h3>{{ $t('agent.form.configMetaDataFilter') }}</h3>
+        <span>{{
+          category === 0
+            ? $t('agent.form.metaDataFilterDesc')
+            : $t('agent.form.metaDataQaFilterDesc')
+        }}</span>
       </div>
     </template>
     <metaSet
@@ -18,26 +22,26 @@
     />
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleMetaClose">
-        {{ $t("common.button.cancel") }}
+        {{ $t('common.button.cancel') }}
       </el-button>
       <el-button type="primary" @click="submitMeta">
-        {{ $t("common.button.confirm") }}
+        {{ $t('common.button.confirm') }}
       </el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
-import metaSet from "@/components/metaSet";
+import metaSet from '@/components/metaSet';
 export default {
-  name: "MetaDataFilterField",
+  name: 'MetaDataFilterField',
   components: {
     metaSet,
   },
   props: {
     knowledgeId: {
       type: String,
-      default: "",
+      default: '',
     },
     metaData: {
       type: Object,
@@ -45,13 +49,13 @@ export default {
     },
     category: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   data() {
     return {
       metaSetVisible: false,
-      currentKnowledgeId: "",
+      currentKnowledgeId: '',
       currentMetaData: {},
     };
   },
@@ -63,18 +67,18 @@ export default {
       const metaData = this.$refs.metaSet.getMetaData();
       if (
         this.$refs.metaSet.validateRequiredFields(
-          metaData["metaDataFilterParams"]["metaFilterParams"]
+          metaData['metaDataFilterParams']['metaFilterParams'],
         )
       ) {
-        this.$message.warning(this.$t("agent.form.incompleteInfo"));
+        this.$message.warning(this.$t('agent.form.incompleteInfo'));
         return;
       }
-      this.$emit("submitMetaData", metaData);
+      this.$emit('submitMetaData', metaData);
       this.metaSetVisible = false;
     },
     showDialog() {
       this.metaSetVisible = true;
     },
   },
-}
+};
 </script>

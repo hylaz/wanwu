@@ -16,28 +16,27 @@
         :size="''"
         border
       >
-        <el-descriptions-item :label="$t('knowledgeManage.fileName')">{{
-            res.fileName
-          }}
+        <el-descriptions-item :label="$t('knowledgeManage.fileName')"
+          >{{ res.fileName }}
         </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.splitNum')">
           {{ res.segmentTotalNum }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.importTime')">{{
-            res.uploadTime
+        <el-descriptions-item :label="$t('knowledgeManage.importTime')"
+          >{{ res.uploadTime }}
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('knowledgeManage.chunkType')"
+          >{{
+            Number(res.segmentType) === 0
+              ? $t('knowledgeManage.autoChunk')
+              : $t('knowledgeManage.autoConfigChunk')
           }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.chunkType')">{{
-            Number(res.segmentType) === 0 ? $t('knowledgeManage.autoChunk') : $t('knowledgeManage.autoConfigChunk')
-          }}
+        <el-descriptions-item :label="$t('knowledgeManage.setMaxLength')"
+          >{{ String(res.maxSegmentSize) }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.setMaxLength')">{{
-            String(res.maxSegmentSize)
-          }}
-        </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.markSplit')">{{
-            String(res.splitter).replace(/\n/g, '\\n')
-          }}
+        <el-descriptions-item :label="$t('knowledgeManage.markSplit')"
+          >{{ String(res.splitter).replace(/\n/g, '\\n') }}
         </el-descriptions-item>
         <el-descriptions-item label="元数据">
           <template v-if="metaDataList && metaDataList.length > 0">
@@ -46,22 +45,51 @@
               :key="index"
               class="metaItem"
             >
-              {{ item.metaKey }}: {{ item.metaValueType === 'time' ? formatTimestamp(item.metaValue) : item.metaValue }}
+              {{ item.metaKey }}:
+              {{
+                item.metaValueType === 'time'
+                  ? formatTimestamp(item.metaValue)
+                  : item.metaValue
+              }}
             </span>
-            <el-tooltip v-if="metaDataList.length > 3" :content="filterData(metaDataList.slice(3))" placement="bottom">
+            <el-tooltip
+              v-if="metaDataList.length > 3"
+              :content="filterData(metaDataList.slice(3))"
+              placement="bottom"
+            >
               <span class="metaItem">...</span>
             </el-tooltip>
           </template>
           <span v-else>无数据</span>
-          <span class="el-icon-edit-outline editIcon" @click="showDatabase(metaDataList || [])"
-                v-if="metaDataList && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"></span>
+          <span
+            class="el-icon-edit-outline editIcon"
+            @click="showDatabase(metaDataList || [])"
+            v-if="
+              metaDataList &&
+              [
+                POWER_TYPE_EDIT,
+                POWER_TYPE_ADMIN,
+                POWER_TYPE_SYSTEM_ADMIN,
+              ].includes(permissionType)
+            "
+          ></span>
         </el-descriptions-item>
         <el-descriptions-item label="元数据规则">
           <template v-if="metaRuleList && metaRuleList.length > 0">
-            <span v-for="(item, index) in metaRuleList.slice(0, 3)" :key="index" class="metaItem">
-              {{ item.metaKey }}: {{ item.metaRule }}<span v-if="index < metaRuleList.slice(0, 3).length - 1"> </span>
+            <span
+              v-for="(item, index) in metaRuleList.slice(0, 3)"
+              :key="index"
+              class="metaItem"
+            >
+              {{ item.metaKey }}: {{ item.metaRule
+              }}<span v-if="index < metaRuleList.slice(0, 3).length - 1">
+              </span>
             </span>
-            <el-tooltip v-if="metaRuleList.length > 3" :content="filterRule(metaRuleList.slice(3))" placement="bottom">
+            <el-tooltip
+              v-if="metaRuleList.length > 3"
+              :content="filterRule(metaRuleList.slice(3))"
+              placement="bottom"
+            >
               <span class="metaItem">...</span>
             </el-tooltip>
           </template>
@@ -78,28 +106,43 @@
           @click="createChunk(false)"
           size="mini"
           :loading="loading.start"
-          v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-        >新增分段
-        </el-button
-        >
+          v-if="
+            [
+              POWER_TYPE_EDIT,
+              POWER_TYPE_ADMIN,
+              POWER_TYPE_SYSTEM_ADMIN,
+            ].includes(permissionType)
+          "
+          >新增分段
+        </el-button>
         <el-button
           type="primary"
           @click="handleStatus('start')"
           size="mini"
           :loading="loading.start"
-          v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-        >{{ $t('knowledgeManage.allRun') }}
-        </el-button
-        >
+          v-if="
+            [
+              POWER_TYPE_EDIT,
+              POWER_TYPE_ADMIN,
+              POWER_TYPE_SYSTEM_ADMIN,
+            ].includes(permissionType)
+          "
+          >{{ $t('knowledgeManage.allRun') }}
+        </el-button>
         <el-button
           type="primary"
           @click="handleStatus('stop')"
           size="mini"
           :loading="loading.stop"
-          v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-        >{{ $t('knowledgeManage.allStop') }}
-        </el-button
-        >
+          v-if="
+            [
+              POWER_TYPE_EDIT,
+              POWER_TYPE_ADMIN,
+              POWER_TYPE_SYSTEM_ADMIN,
+            ].includes(permissionType)
+          "
+          >{{ $t('knowledgeManage.allStop') }}
+        </el-button>
       </div>
 
       <div class="card">
@@ -113,30 +156,53 @@
             <el-card class="box-card">
               <div slot="header" class="clearfix">
                 <span>
-                  {{ $t('knowledgeManage.split') + ":" + item.contentNum }}
-                  <span class="segment-type">#{{ item.isParent ? "父子分段" : "通用分段" }}</span>
-                  <span class="segment-length" v-if="!item.isParent">#{{
-                      item.content.length
-                    }}{{ $t('knowledgeManage.character') }}</span>
-                  <span class="segment-child" v-if="item.childNum">#{{ item.childNum || 0 }}个子分段</span>
+                  {{ $t('knowledgeManage.split') + ':' + item.contentNum }}
+                  <span class="segment-type"
+                    >#{{ item.isParent ? '父子分段' : '通用分段' }}</span
+                  >
+                  <span class="segment-length" v-if="!item.isParent"
+                    >#{{ item.content.length
+                    }}{{ $t('knowledgeManage.character') }}</span
+                  >
+                  <span class="segment-child" v-if="item.childNum"
+                    >#{{ item.childNum || 0 }}个子分段</span
+                  >
                 </span>
                 <div>
                   <el-switch
-                    style="padding: 3px 0;"
+                    style="padding: 3px 0"
                     v-model="item.available"
                     active-color="var(--color)"
-                    v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
+                    v-if="
+                      [
+                        POWER_TYPE_EDIT,
+                        POWER_TYPE_ADMIN,
+                        POWER_TYPE_SYSTEM_ADMIN,
+                      ].includes(permissionType)
+                    "
                     @change="handleStatusChange(item, index)"
                   >
                   </el-switch>
-                  <el-dropdown @command="handleCommand" placement="bottom"
-                               v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
+                  <el-dropdown
+                    @command="handleCommand"
+                    placement="bottom"
+                    v-if="
+                      [
+                        POWER_TYPE_EDIT,
+                        POWER_TYPE_ADMIN,
+                        POWER_TYPE_SYSTEM_ADMIN,
+                      ].includes(permissionType)
+                    "
+                  >
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item class="card-delete" :command="{type: 'delete', item}">
-                        <i class="el-icon-delete card-opera-icon"/>
+                      <el-dropdown-item
+                        class="card-delete"
+                        :command="{ type: 'delete', item }"
+                      >
+                        <i class="el-icon-delete card-opera-icon" />
                         {{ $t('common.button.delete') }}
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -146,15 +212,30 @@
               <div class="text item" @click="handleClick(item, index)">
                 {{ item.content }}
               </div>
-              <div class="tagList"
-                   v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)">
-                <span :class="['smartDate','tagList']" @click.stop="addTag(item.labels,item.contentId)"
-                      v-if="item.labels.length === 0">
+              <div
+                class="tagList"
+                v-if="
+                  [
+                    POWER_TYPE_EDIT,
+                    POWER_TYPE_ADMIN,
+                    POWER_TYPE_SYSTEM_ADMIN,
+                  ].includes(permissionType)
+                "
+              >
+                <span
+                  :class="['smartDate', 'tagList']"
+                  @click.stop="addTag(item.labels, item.contentId)"
+                  v-if="item.labels.length === 0"
+                >
                   <span class="el-icon-price-tag icon-tag"></span>
                   创建关键词
                 </span>
-                <span class="tagList-item" @click.stop="addTag(item.labels,item.contentId)"
-                      v-else>{{ formattedTagNames(item.labels) }}</span>
+                <span
+                  class="tagList-item"
+                  @click.stop="addTag(item.labels, item.contentId)"
+                  v-else
+                  >{{ formattedTagNames(item.labels) }}</span
+                >
               </div>
             </el-card>
           </el-col>
@@ -187,13 +268,21 @@
       class="section-dialog"
     >
       <div slot="title">
-        <span style="font-size: 16px">{{ $t('knowledgeManage.detailView') }}</span>
+        <span style="font-size: 16px">{{
+          $t('knowledgeManage.detailView')
+        }}</span>
         <el-switch
           @change="handleDetailStatusChange"
           style="float: right; padding: 3px 0"
           v-model="cardObj[0].available"
           active-color="var(--color)"
-          v-if="[POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
+          v-if="
+            [
+              POWER_TYPE_EDIT,
+              POWER_TYPE_ADMIN,
+              POWER_TYPE_SYSTEM_ADMIN,
+            ].includes(permissionType)
+          "
         >
         </el-switch>
       </div>
@@ -216,22 +305,38 @@
               <el-input
                 type="textarea"
                 v-model="scope.row.content"
-                :autosize="{ minRows: 3, maxRows: 5}"
+                :autosize="{ minRows: 3, maxRows: 5 }"
                 class="full-width-textarea"
                 :disabled="[POWER_TYPE_READ].includes(permissionType)"
               >
               </el-input>
               <div
-                v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-                style="display: flex;justify-content: flex-end;padding: 10px 0;">
-                <el-button type="primary" @click="handleSubmit" :loading="submitLoading">保存并重新解析子分段
+                v-if="
+                  cardObj[0]['isParent'] &&
+                  [
+                    POWER_TYPE_EDIT,
+                    POWER_TYPE_ADMIN,
+                    POWER_TYPE_SYSTEM_ADMIN,
+                  ].includes(permissionType)
+                "
+                style="
+                  display: flex;
+                  justify-content: flex-end;
+                  padding: 10px 0;
+                "
+              >
+                <el-button
+                  type="primary"
+                  @click="handleSubmit"
+                  :loading="submitLoading"
+                  >保存并重新解析子分段
                 </el-button>
               </div>
-              <div class="segment-list" v-if="scope.row.childContent.length > 0">
-                <el-collapse
-                  v-model="activeNames"
-                  class="section-collapse"
-                >
+              <div
+                class="segment-list"
+                v-if="scope.row.childContent.length > 0"
+              >
+                <el-collapse v-model="activeNames" class="section-collapse">
                   <el-collapse-item
                     v-for="(segment, index) in scope.row.childContent"
                     :key="index"
@@ -242,32 +347,71 @@
                       <span class="segment-badge">C-{{ index + 1 }}</span>
                       <div class="segment-actions">
                         <span
-                          v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-                          class="action-btn edit-btn" @click.stop="editSegment(scope.row, index)">
+                          v-if="
+                            !editingSegments[
+                              `${scope.row.contentId}-${index}`
+                            ] &&
+                            [
+                              POWER_TYPE_EDIT,
+                              POWER_TYPE_ADMIN,
+                              POWER_TYPE_SYSTEM_ADMIN,
+                            ].includes(permissionType)
+                          "
+                          class="action-btn edit-btn"
+                          @click.stop="editSegment(scope.row, index)"
+                        >
                           <i class="el-icon-edit-outline"></i>编辑
                         </span>
                         <span
-                          v-if="!editingSegments[`${scope.row.contentId}-${index}`] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
-                          class="action-btn delete-btn" @click.stop="deleteSegment(scope.row, index)">
+                          v-if="
+                            !editingSegments[
+                              `${scope.row.contentId}-${index}`
+                            ] &&
+                            [
+                              POWER_TYPE_EDIT,
+                              POWER_TYPE_ADMIN,
+                              POWER_TYPE_SYSTEM_ADMIN,
+                            ].includes(permissionType)
+                          "
+                          class="action-btn delete-btn"
+                          @click.stop="deleteSegment(scope.row, index)"
+                        >
                           <i class="el-icon-delete"></i>删除
                         </span>
-                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn save-btn"
-                              @click.stop="confirmEdit(scope.row, index)">
+                        <span
+                          v-if="
+                            editingSegments[`${scope.row.contentId}-${index}`]
+                          "
+                          class="action-btn save-btn"
+                          @click.stop="confirmEdit(scope.row, index)"
+                        >
                           <i class="el-icon-check"></i>保存
                         </span>
-                        <span v-if="editingSegments[`${scope.row.contentId}-${index}`]" class="action-btn cancel-btn"
-                              @click.stop="cancelEdit(scope.row, index)">
+                        <span
+                          v-if="
+                            editingSegments[`${scope.row.contentId}-${index}`]
+                          "
+                          class="action-btn cancel-btn"
+                          @click.stop="cancelEdit(scope.row, index)"
+                        >
                           <i class="el-icon-close"></i>取消
                         </span>
                       </div>
                     </template>
                     <div class="segment-content">
-                      <div v-if="!editingSegments[`${scope.row.contentId}-${index}`]" class="content-display">
+                      <div
+                        v-if="
+                          !editingSegments[`${scope.row.contentId}-${index}`]
+                        "
+                        class="content-display"
+                      >
                         {{ segment.content }}
                       </div>
                       <div v-else class="content-edit">
                         <el-input
-                          v-model="editingContent[`${scope.row.contentId}-${index}`]"
+                          v-model="
+                            editingContent[`${scope.row.contentId}-${index}`]
+                          "
                           type="textarea"
                           :rows="3"
                           placeholder="请输入内容"
@@ -284,18 +428,55 @@
       </div>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit" :loading="submitLoading"
-                   v-if="!cardObj[0]['isParent']">确定</el-button>
-        <el-button type="primary" @click="createChunk(true)"
-                   v-if="cardObj[0]['isParent'] && [POWER_TYPE_EDIT, POWER_TYPE_ADMIN, POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)" :disabled="submitLoading">新增子分段</el-button>
-        <el-button type="primary" @click="handleClose"
-                   :disabled="submitLoading">{{ $t('knowledgeManage.close') }}</el-button>
+        <el-button
+          type="primary"
+          @click="handleSubmit"
+          :loading="submitLoading"
+          v-if="!cardObj[0]['isParent']"
+          >确定</el-button
+        >
+        <el-button
+          type="primary"
+          @click="createChunk(true)"
+          v-if="
+            cardObj[0]['isParent'] &&
+            [
+              POWER_TYPE_EDIT,
+              POWER_TYPE_ADMIN,
+              POWER_TYPE_SYSTEM_ADMIN,
+            ].includes(permissionType)
+          "
+          :disabled="submitLoading"
+          >新增子分段</el-button
+        >
+        <el-button
+          type="primary"
+          @click="handleClose"
+          :disabled="submitLoading"
+          >{{ $t('knowledgeManage.close') }}</el-button
+        >
       </span>
     </el-dialog>
-    <dataBaseDialog ref="dataBase" @updateData="updateData" :knowledgeId="obj.knowledgeId" :name="obj.knowledgeName"/>
-    <tagDialog ref="tagDialog" type="section" :title="title" :currentList="currentList" @sendList="sendList"/>
-    <createChunk ref="createChunk" @updateDataBatch="updateDataBatch" @updateData="updateData"
-                 :parentId="cardObj[0]['contentId']" @updateChildData="updateChildData"/>
+    <dataBaseDialog
+      ref="dataBase"
+      @updateData="updateData"
+      :knowledgeId="obj.knowledgeId"
+      :name="obj.knowledgeName"
+    />
+    <tagDialog
+      ref="tagDialog"
+      type="section"
+      :title="title"
+      :currentList="currentList"
+      @sendList="sendList"
+    />
+    <createChunk
+      ref="createChunk"
+      @updateDataBatch="updateDataBatch"
+      @updateData="updateData"
+      :parentId="cardObj[0]['contentId']"
+      @updateChildData="updateChildData"
+    />
   </div>
 </template>
 <script>
@@ -307,22 +488,22 @@ import {
   editSegment,
   getSegmentChild,
   delSegmentChild,
-  updateSegmentChild
-} from "@/api/knowledge";
+  updateSegmentChild,
+} from '@/api/knowledge';
 import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
-import createChunk from './chunk/createChunk.vue'
-import {mapGetters} from 'vuex';
+import createChunk from './chunk/createChunk.vue';
+import { mapGetters } from 'vuex';
 import {
   INITIAL,
   POWER_TYPE_READ,
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
-  components: {dataBaseDialog, tagDialog, createChunk},
+  components: { dataBaseDialog, tagDialog, createChunk },
   data() {
     return {
       submitLoading: false,
@@ -335,9 +516,9 @@ export default {
       cardObj: [
         {
           available: false,
-          content: "",
+          content: '',
           childContent: [],
-          contentId: "",
+          contentId: '',
           len: 20,
         },
       ],
@@ -373,31 +554,38 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('app', ['permissionType'])
+    ...mapGetters('app', ['permissionType']),
   },
   created() {
     this.obj = this.$route.query;
     this.getList();
-    if (this.permissionType === INITIAL || this.permissionType === null || this.permissionType === undefined) {
-      const savedData = localStorage.getItem('permission_data')
+    if (
+      this.permissionType === INITIAL ||
+      this.permissionType === null ||
+      this.permissionType === undefined
+    ) {
+      const savedData = localStorage.getItem('permission_data');
       if (savedData) {
         try {
-          const parsed = JSON.parse(savedData)
-          const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
-          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-            this.$store.dispatch('app/setPermissionType', savedPermissionType)
+          const parsed = JSON.parse(savedData);
+          const savedPermissionType =
+            parsed && parsed.app && parsed.app.permissionType;
+          if (
+            savedPermissionType !== undefined &&
+            savedPermissionType !== INITIAL
+          ) {
+            this.$store.dispatch('app/setPermissionType', savedPermissionType);
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
     }
   },
   beforeDestroy() {
-    this.clearTimer()
+    this.clearTimer();
   },
   methods: {
     createChunk(isChildChunk) {
-      this.$refs.createChunk.showDiglog(this.obj.id, isChildChunk)
+      this.$refs.createChunk.showDiglog(this.obj.id, isChildChunk);
     },
     updateChildData() {
       setTimeout(() => {
@@ -437,52 +625,62 @@ export default {
       updateSegmentChild({
         childChunk: {
           content: newContent.trim(),
-          chunkNo: row['childContent'][index].childNum
+          chunkNo: row['childContent'][index].childNum,
         },
         docId: this.obj.id,
         parentChunkNo: row.contentNum,
-        parentId: row.contentId
-      }).then(res => {
-        if (res.code === 0) {
-          this.$message.success('更新成功');
-          this.handleParse();
-          this.$set(this.editingSegments, key, false);
-          this.$delete(this.editingContent, key);
-        } else {
+        parentId: row.contentId,
+      })
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success('更新成功');
+            this.handleParse();
+            this.$set(this.editingSegments, key, false);
+            this.$delete(this.editingContent, key);
+          } else {
+            this.$message.error('更新失败');
+          }
+        })
+        .catch(() => {
           this.$message.error('更新失败');
-        }
-      }).catch(() => {
-        this.$message.error('更新失败');
-      });
+        });
     },
     handleParse() {
-      getSegmentChild({contentId: this.cardObj[0]['contentId'], docId: this.obj.id}).then(res => {
-        if (res.code === 0) {
-          this.cardObj[0].childContent = res.data.contentList || [];
-          this.activeNames = this.cardObj[0].childContent.map((_, index) => index);
-        }
-      }).catch(() => {
+      getSegmentChild({
+        contentId: this.cardObj[0]['contentId'],
+        docId: this.obj.id,
       })
+        .then(res => {
+          if (res.code === 0) {
+            this.cardObj[0].childContent = res.data.contentList || [];
+            this.activeNames = this.cardObj[0].childContent.map(
+              (_, index) => index,
+            );
+          }
+        })
+        .catch(() => {});
     },
     deleteSegment(row, index) {
       this.$confirm('确定要删除这个子分段吗？', '提示', {
         confirmButtonText: this.$t('common.confirm.confirm'),
         cancelButtonText: this.$t('common.confirm.cancel'),
-        type: 'warning'
+        type: 'warning',
       }).then(() => {
         delSegmentChild({
           docId: this.obj.id,
           parentId: row['childContent'][index].parentId,
           parentChunkNo: row.contentNum,
-          ChildChunkNoList: [row['childContent'][index].childNum]
-        }).then(res => {
-          if (res.code === 0) {
-            this.$message.success('删除成功');
-            this.handleParse();
-          }
-        }).catch(() => {
-          this.$message.error('删除失败');
-        });
+          ChildChunkNoList: [row['childContent'][index].childNum],
+        })
+          .then(res => {
+            if (res.code === 0) {
+              this.$message.success('删除成功');
+              this.handleParse();
+            }
+          })
+          .catch(() => {
+            this.$message.error('删除失败');
+          });
       });
     },
     updateDataBatch() {
@@ -495,10 +693,10 @@ export default {
       }
       const delay = this.refreshCount === 0 ? 1000 : 3000;
       this.timer = setTimeout(() => {
-        this.getList()
+        this.getList();
         this.refreshCount++;
-        this.startTimer()
-      }, delay)
+        this.startTimer();
+      }, delay);
     },
     clearTimer() {
       if (this.timer) {
@@ -510,7 +708,7 @@ export default {
       const hasChanges = this.oldContent !== this.cardObj[0]['content'];
 
       if (!hasChanges) {
-        this.$message.warning('无修改')
+        this.$message.warning('无修改');
         return false;
       }
 
@@ -518,44 +716,48 @@ export default {
       editSegment({
         content: this.cardObj[0]['content'],
         contentId: this.cardObj[0]['contentId'],
-        docId: this.obj.id
-      }).then(res => {
-        if (res.code === 0) {
-          this.$message.success('操作成功');
-          this.dialogVisible = false;
-          this.submitLoading = false;
-          this.getList();
-        }
-      }).catch(() => {
-        this.submitLoading = false;
+        docId: this.obj.id,
       })
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success('操作成功');
+            this.dialogVisible = false;
+            this.submitLoading = false;
+            this.getList();
+          }
+        })
+        .catch(() => {
+          this.submitLoading = false;
+        });
     },
     handleCommand(value) {
-      const {type, item} = value || {}
+      const { type, item } = value || {};
       switch (type) {
         case 'delete':
-          this.delSection(item)
-          break
+          this.delSection(item);
+          break;
       }
     },
     delSection(item) {
-      delSegment({contentId: item.contentId, docId: this.obj.id}).then(res => {
-        if (res.code === 0) {
-          this.$message.success('删除成功');
-          this.getList();
-        }
-      }).catch(() => {
-      })
+      delSegment({ contentId: item.contentId, docId: this.obj.id })
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success('删除成功');
+            this.getList();
+          }
+        })
+        .catch(() => {});
     },
     sendList(data) {
-      const labels = data.map(item => item.tagName)
-      sectionLabels({contentId: this.contentId, docId: this.obj.id, labels}).then(res => {
-        if (res.code === 0) {
-          this.getList();
-          this.$refs.tagDialog.handleClose();
-        }
-      }).catch(err => {
-      })
+      const labels = data.map(item => item.tagName);
+      sectionLabels({ contentId: this.contentId, docId: this.obj.id, labels })
+        .then(res => {
+          if (res.code === 0) {
+            this.getList();
+            this.$refs.tagDialog.handleClose();
+          }
+        })
+        .catch(err => {});
     },
     addTag(data, id) {
       if (data.length > 0) {
@@ -563,16 +765,16 @@ export default {
           tagName: item,
           checked: false,
           showDel: false,
-          showIpt: false
-        }))
+          showIpt: false,
+        }));
       } else {
-        this.currentList = []
+        this.currentList = [];
       }
-      this.contentId = id
+      this.contentId = id;
       this.$refs.tagDialog.showDiaglog();
     },
     formattedTagNames(data) {
-      let tags = ''
+      let tags = '';
       if (!Array.isArray(data) || data.length === 0) {
         return '';
       }
@@ -587,16 +789,18 @@ export default {
       this.getList();
     },
     showDatabase(data) {
-      this.$refs.dataBase.showDiglog(data, this.obj.id)
+      this.$refs.dataBase.showDiglog(data, this.obj.id);
     },
     filterData(data) {
-      return data.map(item => {
-        let value = item.metaValue;
-        if (item.metaValueType === 'time') {
-          value = this.formatTimestamp(value);
-        }
-        return `${item.metaKey}:${value}`;
-      }).join(", ");
+      return data
+        .map(item => {
+          let value = item.metaValue;
+          if (item.metaValueType === 'time') {
+            value = this.formatTimestamp(value);
+          }
+          return `${item.metaKey}:${value}`;
+        })
+        .join(', ');
     },
     formatTimestamp(timestamp) {
       if (timestamp === '') return '';
@@ -610,20 +814,22 @@ export default {
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
     filterRule(rule) {
-      return rule.map(item => `${item.metaKey}:${item.metaRule}`).join(", ")
+      return rule.map(item => `${item.metaKey}:${item.metaRule}`).join(', ');
     },
     getList() {
       this.loading.itemStatus = true;
       getSectionList({
         docId: this.obj.id,
         pageNo: this.page.pageNo,
-        pageSize: this.page.pageSize
+        pageSize: this.page.pageSize,
       })
-        .then((res) => {
+        .then(res => {
           this.loading.itemStatus = false;
           this.res = res.data;
           this.page.total = this.res.segmentTotalNum;
-          this.metaRuleList = res.data.metaDataList.filter(item => item.metaRule);
+          this.metaRuleList = res.data.metaDataList.filter(
+            item => item.metaRule,
+          );
           this.metaDataList = res.data.metaDataList;
         })
         .catch(() => {
@@ -660,7 +866,7 @@ export default {
         contentId: this.cardObj[0].contentId,
         all: false,
       })
-        .then((res) => {
+        .then(res => {
           this.loading.dialog = false;
           if (res.code === 0) {
             this.$message.success(this.$t('knowledgeManage.operateSuccess'));
@@ -681,7 +887,7 @@ export default {
         contentId: item.contentId,
         all: false,
       })
-        .then((res) => {
+        .then(res => {
           this.loading.itemStatus = false;
           if (res.code === 0) {
             this.$message.success(this.$t('knowledgeManage.operateSuccess'));
@@ -700,11 +906,11 @@ export default {
       this.loading.itemStatus = true;
       setSectionStatus({
         docId: this.obj.id,
-        contentStatus: type === 'start' ? "true" : "false",
-        contentId: "",
+        contentStatus: type === 'start' ? 'true' : 'false',
+        contentId: '',
         all: true,
       })
-        .then((res) => {
+        .then(res => {
           this.loading.itemStatus = false;
           if (res.code === 0) {
             this.$message.success(this.$t('knowledgeManage.operateSuccess'));
@@ -715,14 +921,15 @@ export default {
           this.loading.itemStatus = false;
         });
     },
-    renderHeader(h, {column, $index}) {
+    renderHeader(h, { column, $index }) {
       const columnHtml =
         this.$t('knowledgeManage.section') +
         this.cardObj[0].contentNum +
-        this.$t('knowledgeManage.length') + " :" +
+        this.$t('knowledgeManage.length') +
+        ' :' +
         this.cardObj[0].content.length +
         this.$t('knowledgeManage.character');
-      return h("span", {
+      return h('span', {
         domProps: {
           innerHTML: columnHtml,
         },
@@ -786,14 +993,13 @@ export default {
 
     /deep/ .el-collapse-item__header .el-collapse-item__arrow,
     .el-collapse-item__arrow,
-    [class*="el-collapse-item__arrow"] {
+    [class*='el-collapse-item__arrow'] {
       display: none !important;
     }
 
     /deep/ .el-collapse-item:last-child .el-collapse-item__content {
       border-bottom: none;
     }
-
 
     /deep/ .el-collapse-item__header::after {
       display: none !important;
@@ -928,7 +1134,6 @@ export default {
         margin-left: 8px;
         font-style: italic;
       }
-
     }
   }
 }

@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import * as echarts from "echarts";
-import {i18n} from "@/lang";
-import {formatAmount} from "@/utils/util";
+import * as echarts from 'echarts';
+import { i18n } from '@/lang';
+import { formatAmount } from '@/utils/util';
 
-const units = i18n.t("statisticsEcharts.units");
+const units = i18n.t('statisticsEcharts.units');
 
 export default {
   props: {
@@ -22,7 +22,7 @@ export default {
         return [];
       },
     },
-    name: ''
+    name: '',
   },
   data() {
     return {
@@ -31,8 +31,11 @@ export default {
   },
   computed: {
     hasData() {
-      return this.content && this.content.length > 0 &&
-             this.content.some(item => item.items && item.items.length > 0);
+      return (
+        this.content &&
+        this.content.length > 0 &&
+        this.content.some(item => item.items && item.items.length > 0)
+      );
     },
     isLong() {
       const values = this.content.flatMap(item => item.items || []);
@@ -50,7 +53,7 @@ export default {
           }
           this.api = echarts.init(this.$refs.api);
 
-          window.addEventListener("resize", () => {
+          window.addEventListener('resize', () => {
             this.api.resize();
           });
           this.handleLine();
@@ -83,14 +86,14 @@ export default {
         seriesData.push({
           name: line.lineName,
           data: yData,
-          type: "line",
+          type: 'line',
           symbolSize: 5,
           smooth: true,
           zlevel: 1,
           label: {
-            position: "right",
+            position: 'right',
             show: false,
-            color: "#333",
+            color: '#333',
             fontSize: 13,
             formatter: function (params) {
               return params.data + i18n.t('statisticsEcharts.minute');
@@ -113,15 +116,15 @@ export default {
               },
               {
                 offset: 1,
-                color: this.getAreaColorByIndex(index, 0.00),
+                color: this.getAreaColorByIndex(index, 0.0),
               },
             ]),
           },
           emphasis: {
-            focus: "series",
+            focus: 'series',
             itemStyle: {
-              color: "#4CF8C5",
-            }
+              color: '#4CF8C5',
+            },
           },
         });
       });
@@ -129,28 +132,32 @@ export default {
       let option = {
         animationDuration: 1000,
         tooltip: {
-          trigger: "axis",
-          position: "right",
+          trigger: 'axis',
+          position: 'right',
           padding: [5, 8],
           textStyle: {
-            color: "#eee",
+            color: '#eee',
             fontSize: 13,
           },
-          backgroundColor: "rgba(13,5,30,.6)",
-          extraCssText: "z-index:1",
+          backgroundColor: 'rgba(13,5,30,.6)',
+          extraCssText: 'z-index:1',
         },
         toolbox: {
           show: true,
           feature: {
             dataView: {
               title: i18n.t('statisticsEcharts.dateView'),
-              lang: [i18n.t('statisticsEcharts.dateView'), i18n.t('statisticsEcharts.close'), i18n.t('statisticsEcharts.reload')],
+              lang: [
+                i18n.t('statisticsEcharts.dateView'),
+                i18n.t('statisticsEcharts.close'),
+                i18n.t('statisticsEcharts.reload'),
+              ],
               readOnly: false,
               optionToContent: function (opt) {
                 var axisData = opt.xAxis[0].data;
                 var series = opt.series;
                 var tdHeads = `<td  style="margin-top:10px; padding: 0 15px">${i18n.t('statisticsEcharts.date')}</td>`;
-                var tdBodys = "";
+                var tdBodys = '';
                 series.forEach(function (item) {
                   tdHeads += `<td style="padding:5px 15px">${item.name}</td>`;
                 });
@@ -158,61 +165,61 @@ export default {
                 for (var i = 0, l = axisData.length; i < l; i++) {
                   for (var j = 0; j < series.length; j++) {
                     if (series[j].data[i] == undefined) {
-                      tdBodys += `<td>${"-"}</td>`;
+                      tdBodys += `<td>${'-'}</td>`;
                     } else {
                       tdBodys += `<td>${series[j].data[i]}</td>`;
                     }
                   }
                   table += `<tr><td style="padding: 0 15px">${axisData[i]}</td>${tdBodys}</tr>`;
-                  tdBodys = "";
+                  tdBodys = '';
                 }
-                table += "</tbody></table>";
+                table += '</tbody></table>';
                 return table;
               },
             },
             saveAsImage: {
-              title: i18n.t('statisticsEcharts.saveImage')
+              title: i18n.t('statisticsEcharts.saveImage'),
             },
           },
         },
         legend: {
           show: true,
           data: legendData,
-          x: "center",
+          x: 'center',
           bottom: 10,
           textStyle: {
             fontSize: 12,
           },
-          icon: "rect",
+          icon: 'rect',
           itemWidth: 20,
           itemHeight: 10,
         },
         grid: {
-          top: "10%",
-          left: "4%",
-          right: "7%",
-          bottom: "15%",
+          top: '10%',
+          left: '4%',
+          right: '7%',
+          bottom: '15%',
           containLabel: true,
         },
         xAxis: {
-          type: "category",
+          type: 'category',
           boundaryGap: false,
           data: xTime,
         },
         yAxis: {
-          type: "value",
+          type: 'value',
           name:
             this.isLong > 0
               ? `${i18n.t('statisticsEcharts.unit')}(${units[this.isLong]})`
               : units[this.isLong],
-          nameLocation: "end",
+          nameLocation: 'end',
           nameGap: 15,
           nameTextStyle: {
             padding: [0, 0, 0, -30],
-            fontWeight: "bold",
+            fontWeight: 'bold',
           },
           axisLabel: {
-            formatter: (value) => {
+            formatter: value => {
               return formatAmount(value, 'object', true).value;
             },
           },
@@ -225,13 +232,19 @@ export default {
 
     // 根据索引获取不同颜色
     getColorByIndex(index) {
-      const colors = ["#0088FF", "#FF9F40", "#1DD1A1", "#FF6B6B", "#5F27CD"];
+      const colors = ['#0088FF', '#FF9F40', '#1DD1A1', '#FF6B6B', '#5F27CD'];
       return colors[index % colors.length];
     },
 
     // 根据索引获取区域颜色
     getAreaColorByIndex(index, opacity) {
-      const baseColors = ["80,141,255", "255,159,64", "29,209,161", "255,107,107", "95,39,205"];
+      const baseColors = [
+        '80,141,255',
+        '255,159,64',
+        '29,209,161',
+        '255,107,107',
+        '95,39,205',
+      ];
       const baseColor = baseColors[index % baseColors.length];
       return `rgba(${baseColor},${opacity})`;
     },
@@ -240,7 +253,7 @@ export default {
     if (this.api) {
       this.api.dispose();
     }
-  }
+  },
 };
 </script>
 

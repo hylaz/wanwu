@@ -77,7 +77,7 @@
       width: 100%;
       padding: 10px 10px 10px 20px;
       border-top: 1px solid #ededed;
-      color: #88888B;
+      color: #88888b;
 
       .user-name {
         width: auto;
@@ -107,14 +107,14 @@
       position: absolute;
       right: -8px;
       top: 17px;
-      background: #B3A7FF;
+      background: #b3a7ff;
       padding: 0 8px;
       line-height: 20px;
       color: #fff;
     }
 
     .tag-app.agent-tag {
-      background: linear-gradient(180deg, #6ED2ED 0%, #50C7E7 100%);
+      background: linear-gradient(180deg, #6ed2ed 0%, #50c7e7 100%);
     }
 
     .tag-app.agentTemplate-tag {
@@ -122,11 +122,11 @@
     }
 
     .tag-app.workflow-tag {
-      background: linear-gradient(180deg, #85A8F9 0%, #6E98F9 100%);
+      background: linear-gradient(180deg, #85a8f9 0%, #6e98f9 100%);
     }
 
     .tag-app.rag-tag {
-      background: linear-gradient(180deg, #C098FF 0%, #A16FF4 100%);
+      background: linear-gradient(180deg, #c098ff 0%, #a16ff4 100%);
     }
 
     .logo /deep/ {
@@ -135,10 +135,10 @@
       margin-right: 12px;
       /*object-fit: cover;
       padding: 10px 5px;*/
-      background: #FFFFFF;
+      background: #ffffff;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
-      border: 0 solid #D9D9D9;
+      border: 0 solid #d9d9d9;
 
       img {
         object-fit: cover;
@@ -183,7 +183,7 @@
       width: 100%;
       text-align: left;
       margin-top: 5px;
-      color: #88888B;
+      color: #88888b;
       word-break: break-all;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -206,7 +206,7 @@
       .publishType-tag {
         color: #666;
         font-size: 12px;
-        background-color: #ECEEFE;
+        background-color: #eceefe;
         padding: 2px 5px;
         border-radius: 4px;
       }
@@ -271,6 +271,6 @@
   padding: 100px 0;
 
   /deep/ .el-empty__description p {
-    color: #B3B1BC;
+    color: #b3b1bc;
   }
 }

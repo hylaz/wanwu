@@ -5,17 +5,17 @@
 </template>
 
 <script>
-
 export default {
   data() {
-    const query = `?workflow_id=${this.$route.query.id}&space_id=${this.$store.state.user.userInfo.orgId}`
+    const query = `?workflow_id=${this.$route.query.id}&space_id=${this.$store.state.user.userInfo.orgId}`;
     return {
-      workflowUrl: process.env.NODE_ENV === 'development'
-        ? `http://localhost:8081/workflow/run${query}`
-        : window.location.origin + this.$basePath + `/workflow/run${query}`
-    }
+      workflowUrl:
+        process.env.NODE_ENV === 'development'
+          ? `http://localhost:8081/workflow/run${query}`
+          : window.location.origin + this.$basePath + `/workflow/run${query}`,
+    };
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

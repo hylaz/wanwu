@@ -9,7 +9,7 @@
         alt=""
       />
       <span class="page-title-name">
-        {{ typeObj[type] ? typeObj[type].title : $t("appSpace.title") }}
+        {{ typeObj[type] ? typeObj[type].title : $t('appSpace.title') }}
       </span>
     </div>
     <div class="hide-loading-bg" style="padding: 20px" v-loading="loading">
@@ -23,13 +23,13 @@
           :class="['workflow-tab', { active: tabActive === workflow }]"
           @click="tabClick(workflow)"
         >
-          {{ $t("appSpace.workflow") }}
+          {{ $t('appSpace.workflow') }}
         </div>
         <div
           :class="['workflow-tab', { active: tabActive === chat }]"
           @click="tabClick(chat)"
         >
-          {{ $t("appSpace.chat") }}
+          {{ $t('appSpace.chat') }}
         </div>
       </div>
       <div class="header-right">
@@ -39,7 +39,7 @@
           @click="showImport"
           v-if="[workflow, chat].includes(type)"
         >
-          {{ $t("common.button.import") }}
+          {{ $t('common.button.import') }}
         </el-button>
         <el-button
           size="mini"
@@ -47,7 +47,7 @@
           @click="showCreate"
           icon="el-icon-plus"
         >
-          {{ $t("common.button.create") }}
+          {{ $t('common.button.create') }}
         </el-button>
       </div>
       <AppList
@@ -70,20 +70,20 @@
 </template>
 
 <script>
-import SearchInput from "@/components/searchInput.vue";
-import AppList from "@/components/appList.vue";
-import CreateTotalDialog from "@/components/createTotalDialog.vue";
-import UploadFileDialog from "@/components/uploadFileDialog.vue";
-import { getAppSpaceList, agnetTemplateList } from "@/api/appspace";
-import { CHAT, WORKFLOW, RAG, AGENT } from "@/utils/commonSet";
-import { mapGetters } from "vuex";
-import { fetchPermFirPath } from "@/utils/util";
+import SearchInput from '@/components/searchInput.vue';
+import AppList from '@/components/appList.vue';
+import CreateTotalDialog from '@/components/createTotalDialog.vue';
+import UploadFileDialog from '@/components/uploadFileDialog.vue';
+import { getAppSpaceList, agnetTemplateList } from '@/api/appspace';
+import { CHAT, WORKFLOW, RAG, AGENT } from '@/utils/commonSet';
+import { mapGetters } from 'vuex';
+import { fetchPermFirPath } from '@/utils/util';
 
 export default {
   components: { SearchInput, CreateTotalDialog, UploadFileDialog, AppList },
   data() {
     return {
-      type: "",
+      type: '',
       chat: CHAT,
       workflow: WORKFLOW,
       tabActive: WORKFLOW,
@@ -91,20 +91,20 @@ export default {
       listData: [],
       typeObj: {
         [WORKFLOW]: {
-          title: this.$t("appSpace.workflow"),
-          img: require("@/assets/imgs/workflow_icon.svg"),
+          title: this.$t('appSpace.workflow'),
+          img: require('@/assets/imgs/workflow_icon.svg'),
         },
         [CHAT]: {
-          title: this.$t("appSpace.workflow"),
-          img: require("@/assets/imgs/workflow_icon.svg"),
+          title: this.$t('appSpace.workflow'),
+          img: require('@/assets/imgs/workflow_icon.svg'),
         },
         [RAG]: {
-          title: this.$t("appSpace.rag"),
-          img: require("@/assets/imgs/rag.svg"),
+          title: this.$t('appSpace.rag'),
+          img: require('@/assets/imgs/rag.svg'),
         },
         [AGENT]: {
-          title: this.$t("appSpace.agent"),
-          img: require("@/assets/imgs/agent.svg"),
+          title: this.$t('appSpace.agent'),
+          img: require('@/assets/imgs/agent.svg'),
         },
       },
       currentTypeObj: {},
@@ -119,7 +119,7 @@ export default {
         this.tabActive = flowType || WORKFLOW;
 
         this.listData = [];
-        this.$refs.searchInput.value = "";
+        this.$refs.searchInput.value = '';
         this.justifyRenderPage(type);
         this.getTableData();
       },
@@ -128,7 +128,7 @@ export default {
     },
     fromList: {
       handler(val) {
-        if (val !== "") {
+        if (val !== '') {
           this.type = val;
           this.getTableData();
         }
@@ -136,7 +136,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("app", ["fromList"]),
+    ...mapGetters('app', ['fromList']),
   },
   mounted() {
     const { type } = this.$route.params || {};
@@ -160,11 +160,11 @@ export default {
       this.loading = true;
       const searchInput = this.$refs.searchInput;
       const searchInfo = {
-        appType: this.type === "all" ? "" : this.type,
+        appType: this.type === 'all' ? '' : this.type,
         ...(searchInput.value && { name: searchInput.value }),
       };
       getAppSpaceList(searchInfo)
-        .then((res) => {
+        .then(res => {
           this.loading = false;
           this.listData = res.data ? res.data.list || [] : [];
         })

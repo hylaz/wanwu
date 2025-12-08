@@ -2,61 +2,69 @@
   <div class="page-wrapper">
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/safety.svg" alt="" />
-      <span class="page-title-name">{{$t('safety.title')}}</span>
-      <p class="page-tips">{{$t('safety.tips')}}</p>
+      <span class="page-title-name">{{ $t('safety.title') }}</span>
+      <p class="page-tips">{{ $t('safety.tips') }}</p>
     </div>
-    <div style="padding: 0 20px 20px 20px;">
-      <safetyList :appData="knowledgeData" @editItem="showCreate" @reloadData="getTableData" ref="knowledgeList" v-loading="tableLoading" />
+    <div style="padding: 0 20px 20px 20px">
+      <safetyList
+        :appData="knowledgeData"
+        @editItem="showCreate"
+        @reloadData="getTableData"
+        ref="knowledgeList"
+        v-loading="tableLoading"
+      />
       <createSafety ref="createSafety" @reloadData="getTableData" />
     </div>
   </div>
 </template>
 <script>
-import { getSensitiveList } from "@/api/safety";
+import { getSensitiveList } from '@/api/safety';
 import safetyList from './component/safetyList.vue';
 import createSafety from './component/create.vue';
 export default {
-    components: { safetyList,createSafety },
-    data(){
-       return{
-        knowledgeData:[],
-        tableLoading:false
-       }
+  components: { safetyList, createSafety },
+  data() {
+    return {
+      knowledgeData: [],
+      tableLoading: false,
+    };
+  },
+  mounted() {
+    this.getTableData();
+  },
+  methods: {
+    getTableData() {
+      this.tableLoading = true;
+      getSensitiveList()
+        .then(res => {
+          this.knowledgeData = res.data.list || [];
+          this.tableLoading = false;
+        })
+        .catch(error => {
+          this.tableLoading = false;
+          this.$message.error(error);
+        });
     },
-    mounted(){
-      this.getTableData();
+    showCreate(row) {
+      this.$refs.createSafety.showDialog(row);
     },
-    methods:{
-        getTableData(){
-            this.tableLoading = true
-            getSensitiveList().then(res => {
-                this.knowledgeData = res.data.list || [];
-                this.tableLoading = false
-            }).catch((error) =>{
-                this.tableLoading = false
-                this.$message.error(error)
-            })
-        },
-        showCreate(row){
-            this.$refs.createSafety.showDialog(row)
-        }
-    }
-}
+  },
+};
 </script>
 <style lang="scss" scoped>
 .search-box {
- display:flex;
- justify-content:space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
-/deep/{
-  .el-loading-mask{
+/deep/ {
+  .el-loading-mask {
     background: none !important;
   }
 }
-.page-tips{
-  color:#888888;
-  padding-top:15px;
-  font-weight:normal;
+.page-tips {
+  color: #888888;
+  padding-top: 15px;
+  font-weight: normal;
 }
 </style>

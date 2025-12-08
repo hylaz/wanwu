@@ -3,11 +3,11 @@
     <div class="compare-header">
       <div class="compare-header-left">
         <span class="el-icon-arrow-left go-back" @click="goBack"></span>
-        <h3>{{ $t("tempSquare.promptCompare") }}</h3>
+        <h3>{{ $t('tempSquare.promptCompare') }}</h3>
       </div>
       <el-button type="primary" size="small" @click="addPromptField">
         <i class="el-icon-plus" style="margin-right: 4px"></i>
-        {{ $t("tempSquare.addPrompt") }}
+        {{ $t('tempSquare.addPrompt') }}
       </el-button>
     </div>
     <div class="compare-content">
@@ -48,12 +48,12 @@
 </template>
 
 <script>
-import PromptField from "./promptField.vue";
-import EditableDivV3 from "../EditableDivV3";
-import { getAgentDetail } from "@/api/agent";
+import PromptField from './promptField.vue';
+import EditableDivV3 from '../EditableDivV3';
+import { getAgentDetail } from '@/api/agent';
 
 export default {
-  name: "PromptCompare",
+  name: 'PromptCompare',
   provide() {
     return {
       getEditableRef: () => this.$refs.editable,
@@ -81,8 +81,8 @@ export default {
     },
     handlePromptSubmit() {
       const editable = this.$refs.editable;
-      if (!editable || typeof editable.getPrompt !== "function") return;
-      const promptText = (editable.getPrompt() || "").trim();
+      if (!editable || typeof editable.getPrompt !== 'function') return;
+      const promptText = (editable.getPrompt() || '').trim();
       if (!promptText) return;
       //验证提示词对比是否为空
       if (!this.promptValidate()) {
@@ -93,7 +93,7 @@ export default {
           const refName = `promptField${i}`;
           const fieldRef = this.$refs[refName];
           const component = Array.isArray(fieldRef) ? fieldRef[0] : fieldRef;
-          if (component && typeof component.preSend === "function") {
+          if (component && typeof component.preSend === 'function') {
             component.preSend(promptText);
           }
         }
@@ -107,31 +107,31 @@ export default {
         const fieldRef = this.$refs[refName];
         const component = Array.isArray(fieldRef) ? fieldRef[0] : fieldRef;
         if (component) {
-          const systemPrompt = (component.systemPrompt || "").trim();
+          const systemPrompt = (component.systemPrompt || '').trim();
           if (!systemPrompt) {
             emptyFields.push(
               i === 0
-                ? this.$t("agent.form.systemPrompt")
-                : `${this.$t("tempSquare.comparePrompt")}${i}`
+                ? this.$t('agent.form.systemPrompt')
+                : `${this.$t('tempSquare.comparePrompt')}${i}`,
             );
           }
         }
       }
       if (emptyFields.length > 0) {
-        const fieldNames = emptyFields.join("、");
+        const fieldNames = emptyFields.join('、');
         this.$message.warning(
-          `${fieldNames}${this.$t("tempSquare.promptRules")}`
+          `${fieldNames}${this.$t('tempSquare.promptRules')}`,
         );
         return false;
       }
       return true;
     },
     getAgentDetail() {
-      getAgentDetail({ assistantId: this.$route.params.id }).then((res) => {
+      getAgentDetail({ assistantId: this.$route.params.id }).then(res => {
         if (res.code === 0) {
           const detail = res.data || {};
           const recommendQuestion = Array.isArray(detail.recommendQuestion)
-            ? detail.recommendQuestion.filter((item) => item && item.value)
+            ? detail.recommendQuestion.filter(item => item && item.value)
             : [];
           this.editForm = {
             ...detail,
@@ -145,7 +145,7 @@ export default {
     },
     addPromptField() {
       if (this.promptFields.length > 4) {
-        this.$message.warning(this.$t("tempSquare.promptCompareLimit"));
+        this.$message.warning(this.$t('tempSquare.promptCompareLimit'));
         return;
       }
       this.promptFields.push({ id: Date.now() + Math.random() });

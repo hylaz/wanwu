@@ -18,8 +18,12 @@
       >
         <el-form-item class="itemCenter">
           <el-radio-group v-model="ruleForm.importType">
-            <el-radio-button :label="'single'">{{ $t('safety.createWord.single') }}</el-radio-button>
-            <el-radio-button :label="'file'">{{ $t('safety.createWord.file') }}</el-radio-button>
+            <el-radio-button :label="'single'">{{
+              $t('safety.createWord.single')
+            }}</el-radio-button>
+            <el-radio-button :label="'file'">{{
+              $t('safety.createWord.file')
+            }}</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item
@@ -37,12 +41,17 @@
           prop="sensitiveType"
           v-if="ruleForm.importType === 'single'"
         >
-          <el-select v-model="ruleForm.sensitiveType" :placeholder="$t('common.select.placeholder')" style="width:100%;">
+          <el-select
+            v-model="ruleForm.sensitiveType"
+            :placeholder="$t('common.select.placeholder')"
+            style="width: 100%"
+          >
             <el-option
               v-for="item in sensitiveTypeOptions"
               :key="item.value"
               :label="item.name"
-              :value="item.value">
+              :value="item.value"
+            >
             </el-option>
           </el-select>
         </el-form-item>
@@ -63,12 +72,22 @@
           >
             <div>
               <div>
-                <img :src="require('@/assets/imgs/uploadImg.png')" class="upload-img"/>
+                <img
+                  :src="require('@/assets/imgs/uploadImg.png')"
+                  class="upload-img"
+                />
                 <p class="click-text">
                   {{ $t('common.fileUpload.uploadText') }}
-                  <span class="clickUpload">{{ $t('common.fileUpload.uploadClick') }}</span>
-                  <a class="clickUpload template" :href="`/user/api/v1/static/docs/sensitive.xlsx`" download
-                     @click.stop>{{ $t('common.fileUpload.templateClick') }}</a>
+                  <span class="clickUpload">{{
+                    $t('common.fileUpload.uploadClick')
+                  }}</span>
+                  <a
+                    class="clickUpload template"
+                    :href="`/user/api/v1/static/docs/sensitive.xlsx`"
+                    download
+                    @click.stop
+                    >{{ $t('common.fileUpload.templateClick') }}</a
+                  >
                 </p>
               </div>
             </div>
@@ -82,33 +101,44 @@
                   :key="index"
                   class="document_lise_item"
                 >
-                  <div style="padding:8px 0;" class="lise_item_box">
-                        <span class="size">
-                            <img :src="require('@/assets/imgs/fileicon.png')"/>
-                            {{ file.name }}
-                            <span class="file-size">
-                            {{ filterSize(file.size) }}
-                            </span>
-                            <el-progress
-                              :percentage="file.percentage"
-                              v-if="file.percentage !== 100"
-                              :status="file.progressStatus"
-                              max="100"
-                              class="progress"
-                            ></el-progress>
-                        </span>
+                  <div style="padding: 8px 0" class="lise_item_box">
+                    <span class="size">
+                      <img :src="require('@/assets/imgs/fileicon.png')" />
+                      {{ file.name }}
+                      <span class="file-size">
+                        {{ filterSize(file.size) }}
+                      </span>
+                      <el-progress
+                        :percentage="file.percentage"
+                        v-if="file.percentage !== 100"
+                        :status="file.progressStatus"
+                        max="100"
+                        class="progress"
+                      ></el-progress>
+                    </span>
                     <span class="handleBtn">
-                            <span>
-                            <span v-if="file.percentage === 100">
-                                <i class="el-icon-check check success" v-if="file.progressStatus === 'success'"></i>
-                                <i class="el-icon-close close fail" v-else></i>
-                            </span>
-                            <i class="el-icon-loading" v-else-if="file.percentage !== 100 && index === fileIndex"></i>
-                            </span>
-                            <span style="margin-left:30px;">
-                            <i class="el-icon-error error" @click="handleRemove(file,index)"></i>
-                            </span>
+                      <span>
+                        <span v-if="file.percentage === 100">
+                          <i
+                            class="el-icon-check check success"
+                            v-if="file.progressStatus === 'success'"
+                          ></i>
+                          <i class="el-icon-close close fail" v-else></i>
                         </span>
+                        <i
+                          class="el-icon-loading"
+                          v-else-if="
+                            file.percentage !== 100 && index === fileIndex
+                          "
+                        ></i>
+                      </span>
+                      <span style="margin-left: 30px">
+                        <i
+                          class="el-icon-error error"
+                          @click="handleRemove(file, index)"
+                        ></i>
+                      </span>
+                    </span>
                   </div>
                 </li>
               </ul>
@@ -116,26 +146,21 @@
           </div>
         </el-form-item>
       </el-form>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-            <el-button
-              @click="handleClose()">
-                {{ $t('common.confirm.cancel') }}
-            </el-button>
-            <el-button
-              type="primary"
-              @click="submitForm('ruleForm')"
-            >{{ $t('common.confirm.confirm') }}</el-button>
-        </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose()">
+          {{ $t('common.confirm.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">{{
+          $t('common.confirm.confirm')
+        }}</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import uploadChunk from "@/mixins/uploadChunk";
-import {delfile} from "@/api/chunkFile";
-import {uploadSensitiveWord} from "@/api/safety";
+import uploadChunk from '@/mixins/uploadChunk';
+import { delfile } from '@/api/chunkFile';
+import { uploadSensitiveWord } from '@/api/safety';
 
 export default {
   mixins: [uploadChunk],
@@ -144,32 +169,32 @@ export default {
       sensitiveTypeOptions: [
         {
           value: 'Political',
-          name: this.$t('common.safetyType.political')
+          name: this.$t('common.safetyType.political'),
         },
         {
           value: 'Revile',
-          name: this.$t('common.safetyType.revile')
+          name: this.$t('common.safetyType.revile'),
         },
         {
           value: 'Pornography',
-          name: this.$t('common.safetyType.pornography')
+          name: this.$t('common.safetyType.pornography'),
         },
         {
           value: 'ViolentTerror',
-          name: this.$t('common.safetyType.violentTerror')
+          name: this.$t('common.safetyType.violentTerror'),
         },
         {
           value: 'Illegal',
-          name: this.$t('common.safetyType.illegal')
+          name: this.$t('common.safetyType.illegal'),
         },
         {
           value: 'InformationSecurity',
-          name: this.$t('common.safetyType.informationSecurity')
+          name: this.$t('common.safetyType.informationSecurity'),
         },
         {
           value: 'Other',
-          name: this.$t('common.safetyType.other')
-        }
+          name: this.$t('common.safetyType.other'),
+        },
       ],
       dialogVisible: false,
       ruleForm: {
@@ -177,15 +202,33 @@ export default {
         word: '',
         sensitiveType: '',
         fileName: '',
-        tableId: ''
+        tableId: '',
       },
       fileList: [],
       rules: {
-        word: [{required: true, message: this.$t('safety.createWord.wordMsg'), trigger: "blur"}],
-        sensitiveType: [{required: true, message: this.$t('safety.createWord.typeMsg'), trigger: "blur"}],
-        fileName: [{required: true, message: this.$t('safety.createWord.fileMsg'), trigger: "blur"}]
-      }
-    }
+        word: [
+          {
+            required: true,
+            message: this.$t('safety.createWord.wordMsg'),
+            trigger: 'blur',
+          },
+        ],
+        sensitiveType: [
+          {
+            required: true,
+            message: this.$t('safety.createWord.typeMsg'),
+            trigger: 'blur',
+          },
+        ],
+        fileName: [
+          {
+            required: true,
+            message: this.$t('safety.createWord.fileMsg'),
+            trigger: 'blur',
+          },
+        ],
+      },
+    };
   },
   methods: {
     uploadOnChange(file, fileList) {
@@ -198,28 +241,28 @@ export default {
       }
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleRemove(item, index) {
-      const data = {fileList: [this.resList[index]['name']], isExpired: true}
+      const data = { fileList: [this.resList[index]['name']], isExpired: true };
       delfile(data).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t('common.info.delete'))
+          this.$message.success(this.$t('common.info.delete'));
         }
-      })
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      });
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
-        this.file = null
+        this.file = null;
       } else {
-        this.fileIndex--
+        this.fileIndex--;
       }
     },
     uploadFile(chunkFileName) {
@@ -228,37 +271,37 @@ export default {
     handleClose() {
       this.dialogVisible = false;
       this.ruleForm.tableId = '';
-      this.clearform()
+      this.clearform();
     },
     clearform() {
-      this.fileList = []
-      this.$refs.ruleForm.resetFields()
-      this.$refs.ruleForm.clearValidate()
+      this.fileList = [];
+      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm.clearValidate();
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
-          uploadSensitiveWord(this.ruleForm).then(res => {
-            if (res.code == 0) {
-              this.$message.success(this.$t('common.message.success'))
-              this.$emit('reload')
-              this.dialogVisible = false;
-            }
-          }).catch(err => {
-
-          })
+          uploadSensitiveWord(this.ruleForm)
+            .then(res => {
+              if (res.code == 0) {
+                this.$message.success(this.$t('common.message.success'));
+                this.$emit('reload');
+                this.dialogVisible = false;
+              }
+            })
+            .catch(err => {});
         } else {
           return false;
         }
-      })
+      });
     },
     showDialog(tableId) {
       this.dialogVisible = true;
       this.ruleForm.tableId = tableId;
       this.clearform();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 .itemCenter {
@@ -277,7 +320,8 @@ export default {
     margin-top: 10px;
   }
 
-  .clickUpload, .template {
+  .clickUpload,
+  .template {
     color: $color;
     font-weight: bold;
   }
@@ -330,7 +374,7 @@ export default {
   }
 
   .document_lise_item:hover {
-    background: #ECEEFE;
+    background: #eceefe;
   }
 }
 </style>

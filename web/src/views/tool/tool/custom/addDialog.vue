@@ -8,13 +8,13 @@
     :close-on-click-modal="false"
   >
     <div class="action">
-      <el-form
-        :model="form"
-        :rules="rules"
-        ref="form">
+      <el-form :model="form" :rules="rules" ref="form">
         <el-col :span="24" class="left-col">
           <div class="action-form">
-            <div class="block prompt-box" v-show="!dialogDetailVisible && !dialogToolVisible">
+            <div
+              class="block prompt-box"
+              v-show="!dialogDetailVisible && !dialogToolVisible"
+            >
               <p class="block-title rl">{{ $t('tool.custom.avatar') }}</p>
               <upload-avatar
                 :avatar="form.avatar"
@@ -24,29 +24,50 @@
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
               <p class="block-title required-label rl">
-                {{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
+                {{
+                  dialogToolVisible
+                    ? $t('tool.custom.app')
+                    : $t('tool.custom.tool')
+                }}
+              </p>
               <el-form-item prop="name">
                 <el-input
                   class="name-input"
                   v-model="form.name"
-                  :placeholder="$t('common.hint.modelName')"/>
+                  :placeholder="$t('common.hint.modelName')"
+                />
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogToolVisible">
-              <p class="block-title required-label rl">{{ $t('tool.custom.desc') }}</p>
+              <p class="block-title required-label rl">
+                {{ $t('tool.custom.desc') }}
+              </p>
               <div v-show="dialogDetailVisible">{{ form.description }}</div>
               <el-form-item prop="description" v-show="!dialogDetailVisible">
-                <el-input class="name-input" v-model="form.description"
-                          :placeholder="$t('common.input.placeholder') + $t('tool.custom.desc')"/>
+                <el-input
+                  class="name-input"
+                  v-model="form.description"
+                  :placeholder="
+                    $t('common.input.placeholder') + $t('tool.custom.desc')
+                  "
+                />
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
-              <p class="block-title required-label rl">{{ $t('tool.custom.apiAuth') }}</p>
+              <p class="block-title required-label rl">
+                {{ $t('tool.custom.apiAuth') }}
+              </p>
               <div class="rl" @click="preAuthorize">
                 <el-form-item prop="apiAuth">
-                  <div class="api-key">{{ authTypeMap[form.apiAuth.authType] }}</div>
+                  <div class="api-key">
+                    {{ authTypeMap[form.apiAuth.authType] }}
+                  </div>
                 </el-form-item>
-                <img class="auth-icon" :src="require('@/assets/imgs/auth.png')" alt=""/>
+                <img
+                  class="auth-icon"
+                  :src="require('@/assets/imgs/auth.png')"
+                  alt=""
+                />
               </div>
             </div>
 
@@ -54,11 +75,21 @@
               <p class="block-title required-label rl">Schema</p>
               <div class="rl">
                 <div class="flex" style="margin-bottom: 10px">
-                  <el-select v-model="example" :placeholder="$t('tool.custom.schema')" style="width:100%;"
-                             @change="exampleChange">
+                  <el-select
+                    v-model="example"
+                    :placeholder="$t('tool.custom.schema')"
+                    style="width: 100%"
+                    @change="exampleChange"
+                  >
                     <!--<el-option label="模板样例导入" value="json"></el-option>-->
-                    <el-option :label="'JSON' + $t('tool.custom.example')" value="json"></el-option>
-                    <el-option :label="'YAML' + $t('tool.custom.example')" value="yaml"></el-option>
+                    <el-option
+                      :label="'JSON' + $t('tool.custom.example')"
+                      value="json"
+                    ></el-option>
+                    <el-option
+                      :label="'YAML' + $t('tool.custom.example')"
+                      value="yaml"
+                    ></el-option>
                   </el-select>
                 </div>
                 <el-form-item prop="schema">
@@ -67,13 +98,16 @@
                     v-model="form.schema"
                     @blur="listenerSchema"
                     :placeholder="$t('tool.custom.schemaPlaceholder')"
-                    type="textarea"/>
+                    type="textarea"
+                  />
                 </el-form-item>
               </div>
             </div>
 
             <div class="block prompt-box">
-              <p class="block-title required-label rl">{{ $t('tool.custom.api') }}</p>
+              <p class="block-title required-label rl">
+                {{ $t('tool.custom.api') }}
+              </p>
               <div class="api-list">
                 <el-form-item prop="apiTable">
                   <el-table
@@ -88,19 +122,14 @@
                       v-if="dialogToolVisible"
                       type="selection"
                       width="55"
-                      align="center">
+                      align="center"
+                    >
                     </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="Name">
+                    <el-table-column prop="name" label="Name">
                     </el-table-column>
-                    <el-table-column
-                      prop="method"
-                      label="Method">
+                    <el-table-column prop="method" label="Method">
                     </el-table-column>
-                    <el-table-column
-                      prop="path"
-                      label="Path">
+                    <el-table-column prop="path" label="Path">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -112,7 +141,8 @@
                 <el-input
                   class="name-input"
                   v-model="form.privacyPolicy"
-                  :placeholder="$t('tool.custom.privacyPlaceholder')"/>
+                  :placeholder="$t('tool.custom.privacyPlaceholder')"
+                />
               </el-form-item>
             </div>
           </div>
@@ -129,21 +159,35 @@
         @close="beforeApiAuthClose"
       >
         <div class="action-form">
-          <el-form :rules="apiAuthRules" ref="apiAuthForm" :inline="false" :model="form.apiAuth">
+          <el-form
+            :rules="apiAuthRules"
+            ref="apiAuthForm"
+            :inline="false"
+            :model="form.apiAuth"
+          >
             <el-form-item :label="$t('tool.custom.auth.authType')">
               <el-select v-model="form.apiAuth.authType">
-                <el-option label="None" value="none"/>
-                <el-option :label="$t('tool.custom.auth.headerType')" value="api_key_header"/>
-                <el-option :label="$t('tool.custom.auth.queryType')" value="api_key_query"/>
+                <el-option label="None" value="none" />
+                <el-option
+                  :label="$t('tool.custom.auth.headerType')"
+                  value="api_key_header"
+                />
+                <el-option
+                  :label="$t('tool.custom.auth.queryType')"
+                  value="api_key_query"
+                />
               </el-select>
             </el-form-item>
             <!--请求头-->
             <div v-show="form.apiAuth.authType === 'api_key_header'">
-              <el-form-item :label="$t('tool.custom.auth.prefix')" prop="apiKeyHeaderPrefix">
+              <el-form-item
+                :label="$t('tool.custom.auth.prefix')"
+                prop="apiKeyHeaderPrefix"
+              >
                 <el-select v-model="form.apiAuth.apiKeyHeaderPrefix">
-                  <el-option label="Basic" value="basic"/>
-                  <el-option label="Bearer" value="bearer"/>
-                  <el-option label="Custom" value="custom"/>
+                  <el-option label="Basic" value="basic" />
+                  <el-option label="Bearer" value="bearer" />
+                  <el-option label="Custom" value="custom" />
                 </el-select>
               </el-form-item>
               <el-form-item prop="apiKeyHeader">
@@ -154,7 +198,7 @@
                     :content="$t('tool.custom.auth.headerHint')"
                     placement="top-start"
                   >
-                    <span class="el-icon-question tips"/>
+                    <span class="el-icon-question tips" />
                   </el-tooltip>
                 </template>
                 <el-input
@@ -164,8 +208,16 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item :label="$t('tool.custom.auth.value')" prop="apiKeyValue">
-                <el-input class="desc-input" v-model="form.apiAuth.apiKeyValue" placeholder="API key" clearable/>
+              <el-form-item
+                :label="$t('tool.custom.auth.value')"
+                prop="apiKeyValue"
+              >
+                <el-input
+                  class="desc-input"
+                  v-model="form.apiAuth.apiKeyValue"
+                  placeholder="API key"
+                  clearable
+                />
               </el-form-item>
             </div>
             <!--查询参数-->
@@ -178,7 +230,7 @@
                     :content="$t('tool.custom.auth.queryHint')"
                     placement="top-start"
                   >
-                    <span class="el-icon-question tips"/>
+                    <span class="el-icon-question tips" />
                   </el-tooltip>
                 </template>
                 <el-input
@@ -187,68 +239,95 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item :label="$t('tool.custom.auth.value')" prop="apiKeyValue">
-                <el-input class="desc-input" v-model="form.apiAuth.apiKeyValue" placeholder="API key" clearable/>
+              <el-form-item
+                :label="$t('tool.custom.auth.value')"
+                prop="apiKeyValue"
+              >
+                <el-input
+                  class="desc-input"
+                  v-model="form.apiAuth.apiKeyValue"
+                  placeholder="API key"
+                  clearable
+                />
               </el-form-item>
             </div>
           </el-form>
         </div>
         <span slot="footer" class="dialog-footer">
-                <el-button @click="beforeApiAuthClose">{{ $t('common.button.cancel') }}</el-button>
-                <el-button type="primary" @click="listenerApiKey">{{ $t('common.button.confirm') }}</el-button>
-            </span>
+          <el-button @click="beforeApiAuthClose">{{
+            $t('common.button.cancel')
+          }}</el-button>
+          <el-button type="primary" @click="listenerApiKey">{{
+            $t('common.button.confirm')
+          }}</el-button>
+        </span>
       </el-dialog>
     </div>
     <span slot="footer" class="dialog-footer" v-show="!dialogDetailVisible">
-        <el-button @click="cancel">{{ $t('common.button.cancel') }}</el-button>
-        <el-button
-          type="primary"
-          @click="submit"
-          :loading="loading">{{ $t('common.button.confirm') }}</el-button>
+      <el-button @click="cancel">{{ $t('common.button.cancel') }}</el-button>
+      <el-button type="primary" @click="submit" :loading="loading">{{
+        $t('common.button.confirm')
+      }}</el-button>
     </span>
     <span slot="footer" class="dialog-footer" v-show="dialogDetailVisible">
-        <el-button
-          type="primary"
-          @click="dialogDetailVisible = false; title = $t('tool.custom.editTitle')">{{
-            $t('common.button.edit')
-          }}</el-button>
+      <el-button
+        type="primary"
+        @click="
+          dialogDetailVisible = false;
+          title = $t('tool.custom.editTitle');
+        "
+        >{{ $t('common.button.edit') }}</el-button
+      >
     </span>
   </el-dialog>
 </template>
 
 <script>
-import {getCustom, addCustom, editCustom, getSchema, addOpenapi} from "@/api/mcp";
-import {schemaConfig} from '@/utils/schema.conf';
-import uploadAvatar from "@/components/uploadAvatar.vue";
+import {
+  getCustom,
+  addCustom,
+  editCustom,
+  getSchema,
+  addOpenapi,
+} from '@/api/mcp';
+import { schemaConfig } from '@/utils/schema.conf';
+import uploadAvatar from '@/components/uploadAvatar.vue';
 
 export default {
-  components: {uploadAvatar},
+  components: { uploadAvatar },
   data() {
     const validateApiAuthFields = (rule, value, callback) => {
-      if (this.form.apiAuth.authType === 'api_key_header' &&
-        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyHeader)) {
+      if (
+        this.form.apiAuth.authType === 'api_key_header' &&
+        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyHeader)
+      ) {
         callback(new Error(rule.message));
-      } else if (this.form.apiAuth.authType === 'api_key_query' &&
-        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyQueryParam)) {
+      } else if (
+        this.form.apiAuth.authType === 'api_key_query' &&
+        (!this.form.apiAuth.apiKeyValue || !this.form.apiAuth.apiKeyQueryParam)
+      ) {
         callback(new Error(rule.message));
       } else {
         callback();
       }
-    }
+    };
     const validateApiTableFields = (rule, value, callback) => {
-      if (this.dialogToolVisible && this.$refs.apiTable.selection.length === 0) {
+      if (
+        this.dialogToolVisible &&
+        this.$refs.apiTable.selection.length === 0
+      ) {
         callback(new Error(rule.message));
       } else {
         callback();
       }
-    }
+    };
     return {
       dialogBasicVisible: false,
       dialogDetailVisible: false,
       dialogToolVisible: false,
       title: '',
       apiList: [],
-      defaultAvatar: require("@/assets/imgs/toolImg.png"),
+      defaultAvatar: require('@/assets/imgs/toolImg.png'),
       example: '',
       form: {
         description: '',
@@ -261,86 +340,146 @@ export default {
           authType: 'none',
           apiKeyValue: '',
           apiKeyHeader: '',
-          apiKeyHeaderPrefix: "basic",
+          apiKeyHeaderPrefix: 'basic',
           apiKeyQueryParam: '',
         },
         avatar: {
-          key: "",
-          path: ""
+          key: '',
+          path: '',
         },
       },
       //认证表单
       dialogAuthVisible: false,
       rules: {
-        description: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        name: [
-          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
-          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
-          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+        description: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
         ],
-        schema: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        apiAuth: [{validator: validateApiAuthFields, message: this.$t('tool.custom.apiAuthPlaceholder'), trigger: 'blur'}],
-        apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiPlaceholder'), trigger: 'blur'}],
+        name: [
+          {
+            pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/,
+            message: this.$t('common.hint.modelName'),
+            trigger: 'blur',
+          },
+          {
+            min: 2,
+            max: 50,
+            message: this.$t('common.hint.modelNameLimit'),
+            trigger: 'blur',
+          },
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        schema: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        apiAuth: [
+          {
+            validator: validateApiAuthFields,
+            message: this.$t('tool.custom.apiAuthPlaceholder'),
+            trigger: 'blur',
+          },
+        ],
+        apiTable: [
+          {
+            validator: validateApiTableFields,
+            message: this.$t('tool.custom.apiPlaceholder'),
+            trigger: 'blur',
+          },
+        ],
       },
       apiAuthRules: {
-        apiKeyValue: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        apiKeyHeader: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        apiKeyQueryParam: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        apiKeyHeaderPrefix: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        apiKeyValue: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        apiKeyHeader: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        apiKeyQueryParam: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        apiKeyHeaderPrefix: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
       },
       schemaConfig: schemaConfig,
-      loading: false
-    }
+      loading: false,
+    };
   },
   computed: {
     authTypeMap() {
       return {
         none: 'None',
         api_key_header: this.$t('tool.custom.auth.headerType'),
-        api_key_query: this.$t('tool.custom.auth.queryType')
-      }
+        api_key_query: this.$t('tool.custom.auth.queryType'),
+      };
     },
   },
   methods: {
     showDialog(customToolId, dialogDetailVisible) {
-      this.dialogDetailVisible = dialogDetailVisible
-      this.dialogBasicVisible = true
+      this.dialogDetailVisible = dialogDetailVisible;
+      this.dialogBasicVisible = true;
       if (customToolId) {
-        if (!dialogDetailVisible) this.title = this.$t('tool.custom.editTitle')
+        if (!dialogDetailVisible) this.title = this.$t('tool.custom.editTitle');
         const params = {
-          customToolId: customToolId
-        }
-        getCustom(params)
-          .then((res) => {
-            const {list, ...form} = res.data
-            this.form = form
-            if (dialogDetailVisible) {
-              this.title = form.name
-            }
-            this.listenerSchema()
-          })
-      } else this.title = this.$t('tool.custom.addTitle')
+          customToolId: customToolId,
+        };
+        getCustom(params).then(res => {
+          const { list, ...form } = res.data;
+          this.form = form;
+          if (dialogDetailVisible) {
+            this.title = form.name;
+          }
+          this.listenerSchema();
+        });
+      } else this.title = this.$t('tool.custom.addTitle');
     },
     showToolDialog(mcpServerId) {
-      this.form.mcpServerId = mcpServerId
-      this.dialogBasicVisible = true
-      this.dialogToolVisible = true
-      this.form.description = ' '
-      this.title = this.$t('tool.custom.toolTitle')
+      this.form.mcpServerId = mcpServerId;
+      this.dialogBasicVisible = true;
+      this.dialogToolVisible = true;
+      this.form.description = ' ';
+      this.title = this.$t('tool.custom.toolTitle');
     },
     handleUpdateAvatar(avatar) {
-      this.form = {...this.form, avatar: avatar};
+      this.form = { ...this.form, avatar: avatar };
     },
     exampleChange(value) {
-      this.form.schema = this.schemaConfig[value]
-      this.listenerSchema()
+      this.form.schema = this.schemaConfig[value];
+      this.listenerSchema();
     },
     beforeApiAuthClose() {
-      this.$refs.apiAuthForm.clearValidate()
-      this.dialogAuthVisible = false
+      this.$refs.apiAuthForm.clearValidate();
+      this.dialogAuthVisible = false;
     },
     listenerApiKey() {
-      this.rules.apiAuth[0].validator({}, null, (error) => {
+      this.rules.apiAuth[0].validator({}, null, error => {
         if (!error) {
           this.dialogAuthVisible = false;
         }
@@ -348,81 +487,88 @@ export default {
     },
     listenerSchema() {
       const params = JSON.stringify({
-        schema: this.form.schema
-      })
-      getSchema(params)
-        .then((res) => {
-          this.apiList = res.data.list || []
-        })
+        schema: this.form.schema,
+      });
+      getSchema(params).then(res => {
+        this.apiList = res.data.list || [];
+      });
     },
     preAuthorize() {
-      this.form.apiAuth.apiKeyHeaderPrefix = this.form.apiAuth.apiKeyHeaderPrefix || "basic"
-      this.dialogAuthVisible = true
+      this.form.apiAuth.apiKeyHeaderPrefix =
+        this.form.apiAuth.apiKeyHeaderPrefix || 'basic';
+      this.dialogAuthVisible = true;
     },
     submit() {
-      this.$refs.form.validate(async (valid) => {
+      this.$refs.form.validate(async valid => {
         if (!valid) return;
-        this.loading = true
+        this.loading = true;
         switch (this.form.apiAuth.authType) {
           case 'none':
-            this.form.apiAuth.apiKeyValue = ''
-            this.form.apiAuth.apiKeyHeader = ''
-            this.form.apiAuth.apiKeyHeaderPrefix = ''
-            this.form.apiAuth.apiKeyQueryParam = ''
-            break
+            this.form.apiAuth.apiKeyValue = '';
+            this.form.apiAuth.apiKeyHeader = '';
+            this.form.apiAuth.apiKeyHeaderPrefix = '';
+            this.form.apiAuth.apiKeyQueryParam = '';
+            break;
           case 'api_key_query':
-            this.form.apiAuth.apiKeyHeader = ''
-            this.form.apiAuth.apiKeyHeaderPrefix = ''
-            break
+            this.form.apiAuth.apiKeyHeader = '';
+            this.form.apiAuth.apiKeyHeaderPrefix = '';
+            break;
           case 'api_key_header':
-            this.form.apiAuth.apiKeyQueryParam = ''
-            break
+            this.form.apiAuth.apiKeyQueryParam = '';
+            break;
         }
         const params = {
-          ...this.form
-        }
+          ...this.form,
+        };
         if (this.form.customToolId) {
           editCustom(params)
-            .then((res) => {
+            .then(res => {
               if (res.code === 0) {
-                this.$message.success(this.$t('common.info.edit'))
-                this.$emit("handleFetch", false)
-                this.cancel()
+                this.$message.success(this.$t('common.info.edit'));
+                this.$emit('handleFetch', false);
+                this.cancel();
               }
-            }).finally(() => this.loading = false)
+            })
+            .finally(() => (this.loading = false));
         } else {
-          delete params.customToolId
+          delete params.customToolId;
           if (this.dialogToolVisible) {
-            params.methodNames = this.$refs.apiTable.selection.map(item => item.name)
-            addOpenapi(params).then((res) => {
-              if (res.code === 0) {
-                this.$message.success(this.$t('common.info.create'))
-                this.$emit("handleFetch", false)
-                this.cancel()
-              }
-            }).finally(() => this.loading = false)
+            params.methodNames = this.$refs.apiTable.selection.map(
+              item => item.name,
+            );
+            addOpenapi(params)
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.create'));
+                  this.$emit('handleFetch', false);
+                  this.cancel();
+                }
+              })
+              .finally(() => (this.loading = false));
           } else {
-            addCustom(params).then((res) => {
-              if (res.code === 0) {
-                this.$message.success(this.$t('common.info.create'))
-                this.$emit("handleFetch", false)
-                this.cancel()
-              }
-            }).finally(() => this.loading = false)
+            addCustom(params)
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.create'));
+                  this.$emit('handleFetch', false);
+                  this.cancel();
+                }
+              })
+              .finally(() => (this.loading = false));
           }
         }
-      })
+      });
     },
     cancel() {
-      this.$emit("handleClose", false)
-      this.loading = false
-      this.dialogBasicVisible = false
-      this.dialogDetailVisible = false
-      this.dialogToolVisible = false
-      this.apiList = []
-      this.example = ''
-      this.title = ''
-      this.$refs.form.clearValidate()
+      this.$emit('handleClose', false);
+      this.loading = false;
+      this.dialogBasicVisible = false;
+      this.dialogDetailVisible = false;
+      this.dialogToolVisible = false;
+      this.apiList = [];
+      this.example = '';
+      this.title = '';
+      this.$refs.form.clearValidate();
       this.form = {
         description: '',
         customToolId: '',
@@ -434,19 +580,18 @@ export default {
           authType: 'none',
           apiKeyValue: '',
           apiKeyHeader: '',
-          apiKeyHeaderPrefix: "basic",
+          apiKeyHeaderPrefix: 'basic',
           apiKeyQueryParam: '',
-        }
-      }
-    }
+        },
+      };
+    },
   },
-
-}
+};
 </script>
 
 <style lang="scss" scoped>
 /deep/ .el-radio__input.is-checked .el-radio__inner {
-  border-color: #D33A3A !important;
+  border-color: #d33a3a !important;
   background: transparent !important;
 }
 
@@ -529,7 +674,7 @@ export default {
       height: 40px;
       line-height: 40px;
       outline: 0;
-      transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+      transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
       width: 100%;
     }
 
@@ -543,7 +688,6 @@ export default {
       padding: 7px 9px;
     }
   }
-
 }
 
 .right-col {
@@ -571,7 +715,8 @@ export default {
   position: relative;
   height: 100%;
 
-  /deep/ .el-input__inner, /deep/ .el-textarea__inner {
+  /deep/ .el-input__inner,
+  /deep/ .el-textarea__inner {
     background-color: transparent !important;
     border: 1px solid #d3d7dd !important;
     font-family: 'Microsoft YaHei', Arial, sans-serif;

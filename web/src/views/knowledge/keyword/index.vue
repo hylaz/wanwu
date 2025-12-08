@@ -8,7 +8,7 @@
       >
       </i>
       {{ $t('knowledgeManage.keyWordManage') }}
-      <LinkIcon type="knowledge-keywords"/>
+      <LinkIcon type="knowledge-keywords" />
       <div class="keyWordTip">{{ $t('knowledgeManage.keyWordTip') }}</div>
     </div>
     <div class="block table-wrap list-common wrap-fullheight">
@@ -17,24 +17,31 @@
           <el-container>
             <el-header class="classifyTitle">
               <div class="searchInfo">
-                <search-input class="cover-input-icon" :placeholder="$t('knowledgeManage.keyWordPlaceholder')"
-                              ref="searchInput" @handleSearch="handleSearch" style="width:300px;"/>
+                <search-input
+                  class="cover-input-icon"
+                  :placeholder="$t('knowledgeManage.keyWordPlaceholder')"
+                  ref="searchInput"
+                  @handleSearch="handleSearch"
+                  style="width: 300px"
+                />
               </div>
               <div class="content_title">
-                <el-button size="mini" type="primary" icon="el-icon-plus" @click="create">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-plus"
+                  @click="create"
+                >
                   {{ $t('knowledgeManage.newKeyWord') }}
                 </el-button>
               </div>
             </el-header>
-            <el-main
-              class="noPadding"
-              v-loading="tableLoading"
-            >
+            <el-main class="noPadding" v-loading="tableLoading">
               <el-alert
                 :title="title_tips"
                 type="warning"
                 show-icon
-                style="margin-bottom:10px;"
+                style="margin-bottom: 10px"
                 v-if="showTips"
               ></el-alert>
               <el-table
@@ -42,22 +49,20 @@
                 style="width: 100%"
                 :header-cell-style="{ background: '#F9F9F9', color: '#999999' }"
               >
-                <el-table-column
-                  prop="name"
-                  :label="$t('keyword.quesKeyword')"
-                >
+                <el-table-column prop="name" :label="$t('keyword.quesKeyword')">
                 </el-table-column>
-                <el-table-column
-                  prop="alias"
-                  :label="$t('keyword.docWord')"
-                >
+                <el-table-column prop="alias" :label="$t('keyword.docWord')">
                 </el-table-column>
                 <el-table-column
                   prop="knowledgeBaseNames"
                   :label="$t('keyword.linkKnowledge')"
                 >
                   <template slot-scope="scope">
-                    <span>{{ scope.row.knowledgeBaseNames ? scope.row.knowledgeBaseNames.join(',') : '' }}</span>
+                    <span>{{
+                      scope.row.knowledgeBaseNames
+                        ? scope.row.knowledgeBaseNames.join(',')
+                        : ''
+                    }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -70,17 +75,11 @@
                   width="260"
                 >
                   <template slot-scope="scope">
-                    <el-button
-                      size="mini"
-                      round
-                      @click="editItem(scope.row)"
-                    >{{ $t('common.button.edit') }}
+                    <el-button size="mini" round @click="editItem(scope.row)"
+                      >{{ $t('common.button.edit') }}
                     </el-button>
-                    <el-button
-                      size="mini"
-                      round
-                      @click="handleDel(scope.row)"
-                    >{{ $t('common.button.delete') }}
+                    <el-button size="mini" round @click="handleDel(scope.row)"
+                      >{{ $t('common.button.delete') }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -98,84 +97,82 @@
         </el-main>
       </el-container>
     </div>
-    <createKeyWords ref="createKeyWords"/>
+    <createKeyWords ref="createKeyWords" />
   </div>
 </template>
 
 <script>
-import Pagination from "@/components/pagination.vue";
-import SearchInput from "@/components/searchInput.vue";
-import {delDocItem} from "@/api/knowledge";
-import {getKeyWord, delKeyWord} from "@/api/keyword";
+import Pagination from '@/components/pagination.vue';
+import SearchInput from '@/components/searchInput.vue';
+import { delDocItem } from '@/api/knowledge';
+import { getKeyWord, delKeyWord } from '@/api/keyword';
 import createKeyWords from './create.vue';
-import LinkIcon from "@/components/linkIcon.vue";
+import LinkIcon from '@/components/linkIcon.vue';
 
 export default {
-  components: {LinkIcon, Pagination, SearchInput, createKeyWords},
+  components: { LinkIcon, Pagination, SearchInput, createKeyWords },
   data() {
     return {
       tableLoading: false,
       docQuery: {
-        name: ''
+        name: '',
       },
       listApi: getKeyWord,
       title_tips: '',
       showTips: false,
       tableData: [],
-      keyWordeData: []
+      keyWordeData: [],
     };
   },
   mounted() {
-    this.getTableData(this.docQuery)
+    this.getTableData(this.docQuery);
   },
   methods: {
     refreshData(data) {
-      this.tableData = data
+      this.tableData = data;
     },
     updateData() {
-      this.getTableData(this.docQuery)
+      this.getTableData(this.docQuery);
     },
     create() {
-      this.$refs.createKeyWords.showDialog()
+      this.$refs.createKeyWords.showDialog();
     },
     editItem(item) {
-      this.$refs.createKeyWords.showDialog(item)
+      this.$refs.createKeyWords.showDialog(item);
     },
     goBack() {
-      this.$router.push({path: '/knowledge'})
+      this.$router.push({ path: '/knowledge' });
     },
     handleSearch(val) {
       this.docQuery.name = val;
-      this.getTableData(this.docQuery)
+      this.getTableData(this.docQuery);
     },
     handleDel(data) {
-      this.$confirm('确定要删除当前数据吗？', this.$t('knowledgeManage.tip'),
-        {
-          confirmButtonText: this.$t('common.button.confirm'),
-          cancelButtonText: this.$t('common.button.cancel'),
-          type: "warning"
-        }
-      )
+      this.$confirm('确定要删除当前数据吗？', this.$t('knowledgeManage.tip'), {
+        confirmButtonText: this.$t('common.button.confirm'),
+        cancelButtonText: this.$t('common.button.cancel'),
+        type: 'warning',
+      })
         .then(async () => {
-          let jsondata = {id: data.id}
+          let jsondata = { id: data.id };
           this.tableLoading = true;
           let res = await delKeyWord(jsondata);
           if (res.code === 0) {
             this.$message.success(this.$t('common.info.delete'));
-            this.getTableData(this.docQuery)//获取知识分类数据
+            this.getTableData(this.docQuery); //获取知识分类数据
           }
           this.tableLoading = false;
         })
-        .catch((error) => {
-          this.getTableData(this.docQuery)
+        .catch(error => {
+          this.getTableData(this.docQuery);
         });
     },
     async getTableData(data) {
       this.tableLoading = true;
-      this.tableData = await this.$refs["pagination"].getTableData(data);
+      this.tableData = await this.$refs['pagination'].getTableData(data);
       this.tableLoading = false;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -398,11 +395,11 @@ export default {
   color: #666; /* 设置文字颜色 */
 }
 
-.custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
+.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
   border-top-color: #fff !important;
 }
 
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
+.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
   border-top-color: #ccc !important;
 }
 </style>

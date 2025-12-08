@@ -12,7 +12,7 @@
         element-loading-background="rgba(255, 255, 255, 0.5)"
       >
         <div class="dialog-body">
-          <p class="upload-title">{{ $t("common.fileUpload.uploadFile") }}</p>
+          <p class="upload-title">{{ $t('common.fileUpload.uploadFile') }}</p>
           <el-upload
             :class="['upload-box']"
             drag
@@ -35,24 +35,24 @@
                   playsinline
                 >
                   <source :src="fileUrl" type="video/mp4" />
-                  {{ $t("common.fileUpload.videoTips") }}
+                  {{ $t('common.fileUpload.videoTips') }}
                 </video>
                 <audio v-if="fileType === 'audio/*'" id="audio" controls>
                   <source :src="fileUrl" type="video/mp3" />
                   <source :src="fileUrl" type="audio/ogg" />
                   <source :src="fileUrl" type="audio/mpeg" />
-                  {{ $t("common.fileUpload.audioTips") }}
+                  {{ $t('common.fileUpload.audioTips') }}
                 </audio>
                 <div v-if="fileType === 'doc/*'" class="docFile">
                   <img :src="require('@/assets/imgs/docFile.png')" />
                 </div>
-                <p>文件名称: {{ fileList[0]["name"] }}</p>
+                <p>文件名称: {{ fileList[0]['name'] }}</p>
                 <p>
                   文件大小:
                   {{
-                    fileList[0]["size"] > 1024
-                      ? (fileList[0]["size"] / (1024 * 1024)).toFixed(2) + " MB"
-                      : fileList[0]["size"] + " bytes"
+                    fileList[0]['size'] > 1024
+                      ? (fileList[0]['size'] / (1024 * 1024)).toFixed(2) + ' MB'
+                      : fileList[0]['size'] + ' bytes'
                   }}
                 </p>
               </div>
@@ -66,24 +66,27 @@
                   style="width: 360px; margin: 0 auto"
                 ></el-progress>
                 <p>
-                  {{ $t("common.fileUpload.limitTips") }}
+                  {{ $t('common.fileUpload.limitTips') }}
                   <span style="color: red">
-                    {{ $t("common.fileUpload.click") }}
+                    {{ $t('common.fileUpload.click') }}
                   </span>
-                  {{ $t("common.fileUpload.refreshTips") }}
+                  {{ $t('common.fileUpload.refreshTips') }}
                 </p>
               </div>
             </div>
             <div v-else>
               <i class="el-icon-upload"></i>
               <p>
-                {{ $t("common.fileUpload.uploadText") + $t("common.fileUpload.uploadClick") }}
+                {{
+                  $t('common.fileUpload.uploadText') +
+                  $t('common.fileUpload.uploadClick')
+                }}
               </p>
               <div class="tips">
                 <p>
-                  {{ $t("common.fileUpload.typeFileTip1") }}
+                  {{ $t('common.fileUpload.typeFileTip1') }}
                   <span>{{ tipsArr }}</span>
-                  {{ $t("common.fileUpload.typeFileTip") }}
+                  {{ $t('common.fileUpload.typeFileTip') }}
                 </p>
               </div>
             </div>
@@ -95,7 +98,7 @@
             :disabled="!fileUrl || !(file && file.percentage === 100)"
             @click="doBatchUpload"
           >
-            {{ $t("common.fileUpload.submitBtn") }}
+            {{ $t('common.fileUpload.submitBtn') }}
           </el-button>
         </div>
       </div>
@@ -104,119 +107,119 @@
 </template>
 
 <script>
-import { batchUpload, confirmPath } from "@/api/chat"
-import uploadChunk from "@/mixins/uploadChunk"
+import { batchUpload, confirmPath } from '@/api/chat';
+import uploadChunk from '@/mixins/uploadChunk';
 export default {
-  props: ["fileTypeArr", "sessionId"],
+  props: ['fileTypeArr', 'sessionId'],
   mixins: [uploadChunk],
   data() {
     return {
       fileIdList: [],
       fileList: [],
-      fileType: "",
+      fileType: '',
       //上传文件弹框
       loading: false,
       dialogVisible: false,
-      fileUrl: "",
+      fileUrl: '',
       //上传文件
-      imgConfig: ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"],
-      audioConfig: ["mp3", "wav"],
-      tipsArr: "",
+      imgConfig: ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'],
+      audioConfig: ['mp3', 'wav'],
+      tipsArr: '',
       tipsObj: {
-        "image/*": [".jpg", ".jpeg", ".png", ".webp"],
-        "audio/*": [".wav", ".mp3"],
-        "doc/*": [".txt", ".csv", ".xlsx", ".docx", ".html", ".pptx", ".pdf"],
+        'image/*': ['.jpg', '.jpeg', '.png', '.webp'],
+        'audio/*': ['.wav', '.mp3'],
+        'doc/*': ['.txt', '.csv', '.xlsx', '.docx', '.html', '.pptx', '.pdf'],
       },
-      chunkFileName: "",
-    }
+      chunkFileName: '',
+    };
   },
   watch: {
     fileTypeArr(val, oldVal) {
-      this.setFileType(val)
+      this.setFileType(val);
     },
   },
   created() {
-    this.sessionId = this.sessionId || this.$route.query.sessionId
+    this.sessionId = this.sessionId || this.$route.query.sessionId;
     if (this.fileTypeArr.length) {
-      this.setFileType(this.fileTypeArr)
+      this.setFileType(this.fileTypeArr);
     }
   },
   methods: {
     setFileType(fileTypeArr) {
       if (fileTypeArr.length) {
-        this.tipsArr = ""
-        let tips_arr = []
-        fileTypeArr.forEach((item) => {
-          tips_arr = tips_arr.concat(this.tipsObj[item])
-        })
-        this.tipsArr = tips_arr.join(", ")
+        this.tipsArr = '';
+        let tips_arr = [];
+        fileTypeArr.forEach(item => {
+          tips_arr = tips_arr.concat(this.tipsObj[item]);
+        });
+        this.tipsArr = tips_arr.join(', ');
       }
     },
     openDialog() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     clearFile() {
-      this.fileIdList = []
-      this.fileList = []
-      this.fileType = ""
-      this.fileUrl = ""
+      this.fileIdList = [];
+      this.fileList = [];
+      this.fileType = '';
+      this.fileUrl = '';
     },
     handleClose() {
-      this.clearFile()
-      this.dialogVisible = false
+      this.clearFile();
+      this.dialogVisible = false;
     },
     uploadOnChange(file, fileList) {
-      let filename = file.name
+      let filename = file.name;
       //通过上传的文件名判断文件类型，用于回显
-      let fileType = filename.split(".")[filename.split(".").length - 1]
+      let fileType = filename.split('.')[filename.split('.').length - 1];
       if (
-        ["jpeg", "PNG", "png", "JPG", "jpg", "bmp", "webp"].includes(fileType)
+        ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'].includes(fileType)
       ) {
-        this.fileType = "image/*"
+        this.fileType = 'image/*';
       }
-      if (["mp3", "wav"].includes(fileType)) {
-        this.fileType = "audio/*"
+      if (['mp3', 'wav'].includes(fileType)) {
+        this.fileType = 'audio/*';
       }
       if (
-        ["txt", "csv", "xlsx", "docx", "html", "pptx", "pdf"].includes(fileType)
+        ['txt', 'csv', 'xlsx', 'docx', 'html', 'pptx', 'pdf'].includes(fileType)
       ) {
-        this.fileType = "doc/*"
+        this.fileType = 'doc/*';
       }
-      this.fileUrl = URL.createObjectURL(file.raw)
-      this.fileList = []
-      this.fileList.push(file)
+      this.fileUrl = URL.createObjectURL(file.raw);
+      this.fileList = [];
+      this.fileList.push(file);
       if (this.fileList.length > 0) {
-        this.maxSizeBytes = 0
-        this.isExpire = true
-        this.startUpload()
+        this.maxSizeBytes = 0;
+        this.isExpire = true;
+        this.startUpload();
       }
     },
     uploadFile(chunkFileName) {
-      this.chunkFileName = chunkFileName
+      this.chunkFileName = chunkFileName;
     },
     doBatchUpload() {
       const data = {
         chunkFileName: this.chunkFileName,
-        fileName: this.fileList[0]["name"],
-        fileSize: this.fileList[0]["size"],
-      }
-      confirmPath(data).then((res) => {
+        fileName: this.fileList[0]['name'],
+        fileSize: this.fileList[0]['size'],
+      };
+      confirmPath(data).then(res => {
         if (res.code === 0) {
-          let fileIdList = []
-          fileIdList.push(res.data)
-          this.fileIdList = fileIdList || []
-          this.$emit("setFileId", this.fileIdList)
-          this.$emit("setFile", this.fileList)
-          this.$message.success("文件上传成功")
-          this.handleClose()
+          let fileIdList = [];
+          fileIdList.push(res.data);
+          this.fileIdList = fileIdList || [];
+          this.$emit('setFileId', this.fileIdList);
+          this.$emit('setFile', this.fileList);
+          this.$message.success('文件上传成功');
+          this.handleClose();
         }
-      })
+      });
     },
     getFileIdList() {
-      return this.fileIdList
+      return this.fileIdList;
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

@@ -21,39 +21,39 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      placeholder: '',
+export default {
+  props: {
+    placeholder: '',
+  },
+  data() {
+    return {
+      value: '',
+    };
+  },
+  methods: {
+    async getTableData() {
+      this.$emit('handleSearch', this.value);
     },
-    data() {
-      return {
-        value: ''
-      }
+    searchInputChange(val) {
+      !val && this.getTableData();
     },
-    methods: {
-      async getTableData() {
-        this.$emit('handleSearch', this.value)
-      },
-      searchInputChange(val) {
-        !val && this.getTableData()
-      },
-      addByEnterKey(e) {
-        if (e.keyCode === 13) this.getTableData()
-      },
-      clearValue(){
-        this.value = ''
-      }
-    }
-  }
+    addByEnterKey(e) {
+      if (e.keyCode === 13) this.getTableData();
+    },
+    clearValue() {
+      this.value = '';
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  .table-search-input /deep/ {
-    width: 260px;
-    margin-right: 15px;
-   /* .el-input__inner:focus,
+.table-search-input /deep/ {
+  width: 260px;
+  margin-right: 15px;
+  /* .el-input__inner:focus,
     .el-input__inner:hover {
       border-color: #dcdfe6 !important;
     }*/
-  }
+}
 </style>

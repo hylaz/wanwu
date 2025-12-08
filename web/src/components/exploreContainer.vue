@@ -26,15 +26,15 @@
 
 <script>
 export default {
-  name: "commonLayout",
+  name: 'commonLayout',
   props: {
     asideWidth: {
       type: String,
-      default: "220",
+      default: '220',
     },
     asideTitle: {
       type: String,
-      default: "",
+      default: '',
     },
     isButton: {
       type: Boolean,
@@ -50,14 +50,14 @@ export default {
     },
   },
   data() {
-    return {}
+    return {};
   },
   methods: {
     handleClick() {
-      this.$emit("handleBtnClick")
+      this.$emit('handleBtnClick');
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .explore-container {

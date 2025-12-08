@@ -3,11 +3,11 @@
 */
 
 // 主题色
-$color: #D33A3A;// 整体主题色（红：#D33A3A)
-$color_opacity: #FFF1F1; // 主题色透明
+$color: #d33a3a; // 整体主题色（红：#D33A3A)
+$color_opacity: #fff1f1; // 主题色透明
 $color_highlight: $color; // 文本高亮色
 $select_active_bg: $color_opacity; // 下拉点击选中色
-$content_bg: linear-gradient( 180deg, rgba(241,241,241,0.73) 0%, #FFFFFF 91%);
-$btn_bg: #D33A3A;
+$content_bg: linear-gradient(180deg, rgba(241, 241, 241, 0.73) 0%, #ffffff 91%);
+$btn_bg: #d33a3a;
 $color_title: #434343;
-$border_color: #D33A3A; // 选中边框颜色
+$border_color: #d33a3a; // 选中边框颜色

@@ -1,1 +1,1 @@
-window.APP_BASE_PATH = ''
+window.APP_BASE_PATH = '';

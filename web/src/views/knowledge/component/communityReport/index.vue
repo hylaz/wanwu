@@ -16,23 +16,29 @@
         :size="''"
         border
       >
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.name')">
+        <el-descriptions-item
+          :label="$t('knowledgeManage.communityReport.name')"
+        >
           {{ $t('knowledgeManage.communityReport.communityReport') }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentTotalNum')">
+        <el-descriptions-item
+          :label="$t('knowledgeManage.communityReport.segmentTotalNum')"
+        >
           {{ res.total }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.uploadTime')">
+        <el-descriptions-item
+          :label="$t('knowledgeManage.communityReport.uploadTime')"
+        >
           {{ formatDate(res.createdAt) }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.segmentType')">{{
-            communityReportStatus[res.status]
-          }}
+        <el-descriptions-item
+          :label="$t('knowledgeManage.communityReport.segmentType')"
+          >{{ communityReportStatus[res.status] }}
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('knowledgeManage.communityReport.lastImportStatus')"
-                              v-if="res.status === STATUS_FINISHED">{{
-            communityImportStatus[res.lastImportStatus]
-          }}
+        <el-descriptions-item
+          :label="$t('knowledgeManage.communityReport.lastImportStatus')"
+          v-if="res.status === STATUS_FINISHED"
+          >{{ communityImportStatus[res.lastImportStatus] }}
         </el-descriptions-item>
       </el-descriptions>
 
@@ -43,7 +49,7 @@
           @click="refreshData"
           size="mini"
           :loading="loading.itemStatus"
-        >{{ $t('common.gpuDialog.reload') }}
+          >{{ $t('common.gpuDialog.reload') }}
         </el-button>
         <el-button
           type="primary"
@@ -51,7 +57,11 @@
           size="mini"
           :loading="loading.stop"
           :disabled="!res.canGenerate || permissionType === POWER_TYPE_READ"
-        >{{ res.generateLabel === '' ? $t('knowledgeManage.communityReport.generate') : res.generateLabel }}
+          >{{
+            res.generateLabel === ''
+              ? $t('knowledgeManage.communityReport.generate')
+              : res.generateLabel
+          }}
         </el-button>
         <el-button
           type="primary"
@@ -59,7 +69,7 @@
           size="mini"
           :loading="loading.stop"
           :disabled="!res.canAddReport || permissionType === POWER_TYPE_READ"
-        >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}
+          >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}
         </el-button>
       </div>
 
@@ -73,17 +83,32 @@
           >
             <el-card class="box-card">
               <div slot="header" class="clearfix">
-                <el-tooltip :content="item.title" placement="top" :disabled="item.title.length <= 10">
-                  <span>{{ item.title.length > 10 ? item.title.substring(0, 10) + '...' : item.title }}</span>
+                <el-tooltip
+                  :content="item.title"
+                  placement="top"
+                  :disabled="item.title.length <= 10"
+                >
+                  <span>{{
+                    item.title.length > 10
+                      ? item.title.substring(0, 10) + '...'
+                      : item.title
+                  }}</span>
                 </el-tooltip>
                 <div>
-                  <el-dropdown @command="handleCommand" placement="bottom" v-if="permissionType !== POWER_TYPE_READ">
+                  <el-dropdown
+                    @command="handleCommand"
+                    placement="bottom"
+                    v-if="permissionType !== POWER_TYPE_READ"
+                  >
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item class="card-delete" :command="{type: 'delete', item}">
-                        <i class="el-icon-delete card-opera-icon"/>
+                      <el-dropdown-item
+                        class="card-delete"
+                        :command="{ type: 'delete', item }"
+                      >
+                        <i class="el-icon-delete card-opera-icon" />
                         {{ $t('common.button.delete') }}
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -117,11 +142,18 @@
   </div>
 </template>
 <script>
-import {getCommunityReportList, delCommunityReport, generateCommunityReport} from "@/api/knowledge";
-import {COMMUNITY_REPORT_STATUS, COMMUNITY_IMPORT_STATUS} from "@/views/knowledge/config";
-import {mapGetters} from 'vuex';
-import commonMixin from "@/mixins/common";
-import createReport from "./create.vue";
+import {
+  getCommunityReportList,
+  delCommunityReport,
+  generateCommunityReport,
+} from '@/api/knowledge';
+import {
+  COMMUNITY_REPORT_STATUS,
+  COMMUNITY_IMPORT_STATUS,
+} from '@/views/knowledge/config';
+import { mapGetters } from 'vuex';
+import commonMixin from '@/mixins/common';
+import createReport from './create.vue';
 import {
   STATUS_FINISHED,
   INITIAL,
@@ -129,10 +161,10 @@ import {
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
-  components: {createReport},
+  components: { createReport },
   mixins: [commonMixin],
   data() {
     return {
@@ -160,42 +192,52 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('app', ['permissionType'])
+    ...mapGetters('app', ['permissionType']),
   },
   created() {
     this.obj = this.$route.query;
     this.getList();
-    if (this.permissionType === INITIAL || this.permissionType === null || this.permissionType === undefined) {
-      const savedData = localStorage.getItem('permission_data')
+    if (
+      this.permissionType === INITIAL ||
+      this.permissionType === null ||
+      this.permissionType === undefined
+    ) {
+      const savedData = localStorage.getItem('permission_data');
       if (savedData) {
         try {
-          const parsed = JSON.parse(savedData)
-          const savedPermissionType = parsed && parsed.app && parsed.app.permissionType
-          if (savedPermissionType !== undefined && savedPermissionType !== INITIAL) {
-            this.$store.dispatch('app/setPermissionType', savedPermissionType)
+          const parsed = JSON.parse(savedData);
+          const savedPermissionType =
+            parsed && parsed.app && parsed.app.permissionType;
+          if (
+            savedPermissionType !== undefined &&
+            savedPermissionType !== INITIAL
+          ) {
+            this.$store.dispatch('app/setPermissionType', savedPermissionType);
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
     }
   },
   methods: {
     formatDate(value) {
       if (value === null || value === undefined || value === '') {
-        return '-'
+        return '-';
       }
-      let dateValue = value
-      if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
-        const timestamp = typeof value === 'string' ? parseInt(value) : value
+      let dateValue = value;
+      if (
+        typeof value === 'number' ||
+        (typeof value === 'string' && /^\d+$/.test(value))
+      ) {
+        const timestamp = typeof value === 'string' ? parseInt(value) : value;
         if (timestamp.toString().length === 10) {
-          dateValue = timestamp * 1000
+          dateValue = timestamp * 1000;
         } else {
-          dateValue = timestamp
+          dateValue = timestamp;
         }
       }
       const dateFormatFilter =
-        (this.$options.filters && this.$options.filters.dateFormat) || null
-      return dateFormatFilter ? dateFormatFilter(dateValue) : dateValue
+        (this.$options.filters && this.$options.filters.dateFormat) || null;
+      return dateFormatFilter ? dateFormatFilter(dateValue) : dateValue;
     },
     refreshData() {
       setTimeout(() => {
@@ -206,41 +248,53 @@ export default {
       this.$refs.createReport.showDialog(this.obj.knowledgeId, 'add');
     },
     generateReport() {
-      generateCommunityReport({knowledgeId: this.obj.knowledgeId}).then(res => {
-        if (res.code === 0) {
-          this.$message.success(this.$t('knowledgeManage.communityReport.generateSuccess'));
-          this.getList();
-        }
-      })
+      generateCommunityReport({ knowledgeId: this.obj.knowledgeId }).then(
+        res => {
+          if (res.code === 0) {
+            this.$message.success(
+              this.$t('knowledgeManage.communityReport.generateSuccess'),
+            );
+            this.getList();
+          }
+        },
+      );
     },
     handleCommand(value) {
-      const {type, item} = value || {}
+      const { type, item } = value || {};
       switch (type) {
         case 'delete':
-          this.delReport(item)
-          break
+          this.delReport(item);
+          break;
       }
     },
     delReport(item) {
-      delCommunityReport({contentId: item.contentId, knowledgeId: this.obj.knowledgeId}).then(res => {
+      delCommunityReport({
+        contentId: item.contentId,
+        knowledgeId: this.obj.knowledgeId,
+      }).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t('knowledgeManage.communityReport.deleteSuccess'));
+          this.$message.success(
+            this.$t('knowledgeManage.communityReport.deleteSuccess'),
+          );
           this.getList();
         }
-      })
+      });
     },
     getList() {
       this.loading.itemStatus = true;
       getCommunityReportList({
         knowledgeId: this.obj.knowledgeId,
         pageNo: this.page.pageNo,
-        pageSize: this.page.pageSize
+        pageSize: this.page.pageSize,
       })
-        .then((res) => {
+        .then(res => {
           this.loading.itemStatus = false;
           this.res = res.data;
           this.page.total = this.res.total;
-          if ((!this.res.list || this.res.list.length === 0) && this.page.pageNo > 1) {
+          if (
+            (!this.res.list || this.res.list.length === 0) &&
+            this.page.pageNo > 1
+          ) {
             this.page.pageNo = 1;
             this.getList();
           }
@@ -252,7 +306,7 @@ export default {
     handleClick(item, index) {
       if (this.permissionType === 0) return;
       // 点击卡片事件，可根据需求添加功能
-      this.$refs.createReport.showDialog(this.obj.knowledgeId, 'edit', item)
+      this.$refs.createReport.showDialog(this.obj.knowledgeId, 'edit', item);
     },
     handleCurrentChange(val) {
       this.page.pageNo = val;
@@ -315,14 +369,13 @@ export default {
 
     /deep/ .el-collapse-item__header .el-collapse-item__arrow,
     .el-collapse-item__arrow,
-    [class*="el-collapse-item__arrow"] {
+    [class*='el-collapse-item__arrow'] {
       display: none !important;
     }
 
     /deep/ .el-collapse-item:last-child .el-collapse-item__content {
       border-bottom: none;
     }
-
 
     /deep/ .el-collapse-item__header::after {
       display: none !important;
@@ -457,7 +510,6 @@ export default {
         margin-left: 8px;
         font-style: italic;
       }
-
     }
   }
 }

@@ -3,7 +3,7 @@
     <div class="table-wrap list-common wrap-fullheight">
       <div class="page-title">
         <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
-        <span class="page-title-name">{{$t('modelAccess.title')}}</span>
+        <span class="page-title-name">{{ $t('modelAccess.title') }}</span>
       </div>
       <div class="table-box">
         <div class="table-form">
@@ -14,7 +14,12 @@
             clearable
             @change="searchData()"
           >
-            <el-option v-for="item in providerList" :key="item.key" :label="item.name" :value="item.key" />
+            <el-option
+              v-for="item in providerList"
+              :key="item.key"
+              :label="item.name"
+              :value="item.key"
+            />
           </el-select>
 
           <el-select
@@ -25,9 +30,22 @@
             clearable
             @change="searchData()"
           >
-            <el-option v-for="item in modelTypeList" :key="item.key" :label="item.name" :value="item.key" />
+            <el-option
+              v-for="item in modelTypeList"
+              :key="item.key"
+              :label="item.name"
+              :value="item.key"
+            />
           </el-select>
-          <div style="width: 100%; display: inline-block; float: right; text-align: right; margin-top: -30px">
+          <div
+            style="
+              width: 100%;
+              display: inline-block;
+              float: right;
+              text-align: right;
+              margin-top: -30px;
+            "
+          >
             <el-input
               v-model="params.displayName"
               prefix-icon="el-icon-search"
@@ -38,13 +56,25 @@
               @clear="searchData()"
               clearable
             />
-            <el-button class="add-bt" size="mini" type="primary" @click="preInsert">
+            <el-button
+              class="add-bt"
+              size="mini"
+              type="primary"
+              @click="preInsert"
+            >
               <img
-                style="width: 14px; margin-right: 5px; display: inline-block; vertical-align: middle"
+                style="
+                  width: 14px;
+                  margin-right: 5px;
+                  display: inline-block;
+                  vertical-align: middle;
+                "
                 src="@/assets/imgs/modelImport.png"
                 alt=""
               />
-              <span style="display: inline-block; vertical-align: middle">{{$t('modelAccess.import')}}</span>
+              <span style="display: inline-block; vertical-align: middle">{{
+                $t('modelAccess.import')
+              }}</span>
             </el-button>
           </div>
         </div>
@@ -52,11 +82,19 @@
           <div class="card-item card-item-create">
             <div class="app-card-create" @click="preInsert">
               <div class="create-img-wrap">
-                <img class="create-type" src="@/assets/imgs/create_model.svg" alt="" />
-                <img class="create-img" src="@/assets/imgs/create_icon.png" alt="" />
+                <img
+                  class="create-type"
+                  src="@/assets/imgs/create_model.svg"
+                  alt=""
+                />
+                <img
+                  class="create-img"
+                  src="@/assets/imgs/create_icon.png"
+                  alt=""
+                />
                 <div class="create-filter"></div>
               </div>
-              <span>{{$t('modelAccess.import')}}</span>
+              <span>{{ $t('modelAccess.import') }}</span>
             </div>
           </div>
           <div
@@ -67,16 +105,24 @@
             @click="preUpdate(item)"
           >
             <div class="card-top">
-              <img class="card-img" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path">
+              <img
+                class="card-img"
+                v-if="item.avatar && item.avatar.path"
+                :src="basePath + '/user/api/' + item.avatar.path"
+              />
               <div class="card-title">
                 <div class="card-name" :title="item.displayName || item.model">
-                  {{item.displayName || item.model}}
+                  {{ item.displayName || item.model }}
                 </div>
               </div>
               <div class="card-top-right" @click.stop="">
                 <el-switch
-                  @change="(val) => {changeStatus(item, val)}"
-                  style="width: 32px;"
+                  @change="
+                    val => {
+                      changeStatus(item, val);
+                    }
+                  "
+                  style="width: 32px"
                   v-model="item.isActive"
                   active-text=""
                   inactive-text=""
@@ -86,35 +132,49 @@
                     <i class="el-icon-more more"></i>
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :command="{type: 'edit', item}">
+                    <el-dropdown-item :command="{ type: 'edit', item }">
                       <i class="el-icon-edit-outline card-opera-icon"></i>
-                      {{$t('common.button.edit')}}
+                      {{ $t('common.button.edit') }}
                     </el-dropdown-item>
-                    <el-dropdown-item class="card-delete" :command="{type: 'delete', item}">
+                    <el-dropdown-item
+                      class="card-delete"
+                      :command="{ type: 'delete', item }"
+                    >
                       <i class="el-icon-delete card-opera-icon" />
-                      {{$t('common.button.delete')}}
+                      {{ $t('common.button.delete') }}
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
             </div>
             <div class="card-middle">
-              <div v-if="item.tags" class="card-type" v-for="it in item.tags">{{it.text}}</div>
+              <div v-if="item.tags" class="card-type" v-for="it in item.tags">
+                {{ it.text }}
+              </div>
             </div>
             <div class="card-bottom">
               <div
-                :class="['card-bottom-provider', {'no-publishData': !item.updatedAt}]"
+                :class="[
+                  'card-bottom-provider',
+                  { 'no-publishData': !item.updatedAt },
+                ]"
                 :title="providerObj[item.provider] || '--'"
               >
-                {{$t('modelAccess.table.publisher')}}: {{providerObj[item.provider] || '--'}}
+                {{ $t('modelAccess.table.publisher') }}:
+                {{ providerObj[item.provider] || '--' }}
               </div>
               <div style="float: right">
-                {{item.updatedAt ? item.updatedAt.split(' ')[0] : '--'}} {{$t('modelAccess.table.update')}}
+                {{ item.updatedAt ? item.updatedAt.split(' ')[0] : '--' }}
+                {{ $t('modelAccess.table.update') }}
               </div>
             </div>
           </div>
         </div>
-        <el-empty class="noData" v-if="!(tableData && tableData.length)" :description="$t('common.noData')"></el-empty>
+        <el-empty
+          class="noData"
+          v-if="!(tableData && tableData.length)"
+          :description="$t('common.noData')"
+        ></el-empty>
       </div>
       <CreateSelectDialog ref="createSelectDialog" @showCreate="showCreate" />
       <CreateDialog ref="createDialog" @reloadData="searchData" />
@@ -123,121 +183,143 @@
 </template>
 
 <script>
-  import Pagination from "@/components/pagination.vue"
-  import { fetchModelList, deleteModel, changeModelStatus, getModelDetail } from "@/api/modelAccess"
-  import CreateDialog from './components/createDialog.vue'
-  import CreateSelectDialog from "./components/createSelectDialog.vue"
-  import { MODEL_TYPE_OBJ, PROVIDER_OBJ, PROVIDER_TYPE, MODEL_TYPE } from "./constants"
+import Pagination from '@/components/pagination.vue';
+import {
+  fetchModelList,
+  deleteModel,
+  changeModelStatus,
+  getModelDetail,
+} from '@/api/modelAccess';
+import CreateDialog from './components/createDialog.vue';
+import CreateSelectDialog from './components/createSelectDialog.vue';
+import {
+  MODEL_TYPE_OBJ,
+  PROVIDER_OBJ,
+  PROVIDER_TYPE,
+  MODEL_TYPE,
+} from './constants';
 
-  export default {
-    components: { Pagination, CreateSelectDialog, CreateDialog },
-    data() {
-      return {
-        listApi: fetchModelList,
-        providerList: PROVIDER_TYPE,
-        modelTypeList: MODEL_TYPE,
-        basePath: this.$basePath,
-        modelTypeObj: MODEL_TYPE_OBJ,
-        providerObj: PROVIDER_OBJ,
-        tableData: [],
-        params: {
-          provider: '',
-          modelType: '',
-          displayName: ''
-        },
-        loading: false,
+export default {
+  components: { Pagination, CreateSelectDialog, CreateDialog },
+  data() {
+    return {
+      listApi: fetchModelList,
+      providerList: PROVIDER_TYPE,
+      modelTypeList: MODEL_TYPE,
+      basePath: this.$basePath,
+      modelTypeObj: MODEL_TYPE_OBJ,
+      providerObj: PROVIDER_OBJ,
+      tableData: [],
+      params: {
+        provider: '',
+        modelType: '',
+        displayName: '',
+      },
+      loading: false,
+    };
+  },
+  mounted() {
+    this.getTableData();
+  },
+  methods: {
+    async getTableData(params) {
+      this.loading = true;
+      try {
+        const res = await fetchModelList({ ...params });
+        const tableData = res.data ? res.data.list || [] : [];
+        this.tableData = [...tableData];
+      } finally {
+        this.loading = false;
       }
     },
-    mounted() {
-      this.getTableData()
+    searchData(isCreate) {
+      if (isCreate) {
+        this.params.provider = '';
+        this.params.modelType = '';
+        this.params.displayName = '';
+      }
+      this.getTableData({ ...this.params });
     },
-    methods: {
-      async getTableData(params) {
-        this.loading = true
-        try {
-          const res = await fetchModelList({...params})
-          const tableData = res.data ? res.data.list || [] : []
-          this.tableData = [...tableData]
-        } finally {
-          this.loading = false
-        }
-      },
-      searchData(isCreate) {
-        if (isCreate) {
-          this.params.provider = ''
-          this.params.modelType = ''
-          this.params.displayName = ''
-        }
-        this.getTableData({...this.params})
-      },
-      searchName(e) {
-        if (e.keyCode === 13) {
-          this.searchData()
-        }
-      },
-      handleCommand(value) {
-        const {type, item} = value || {}
-        switch (type) {
-          case 'edit':
-            this.preUpdate(item)
-            break
-          case 'delete':
-            this.preDel(item)
-            break
-        }
-      },
-      preInsert() {
-        this.$refs.createSelectDialog.openDialog()
-      },
-      showCreate(item) {
-        this.$refs.createDialog.openDialog(item.key)
-      },
-      preUpdate(row) {
-        const {modelId, provider} = row || {}
+    searchName(e) {
+      if (e.keyCode === 13) {
+        this.searchData();
+      }
+    },
+    handleCommand(value) {
+      const { type, item } = value || {};
+      switch (type) {
+        case 'edit':
+          this.preUpdate(item);
+          break;
+        case 'delete':
+          this.preDel(item);
+          break;
+      }
+    },
+    preInsert() {
+      this.$refs.createSelectDialog.openDialog();
+    },
+    showCreate(item) {
+      this.$refs.createDialog.openDialog(item.key);
+    },
+    preUpdate(row) {
+      const { modelId, provider } = row || {};
 
-        getModelDetail({modelId}).then(res => {
-          const rowObj = res.data || {}
-          const newRow = {...rowObj, ...rowObj.config}
-          this.$refs.createDialog.openDialog(provider, newRow)
-        })
-      },
-      preDel(row) {
-        this.$confirm(this.$t('modelAccess.confirm.delete'), this.$t('common.confirm.title'), {
+      getModelDetail({ modelId }).then(res => {
+        const rowObj = res.data || {};
+        const newRow = { ...rowObj, ...rowObj.config };
+        this.$refs.createDialog.openDialog(provider, newRow);
+      });
+    },
+    preDel(row) {
+      this.$confirm(
+        this.$t('modelAccess.confirm.delete'),
+        this.$t('common.confirm.title'),
+        {
           confirmButtonText: this.$t('common.confirm.confirm'),
           cancelButtonText: this.$t('common.confirm.cancel'),
-          type: 'warning'
-        }).then(async () => {
-          const {modelId} = row || {}
-          let res = await deleteModel({modelId})
-          if (res.code === 0) {
-            this.$message.success(this.$t('common.message.success'))
-            await this.getTableData()
-          }
-        })
-      },
-      changeStatus(row, val) {
-        this.$confirm(val ? this.$t('modelAccess.confirm.start') : this.$t('modelAccess.confirm.stop'), this.$t('common.confirm.title'), {
+          type: 'warning',
+        },
+      ).then(async () => {
+        const { modelId } = row || {};
+        let res = await deleteModel({ modelId });
+        if (res.code === 0) {
+          this.$message.success(this.$t('common.message.success'));
+          await this.getTableData();
+        }
+      });
+    },
+    changeStatus(row, val) {
+      this.$confirm(
+        val
+          ? this.$t('modelAccess.confirm.start')
+          : this.$t('modelAccess.confirm.stop'),
+        this.$t('common.confirm.title'),
+        {
           confirmButtonText: this.$t('common.confirm.confirm'),
           cancelButtonText: this.$t('common.confirm.cancel'),
-          type: 'warning'
-        }).then(async() => {
-          const {modelId} = row || {}
-          let res = await changeModelStatus({modelId, isActive: val})
+          type: 'warning',
+        },
+      )
+        .then(async () => {
+          const { modelId } = row || {};
+          let res = await changeModelStatus({ modelId, isActive: val });
           if (res.code === 0) {
-            this.$message.success(this.$t('common.message.success'))
-            await this.getTableData()
+            this.$message.success(this.$t('common.message.success'));
+            await this.getTableData();
           }
-        }).catch(() => {
-          this.getTableData()
         })
-      },
-    }
-  }
+        .catch(() => {
+          this.getTableData();
+        });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
 .routerview-container {
-  top:0;
+  top: 0;
 }
 .table-box {
   padding: 20px 20px 0;
@@ -273,8 +355,8 @@
   height: 180px;
   vertical-align: middle;
   margin: 0 10px 20px;
-  background: #FFFFFF;
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
+  background: #ffffff;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   padding: 18px 10px 16px 14px;
   position: relative;
@@ -289,10 +371,10 @@
     height: 46px;
     object-fit: cover;
     /*padding: 10px 5px;*/
-    background: #FFFFFF;
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
+    background: #ffffff;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
     border-radius: 8px;
-    border: 0 solid #D9D9D9;
+    border: 0 solid #d9d9d9;
     margin-right: 10px;
   }
   .card-title {
@@ -340,7 +422,7 @@
   }
   .card-bottom {
     position: absolute;
-    color: #88888B;
+    color: #88888b;
     bottom: 14px;
     left: 15px;
     right: 12px;
@@ -365,8 +447,8 @@
 }
 .card-item-create {
   background: $color_opacity;
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
-  border: 1px solid rgba(56,75,247,0.47);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(56, 75, 247, 0.47);
   .app-card-create {
     width: 100%;
     height: 100%;
@@ -397,7 +479,7 @@
       .create-type {
         width: 30px;
         position: absolute;
-        background: rgba(171,198,255,0.5);
+        background: rgba(171, 198, 255, 0.5);
         backdrop-filter: blur(6.55px);
         border-radius: 5px;
         padding: 5px;
@@ -415,8 +497,8 @@
   }
 }
 /deep/ .el-dropdown-menu__item.card-delete:hover {
-  color: #FF4D4F !important;
-  background: #FBEAE8 !important;
+  color: #ff4d4f !important;
+  background: #fbeae8 !important;
 }
 .card-opera-icon {
   font-size: 15px;
@@ -426,7 +508,7 @@
   text-align: center;
   margin-top: -60px;
   /deep/ .el-empty__description p {
-    color: #B3B1BC;
+    color: #b3b1bc;
   }
 }
 </style>

@@ -110,4 +110,4 @@ export const schemaConfig = {
                       error:
                         type: string
   `,
-}
+};

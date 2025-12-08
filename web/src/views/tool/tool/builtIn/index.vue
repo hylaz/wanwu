@@ -8,7 +8,11 @@
           </p>
         </div>
         <div>
-          <search-input :placeholder="$t('tool.builtIn.search')" ref="searchInput" @handleSearch="handleSearch" />
+          <search-input
+            :placeholder="$t('tool.builtIn.search')"
+            ref="searchInput"
+            @handleSearch="handleSearch"
+          />
         </div>
       </div>
 
@@ -21,7 +25,11 @@
           @click.stop="handleClick(item)"
         >
           <div class="card-title">
-            <img class="card-logo" v-if="item.avatar && item.avatar.path" :src="avatarSrc(item.avatar.path)" />
+            <img
+              class="card-logo"
+              v-if="item.avatar && item.avatar.path"
+              :src="avatarSrc(item.avatar.path)"
+            />
             <div class="mcp_detailBox" style="width: 100%">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from tool_tag">
@@ -39,14 +47,18 @@
           <div class="card-des">{{ item.desc }}</div>
         </div>
       </div>
-      <el-empty class="noData" v-if="!(list && list.length)" :description="$t('common.noData')"></el-empty>
+      <el-empty
+        class="noData"
+        v-if="!(list && list.length)"
+        :description="$t('common.noData')"
+      ></el-empty>
     </div>
   </div>
 </template>
 <script>
-import SearchInput from "@/components/searchInput.vue"
-import { getBuiltInList } from "@/api/mcp";
-import {avatarSrc} from "@/utils/util";
+import SearchInput from '@/components/searchInput.vue';
+import { getBuiltInList } from '@/api/mcp';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: { SearchInput },
   data() {
@@ -55,28 +67,30 @@ export default {
     };
   },
   mounted() {
-    this.fetchList()
+    this.fetchList();
   },
   methods: {
     avatarSrc,
     handleSearch() {
-      this.fetchList()
+      this.fetchList();
     },
     fetchList(cb) {
-      const searchInput = this.$refs.searchInput
+      const searchInput = this.$refs.searchInput;
       const params = {
         name: searchInput.value,
-      }
+      };
       getBuiltInList(params)
-        .then((res) => {
-          this.list = res.data.list || []
-          cb && cb(this.list)
+        .then(res => {
+          this.list = res.data.list || [];
+          cb && cb(this.list);
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     handleClick(val) {
       // 内置工具详情
-      this.$router.push({path: `/tool/detail/builtIn?toolSquareId=${val.toolSquareId}`})
+      this.$router.push({
+        path: `/tool/detail/builtIn?toolSquareId=${val.toolSquareId}`,
+      });
     },
   },
 };
@@ -89,7 +103,7 @@ export default {
     margin: 20px 0 0 0 !important;
   }
 }
-.card-logo{
+.card-logo {
   width: 50px;
   height: 50px;
   object-fit: cover;
@@ -99,7 +113,7 @@ export default {
   text-align: center;
   margin-top: -60px;
   /deep/ .el-empty__description p {
-    color: #B3B1BC;
+    color: #b3b1bc;
   }
 }
 .tool_tag {
@@ -108,7 +122,6 @@ export default {
     display: inline-block !important;
     width: auto !important;
     margin-right: 5px;
-    
   }
 }
 </style>

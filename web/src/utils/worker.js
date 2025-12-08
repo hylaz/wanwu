@@ -48,15 +48,14 @@ const blobURL = URL.createObjectURL(
                 message: 'timeout:cleared',
                 id: e.data.id,
               });
-              break
-
+              break;
           }
         };
       }.toString(),
 
       ')()',
     ],
-    {type: 'application/javascript'},
+    { type: 'application/javascript' },
   ),
 );
 
@@ -70,7 +69,7 @@ const workerTimer = {
   setInterval: function (cb, interval, context) {
     this.id++;
     const id = this.id;
-    this.callbacks[id] = {fn: cb, context: context};
+    this.callbacks[id] = { fn: cb, context: context };
     worker.postMessage({
       command: 'interval:start',
       interval: interval,
@@ -81,8 +80,8 @@ const workerTimer = {
   setTimeout: function (cb, timeout, context) {
     this.id++;
     const id = this.id;
-    this.callbacks[id] = {fn: cb, context: context};
-    worker.postMessage({command: 'timeout:start', timeout: timeout, id: id});
+    this.callbacks[id] = { fn: cb, context: context };
+    worker.postMessage({ command: 'timeout:start', timeout: timeout, id: id });
     return id;
   },
 
@@ -107,10 +106,10 @@ const workerTimer = {
   // 往worker里面发送销毁指令
   clearInterval: function (id) {
     delete this.callbacks[id];
-    worker.postMessage({command: 'interval:clear', id: id});
+    worker.postMessage({ command: 'interval:clear', id: id });
   },
   clearTimeout: function (id) {
-    worker.postMessage({command: 'timeout:clear', id: id});
+    worker.postMessage({ command: 'timeout:clear', id: id });
   },
 };
 

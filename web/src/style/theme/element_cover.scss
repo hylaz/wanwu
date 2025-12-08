@@ -47,14 +47,15 @@
 }
 
 .el-input-group {
-  .el-button.el-button--default:hover, .el-button.el-button--default:focus {
+  .el-button.el-button--default:hover,
+  .el-button.el-button--default:focus {
     border: none;
   }
 }
 
 .el-table {
   th.el-table__cell {
-    background: #FBFBFB !important;
+    background: #fbfbfb !important;
     color: $table_title !important;
 
     .cell {
@@ -70,7 +71,7 @@
         // height: 41px !important;
         // line-height: 24px;
         .cell {
-          color: #8C8C8C !important;
+          color: #8c8c8c !important;
         }
       }
     }
@@ -82,7 +83,8 @@
   font-weight: normal;
   border: none !important;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background: rgba(255, 255, 255, 0) !important;
     border-color: rgba(255, 255, 255, 0) !important;
   }
@@ -178,12 +180,10 @@
 
 .el-radio-button .el-radio-button__inner:hover {
   color: $color !important;
-
 }
 
 .el-radio-button.is-disabled .el-radio-button__inner:hover {
   color: #c0c4cc !important;
-
 }
 
 .el-radio-button.is-active .el-radio-button__inner:hover {
@@ -222,7 +222,10 @@
     margin-bottom: 8px;
   }
 
-  .el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:before, .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before,
+  .el-form-item.is-required:not(.is-no-asterisk)
+    .el-form-item__label-wrap
+    > .el-form-item__label:before,
+  .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before,
   .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
     font-size: 20px;
     vertical-align: middle;
@@ -242,7 +245,8 @@
     font-size: 13px;
   }
 
-  .el-input-number__decrease, .el-input-number__increase {
+  .el-input-number__decrease,
+  .el-input-number__increase {
     height: 30px;
     width: 32px;
     top: 4px;
@@ -261,7 +265,7 @@
 }
 
 .form-box {
-  background: #FFFFFF;
+  background: #ffffff;
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   border-radius: 6px 6px 6px 6px;
   padding: 20px;
@@ -287,9 +291,9 @@
   }
 }
 
-
 .el-table__body-wrapper {
-  .el-button--primary, .el-button--default {
+  .el-button--primary,
+  .el-button--default {
     box-shadow: none;
   }
 }
@@ -299,7 +303,8 @@
   border-color: $color;
 }
 
-.el-button.el-button--default:hover, .el-button.el-button--default:focus {
+.el-button.el-button--default:hover,
+.el-button.el-button--default:focus {
   border-color: $color;
   color: $color;
 }
@@ -308,7 +313,8 @@
   color: $color;
 }
 
-.el-date-table td.end-date span, .el-date-table td.start-date span {
+.el-date-table td.end-date span,
+.el-date-table td.start-date span {
   background-color: $color;
 }
 
@@ -364,9 +370,12 @@
   color: $color !important;
 }
 
-.no-border-select, .no-border-input {
+.no-border-select,
+.no-border-input {
   .el-input__inner {
-    box-shadow: 0 0 15px 0 rgba(89, 104, 178, 0.06), 0 15px 20px 0 rgba(89, 104, 178, 0.06) !important;
+    box-shadow:
+      0 0 15px 0 rgba(89, 104, 178, 0.06),
+      0 15px 20px 0 rgba(89, 104, 178, 0.06) !important;
     border: none !important;
     color: $color_title;
   }

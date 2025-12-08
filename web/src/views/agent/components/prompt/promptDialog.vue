@@ -6,7 +6,7 @@
     class="prompt-dialog"
   >
     <div slot="title" class="dialog-title">
-      <span class="title-text">{{$t('tempSquare.prompt')}}</span>
+      <span class="title-text">{{ $t('tempSquare.prompt') }}</span>
       <el-input
         v-model="searchKeyword"
         :placeholder="$t('agent.promptTemplate.searchPlaceholder')"
@@ -18,15 +18,15 @@
     </div>
     <div class="prompt-library-content">
       <div class="tab-buttons">
-        <div 
-          class="tab-button" 
+        <div
+          class="tab-button"
           :class="{ active: activeTab === 'builtIn' }"
           @click="activeTab = 'builtIn'"
         >
           {{ $t('agent.promptTemplate.builtIn') }}
         </div>
-        <div 
-          class="tab-button" 
+        <div
+          class="tab-button"
           :class="{ active: activeTab === 'custom' }"
           @click="activeTab = 'custom'"
         >
@@ -44,29 +44,39 @@
           >
             <div class="template-content">
               <div class="template-logo">
-                <img :src="'/user/api' + item.avatar.path">
+                <img :src="'/user/api' + item.avatar.path" />
               </div>
               <div class="template-info">
                 <div class="template-name">{{ item.name }}</div>
                 <div class="template-desc">{{ item.desc }}</div>
               </div>
             </div>
-            <div class="template-actions" @click.stop="handleInsertPrompt(item)">
-              <el-button type="text" size="mini">{{ $t('agent.promptTemplate.insertPrompt') }}</el-button>
+            <div
+              class="template-actions"
+              @click.stop="handleInsertPrompt(item)"
+            >
+              <el-button type="text" size="mini">{{
+                $t('agent.promptTemplate.insertPrompt')
+              }}</el-button>
             </div>
           </div>
         </div>
         <div class="template-detail" v-if="selectedTemplate">
-          <div class="detail-content markdown-body" v-html="formatTemplateContent(selectedTemplate.prompt)"></div>
+          <div
+            class="detail-content markdown-body"
+            v-html="formatTemplateContent(selectedTemplate.prompt)"
+          ></div>
         </div>
         <div class="template-detail empty" v-else>
-          <div class="empty-text">{{ $t('agent.promptTemplate.selectTemplate')}}</div>
+          <div class="empty-text">
+            {{ $t('agent.promptTemplate.selectTemplate') }}
+          </div>
         </div>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button 
-        type="primary" 
+      <el-button
+        type="primary"
         @click="handleInsertSelected"
         :disabled="!selectedTemplate"
       >
@@ -77,7 +87,7 @@
 </template>
 
 <script>
-import { md } from "@/mixins/marksown-it.js";
+import { md } from '@/mixins/marksown-it.js';
 export default {
   name: 'PromptDialog',
   inject: ['getPrompt'],
@@ -87,15 +97,15 @@ export default {
       searchKeyword: '',
       activeTab: 'builtIn',
       selectedTemplate: null,
-      templateList: []
-    }
+      templateList: [],
+    };
   },
-  watch:{
+  watch: {
     activeTab(newVal, oldVal) {
       if (this.dialogVisible && newVal !== oldVal) {
         this.$emit('tabChange', newVal);
       }
-    }
+    },
   },
   computed: {
     filteredTemplateList() {
@@ -106,10 +116,10 @@ export default {
       return this.templateList.filter(item => {
         return item.name && item.name.toLowerCase().includes(keyword);
       });
-    }
+    },
   },
   methods: {
-    showDiglog(data,type) {
+    showDiglog(data, type) {
       this.dialogVisible = true;
       this.activeTab = type;
       if (data && data.length) {
@@ -141,7 +151,7 @@ export default {
       this.selectedTemplate = template;
     },
     handleInsertPrompt(item) {
-      this.getPrompt(item.prompt)
+      this.getPrompt(item.prompt);
       this.$message.success(this.$t('agent.promptTemplate.insertSuccess'));
       this.dialogVisible = false;
     },
@@ -153,26 +163,26 @@ export default {
     formatTemplateContent(content) {
       if (!content) return '';
       return md.render(content);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/markdown.scss";
+@import '@/style/markdown.scss';
 .prompt-dialog {
   /deep/ .el-dialog__body {
     padding: 5px 20px 20px 20px;
   }
-  
+
   /deep/ .el-dialog__header {
     padding: 20px 20px 10px;
     display: flex;
     align-items: center;
   }
-  
+
   /deep/ .el-dialog__headerbtn {
-    position:unset!important;
+    position: unset !important;
   }
 }
 
@@ -181,16 +191,16 @@ export default {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  
+
   .title-text {
     font-size: 18px;
     font-weight: 500;
     color: #303133;
   }
-  
+
   .title-search-input {
     width: 300px;
-    margin-right:10px;
+    margin-right: 10px;
     /deep/ .el-input__inner {
       height: 32px;
       line-height: 32px;
@@ -202,97 +212,97 @@ export default {
   .tab-buttons {
     display: flex;
     margin-bottom: 16px;
-    
+
     .tab-button {
-      padding:5px 10px;
+      padding: 5px 10px;
       cursor: pointer;
       font-size: 14px;
       color: #606266;
       transition: all 0.3s;
-      
+
       &:hover {
         color: $color;
       }
-      
+
       &.active {
         color: $color;
         font-weight: 500;
       }
     }
   }
-  
+
   .library-main {
     display: flex;
     gap: 16px;
     height: 45vh;
     margin-top: 16px;
-    
+
     .template-list {
-      width:30vw;
+      width: 30vw;
       flex-shrink: 0;
-      border: 1px solid #EBEEF5;
+      border: 1px solid #ebeef5;
       border-radius: 4px;
       overflow-y: auto;
-      
+
       .template-item {
         padding: 12px 10px;
-        border-bottom: 1px solid #EBEEF5;
+        border-bottom: 1px solid #ebeef5;
         cursor: pointer;
         transition: all 0.3s;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        
+
         &:last-child {
           border-bottom: none;
         }
-        
+
         &:hover {
-          background-color: #F5F7FA;
-          
+          background-color: #f5f7fa;
+
           .template-actions {
             opacity: 1;
           }
         }
-        
+
         &.active {
-          background-color: #ECF5FF;
+          background-color: #ecf5ff;
           border-left: 3px solid $color;
-          
+
           .template-name {
             color: $color;
           }
         }
-        
+
         .template-content {
           flex: 1;
           display: flex;
           align-items: center;
           min-width: 0;
-          
+
           .template-logo {
             width: 40px;
             height: 40px;
-            border-radius:50%;
-            background:#eee;
+            border-radius: 50%;
+            background: #eee;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 12px;
-            
+
             img {
-              width:100%;
-              height:100%;
-              border-radius:50%;
+              width: 100%;
+              height: 100%;
+              border-radius: 50%;
               object-fit: cover;
             }
           }
-          
+
           .template-info {
             flex: 1;
             min-width: 0;
-            
+
             .template-name {
               font-size: 14px;
               font-weight: 500;
@@ -302,7 +312,7 @@ export default {
               overflow: hidden;
               text-overflow: ellipsis;
             }
-            
+
             .template-desc {
               font-size: 12px;
               color: #909399;
@@ -314,12 +324,12 @@ export default {
             }
           }
         }
-        
+
         .template-actions {
           flex-shrink: 0;
           opacity: 0;
           transition: opacity 0.3s;
-          
+
           /deep/ .el-button {
             padding: 4px 0;
             font-weight: bold;
@@ -327,35 +337,37 @@ export default {
         }
       }
     }
-    
+
     .template-detail {
       flex: 1;
-      border: 1px solid #EBEEF5;
+      border: 1px solid #ebeef5;
       border-radius: 4px;
       padding: 20px;
       overflow-y: auto;
-      background-color: #FAFAFA;
-      
+      background-color: #fafafa;
+
       &.empty {
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         .empty-text {
           font-size: 14px;
           color: #909399;
         }
       }
-      
+
       .detail-content {
         font-size: 14px;
         line-height: 1.8;
         color: #303133;
-        
-        /deep/ h1, /deep/ h2, /deep/ h3 {
+
+        /deep/ h1,
+        /deep/ h2,
+        /deep/ h3 {
           margin-top: 16px;
           margin-bottom: 8px;
-          
+
           &:first-child {
             margin-top: 0;
           }

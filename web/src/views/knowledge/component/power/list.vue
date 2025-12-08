@@ -2,7 +2,12 @@
   <div class="power-list-container">
     <div class="table-content">
       <el-table
-        :data="tableData.filter(data => !name || data.userName.toLowerCase().includes(name.toLowerCase()))"
+        :data="
+          tableData.filter(
+            data =>
+              !name || data.userName.toLowerCase().includes(name.toLowerCase()),
+          )
+        "
         style="width: 100%"
         class="power-table"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
@@ -26,7 +31,9 @@
         <el-table-column prop="permissionType" label="权限">
           <template slot-scope="scope">
             <div class="type-cell">
-              <span v-if="!scope.row.editing" class="type-text">{{ powerType[scope.row.permissionType] }}</span>
+              <span v-if="!scope.row.editing" class="type-text">{{
+                powerType[scope.row.permissionType]
+              }}</span>
               <el-select
                 v-else
                 v-model="scope.row.permissionType"
@@ -106,27 +113,27 @@
 </template>
 
 <script>
-import {getUserPower, editUserPower, delUserPower} from "@/api/knowledge";
-import {POWER_TYPE} from "@/views/knowledge/config";
+import { getUserPower, editUserPower, delUserPower } from '@/api/knowledge';
+import { POWER_TYPE } from '@/views/knowledge/config';
 import {
   INITIAL,
   POWER_TYPE_READ,
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
   name: 'PowerList',
   props: {
     knowledgeId: {
       type: String,
-      default: ''
+      default: '',
     },
     permissionType: {
       type: Number,
-      default: POWER_TYPE_READ
-    }
+      default: POWER_TYPE_READ,
+    },
   },
   data() {
     return {
@@ -138,7 +145,7 @@ export default {
       POWER_TYPE_EDIT,
       POWER_TYPE_ADMIN,
       POWER_TYPE_SYSTEM_ADMIN,
-    }
+    };
   },
   methods: {
     showEdit(row) {
@@ -146,11 +153,16 @@ export default {
       return (
         !this.permissionType === POWER_TYPE_READ ||
         !this.permissionType === POWER_TYPE_EDIT ||
-        (this.permissionType === POWER_TYPE_ADMIN && row.permissionType === POWER_TYPE_READ) ||
-        (this.permissionType === POWER_TYPE_ADMIN && row.permissionType === POWER_TYPE_EDIT) ||
-        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN && row.permissionType === POWER_TYPE_READ) ||
-        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN && row.permissionType === POWER_TYPE_EDIT) ||
-        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN && row.permissionType === POWER_TYPE_ADMIN)
+        (this.permissionType === POWER_TYPE_ADMIN &&
+          row.permissionType === POWER_TYPE_READ) ||
+        (this.permissionType === POWER_TYPE_ADMIN &&
+          row.permissionType === POWER_TYPE_EDIT) ||
+        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN &&
+          row.permissionType === POWER_TYPE_READ) ||
+        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN &&
+          row.permissionType === POWER_TYPE_EDIT) ||
+        (this.permissionType === POWER_TYPE_SYSTEM_ADMIN &&
+          row.permissionType === POWER_TYPE_ADMIN)
       );
     },
     showInfo(row) {
@@ -160,9 +172,12 @@ export default {
         row.permissionType === POWER_TYPE_EDIT ||
         (this.permissionType === POWER_TYPE_READ && !row.transfer) ||
         (this.permissionType === POWER_TYPE_ADMIN && !row.transfer) ||
-        (this.permissionType === POWER_TYPE_ADMIN && row.permissionType === POWER_TYPE_ADMIN) ||
-        (this.permissionType === POWER_TYPE_EDIT && row.permissionType === POWER_TYPE_SYSTEM_ADMIN) ||
-        (this.permissionType === POWER_TYPE_EDIT && row.permissionType === POWER_TYPE_ADMIN)
+        (this.permissionType === POWER_TYPE_ADMIN &&
+          row.permissionType === POWER_TYPE_ADMIN) ||
+        (this.permissionType === POWER_TYPE_EDIT &&
+          row.permissionType === POWER_TYPE_SYSTEM_ADMIN) ||
+        (this.permissionType === POWER_TYPE_EDIT &&
+          row.permissionType === POWER_TYPE_ADMIN)
       );
     },
     getFilterResult(name) {
@@ -170,75 +185,93 @@ export default {
     },
     getUserPower() {
       this.loading = true;
-      getUserPower({knowledgeId: this.knowledgeId}).then(res => {
-        if (res.code === 0) {
+      getUserPower({ knowledgeId: this.knowledgeId })
+        .then(res => {
+          if (res.code === 0) {
+            this.loading = false;
+            var list = res.data.knowledgeUserInfoList || [];
+            this.tableData = list.map(function (item) {
+              item.editing = false;
+              return item;
+            });
+          }
+        })
+        .catch(() => {
           this.loading = false;
-          var list = res.data.knowledgeUserInfoList || [];
-          this.tableData = list.map(function (item) {
-            item.editing = false;
-            return item;
-          });
-        }
-      }).catch(() => {
-        this.loading = false;
-      })
+        });
     },
     handleEdit(row) {
-      row.editing = true
-      row.originalType = row.permissionType // 保存原始值
+      row.editing = true;
+      row.originalType = row.permissionType; // 保存原始值
     },
     handleSave(row) {
       // 保存编辑
-      row.editing = false
-      row.originalType = row.permissionType
+      row.editing = false;
+      row.originalType = row.permissionType;
       const knowledgeUser = {
         orgId: row.orgId,
         userId: row.userId,
         permissionType: row.permissionType,
-        permissionId: row.permissionId
-      }
-      editUserPower({knowledgeId: this.knowledgeId, knowledgeUser: knowledgeUser}).then(res => {
-        if (res.code === 0) {
-          this.$message.success('权限修改成功')
-          this.getUserPower()
-        }
-      }).catch(() => {
+        permissionId: row.permissionId,
+      };
+      editUserPower({
+        knowledgeId: this.knowledgeId,
+        knowledgeUser: knowledgeUser,
       })
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success('权限修改成功');
+            this.getUserPower();
+          }
+        })
+        .catch(() => {});
     },
     handleCancel(row) {
-      row.permissionType = row.originalType
-      row.editing = false
+      row.permissionType = row.originalType;
+      row.editing = false;
     },
     handleTransfer(row) {
-      this.$confirm('确定要转让管理员权限吗？转让后您将失去管理员权限。', '转让确认', {
-        confirmButtonText: '确定转让',
-        cancelButtonText: this.$t('common.confirm.cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.$emit('transfer', row)
-      }).catch(() => {
-        this.$message.info('已取消转让')
-      })
+      this.$confirm(
+        '确定要转让管理员权限吗？转让后您将失去管理员权限。',
+        '转让确认',
+        {
+          confirmButtonText: '确定转让',
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
+        },
+      )
+        .then(() => {
+          this.$emit('transfer', row);
+        })
+        .catch(() => {
+          this.$message.info('已取消转让');
+        });
     },
     handleDelete(row) {
       this.$confirm('确定要删除这条数据吗？', '提示', {
         confirmButtonText: this.$t('common.confirm.confirm'),
         cancelButtonText: this.$t('common.confirm.cancel'),
-        type: 'warning'
-      }).then(() => {
-        delUserPower({knowledgeId: this.knowledgeId, permissionId: row.permissionId}).then(res => {
-          if (res.code === 0) {
-            this.$message.success('删除成功')
-            this.getUserPower()
-          }
-        }).catch(() => {
-        })
-      }).catch(() => {
-        this.$message.info('已取消删除')
+        type: 'warning',
       })
-    }
-  }
-}
+        .then(() => {
+          delUserPower({
+            knowledgeId: this.knowledgeId,
+            permissionId: row.permissionId,
+          })
+            .then(res => {
+              if (res.code === 0) {
+                this.$message.success('删除成功');
+                this.getUserPower();
+              }
+            })
+            .catch(() => {});
+        })
+        .catch(() => {
+          this.$message.info('已取消删除');
+        });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -285,12 +318,16 @@ export default {
       }
     }
 
-    .name-cell, .org-cell, .type-cell {
+    .name-cell,
+    .org-cell,
+    .type-cell {
       display: flex;
       align-items: center;
       justify-content: center;
 
-      .name-text, .org-text, .type-text {
+      .name-text,
+      .org-text,
+      .type-text {
         color: #606266;
         font-size: 14px;
       }

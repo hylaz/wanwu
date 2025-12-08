@@ -12,59 +12,72 @@
         <div class="title-content">
           <i class="el-icon-s-custom title-icon"></i>
           <span class="title-text">{{ dialogTitle }}</span>
-          <span class="title-tip" v-if="currentView === 'transfer'">[ 转移后您的权限将变为'可编辑' ]</span>
+          <span class="title-tip" v-if="currentView === 'transfer'"
+            >[ 转移后您的权限将变为'可编辑' ]</span
+          >
         </div>
         <div class="title-subtitle" v-if="knowledgeName">
           <span class="knowledge-name">[ {{ knowledgeName }} ]</span>
         </div>
       </div>
       <div class="list-header" v-if="currentView === 'list'">
-        <el-input placeholder="输入成员名称搜索" v-model="userName" style="width:200px;margin-right:10px;"></el-input>
-        <el-button
-          type="primary"
-          size="small"
-          @click="confirmSearch"
-        >确定
+        <el-input
+          placeholder="输入成员名称搜索"
+          v-model="userName"
+          style="width: 200px; margin-right: 10px"
+        ></el-input>
+        <el-button type="primary" size="small" @click="confirmSearch"
+          >确定
         </el-button>
         <el-button
           type="primary"
           size="small"
           icon="el-icon-plus"
           @click="showCreate"
-          :disabled="[POWER_TYPE_READ, POWER_TYPE_EDIT].includes(permissionType)"
-        >新增
+          :disabled="
+            [POWER_TYPE_READ, POWER_TYPE_EDIT].includes(permissionType)
+          "
+          >新增
         </el-button>
       </div>
-      <PowerList ref="powerList" v-if="currentView === 'list'" @transfer="showTransfer" :knowledgeId="knowledgeId"
-                 :permissionType="permissionType"/>
-      <PowerCreate ref="powerCreate" v-if="currentView === 'create'" :knowledgeId="knowledgeId"/>
-      <PowerCreate ref="powerTransfer" v-if="currentView === 'transfer'" :transfer-mode="true"
-                   :knowledgeId="knowledgeId"/>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
+      <PowerList
+        ref="powerList"
+        v-if="currentView === 'list'"
+        @transfer="showTransfer"
+        :knowledgeId="knowledgeId"
+        :permissionType="permissionType"
+      />
+      <PowerCreate
+        ref="powerCreate"
+        v-if="currentView === 'create'"
+        :knowledgeId="knowledgeId"
+      />
+      <PowerCreate
+        ref="powerTransfer"
+        v-if="currentView === 'transfer'"
+        :transfer-mode="true"
+        :knowledgeId="knowledgeId"
+      />
+      <div slot="footer" class="dialog-footer">
         <el-button
           v-if="currentView === 'create' || currentView === 'transfer'"
           @click="showList"
-        >返回
+          >返回
         </el-button>
         <el-button
           v-if="currentView === 'create'"
           type="primary"
           @click="handleConfirm"
-        >确定
+          >确定
         </el-button>
         <el-button
           v-if="currentView === 'transfer'"
           type="primary"
           @click="handleTransferConfirm"
-        >确定转让
+          >确定转让
         </el-button>
-        <el-button
-          v-if="currentView === 'list'"
-          @click="handleDialogClose"
-        >关闭
+        <el-button v-if="currentView === 'list'" @click="handleDialogClose"
+          >关闭
         </el-button>
       </div>
     </el-dialog>
@@ -72,19 +85,19 @@
 </template>
 
 <script>
-import PowerList from "./list.vue";
-import PowerCreate from "./create.vue";
-import {transferUserPower, addUserPower} from "@/api/knowledge";
+import PowerList from './list.vue';
+import PowerCreate from './create.vue';
+import { transferUserPower, addUserPower } from '@/api/knowledge';
 import {
   INITIAL,
   POWER_TYPE_READ,
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
-  name: "PowerManagement",
+  name: 'PowerManagement',
   inject: ['reloadKnowledgeData'],
   components: {
     PowerList,
@@ -92,7 +105,7 @@ export default {
   },
   data() {
     return {
-      currentView: "list",
+      currentView: 'list',
       dialogVisible: false,
       knowledgeId: '',
       knowledgeName: '',
@@ -108,14 +121,14 @@ export default {
   },
   computed: {
     dialogTitle() {
-      if (this.currentView === "list") {
-        return "权限管理";
-      } else if (this.currentView === "create") {
-        return "添加权限";
-      } else if (this.currentView === "transfer") {
-        return "转让权限";
+      if (this.currentView === 'list') {
+        return '权限管理';
+      } else if (this.currentView === 'create') {
+        return '添加权限';
+      } else if (this.currentView === 'transfer') {
+        return '转让权限';
       }
-      return "权限管理";
+      return '权限管理';
     },
   },
   mounted() {
@@ -123,47 +136,50 @@ export default {
   },
   methods: {
     confirmSearch() {
-      this.$refs.powerList.getFilterResult(this.userName)
+      this.$refs.powerList.getFilterResult(this.userName);
     },
     showDialog() {
-      this.currentView = "list";
+      this.currentView = 'list';
       this.dialogVisible = true;
       this.$nextTick(() => {
         if (this.$refs.powerList) {
-          this.$refs.powerList.getUserPower()
+          this.$refs.powerList.getUserPower();
         }
-      })
+      });
     },
     showCreate() {
-      this.currentView = "create";
+      this.currentView = 'create';
     },
 
     showTransfer(row) {
-      this.currentView = "transfer";
+      this.currentView = 'transfer';
       this.currentTransferUser = row;
     },
 
     showList() {
-      this.currentView = "list";
+      this.currentView = 'list';
       this.$nextTick(() => {
         this.refreshList();
       });
-
     },
     handleConfirm() {
       const createData = this.$refs.powerCreate.getResults();
       const userData = this.handleData(createData);
       if (userData && userData.length > 0) {
-        addUserPower({knowledgeId: this.knowledgeId, knowledgeUserList: userData}).then(res => {
-          if (res.code === 0) {
-            this.$message.success("添加成功");
-            this.showList();
-            this.refreshList();
-          }
-        }).catch(() => {
+        addUserPower({
+          knowledgeId: this.knowledgeId,
+          knowledgeUserList: userData,
         })
+          .then(res => {
+            if (res.code === 0) {
+              this.$message.success('添加成功');
+              this.showList();
+              this.refreshList();
+            }
+          })
+          .catch(() => {});
       } else {
-        this.$message.error("请选择用户");
+        this.$message.error('请选择用户');
       }
     },
     handleData(createData) {
@@ -174,7 +190,7 @@ export default {
             userList.push({
               userId: user.id,
               orgId: user.orgId,
-              permissionType: createData.selectedPermission
+              permissionType: createData.selectedPermission,
             });
           });
         });
@@ -191,27 +207,28 @@ export default {
       const data = this.$refs.powerTransfer.getTransferData();
       const params = {
         ...data,
-        permissionId: this.currentTransferUser.permissionId
-      }
+        permissionId: this.currentTransferUser.permissionId,
+      };
       if (data.knowledgeUser && !Array.isArray(data.knowledgeUser)) {
-        transferUserPower(params).then(res => {
-          if (res.code === 0) {
-            this.$message.success("转让成功");
-            this.showList();
-            this.dialogVisible = false;
-            if (this.reloadKnowledgeData) {
-              this.reloadKnowledgeData();  // 刷新列表
+        transferUserPower(params)
+          .then(res => {
+            if (res.code === 0) {
+              this.$message.success('转让成功');
+              this.showList();
+              this.dialogVisible = false;
+              if (this.reloadKnowledgeData) {
+                this.reloadKnowledgeData(); // 刷新列表
+              }
             }
-          }
-        }).catch(() => {
-        })
+          })
+          .catch(() => {});
       } else {
-        this.$message.error("请选择用户");
+        this.$message.error('请选择用户');
       }
     },
     refreshList() {
       if (this.$refs.powerList) {
-        this.$refs.powerList.getUserPower()
+        this.$refs.powerList.getUserPower();
       }
     },
   },

@@ -21,18 +21,18 @@
 </template>
 <script>
 export default {
-  props: ["editForm"],
+  props: ['editForm'],
   data() {
     return {
       basePath: this.$basePath,
-    }
+    };
   },
   methods: {
     setProloguePrompt(val) {
-      this.$emit("setProloguePrompt", val)
+      this.$emit('setProloguePrompt', val);
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 .history-box {

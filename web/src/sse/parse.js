@@ -1,109 +1,109 @@
 export async function getBytes(stream, onChunk) {
-  const reader = stream.getReader()
-  let result
+  const reader = stream.getReader();
+  let result;
   while (!(result = await reader.read()).done) {
-    onChunk(result.value)
+    onChunk(result.value);
   }
 }
 export function getLines(onLine) {
-  let buffer
-  let position
-  let fieldLength
-  let discardTrailingNewline = false
+  let buffer;
+  let position;
+  let fieldLength;
+  let discardTrailingNewline = false;
   return function onChunk(arr) {
     if (buffer === undefined) {
-      buffer = arr
-      position = 0
-      fieldLength = -1
+      buffer = arr;
+      position = 0;
+      fieldLength = -1;
     } else {
-      buffer = concat(buffer, arr)
+      buffer = concat(buffer, arr);
     }
-    const bufLength = buffer.length
-    let lineStart = 0
+    const bufLength = buffer.length;
+    let lineStart = 0;
     while (position < bufLength) {
       if (discardTrailingNewline) {
         if (buffer[position] === 10) {
-          lineStart = ++position
+          lineStart = ++position;
         }
-        discardTrailingNewline = false
+        discardTrailingNewline = false;
       }
-      let lineEnd = -1
+      let lineEnd = -1;
       for (; position < bufLength && lineEnd === -1; ++position) {
         switch (buffer[position]) {
           case 58:
             if (fieldLength === -1) {
-              fieldLength = position - lineStart
+              fieldLength = position - lineStart;
             }
-            break
+            break;
           case 13:
-            discardTrailingNewline = true
+            discardTrailingNewline = true;
           case 10:
-            lineEnd = position
-            break
+            lineEnd = position;
+            break;
         }
       }
       if (lineEnd === -1) {
-        break
+        break;
       }
-      onLine(buffer.subarray(lineStart, lineEnd), fieldLength)
-      lineStart = position
-      fieldLength = -1
+      onLine(buffer.subarray(lineStart, lineEnd), fieldLength);
+      lineStart = position;
+      fieldLength = -1;
     }
     if (lineStart === bufLength) {
-      buffer = undefined
+      buffer = undefined;
     } else if (lineStart !== 0) {
-      buffer = buffer.subarray(lineStart)
-      position -= lineStart
+      buffer = buffer.subarray(lineStart);
+      position -= lineStart;
     }
-  }
+  };
 }
 export function getMessages(onId, onRetry, onMessage) {
-  let message = newMessage()
-  const decoder = new TextDecoder()
+  let message = newMessage();
+  const decoder = new TextDecoder();
   return function onLine(line, fieldLength) {
     if (line.length === 0) {
-      onMessage === null || onMessage === void 0 ? void 0 : onMessage(message)
-      message = newMessage()
+      onMessage === null || onMessage === void 0 ? void 0 : onMessage(message);
+      message = newMessage();
     } else if (fieldLength > 0) {
-      const field = decoder.decode(line.subarray(0, fieldLength))
-      const valueOffset = fieldLength + (line[fieldLength + 1] === 32 ? 2 : 1)
-      const value = decoder.decode(line.subarray(valueOffset))
+      const field = decoder.decode(line.subarray(0, fieldLength));
+      const valueOffset = fieldLength + (line[fieldLength + 1] === 32 ? 2 : 1);
+      const value = decoder.decode(line.subarray(valueOffset));
       switch (field) {
-        case "data":
-          message.data = message.data ? message.data + "\n" + value : value
-          break
-        case "event":
-          message.event = value
-          break
-        case "id":
-          onId((message.id = value))
-          break
-        case "retry":
-          const retry = parseInt(value, 10)
+        case 'data':
+          message.data = message.data ? message.data + '\n' + value : value;
+          break;
+        case 'event':
+          message.event = value;
+          break;
+        case 'id':
+          onId((message.id = value));
+          break;
+        case 'retry':
+          const retry = parseInt(value, 10);
           if (!isNaN(retry)) {
-            onRetry((message.retry = retry))
+            onRetry((message.retry = retry));
           }
-          break
+          break;
         case '{"code"':
-          message.errmsg = field + ":" + value
-          onMessage(message)
-          break
+          message.errmsg = field + ':' + value;
+          onMessage(message);
+          break;
       }
     }
-  }
+  };
 }
 function concat(a, b) {
-  const res = new Uint8Array(a.length + b.length)
-  res.set(a)
-  res.set(b, a.length)
-  return res
+  const res = new Uint8Array(a.length + b.length);
+  res.set(a);
+  res.set(b, a.length);
+  return res;
 }
 function newMessage() {
   return {
-    data: "",
-    event: "",
-    id: "",
+    data: '',
+    event: '',
+    id: '',
     retry: undefined,
-  }
+  };
 }
 //# sourceMappingURL=parse.js.map

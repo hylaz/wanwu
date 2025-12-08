@@ -1,78 +1,78 @@
-import service from "@/utils/request"
-import {USER_API} from "@/utils/requestConstants"
+import service from '@/utils/request';
+import { USER_API } from '@/utils/requestConstants';
 
 // 获取列表
-export const fetchModelList = (params) => {
+export const fetchModelList = params => {
   return service({
     url: `${USER_API}/model/list`,
-    method: "get",
+    method: 'get',
     params,
-  })
-}
+  });
+};
 
 // 获取单个模型
-export const getModelDetail = (params) => {
+export const getModelDetail = params => {
   return service({
     url: `${USER_API}/model`,
-    method: "get",
+    method: 'get',
     params,
-  })
-}
+  });
+};
 
 // 创建
-export const addModel = (data) => {
+export const addModel = data => {
   return service({
     url: `${USER_API}/model`,
-    method: "post",
-    data
-  })
-}
-// 编辑
-export const editModel = (data) => {
-  return service({
-    url: `${USER_API}/model`,
-    method: "put",
-    data
-  })
-}
-// 删除
-export const deleteModel = (data) => {
-  return service({
-    url: `${USER_API}/model`,
-    method: "delete",
+    method: 'post',
     data,
-  })
-}
+  });
+};
+// 编辑
+export const editModel = data => {
+  return service({
+    url: `${USER_API}/model`,
+    method: 'put',
+    data,
+  });
+};
+// 删除
+export const deleteModel = data => {
+  return service({
+    url: `${USER_API}/model`,
+    method: 'delete',
+    data,
+  });
+};
 // 修改状态
-export const changeModelStatus = (data) => {
+export const changeModelStatus = data => {
   return service({
     url: `${USER_API}/model/status`,
-    method: "put",
+    method: 'put',
     data,
-  })
-}
+  });
+};
 
 //获取embedding列表
-export const getEmbeddingList = (params) => {
+export const getEmbeddingList = params => {
   return service({
     url: `${USER_API}/model/select/embedding`,
-    method: "get",
+    method: 'get',
     params,
-  })
-}
+  });
+};
 
 //获取rerank模型列表
 export const getRerankList = () => {
   return service({
     url: `${USER_API}/model/select/rerank`,
-    method: "get"
-  })
-}
+    method: 'get',
+  });
+};
 
 //获取下来选择模型列表
 export const selectModelList = () => {
   return service({
     url: `${USER_API}/model/select/llm`,
-    method: "get"
-  })
-}
+    method: 'get',
+  });
+};

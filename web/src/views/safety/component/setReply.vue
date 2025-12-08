@@ -18,7 +18,13 @@
         <el-form-item
           :label="$t('safety.setReply.title')"
           prop="reply"
-          :rules="[{ required: true, message: $t('safety.setReply.msg'), trigger: 'blur' },]"
+          :rules="[
+            {
+              required: true,
+              message: $t('safety.setReply.msg'),
+              trigger: 'blur',
+            },
+          ]"
         >
           <el-input
             v-model="ruleForm.reply"
@@ -33,77 +39,74 @@
           </p>
         </el-form-item>
       </el-form>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-            <el-button
-              @click="handleClose()">
-                {{ $t('common.confirm.cancel') }}
-            </el-button>
-            <el-button
-              type="primary"
-              @click="submitForm('ruleForm')"
-            >{{ $t('common.confirm.confirm') }}</el-button>
-        </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose()">
+          {{ $t('common.confirm.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">{{
+          $t('common.confirm.confirm')
+        }}</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import {setReply, getReplay} from "@/api/safety";
+import { setReply, getReplay } from '@/api/safety';
 
 export default {
   data() {
     return {
       ruleForm: {
         reply: '',
-        tableId: ''
+        tableId: '',
       },
-      dialogVisible: false
-    }
+      dialogVisible: false,
+    };
   },
   methods: {
     getReplayInfo(tableId) {
-      getReplay({tableId}).then(res => {
-        if (res.code === 0) {
-          this.ruleForm.reply = res.data.reply || '';
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+      getReplay({ tableId })
+        .then(res => {
+          if (res.code === 0) {
+            this.ruleForm.reply = res.data.reply || '';
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     showDialog(tableId) {
       this.dialogVisible = true;
       this.ruleForm.tableId = tableId;
-      this.getReplayInfo(this.ruleForm.tableId)
+      this.getReplayInfo(this.ruleForm.tableId);
       this.clear();
     },
     handleClose() {
-      this.clear()
+      this.clear();
       this.dialogVisible = false;
     },
     clear() {
       this.$nextTick(() => {
         this.$refs.ruleForm.resetFields();
         this.$refs.ruleForm.clearValidate();
-      })
+      });
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           setReply(this.ruleForm).then(res => {
             if (res.code === 0) {
-              this.$message.success(this.$t('safety.setReply.setSuccess'))
+              this.$message.success(this.$t('safety.setReply.setSuccess'));
               this.dialogVisible = false;
             }
-          })
+          });
         } else {
           return false;
         }
-      })
+      });
     },
-  }
-}
+  },
+};
 </script>
 <style lang="scss" scoped>
 .tips {

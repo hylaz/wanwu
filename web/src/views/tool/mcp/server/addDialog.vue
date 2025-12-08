@@ -22,7 +22,10 @@
             />
           </el-form-item>
           <el-form-item :label="$t('tool.server.name')" prop="name">
-            <el-input v-model="ruleForm.name" :placeholder="$t('common.hint.modelName')"></el-input>
+            <el-input
+              v-model="ruleForm.name"
+              :placeholder="$t('common.hint.modelName')"
+            ></el-input>
           </el-form-item>
           <el-form-item :label="$t('tool.server.desc')" prop="desc">
             <el-input v-model="ruleForm.desc"></el-input>
@@ -30,7 +33,9 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose" size="mini">{{ $t('common.button.cancel') }}</el-button>
+        <el-button @click="handleClose" size="mini">{{
+          $t('common.button.cancel')
+        }}</el-button>
         <el-button
           type="primary"
           size="mini"
@@ -45,92 +50,120 @@
 </template>
 
 <script>
-import {addServer, editServer} from "@/api/mcp";
-import uploadAvatar from "@/components/uploadAvatar.vue";
+import { addServer, editServer } from '@/api/mcp';
+import uploadAvatar from '@/components/uploadAvatar.vue';
 
 export default {
   components: {
-    uploadAvatar
+    uploadAvatar,
   },
   data() {
     return {
       dialogVisible: false,
-      mcpServerId: "",
+      mcpServerId: '',
       title: '',
-      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
+      defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
       ruleForm: {
-        MCPServerId: "",
+        MCPServerId: '',
         avatar: {
-          key: "",
-          path: ""
+          key: '',
+          path: '',
         },
-        name: "",
-        desc: ""
+        name: '',
+        desc: '',
       },
       rules: {
         name: [
-          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
-          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
-          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+          {
+            pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/,
+            message: this.$t('common.hint.modelName'),
+            trigger: 'blur',
+          },
+          {
+            min: 2,
+            max: 50,
+            message: this.$t('common.hint.modelNameLimit'),
+            trigger: 'blur',
+          },
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
         ],
-        desc: [{required: true, message: this.$t('common.input.placeholder') + this.$t('tool.server.desc'), trigger: "blur"}]
+        desc: [
+          {
+            required: true,
+            message:
+              this.$t('common.input.placeholder') + this.$t('tool.server.desc'),
+            trigger: 'blur',
+          },
+        ],
       },
-      publishLoading: false
+      publishLoading: false,
     };
   },
   methods: {
     showDialog(item) {
-      this.dialogVisible = true
+      this.dialogVisible = true;
       if (item) {
-        this.mcpServerId = item.mcpServerId
-        this.ruleForm = item
-        this.title = this.$t('tool.server.editTitle')
-      } else this.title = this.$t('tool.server.addTitle')
+        this.mcpServerId = item.mcpServerId;
+        this.ruleForm = item;
+        this.title = this.$t('tool.server.editTitle');
+      } else this.title = this.$t('tool.server.addTitle');
     },
     handleUpdateAvatar(avatar) {
       this.ruleForm = { ...this.ruleForm, avatar: avatar };
     },
     handleClose() {
-      this.dialogVisible = false
-      this.$emit("handleClose", false)
-      this.$refs.ruleForm.resetFields()
-      this.$refs.ruleForm.clearValidate()
-      this.mcpServerId = ''
+      this.dialogVisible = false;
+      this.$emit('handleClose', false);
+      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm.clearValidate();
+      this.mcpServerId = '';
       this.ruleForm = {
-        MCPServerId: "",
+        MCPServerId: '',
         avatar: {
-          key: "",
-          path: ""
+          key: '',
+          path: '',
         },
-        name: "",
-        desc: ""
-      }
+        name: '',
+        desc: '',
+      };
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
-          this.publishLoading = true
+          this.publishLoading = true;
           const params = {
-            ...this.ruleForm
-          }
-          if (this.mcpServerId) editServer(params).then((res) => {
-            if (res.code === 0) {
-              this.$message.success(this.$t('common.info.publish'))
-              this.$emit("handleFetch", false)
-              this.handleClose()
-            }
-          }).finally(() => this.publishLoading = false)
-          else addServer(params).then((res) => {
-            if (res.code === 0) {
-              this.$message.success(this.$t('common.info.publish'))
-              this.$emit("handleFetch", false)
-              this.handleClose()
-              this.$router.push({path: `/tool/detail/server?mcpServerId=${res.data.mcpServerId}`})
-            }
-          }).finally(() => this.publishLoading = false)
+            ...this.ruleForm,
+          };
+          if (this.mcpServerId)
+            editServer(params)
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.publish'));
+                  this.$emit('handleFetch', false);
+                  this.handleClose();
+                }
+              })
+              .finally(() => (this.publishLoading = false));
+          else
+            addServer(params)
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.publish'));
+                  this.$emit('handleFetch', false);
+                  this.handleClose();
+                  this.$router.push({
+                    path: `/tool/detail/server?mcpServerId=${res.data.mcpServerId}`,
+                  });
+                }
+              })
+              .finally(() => (this.publishLoading = false));
         }
       });
-    }
+    },
   },
 };
 </script>

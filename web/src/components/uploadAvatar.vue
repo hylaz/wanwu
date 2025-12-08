@@ -9,7 +9,7 @@
     :on-error="handleUploadError"
     accept=".png,.jpg,.jpeg"
   >
-    <img class="upload-img" :src="avatarSrc" alt=""/>
+    <img class="upload-img" :src="avatarSrc" alt="" />
     <p class="upload-hint">
       {{ this.$t('common.fileUpload.clickUploadImg') }}
     </p>
@@ -17,49 +17,49 @@
 </template>
 
 <script>
-import {uploadAvatar} from "@/api/user"
+import { uploadAvatar } from '@/api/user';
 
 export default {
   props: {
     avatar: {
       type: Object,
       default: () => ({
-        key: "",
-        path: ""
-      })
+        key: '',
+        path: '',
+      }),
     },
     // 默认头像，导入需要require("@/assets/imgs/defaultAvatar")
     defaultAvatar: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   computed: {
     avatarSrc() {
       if (this.avatar.path) {
-        return `${this.$basePath}/user/api/${this.avatar.path}`
+        return `${this.$basePath}/user/api/${this.avatar.path}`;
       }
-      return this.defaultAvatar
-    }
+      return this.defaultAvatar;
+    },
   },
   methods: {
     handleUploadAvatar(data) {
       if (data.file) {
-        const formData = new FormData()
-        const config = {headers: {"Content-Type": "multipart/form-data"}}
-        formData.append('avatar', data.file)
+        const formData = new FormData();
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+        formData.append('avatar', data.file);
         uploadAvatar(formData, config).then(res => {
           if (res.code === 0) {
-            this.$emit('update-avatar', res.data)
+            this.$emit('update-avatar', res.data);
           }
-        })
+        });
       }
     },
     handleUploadError() {
-      this.$message.error(this.$t('common.message.uploadError'))
-    }
-  }
-}
+      this.$message.error(this.$t('common.message.uploadError'));
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -73,7 +73,7 @@ export default {
     height: 98px;
     background: #eee;
     border-radius: 8px;
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
     display: inline-block;
     vertical-align: middle;
   }

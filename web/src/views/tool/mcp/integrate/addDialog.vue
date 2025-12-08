@@ -23,7 +23,10 @@
             />
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.name')" prop="name">
-            <el-input v-model="ruleForm.name" :placeholder="$t('common.hint.modelName')"></el-input>
+            <el-input
+              v-model="ruleForm.name"
+              :placeholder="$t('common.hint.modelName')"
+            ></el-input>
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.from')" prop="from">
             <el-input v-model="ruleForm.from"></el-input>
@@ -46,7 +49,7 @@
               :disabled="isGetMCP"
               :loading="toolsLoading"
             >
-              {{$t('tool.integrate.action')}}
+              {{ $t('tool.integrate.action') }}
             </el-button>
           </el-form-item>
         </el-form>
@@ -56,7 +59,9 @@
         </ul>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleCancel" size="mini">{{ $t('common.button.cancel') }}</el-button>
+        <el-button @click="handleCancel" size="mini">{{
+          $t('common.button.cancel')
+        }}</el-button>
         <el-button
           type="primary"
           size="mini"
@@ -64,7 +69,7 @@
           @click="submitForm"
           :loading="publishLoading"
         >
-          {{$t('tool.integrate.publish')}}
+          {{ $t('tool.integrate.publish') }}
         </el-button>
       </span>
     </el-dialog>
@@ -72,35 +77,35 @@
 </template>
 
 <script>
-import { getTools, setCreate, setUpdate } from "@/api/mcp.js";
-import { isValidURL } from "@/utils/util";
-import uploadAvatar from "@/components/uploadAvatar.vue";
+import { getTools, setCreate, setUpdate } from '@/api/mcp.js';
+import { isValidURL } from '@/utils/util';
+import uploadAvatar from '@/components/uploadAvatar.vue';
 
 export default {
-  components: {uploadAvatar},
+  components: { uploadAvatar },
   props: {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     dialogVisible: {
       type: Boolean,
-      required: true
+      required: true,
     },
     initialData: {
       type: Object,
       default: () => ({
-        name: "",
-        from: "",
-        sseUrl: "",
-        desc: "",
-        mcpId: "",
+        name: '',
+        from: '',
+        sseUrl: '',
+        desc: '',
+        mcpId: '',
         avatar: {
-          key: "",
-          path: ""
+          key: '',
+          path: '',
         },
-      })
-    }
+      }),
+    },
   },
   data() {
     const validateUrl = (rule, value, callback) => {
@@ -112,53 +117,74 @@ export default {
     };
     return {
       mcpList: [],
-      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
+      defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
       ruleForm: {
-        name: "",
-        from: "",
-        sseUrl: "",
-        desc: "",
+        name: '',
+        from: '',
+        sseUrl: '',
+        desc: '',
         avatar: {
-          key: "",
-          path: ""
+          key: '',
+          path: '',
         },
       },
       rules: {
         name: [
-          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
-          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
-          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+          {
+            pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/,
+            message: this.$t('common.hint.modelName'),
+            trigger: 'blur',
+          },
+          {
+            min: 2,
+            max: 50,
+            message: this.$t('common.hint.modelNameLimit'),
+            trigger: 'blur',
+          },
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
         ],
         from: [
-          { required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.from'), trigger: "blur" },
+          {
+            required: true,
+            message:
+              this.$t('common.input.placeholder') +
+              this.$t('tool.integrate.from'),
+            trigger: 'blur',
+          },
         ],
         sseUrl: [
           {
             required: true,
             message: this.$t('tool.integrate.sseUrlMsg'),
-            trigger: "blur",
+            trigger: 'blur',
           },
-          { validator: validateUrl, trigger: "blur" },
+          { validator: validateUrl, trigger: 'blur' },
         ],
         desc: [
           {
             required: true,
-            message: this.$t('common.input.placeholder') + this.$t('tool.integrate.desc'),
-            trigger: "blur",
+            message:
+              this.$t('common.input.placeholder') +
+              this.$t('tool.integrate.desc'),
+            trigger: 'blur',
           },
         ],
       },
       toolsLoading: false,
-      publishLoading: false
+      publishLoading: false,
     };
   },
   watch: {
     // 监听初始数据变化，更新本地副本
     initialData: {
       handler(newVal) {
-        this.ruleForm = { ...newVal }
+        this.ruleForm = { ...newVal };
       },
-      immediate: true
+      immediate: true,
     },
     // 监听 sseUrl 变化
     'ruleForm.sseUrl': {
@@ -166,52 +192,57 @@ export default {
         if (oldVal && newVal !== oldVal) {
           this.mcpList = [];
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     handleCancel() {
-      this.$emit("handleClose", false);
-      this.$refs["ruleForm"].resetFields();
+      this.$emit('handleClose', false);
+      this.$refs['ruleForm'].resetFields();
       this.mcpList = [];
     },
     handleUpdateAvatar(avatar) {
       this.ruleForm = { ...this.ruleForm, avatar: avatar };
     },
     submitForm() {
-      this.$refs['ruleForm'].validate((valid) => {
+      this.$refs['ruleForm'].validate(valid => {
         if (valid) {
-          this.publishLoading = true
+          this.publishLoading = true;
           if (this.initialData.mcpId) {
             setUpdate({
               ...this.ruleForm,
-              mcpId: this.initialData.mcpId
-            }).then((res) => {
-              if (res.code === 0) {
-                this.$message.success(this.$t('common.info.edit'))
-                this.$emit("handleFetch", false)
-                this.handleCancel()
-              }
-            }).finally(() => this.publishLoading = false)
-          }
-          else setCreate(this.ruleForm)
-            .then((res) => {
-              if(res.code === 0){
-                this.$message.success(this.$t('common.info.publish'))
-                this.$emit("handleFetch", false)
-                this.handleCancel()
-              }
-            }).finally(() => this.publishLoading = false)
+              mcpId: this.initialData.mcpId,
+            })
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.edit'));
+                  this.$emit('handleFetch', false);
+                  this.handleCancel();
+                }
+              })
+              .finally(() => (this.publishLoading = false));
+          } else
+            setCreate(this.ruleForm)
+              .then(res => {
+                if (res.code === 0) {
+                  this.$message.success(this.$t('common.info.publish'));
+                  this.$emit('handleFetch', false);
+                  this.handleCancel();
+                }
+              })
+              .finally(() => (this.publishLoading = false));
         }
       });
     },
     handleTools() {
-      this.toolsLoading = true
+      this.toolsLoading = true;
       getTools({
         serverUrl: this.ruleForm.sseUrl,
-      }).then((res) => {
-        if (res.code === 0) this.mcpList = res.data.tools;
-      }).finally(() => this.toolsLoading = false)
+      })
+        .then(res => {
+          if (res.code === 0) this.mcpList = res.data.tools;
+        })
+        .finally(() => (this.toolsLoading = false));
     },
   },
   computed: {

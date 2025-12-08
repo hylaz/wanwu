@@ -11,29 +11,29 @@
 <script>
 export default {
   data() {
-    return {}
+    return {};
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
-.user-center{
+.user-center {
   height: 100%;
   background-color: #f9f9f9;
-  .full-content{
+  .full-content {
     background-color: #fff;
     display: flex;
-    .menu-box{
+    .menu-box {
       width: 220px;
-      .el-menu{
-        border-right: 1px solid transparent!important;
+      .el-menu {
+        border-right: 1px solid transparent !important;
         padding: 20px 0 60px;
       }
     }
-    .router-box{
-      width:100%;
+    .router-box {
+      width: 100%;
       height: 100%;
-      border-left:solid 1px #e6e6e6;
+      border-left: solid 1px #e6e6e6;
       min-height: 100%;
       border-left: solid 1px #e6e6e6;
       overflow: auto;

@@ -34,19 +34,19 @@
 
 ### 当前支持的模块
 
-| 模块 | 路由模式 | 优先级 | 描述 |
-|------|----------|--------|------|
-| preview | `/doc`, `/pdf`, `/txtView`, `/jsExcel`, `/pdfView` | 10 | 文件预览模块 |
-| agent | `/agent`, `/webChat` | 9 | 智能体模块 |
-| rag | `/rag`, `/knowledge` | 8 | RAG 和知识库模块 |
-| workflow | `/workflow` | 7 | 工作流模块 |
-| mcp | `/mcp` | 6 | MCP 管理模块 |
-| permission | `/permission`, `/userCenter` | 5 | 权限管理和用户中心模块 |
-| safety | `/safety` | 4 | 安全护栏模块 |
-| model | `/modelAccess` | 3 | 模型访问模块 |
-| explore | `/explore` | 2 | 探索广场模块 |
-| doc | `/docCenter` | 1 | 文档中心模块 |
-| appspace | `/appSpace` | 0 | 应用空间模块 |
+| 模块       | 路由模式                                           | 优先级 | 描述                   |
+| ---------- | -------------------------------------------------- | ------ | ---------------------- |
+| preview    | `/doc`, `/pdf`, `/txtView`, `/jsExcel`, `/pdfView` | 10     | 文件预览模块           |
+| agent      | `/agent`, `/webChat`                               | 9      | 智能体模块             |
+| rag        | `/rag`, `/knowledge`                               | 8      | RAG 和知识库模块       |
+| workflow   | `/workflow`                                        | 7      | 工作流模块             |
+| mcp        | `/mcp`                                             | 6      | MCP 管理模块           |
+| permission | `/permission`, `/userCenter`                       | 5      | 权限管理和用户中心模块 |
+| safety     | `/safety`                                          | 4      | 安全护栏模块           |
+| model      | `/modelAccess`                                     | 3      | 模型访问模块           |
+| explore    | `/explore`                                         | 2      | 探索广场模块           |
+| doc        | `/docCenter`                                       | 1      | 文档中心模块           |
+| appspace   | `/appSpace`                                        | 0      | 应用空间模块           |
 
 ## 使用方法
 
@@ -74,13 +74,16 @@
 ### 3. 获取模块 headers
 
 ```javascript
-import { getModuleHeaders, getAvailableModules } from '@/utils/routeHeadersConfig'
+import {
+  getModuleHeaders,
+  getAvailableModules,
+} from '@/utils/routeHeadersConfig';
 
 // 获取指定模块的 headers
-const agentHeaders = getModuleHeaders('agent')
+const agentHeaders = getModuleHeaders('agent');
 
 // 获取所有可用模块列表
-const modules = getAvailableModules()
+const modules = getAvailableModules();
 ```
 
 ## Headers 字段说明
@@ -125,10 +128,10 @@ const modules = getAvailableModules()
 
 ```javascript
 // 动态更新配置
-export const updateRouteHeadersConfig = (newConfig) => {
-  routeHeadersConfig.length = 0
-  routeHeadersConfig.push(...newConfig)
-}
+export const updateRouteHeadersConfig = newConfig => {
+  routeHeadersConfig.length = 0;
+  routeHeadersConfig.push(...newConfig);
+};
 ```
 
 ### 条件配置
@@ -156,8 +159,3 @@ if (process.env.NODE_ENV === 'production') {
 2. 验证路由路径是否正确
 3. 确认配置项的优先级设置
 4. 检查 headers 合并逻辑
-
-
-
-
-

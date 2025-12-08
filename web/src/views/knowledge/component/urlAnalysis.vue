@@ -54,30 +54,28 @@
           icon="el-icon-plus"
           size="mini"
           :disabled="loading.url"
-        >{{ $t('knowledgeManage.addOnePiece') }}
-        </el-button
-        >
+          >{{ $t('knowledgeManage.addOnePiece') }}
+        </el-button>
         <el-button
           @click="submitForm('dynamicValidateForm')"
           type="primary"
           size="mini"
           :loading="loading.url"
-        >{{ $t('knowledgeManage.startAnalysis') }}
-        </el-button
-        >
+          >{{ $t('knowledgeManage.startAnalysis') }}
+        </el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
-import {setUploadURL, setAnalysis} from "@/api/knowledge";
+import { setUploadURL, setAnalysis } from '@/api/knowledge';
 
 export default {
   props: {
     categoryId: {
       type: String,
-      default: "",
-    }
+      default: '',
+    },
   },
   data() {
     return {
@@ -86,11 +84,11 @@ export default {
       loading: {
         url: false,
       },
-      oldList: [{value: ""}], //保存上一次url结果
+      oldList: [{ value: '' }], //保存上一次url结果
       dynamicValidateForm: {
         domains: [
           {
-            value: "",
+            value: '',
             back: null,
             urlLoading: false,
           },
@@ -98,41 +96,44 @@ export default {
       },
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     handleChange(item, index) {
-      if (this.oldList[index].value && item.value !== this.oldList[index].value) {
+      if (
+        this.oldList[index].value &&
+        item.value !== this.oldList[index].value
+      ) {
         this.dynamicValidateForm.domains[index].back = null;
       }
     },
     // 开始解析
     async submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           this.loading.url = true;
           this.concurRequest(this.dynamicValidateForm.domains, 3)
-            .then((res) => {
+            .then(res => {
               this.loading.url = false;
               if (res.length > 0) {
                 this.backResult = res;
-                this.$emit('handleSetData', this.backResult)
+                this.$emit('handleSetData', this.backResult);
               }
-            }).catch((err) => {
-            this.loading.url = false;
-          });
+            })
+            .catch(err => {
+              this.loading.url = false;
+            });
           this.oldList = JSON.parse(
-            JSON.stringify(this.dynamicValidateForm.domains)
+            JSON.stringify(this.dynamicValidateForm.domains),
           );
         } else {
-          console.log("error submit!!");
+          console.log('error submit!!');
           return false;
         }
       });
     },
     concurRequest(urls, maxNum) {
       const _this = this;
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         if (urls.length === 0) {
           resolve([]);
         }
@@ -154,9 +155,12 @@ export default {
 
               if (Number(resp.code) === 0) {
                 _this.dynamicValidateForm.domains[i].back = true;
-                _this.dynamicValidateForm.domains[i].fileSize = resp.data.urlList[0].fileSize;
-                _this.dynamicValidateForm.domains[i].url = resp.data.urlList[0].url;
-                _this.dynamicValidateForm.domains[i].fileName = resp.data.urlList[0].fileName;
+                _this.dynamicValidateForm.domains[i].fileSize =
+                  resp.data.urlList[0].fileSize;
+                _this.dynamicValidateForm.domains[i].url =
+                  resp.data.urlList[0].url;
+                _this.dynamicValidateForm.domains[i].fileName =
+                  resp.data.urlList[0].fileName;
                 results[i] = resp.data.urlList[0];
                 results[i].back = true;
               } else {
@@ -168,7 +172,7 @@ export default {
               results[i] = urls[i];
             }
           } catch (err) {
-            console.log(err)
+            console.log(err);
           } finally {
             count++; // 判断是否所有的请求都已完成
             if (count === urls.length) {
@@ -189,12 +193,12 @@ export default {
       this.dynamicValidateForm = {
         domains: [
           {
-            value: "",
+            value: '',
             back: null,
           },
         ],
       };
-      this.oldList = [{value: ""}];
+      this.oldList = [{ value: '' }];
       this.urlConut = 1;
       this.loading.url = false;
     },
@@ -210,35 +214,35 @@ export default {
     addDomain() {
       if (this.urlConut < 10) {
         this.dynamicValidateForm.domains.push({
-          value: "",
+          value: '',
           key: Date.now(),
           back: null,
           urlLoading: false,
         });
-        this.oldList.push({value: ""});
+        this.oldList.push({ value: '' });
         this.urlConut += 1;
       }
     },
     handleSave() {
-      this.$refs["dynamicValidateForm"].validate((valid) => {
+      this.$refs['dynamicValidateForm'].validate(valid => {
         if (valid) {
           if (this.backResult.length > 0 && !this.isDabled) {
-            this.$emit("handleLoading", true);
+            this.$emit('handleLoading', true);
             setUploadURL({
               urls: this.backResult,
               categoryId: this.categoryId,
             })
-              .then((res) => {
+              .then(res => {
                 if (res.code === 0) {
-                  this.$message.success("操作成功");
+                  this.$message.success('操作成功');
                 } else {
                   this.$message.error(res.msg);
                 }
-                this.$emit("handleLoading", false, "success");
+                this.$emit('handleLoading', false, 'success');
               })
-              .catch((err) => {
+              .catch(err => {
                 this.$message.error(err);
-                this.$emit("handleLoading", false);
+                this.$emit('handleLoading', false);
               });
           } else {
             this.$message.warning(this.$t('knowledgeManage.analysisTips'));
@@ -291,7 +295,7 @@ export default {
       } else {
         return true;
       }
-    }
+    },
   },
 };
 </script>

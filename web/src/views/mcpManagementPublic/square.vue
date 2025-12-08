@@ -2,7 +2,7 @@
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/mcp_menu.svg" alt=""/>
+        <img class="page-title-img" src="@/assets/imgs/mcp_menu.svg" alt="" />
         <span class="page-title-name">{{ $t('menu.mcp') }}</span>
       </div>
       <div class="mcp-content-box mcp-third">
@@ -11,36 +11,51 @@
             <div class="mcp-card-box">
               <div class="card-search card-search-cust">
                 <div>
-              <span
-                  v-for="item in typeList"
-                  :key="item.key"
-                  :class="['tab-span', {'is-active': typeRadio === item.key}]"
-                  @click="changeTab(item.key)"
-              >
-                {{ item.name }}
-              </span>
+                  <span
+                    v-for="item in typeList"
+                    :key="item.key"
+                    :class="[
+                      'tab-span',
+                      { 'is-active': typeRadio === item.key },
+                    ]"
+                    @click="changeTab(item.key)"
+                  >
+                    {{ item.name }}
+                  </span>
                 </div>
-                <search-input style="margin-right: 2px" :placeholder="$t('tool.square.searchPlaceholder')" ref="searchInput"
-                              @handleSearch="doGetPublicMcpList"/>
+                <search-input
+                  style="margin-right: 2px"
+                  :placeholder="$t('tool.square.searchPlaceholder')"
+                  ref="searchInput"
+                  @handleSearch="doGetPublicMcpList"
+                />
               </div>
 
               <div class="card-loading-box" v-if="list.length">
                 <div class="card-box" v-loading="loading">
                   <div
-                      class="card"
-                      v-for="(item, index) in list"
-                      :key="index"
-                      @click.stop="handleClick(item)"
+                    class="card"
+                    v-for="(item, index) in list"
+                    :key="index"
+                    @click.stop="handleClick(item)"
                   >
                     <div class="card-title">
-                      <img class="card-logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
+                      <img
+                        class="card-logo"
+                        :src="
+                          item.avatar && item.avatar.path
+                            ? avatarSrc(item.avatar.path)
+                            : defaultAvatar
+                        "
+                        alt=""
+                      />
                       <div class="mcp_detailBox">
                         <span class="mcp_name">{{ item.name }}</span>
                         <span class="mcp_from">
-                      <label>
-                        {{ item.from }}
-                      </label>
-                    </span>
+                          <label>
+                            {{ item.from }}
+                          </label>
+                        </span>
                       </div>
                     </div>
                     <div class="card-des">{{ item.desc }}</div>
@@ -61,58 +76,60 @@
 </template>
 
 <script>
-import { getPublicMcpList } from "@/api/mcp"
-import SearchInput from "@/components/searchInput.vue"
-import {avatarSrc} from "@/utils/util";
+import { getPublicMcpList } from '@/api/mcp';
+import SearchInput from '@/components/searchInput.vue';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: { SearchInput },
   data() {
     return {
-      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
-      mcpSquareId: "",
+      defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
+      mcpSquareId: '',
       category: this.$t('square.all'),
       list: [],
-      loading:false,
+      loading: false,
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('square.all'), key: 'all'},
-        {name: this.$t('square.gov'), key: 'gov'},
-        {name: this.$t('square.industry'), key: 'industry'},
-        {name: this.$t('square.edu'), key: 'edu'},
-        {name: this.$t('square.medical'), key: 'medical'},
-        {name: this.$t('square.data'), key: 'data'},
-        {name: this.$t('square.creator'), key: 'create'},
-        {name: this.$t('square.search'), key: 'search'},
-      ]
+        { name: this.$t('square.all'), key: 'all' },
+        { name: this.$t('square.gov'), key: 'gov' },
+        { name: this.$t('square.industry'), key: 'industry' },
+        { name: this.$t('square.edu'), key: 'edu' },
+        { name: this.$t('square.medical'), key: 'medical' },
+        { name: this.$t('square.data'), key: 'data' },
+        { name: this.$t('square.creator'), key: 'create' },
+        { name: this.$t('square.search'), key: 'search' },
+      ],
     };
   },
   mounted() {
-    this.doGetPublicMcpList()
+    this.doGetPublicMcpList();
   },
   methods: {
     avatarSrc,
     changeTab(key) {
-      this.typeRadio = key
-      this.$refs.searchInput.value = ''
-      this.doGetPublicMcpList()
+      this.typeRadio = key;
+      this.$refs.searchInput.value = '';
+      this.doGetPublicMcpList();
     },
-    doGetPublicMcpList(){
-      const searchInput = this.$refs.searchInput
+    doGetPublicMcpList() {
+      const searchInput = this.$refs.searchInput;
       let params = {
         name: searchInput.value,
         category: this.typeRadio,
-      }
+      };
 
       getPublicMcpList(params)
-        .then((res) => {
-          this.list = res.data.list || []
-          this.loading = false
+        .then(res => {
+          this.list = res.data.list || [];
+          this.loading = false;
         })
-        .catch(() => this.loading = false)
+        .catch(() => (this.loading = false));
     },
     handleClick(val) {
       this.mcpSquareId = val.mcpSquareId;
-      this.$router.push({path:`/mcp/detail/square?mcpSquareId=${val.mcpSquareId}`})
+      this.$router.push({
+        path: `/mcp/detail/square?mcpSquareId=${val.mcpSquareId}`,
+      });
     },
   },
 };
@@ -121,10 +138,10 @@ export default {
 <style lang="scss">
 .mcp-management {
   height: calc(100% - 50px);
-  .common_bg{
+  .common_bg {
     height: 100%;
   }
-  .mcp-content-box{
+  .mcp-content-box {
     height: calc(100% - 145px);
   }
   .mcp-content {
@@ -133,7 +150,7 @@ export default {
     height: 100%;
   }
 
-  .mcp-third{
+  .mcp-third {
     min-height: 600px;
     .tab-span {
       display: inline-block;
@@ -148,16 +165,16 @@ export default {
       background: #fff;
       font-weight: bold;
     }
-    .mcp-main{
+    .mcp-main {
       display: flex;
       padding: 0 20px;
       height: 100%;
-      .mcp-content{
+      .mcp-content {
         display: flex;
-        width:100%;
+        width: 100%;
         padding: 0;
         height: 100%;
-        .mcp-menu{
+        .mcp-menu {
           margin-top: 10px;
           margin-right: 20px;
           width: 90px;
@@ -166,21 +183,21 @@ export default {
           text-align: center;
           border-radius: 6px;
           color: #333;
-          p{
+          p {
             line-height: 28px;
-            margin:10px 0;
+            margin: 10px 0;
           }
-          .active{
+          .active {
             background: rgba(253, 231, 231, 1);
           }
         }
-        .mcp-card-box{
+        .mcp-card-box {
           width: 100%;
           height: 100%;
           .input-with-select {
             width: 300px;
           }
-          .card-loading-box{
+          .card-loading-box {
             .card-box {
               display: flex;
               flex-wrap: wrap;
@@ -203,7 +220,9 @@ export default {
                 border: 1px solid rgba(0, 0, 0, 0);
                 &:hover {
                   cursor: pointer;
-                  box-shadow: 0 2px 8px #171a220d, 0 4px 16px #0000000f;
+                  box-shadow:
+                    0 2px 8px #171a220d,
+                    0 4px 16px #0000000f;
                   border: 1px solid $border_color;
 
                   .action-icon {
@@ -270,13 +289,13 @@ export default {
                 }
               }
 
-              .loading-tips{
+              .loading-tips {
                 height: 20px;
                 color: #999;
                 text-align: center;
                 display: block;
                 width: 100%;
-                i{
+                i {
                   font-size: 18px;
                 }
               }
@@ -285,7 +304,7 @@ export default {
         }
       }
     }
-    .card-logo{
+    .card-logo {
       width: 50px;
       height: 50px;
       object-fit: cover;
@@ -300,7 +319,7 @@ export default {
     justify-content: space-between;
     align-items: center;
   }
-  .empty{
+  .empty {
     width: 200px;
     height: 100px;
     margin: 50px auto;

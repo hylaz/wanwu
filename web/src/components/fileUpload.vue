@@ -18,9 +18,9 @@
             class="upload-img"
           />
           <p class="click-text">
-            {{ $t("common.fileUpload.uploadText") }}
+            {{ $t('common.fileUpload.uploadText') }}
             <span class="clickUpload">
-              {{ $t("common.fileUpload.uploadClick") }}
+              {{ $t('common.fileUpload.uploadClick') }}
             </span>
             <a
               class="clickUpload template"
@@ -28,7 +28,7 @@
               download
               @click.stop
             >
-              {{ $t("common.fileUpload.templateClick") }}
+              {{ $t('common.fileUpload.templateClick') }}
             </a>
           </p>
           <slot name="upload-tips" />
@@ -88,17 +88,17 @@
   </div>
 </template>
 <script>
-import uploadChunk from "@/mixins/uploadChunk";
-import { delfile } from "@/api/chunkFile";
+import uploadChunk from '@/mixins/uploadChunk';
+import { delfile } from '@/api/chunkFile';
 
 export default {
   props: {
-    templateUrl:String,
-    accept:String,
-    maxSize:Number,
+    templateUrl: String,
+    accept: String,
+    maxSize: Number,
     maxFileCount: {
       type: Number,
-      default: undefined
+      default: undefined,
     },
   },
   mixins: [uploadChunk],
@@ -130,7 +130,10 @@ export default {
       if (this.maxSize) {
         const maxSizeBytes = this.maxSize * 1024 * 1024;
         if (file.size > maxSizeBytes) {
-          this.$message.error(this.$t("common.fileUpload.fileSizeLimit") || `文件大小不能超过${this.maxSize}MB`);
+          this.$message.error(
+            this.$t('common.fileUpload.fileSizeLimit') ||
+              `文件大小不能超过${this.maxSize}MB`,
+          );
           return false;
         }
       }
@@ -142,45 +145,47 @@ export default {
         const fileName = file.name;
         const lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex === -1) {
-          this.$message.error(this.$t("common.fileUpload.fileFormatError"));
+          this.$message.error(this.$t('common.fileUpload.fileFormatError'));
           return false;
         }
         const fileExtension = fileName.slice(lastDotIndex).toLowerCase();
-        
-        const acceptFormats = this.accept.split(',').map(format => format.trim().toLowerCase());
-        
+
+        const acceptFormats = this.accept
+          .split(',')
+          .map(format => format.trim().toLowerCase());
+
         if (!acceptFormats.includes(fileExtension)) {
-          this.$message.error(this.$t("common.fileUpload.fileFormatError"));
+          this.$message.error(this.$t('common.fileUpload.fileFormatError'));
           return false;
         }
       }
       return true;
     },
     uploadFile(chunkFileName, fileName, filePath) {
-      this.$emit("uploadFile", chunkFileName, fileName, filePath);
+      this.$emit('uploadFile', chunkFileName, fileName, filePath);
     },
     clearFileList() {
       this.fileList = [];
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleRemove(item, index) {
-      const data = { fileList: [this.resList[index]["name"]], isExpired: true };
-      delfile(data).then((res) => {
+      const data = { fileList: [this.resList[index]['name']], isExpired: true };
+      delfile(data).then(res => {
         if (res.code === 0) {
-          this.$message.success(this.$t("common.info.delete"));
+          this.$message.success(this.$t('common.info.delete'));
         }
       });
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
         this.file = null;
       } else {

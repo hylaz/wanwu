@@ -1,12 +1,12 @@
-import service from "@/utils/request"
-import {USER_API} from "@/utils/requestConstants"
+import service from '@/utils/request';
+import { USER_API } from '@/utils/requestConstants';
 
 // 获取文档中心 md 内容
-export const getMarkdown = (params) => {
+export const getMarkdown = params => {
   return service({
     url: `${USER_API}/doc_center/markdown`,
     method: 'get',
-    params
+    params,
   });
 };
 
@@ -19,10 +19,10 @@ export const getDocMenu = () => {
 };
 
 // 获取文档搜索内容
-export const getDocSearchContent = (params) => {
+export const getDocSearchContent = params => {
   return service({
     url: `${USER_API}/doc_center/search`,
     method: 'get',
-    params
+    params,
   });
 };

@@ -2,7 +2,7 @@
   <div class="safety-config-item">
     <div class="safety-config-content">
       <div class="safety-config-left">
-        <span class="safety-config-label">{{ $t("app.chiChat.title") }}</span>
+        <span class="safety-config-label">{{ $t('app.chiChat.title') }}</span>
         <el-tooltip
           class="item"
           effect="dark"
@@ -13,7 +13,11 @@
         </el-tooltip>
       </div>
       <div class="safety-config-right">
-        <el-switch v-model="isEnabled" @change="handleSwitchChange" :disabled="isDisabled"></el-switch>
+        <el-switch
+          v-model="isEnabled"
+          @change="handleSwitchChange"
+          :disabled="isDisabled"
+        ></el-switch>
       </div>
     </div>
   </div>
@@ -21,16 +25,16 @@
 
 <script>
 export default {
-  name: "ChiChat",
+  name: 'ChiChat',
   props: {
     chiChatSwitch: {
       type: Boolean,
       default: false,
     },
-    isDisabled:{
-      type:Boolean,
-      default: false
-    }
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -47,7 +51,7 @@ export default {
   },
   methods: {
     handleSwitchChange(value) {
-      this.$emit("chiSwitchChange", value);
+      this.$emit('chiSwitchChange', value);
     },
   },
 };

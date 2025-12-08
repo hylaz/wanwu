@@ -13,14 +13,12 @@
         @keyup.enter.native="addByEnterKey"
         v-model="tagName"
       ></el-input>
-      <div
-        class="add"
-        @click="addTag"
-      ><span class="el-icon-plus add-icon"></span>{{ title }}
+      <div class="add" @click="addTag">
+        <span class="el-icon-plus add-icon"></span>{{ title }}
       </div>
       <div class="tag-box">
         <div
-          v-for="(item,index) in tagList"
+          v-for="(item, index) in tagList"
           class="tag_item"
           @mouseenter="mouseEnter(item)"
           @mouseleave="mouseLeave(item)"
@@ -29,39 +27,43 @@
           <el-checkbox
             v-model="item.selected"
             v-if="!item.showIpt && type !== 'section'"
-          >{{ item.tagName }}
+            >{{ item.tagName }}
           </el-checkbox>
-          <span v-if="!item.showIpt && type === 'section'">{{ item.tagName }}</span>
+          <span v-if="!item.showIpt && type === 'section'">{{
+            item.tagName
+          }}</span>
           <el-input
             v-model="item.tagName"
             v-if="item.showIpt"
             maxlength="50"
             :placeholder="$t('knowledgeManage.tagNameHint')"
-            @keydown.backspace.native="handleDelete(item,index)"
+            @keydown.backspace.native="handleDelete(item, index)"
             @keyup.enter.native="inputBlur(item)"
-
           ></el-input>
           <span
             class="el-icon-close del-icon"
             v-if="item.showDel && !item.showIpt"
-            @click="delTag(item,index)"
+            @click="delTag(item, index)"
           ></span>
         </div>
       </div>
     </div>
-    <span
-      slot="footer"
-      class="dialog-footer"
-    >
-      <el-button
-        type="primary"
-        @click="submitDialog"
-      >{{ $t('common.button.confirm') }}</el-button>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="submitDialog">{{
+        $t('common.button.confirm')
+      }}</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
-import {delTag, tagList, createTag, editTag, bindTag, bindTagCount} from "@/api/knowledge";
+import {
+  delTag,
+  tagList,
+  createTag,
+  editTag,
+  bindTag,
+  bindTagCount,
+} from '@/api/knowledge';
 
 export default {
   props: ['type', 'title', 'currentList'],
@@ -69,89 +71,95 @@ export default {
     return {
       dialogVisible: false,
       tagList: [],
-      tagName: "",
-      knowledgeId: ""
+      tagName: '',
+      knowledgeId: '',
     };
   },
   watch: {
     currentList: {
       handler(val) {
         if (val.length) {
-          this.tagList = val
+          this.tagList = val;
         } else {
-          this.tagList = []
+          this.tagList = [];
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     submitDialog() {
       if (this.type === 'section') {
-        this.$emit('sendList', this.tagList)
+        this.$emit('sendList', this.tagList);
       } else {
-        this.bindTag()
+        this.bindTag();
       }
     },
     bindTag() {
-      const ids = this.tagList.filter((item) => item.selected).map((item) => item.tagId);
-      bindTag({knowledgeId: this.knowledgeId, tagIdList: ids}).then((res) => {
+      const ids = this.tagList
+        .filter(item => item.selected)
+        .map(item => item.tagId);
+      bindTag({ knowledgeId: this.knowledgeId, tagIdList: ids }).then(res => {
         if (res.code === 0) {
-          this.$emit("reloadData");
+          this.$emit('reloadData');
         }
       });
       this.dialogVisible = false;
     },
     getList() {
-      tagList({knowledgeId: this.knowledgeId, tagName: this.tagName}).then(
-        (res) => {
+      tagList({ knowledgeId: this.knowledgeId, tagName: this.tagName }).then(
+        res => {
           if (res.code === 0) {
-            this.tagList = res.data.knowledgeTagList.map((item) => ({
+            this.tagList = res.data.knowledgeTagList.map(item => ({
               ...item,
               showDel: false,
               showIpt: false,
             }));
           }
-        }
+        },
       );
     },
     bindTagCount(tagId) {
-      return bindTagCount({tagId}).then(res => {
-        if (res.code === 0) {
-          const tagBindCount = res.data.tagBindCount;
-          return tagBindCount > 0;
-        }
-        return 'unknow'
-      }).catch(() => {
-        return 'unknow'
-      })
+      return bindTagCount({ tagId })
+        .then(res => {
+          if (res.code === 0) {
+            const tagBindCount = res.data.tagBindCount;
+            return tagBindCount > 0;
+          }
+          return 'unknow';
+        })
+        .catch(() => {
+          return 'unknow';
+        });
     },
     delTag(item, index) {
       if (this.type !== 'section') {
-        this.delTag_item(item)
+        this.delTag_item(item);
       } else {
-        this.tagList.splice(index, 1)
+        this.tagList.splice(index, 1);
       }
     },
     async delTag_item(item) {
       const isBind = await this.bindTagCount(item.tagId);
-      if (isBind == 'unknow') return
+      if (isBind == 'unknow') return;
       await this.$confirm(
         this.$t('knowledgeManage.deleteTag') + `${item.tagName}`,
-        item.selected && isBind ? this.$t('knowledgeManage.deleteTagHint1') : this.$t('knowledgeManage.deleteTagHint2'),
+        item.selected && isBind
+          ? this.$t('knowledgeManage.deleteTagHint1')
+          : this.$t('knowledgeManage.deleteTagHint2'),
         {
           confirmButtonText: this.$t('common.confirm.confirm'),
           cancelButtonText: this.$t('common.confirm.cancel'),
-          type: "warning",
-        }
+          type: 'warning',
+        },
       )
         .then(async () => {
-          const res = await delTag({tagId: item.tagId})
+          const res = await delTag({ tagId: item.tagId });
           if (res.code === 0) {
             this.getList();
           }
         })
-        .catch((error) => {
+        .catch(error => {
           this.getList();
         });
     },
@@ -179,7 +187,7 @@ export default {
 
       if (this.type === 'section') {
         n.showIpt = false;
-        return
+        return;
       }
 
       if (n.tagId) {
@@ -190,11 +198,11 @@ export default {
     },
     handleDelete(n, i) {
       if (n.tagName === '' && !n.tagId) {
-        this.tagList.splice(i, 1)
+        this.tagList.splice(i, 1);
       }
     },
     add_Tag(n) {
-      createTag({tagName: n.tagName}).then((res) => {
+      createTag({ tagName: n.tagName }).then(res => {
         if (res.code === 0) {
           n.showIpt = false;
           this.getList();
@@ -202,7 +210,7 @@ export default {
       });
     },
     edit_tag(n) {
-      editTag({tagId: n.tagId, tagName: n.tagName}).then((res) => {
+      editTag({ tagId: n.tagId, tagName: n.tagName }).then(res => {
         if (res.code === 0) {
           n.showIpt = false;
           this.getList();
@@ -210,14 +218,16 @@ export default {
       });
     },
     addTag() {
-      const emptyTag = this.tagList.find(tag => !tag.tagId && tag.tagName === "");
+      const emptyTag = this.tagList.find(
+        tag => !tag.tagId && tag.tagName === '',
+      );
       if (emptyTag) return;
       if (this.type === 'section' && this.tagList.length > 10) {
-        this.$message.warning(this.$t('knowledgeManage.addTagWarning'))
+        this.$message.warning(this.$t('knowledgeManage.addTagWarning'));
         return;
       }
       this.tagList.unshift({
-        tagName: "",
+        tagName: '',
         checked: false,
         showDel: false,
         showIpt: true,

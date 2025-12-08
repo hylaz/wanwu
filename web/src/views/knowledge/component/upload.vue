@@ -27,22 +27,20 @@
           v-model="uplodForm.knowValue"
           :placeholder="$t('createApp.knowledgePlaceholder')"
           ref="optionRef"
-          :disabled="fileList.length>0"
+          :disabled="fileList.length > 0"
         ></treeselect>
       </el-form-item>
-      <el-form-item
-        :label="$t('knowledgeManage.analyticMethod')"
-        required
-      >
+      <el-form-item :label="$t('knowledgeManage.analyticMethod')" required>
         <el-checkbox-group v-model="uplodForm.plugin">
-          <el-checkbox label="text" disabled>{{ $t('knowledgeManage.textExtraction') }}</el-checkbox>
-          <el-checkbox label="ocr">{{ $t('knowledgeManage.OCRAnalysis') }}</el-checkbox>
+          <el-checkbox label="text" disabled>{{
+            $t('knowledgeManage.textExtraction')
+          }}</el-checkbox>
+          <el-checkbox label="ocr">{{
+            $t('knowledgeManage.OCRAnalysis')
+          }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
-      <el-form-item
-        :label="$t('knowledgeManage.importDoc')"
-        required
-      >
+      <el-form-item :label="$t('knowledgeManage.importDoc')" required>
         <!-- rag一体机上不显示 -->
         <el-radio-group
           v-model="upLoadType"
@@ -71,15 +69,15 @@
             :file-list="fileList"
             :disabled="!uplodForm.knowValue"
           >
-            <el-button size="small" :disabled="!uplodForm.knowValue">{{ $t('knowledgeManage.selectFile') }}</el-button>
+            <el-button size="small" :disabled="!uplodForm.knowValue">{{
+              $t('knowledgeManage.selectFile')
+            }}</el-button>
             <p class="fileNumber">
               {{ $t('knowledgeManage.uploadFileNum') }}：{{ fileList.length }}
-              {{ $t('knowledgeManage.successNum') }}：{{ fileIndex }}{{ $t('knowledgeManage.number') }}
+              {{ $t('knowledgeManage.successNum') }}：{{ fileIndex
+              }}{{ $t('knowledgeManage.number') }}
             </p>
-            <div
-              slot="tip"
-              class="el-upload__tip"
-            >
+            <div slot="tip" class="el-upload__tip">
               <div class="uploadTips">
                 {{ $t('knowledgeManage.uploadTips') }}
               </div>
@@ -91,39 +89,64 @@
               </div>
               <transition name="el-zoom-in-top">
                 <ul class="document_lise">
-                  <li
-                    v-for="(file, index) in fileList"
-                    :key="index"
-                  >
-                    <div style="padding:8px 0;">
-                      <span class="size">{{ file.name }}<span>{{ filterSize(file.size) }}</span></span>
+                  <li v-for="(file, index) in fileList" :key="index">
+                    <div style="padding: 8px 0">
+                      <span class="size"
+                        >{{ file.name
+                        }}<span>{{ filterSize(file.size) }}</span></span
+                      >
                       <span>
                         <span v-if="file.percentage === 100">
-                          <i class="el-icon-check check success" v-if="file.progressStatus === 'success'"></i>
+                          <i
+                            class="el-icon-check check success"
+                            v-if="file.progressStatus === 'success'"
+                          ></i>
                           <i class="el-icon-close close fail" v-else></i>
                         </span>
-                        <i class="el-icon-loading" v-else-if="file.percentage !== 100 && index === fileIndex"></i>
+                        <i
+                          class="el-icon-loading"
+                          v-else-if="
+                            file.percentage !== 100 && index === fileIndex
+                          "
+                        ></i>
                       </span>
-                      <span style="margin-left:30px;">
-                        <i class="el-icon-error error" @click="handleRemove(file)"></i>
+                      <span style="margin-left: 30px">
+                        <i
+                          class="el-icon-error error"
+                          @click="handleRemove(file)"
+                        ></i>
                       </span>
                     </div>
-                    <div style="display:flex;align-items: center;">
+                    <div style="display: flex; align-items: center">
                       <el-progress
                         :percentage="file.percentage"
                         v-if="file.percentage !== 100"
                         :status="file.progressStatus"
                         max="100"
-                        style="width:360px;"
+                        style="width: 360px"
                       ></el-progress>
-                      <el-link type="success" :underline="false" v-if="file.showRetry === 'true'"
-                               @click="refreshFile(index)">重试
+                      <el-link
+                        type="success"
+                        :underline="false"
+                        v-if="file.showRetry === 'true'"
+                        @click="refreshFile(index)"
+                        >重试
                       </el-link>
-                      <el-link type="success" :underline="false" style="margin-left:10px;"
-                               v-if="file.showResume === 'true' && file.percentage > 0" @click="resumeFile(index)">续传
+                      <el-link
+                        type="success"
+                        :underline="false"
+                        style="margin-left: 10px"
+                        v-if="file.showResume === 'true' && file.percentage > 0"
+                        @click="resumeFile(index)"
+                        >续传
                       </el-link>
-                      <el-link type="success" :underline="false" style="margin-left:10px;"
-                               v-if="file.showRemerge === 'true'" @click="remergeFile(index)">续传
+                      <el-link
+                        type="success"
+                        :underline="false"
+                        style="margin-left: 10px"
+                        v-if="file.showRemerge === 'true'"
+                        @click="remergeFile(index)"
+                        >续传
                       </el-link>
                     </div>
                   </li>
@@ -134,7 +157,10 @@
         </div>
         <div v-if="upLoadType === '2'">
           <el-tabs type="border-card" v-model="urlActive">
-            <el-tab-pane :label="$t('knowledgeManage.addSeparately')" name="first">
+            <el-tab-pane
+              :label="$t('knowledgeManage.addSeparately')"
+              name="first"
+            >
               <urlAnalysis
                 v-if="urlActive === 'first'"
                 :categoryId="uplodForm.knowValue"
@@ -160,10 +186,7 @@
         </div>
       </el-form-item>
     </el-form>
-    <span
-      slot="footer"
-      class="dialog-footer"
-    >
+    <span slot="footer" class="dialog-footer">
       <el-button
         v-if="upLoadType === '1'"
         :disabled="resultDisabled || loadingResult || fileList.length <= 0"
@@ -171,7 +194,8 @@
         size="mini"
         :loading="saveLoading"
         @click="saveUpload"
-      >{{ $t('knowledgeManage.confirmImport') }}</el-button>
+        >{{ $t('knowledgeManage.confirmImport') }}</el-button
+      >
       <el-button
         type="primary"
         v-if="upLoadType === '2' && urlActive === 'first'"
@@ -179,7 +203,7 @@
         :disabled="urlSave"
         @click="handleSave"
         :loading="urlLoading"
-      >{{ $t('knowledgeManage.confirmImport') }}</el-button
+        >{{ $t('knowledgeManage.confirmImport') }}</el-button
       >
       <!-- url上传批量添加按钮 -->
       <el-button
@@ -189,23 +213,27 @@
         :disabled="urlBatchDis"
         @click="handlebatchSave"
         :loading="urlLoading"
-      >{{ $t('knowledgeManage.confirmImport') }}</el-button
+        >{{ $t('knowledgeManage.confirmImport') }}</el-button
       >
-      <el-button
-        @click="reset"
-        size="mini"
-      >{{ $t('createApp.cancel') }}</el-button>
+      <el-button @click="reset" size="mini">{{
+        $t('createApp.cancel')
+      }}</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
-import Treeselect from "@riophae/vue-treeselect";
-import axios from "axios";
-import {guid} from '@/utils/util'
-import urlAnalysis from "./urlAnalysis.vue";
-import urlBatch from "./urlBatch.vue";
-import {getDocList, importDoc, saveImportDoc, deleteInvalid} from "@/api/knowledge";
-import uploadChunk from "@/mixins/uploadChunk";
+import Treeselect from '@riophae/vue-treeselect';
+import axios from 'axios';
+import { guid } from '@/utils/util';
+import urlAnalysis from './urlAnalysis.vue';
+import urlBatch from './urlBatch.vue';
+import {
+  getDocList,
+  importDoc,
+  saveImportDoc,
+  deleteInvalid,
+} from '@/api/knowledge';
+import uploadChunk from '@/mixins/uploadChunk';
 
 // 防抖函数
 function debounce(fn, wait) {
@@ -226,7 +254,7 @@ export default {
   components: {
     Treeselect,
     urlAnalysis,
-    urlBatch
+    urlBatch,
   },
   mixins: [uploadChunk],
   props: {
@@ -245,29 +273,33 @@ export default {
       upDisabled: true,
       urlValidate: false,
       urlLoading: false,
-      upLoadType: "1", // 1:从文档上传；2:从url上传
+      upLoadType: '1', // 1:从文档上传；2:从url上传
       source: [],
       saveLoading: false,
       uploading: false,
       resultDisabled: true,
       uplodForm: {
         knowValue: null,
-        plugin: ['text', 'ocr']//'ocr'
+        plugin: ['text', 'ocr'], //'ocr'
       },
       uplodRules: {
         knowValue: [
-          {required: true, message: this.$t('knowledgeManage.uploadFileTips'), trigger: "change"},
-        ]
+          {
+            required: true,
+            message: this.$t('knowledgeManage.uploadFileTips'),
+            trigger: 'change',
+          },
+        ],
       },
       // fileList: [],
       knowledgeData: [],
       successNum: 0,
-      fileUuid: ''
+      fileUuid: '',
     };
   },
   created() {
     this.getClassfyDoc();
-    this.handleChange = debounce(this.handleChange, 1000)
+    this.handleChange = debounce(this.handleChange, 1000);
   },
   watch: {
     fileList: {
@@ -286,7 +318,7 @@ export default {
     },
     open: {
       handler(val) {
-        this.openDialog = val
+        this.openDialog = val;
         val && this.getClassfyDoc();
       },
       immediate: true,
@@ -311,81 +343,105 @@ export default {
         setTimeout(() => {
           this.fileList.map((file, index) => {
             if (file.progressStatus && file.progressStatus !== 'success') {
-              this.$set(file, "progressStatus", "exception");
-              this.$set(file, "showRetry", "false");
-              this.$set(file, "showResume", "false");
-              this.$set(file, "showRemerge", "false");
+              this.$set(file, 'progressStatus', 'exception');
+              this.$set(file, 'showRetry', 'false');
+              this.$set(file, 'showResume', 'false');
+              this.$set(file, 'showRemerge', 'false');
               if (file.size > this.maxSizeBytes) {
-                this.$set(file, "fileType", "maxFile");
+                this.$set(file, 'fileType', 'maxFile');
               } else {
-                this.$set(file, "fileType", "minFile");
+                this.$set(file, 'fileType', 'minFile');
               }
             }
           });
-        }, 10)
+        }, 10);
         //开始切片上传(如果没有文件正在上传)
         if (this.file === null) {
           this.startUpload();
-        } else {//如果上传当中有新的文件加入
+        } else {
+          //如果上传当中有新的文件加入
           if (this.file.progressStatus === 'success') {
-            this.startUpload(this.fileIndex)
+            this.startUpload(this.fileIndex);
           }
         }
       }
     },
-    refreshFile(index) {//重新上传文件
+    refreshFile(index) {
+      //重新上传文件
       this.fileList[index]['showRetry'] = 'false';
       this.fileList[index]['percentage'] = 0;
-      this.startUpload(index)
+      this.startUpload(index);
     },
-    resumeFile(index) {//续传文件
+    resumeFile(index) {
+      //续传文件
       this.fileList[index]['showResume'] = 'false';
       this.nextChunkIndex = this.uploadedChunks;
       this.processNextChunk();
     },
-    remergeFile(index) {//重新上传
-      this.mergeChunks()
+    remergeFile(index) {
+      //重新上传
+      this.mergeChunks();
     },
     //  验证文件为空
     verifyEmpty(file) {
       const isLt1GB = file.size / 1024 / 1024 / 1024 < 1;
       if (file.size <= 0) {
         setTimeout(() => {
-          this.$message.warning(file.name + this.$t('knowledgeManage.filterFile'));
+          this.$message.warning(
+            file.name + this.$t('knowledgeManage.filterFile'),
+          );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
-        return false
+        return false;
       }
-      return true
+      return true;
     },
     //  验证文件格式
     verifyFormat(file) {
-      const nameType = ['docx', 'doc', 'pdf', 'xlsx', 'xls', 'txt', 'zip', 'tar.gz', 'csv', 'pptx', 'html']
-      const fileName = file.name
-      const isSupportedFormat = nameType.some(ext => fileName.endsWith(`.${ext}`));
+      const nameType = [
+        'docx',
+        'doc',
+        'pdf',
+        'xlsx',
+        'xls',
+        'txt',
+        'zip',
+        'tar.gz',
+        'csv',
+        'pptx',
+        'html',
+      ];
+      const fileName = file.name;
+      const isSupportedFormat = nameType.some(ext =>
+        fileName.endsWith(`.${ext}`),
+      );
       if (!isSupportedFormat) {
         setTimeout(() => {
-          this.$message.warning(file.name + this.$t('knowledgeManage.fileTypeError'));
+          this.$message.warning(
+            file.name + this.$t('knowledgeManage.fileTypeError'),
+          );
           this.fileList = this.fileList.filter(
-            (files) => files.name !== file.name
+            files => files.name !== file.name,
           );
         }, 50);
-        return false
+        return false;
       } else {
         let isLimit = file.size / 1024 / 1024 < 700;
         let num = 700;
         if (!isLimit) {
           setTimeout(() => {
-            this.$message.error(this.$t('knowledgeManage.limitSize') + `${num}MB!`);
+            this.$message.error(
+              this.$t('knowledgeManage.limitSize') + `${num}MB!`,
+            );
             this.fileList = this.fileList.filter(
-              (files) => files.name !== file.name
+              files => files.name !== file.name,
             );
           }, 50);
-          return false
+          return false;
         }
-        return true
+        return true;
       }
     },
     //  验证文件格式
@@ -394,13 +450,15 @@ export default {
       setTimeout(() => {
         this.fileList = this.fileList.reduce((accumulator, current) => {
           const length = accumulator.filter(
-            (obj) => obj.name === current.name
+            obj => obj.name === current.name,
           ).length;
           if (length === 0) {
             accumulator.push(current);
           } else {
-            this.$message.warning(current.name + this.$t('knowledgeManage.fileExist'));
-            res = false
+            this.$message.warning(
+              current.name + this.$t('knowledgeManage.fileExist'),
+            );
+            res = false;
           }
           return accumulator;
         }, []);
@@ -409,11 +467,11 @@ export default {
     },
     // 删除已上传文件
     handleRemove(item) {
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
+      this.fileList = this.fileList.filter(files => files.name !== item.name);
       if (this.fileList.length === 0) {
-        this.file = null
+        this.file = null;
       } else {
-        this.fileIndex--
+        this.fileIndex--;
       }
     },
     handleExceed() {
@@ -422,50 +480,54 @@ export default {
     saveUpload() {
       //保存成功结果
       let ids = [];
-      this.fileList.map((item) => {
-        if (item.id && item.id.includes(",")) {
-          ids = ids.concat(item.id.split(","));
+      this.fileList.map(item => {
+        if (item.id && item.id.includes(',')) {
+          ids = ids.concat(item.id.split(','));
         } else {
           ids.push(item.id);
         }
       });
-      const data = {id: ids};
+      const data = { id: ids };
       this.saveLoading = true;
-      saveImportDoc(data).then(res => {
-        if (res.code === 0) {
-          this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-          this.successNum = 0;
-          this.fileList = [];
-          this.fileUuid = '';
-          this.resultDisabled = true;
+      saveImportDoc(data)
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success(this.$t('knowledgeManage.operateSuccess'));
+            this.successNum = 0;
+            this.fileList = [];
+            this.fileUuid = '';
+            this.resultDisabled = true;
+            this.saveLoading = false;
+            this.$emit('handleSetOpen', {
+              isShow: false,
+              knowValue: this.uplodForm.knowValue,
+            });
+            this.uplodForm.knowValue = null;
+          }
+        })
+        .catch(error => {
           this.saveLoading = false;
-          this.$emit("handleSetOpen", {isShow: false, knowValue: this.uplodForm.knowValue});
-          this.uplodForm.knowValue = null;
-        }
-      }).catch(error => {
-        this.saveLoading = false;
-      })
-
+        });
     },
     submitVisible() {
       //上传
-      this.$refs["uplodForm"].validate((valid) => {
+      this.$refs['uplodForm'].validate(valid => {
         if (valid) {
           if (!this.fileList.length) {
             this.$message.warning(this.$t('knowledgeManage.selectFile'));
             return;
           }
           if (this.fileUuid === '') {
-            this.fileUuid = guid()
+            this.fileUuid = guid();
           }
           this.fileList.map((file, index) => {
-            if (file.status === "ready" && file.back !== "true") {
-              const type = file.name.split(".")[1];
+            if (file.status === 'ready' && file.back !== 'true') {
+              const type = file.name.split('.')[1];
               let formData = new FormData();
-              formData.append("file", file.raw);
-              formData.append("fileType", type);
-              formData.append("categoryId", this.uplodForm.knowValue);
-              formData.append("batchId", this.fileUuid);
+              formData.append('file', file.raw);
+              formData.append('fileType', type);
+              formData.append('categoryId', this.uplodForm.knowValue);
+              formData.append('batchId', this.fileUuid);
               this.uploadFile(formData, index);
             }
           });
@@ -475,46 +537,53 @@ export default {
     uploadFile(fileName = '') {
       const file = this.fileList[this.fileIndex];
       if (this.fileUuid === '') {
-        this.fileUuid = guid()
+        this.fileUuid = guid();
       }
       const regex = /\.([^.]*)$/;
       const type = file.name.match(regex);
       let formData = new FormData();
       if (this.isChunk) {
-        formData.append("file", '');
+        formData.append('file', '');
       } else {
-        formData.append("file", file.raw);
+        formData.append('file', file.raw);
       }
-      formData.append("fileType", type ? type[1] : '');
-      formData.append("fileName", fileName);//合并完返回的name
-      formData.append("fileOriginName", file.name);
-      formData.append("categoryId", this.uplodForm.knowValue);
-      formData.append("plugin", this.uplodForm.plugin);
-      formData.append("batchId", this.fileUuid);
+      formData.append('fileType', type ? type[1] : '');
+      formData.append('fileName', fileName); //合并完返回的name
+      formData.append('fileOriginName', file.name);
+      formData.append('categoryId', this.uplodForm.knowValue);
+      formData.append('plugin', this.uplodForm.plugin);
+      formData.append('batchId', this.fileUuid);
       const cancel = axios.CancelToken.source(); //创建一个取消令牌
       this.source.push(cancel);
-      importDoc(formData, cancel.token).then(res => {
-        if (res.code === 0) {
-          if (Array.isArray(res.data)) {
-            //压缩包会返回多个id(数组格式)
-            this.$set(this.fileList[this.fileIndex], 'id', res.data.join(','))
-          } else {
-            //单个文件上传会返回一个id(字符串)
-            this.$set(this.fileList[this.fileIndex], 'id', res.data)
+      importDoc(formData, cancel.token)
+        .then(res => {
+          if (res.code === 0) {
+            if (Array.isArray(res.data)) {
+              //压缩包会返回多个id(数组格式)
+              this.$set(
+                this.fileList[this.fileIndex],
+                'id',
+                res.data.join(','),
+              );
+            } else {
+              //单个文件上传会返回一个id(字符串)
+              this.$set(this.fileList[this.fileIndex], 'id', res.data);
+            }
+            this.$set(
+              this.fileList[this.fileIndex],
+              'progressStatus',
+              'success',
+            );
+            this.$set(this.fileList[this.fileIndex], 'percentage', 100);
+            this.resultDisabled = false;
+            this.$message.success(this.$t('knowledgeManage.uploadSuccess'));
+            this.fileIndex++;
+            if (this.fileIndex < this.fileList.length) {
+              this.startUpload(this.fileIndex);
+            }
           }
-          this.$set(this.fileList[this.fileIndex], "progressStatus", "success");
-          this.$set(this.fileList[this.fileIndex], "percentage", 100);
-          this.resultDisabled = false;
-          this.$message.success(this.$t('knowledgeManage.uploadSuccess'));
-          this.fileIndex++;
-          if (this.fileIndex < this.fileList.length) {
-            this.startUpload(this.fileIndex);
-          }
-        }
-      }).catch(error => {
-
-      })
-
+        })
+        .catch(error => {});
     },
     reset() {
       if (this.source.length > 0) {
@@ -522,39 +591,40 @@ export default {
           this.source[i].cancel();
         }
       }
-      let ids = []
+      let ids = [];
       if (this.fileList.length > 0) {
         this.fileList.map(item => {
           if (item.id) {
-            if (item.id.includes(',')) {//rag一体机没有此逻辑
-              const list = item.id.split(',')
+            if (item.id.includes(',')) {
+              //rag一体机没有此逻辑
+              const list = item.id.split(',');
               list.map(item => {
-                ids.push(item)
-              })
+                ids.push(item);
+              });
             } else {
-              ids.push(item.id)
+              ids.push(item.id);
             }
           }
-        })
+        });
         if (ids.length > 0) {
-          this.deleteData({id: ids})//取消时删除文件
+          this.deleteData({ id: ids }); //取消时删除文件
         }
       }
-      this.$refs["uplodForm"].resetFields();
+      this.$refs['uplodForm'].resetFields();
       this.uplodForm.knowValue = null;
       this.fileList = [];
       this.resultDisabled = true;
       this.source = [];
       this.fileUuid = '';
-      this.$emit("handleSetOpen", {isShow: false, knowValue: null});
+      this.$emit('handleSetOpen', { isShow: false, knowValue: null });
       this.uploading = false;
       this.$refs.urlUpload &&
-      this.$refs.urlUpload.resetForm("dynamicValidateForm");
+        this.$refs.urlUpload.resetForm('dynamicValidateForm');
     },
     async deleteData(data) {
-      const res = await deleteInvalid(data)
+      const res = await deleteInvalid(data);
       if (res.code === 0) {
-        this.$message.success(this.$t('knowledgeManage.clearSuccess'))
+        this.$message.success(this.$t('knowledgeManage.clearSuccess'));
       }
     },
     async getClassfyDoc() {
@@ -567,7 +637,7 @@ export default {
       }
     },
     normalizeOptions(node) {
-      if (node.children == null || node.children == "null") {
+      if (node.children == null || node.children == 'null') {
         delete node.children;
       }
       return {
@@ -577,15 +647,15 @@ export default {
       };
     },
     filterSize(size) {
-      if (!size) return "";
+      if (!size) return '';
       var num = 1024.0; //byte
-      if (size < num) return size + "B";
-      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + "KB"; //kb
+      if (size < num) return size + 'B';
+      if (size < Math.pow(num, 2)) return (size / num).toFixed(2) + 'KB'; //kb
       if (size < Math.pow(num, 3))
-        return (size / Math.pow(num, 2)).toFixed(2) + "MB"; //M
+        return (size / Math.pow(num, 2)).toFixed(2) + 'MB'; //M
       if (size < Math.pow(num, 4))
-        return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
-      return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+        return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
+      return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
     handleRadioChange(val) {
       this.resultDisabled = true;
@@ -594,30 +664,30 @@ export default {
       this.fileList = [];
     },
     handleSave() {
-      this.$refs["uplodForm"].validate((valid) => {
+      this.$refs['uplodForm'].validate(valid => {
         this.$refs.urlUpload && this.$refs.urlUpload.handleSave();
       });
     },
     handlebatchSave() {
-      this.$refs["uplodForm"].validate((valid) => {
+      this.$refs['uplodForm'].validate(valid => {
         this.$refs.urlBatchUpload &&
-        this.$refs.urlBatchUpload.handleSave(this.uplodForm.plugin);
+          this.$refs.urlBatchUpload.handleSave(this.uplodForm.plugin);
       });
     },
     handleLoading(val, result) {
       this.urlLoading = val;
-      if (result === "success") {
+      if (result === 'success') {
         this.reset();
       }
     },
     handleValidate() {
-      this.$refs["uplodForm"].validate((valid) => {
+      this.$refs['uplodForm'].validate(valid => {
         this.urlValidate = valid; // true/false
       });
     },
     handleSetBatchStatus(val) {
-      this.urlLoading = val.value
-      if (val.type === "result" && val.value === "success") {
+      this.urlLoading = val.value;
+      if (val.type === 'result' && val.value === 'success') {
         this.urlBatchDis = false;
         this.reset();
       }
@@ -625,7 +695,7 @@ export default {
     // 验证url批量上传 按钮是否可点击
     handleSetBatchDisabled(val) {
       this.urlBatchDis = val;
-    }
+    },
   },
   computed: {
     loadingResult() {
@@ -636,7 +706,7 @@ export default {
       }
       return false;
     },
-  }
+  },
 };
 </script>
 <style lang="scss">

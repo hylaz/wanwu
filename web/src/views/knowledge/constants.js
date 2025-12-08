@@ -14,15 +14,15 @@ export const POWER_TYPE_ADMIN = 20;
 export const POWER_TYPE_SYSTEM_ADMIN = 30;
 
 // 分段类型常量
-export const SEGMENT_TYPE_AUTO = "0";
-export const SEGMENT_TYPE_CUSTOM = "1";
-export const SEGMENT_TYPE_COMMON = "0";
-export const SEGMENT_TYPE_PARENTSON = "1";
+export const SEGMENT_TYPE_AUTO = '0';
+export const SEGMENT_TYPE_CUSTOM = '1';
+export const SEGMENT_TYPE_COMMON = '0';
+export const SEGMENT_TYPE_PARENTSON = '1';
 
 // 分析器类型常量
-export const ANALYZER_TYPE_TEXT = "text";
-export const ANALYZER_TYPE_OCR = "ocr";
-export const ANALYZER_TYPE_MODEL = "model";
+export const ANALYZER_TYPE_TEXT = 'text';
+export const ANALYZER_TYPE_OCR = 'ocr';
+export const ANALYZER_TYPE_MODEL = 'model';
 
 // 报告状态常量
 export const REPORT_STATUS_PENDING = 0;
@@ -46,4 +46,3 @@ export const QA_STATUS_PENDING = 0;
 export const QA_STATUS_PROCESSING = 1;
 export const QA_STATUS_FINISHED = 2;
 export const QA_STATUS_FAILED = 3;
-

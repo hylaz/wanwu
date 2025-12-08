@@ -23,8 +23,8 @@
           <span>
             {{
               category === 0
-                ? $t("knowledgeManage.createKnowledge")
-                : $t("knowledgeManage.createQaDatabase")
+                ? $t('knowledgeManage.createKnowledge')
+                : $t('knowledgeManage.createQaDatabase')
             }}
           </span>
         </div>
@@ -45,8 +45,8 @@
               {{ n.docCount || 0 }}
               {{
                 category === 0
-                  ? $t("knowledgeManage.docCountUnit")
-                  : $t("knowledgeManage.qaCountUnit")
+                  ? $t('knowledgeManage.docCountUnit')
+                  : $t('knowledgeManage.qaCountUnit')
               }}
             </p>
           </div>
@@ -72,7 +72,7 @@
                 @click.stop="addTag(n.knowledgeId, n)"
               >
                 <span class="el-icon-price-tag icon-tag"></span>
-                {{ $t("knowledgeManage.addTag") }}
+                {{ $t('knowledgeManage.addTag') }}
               </span>
               <span v-else @click.stop="addTag(n.knowledgeId, n)">
                 {{ formattedTagNames(n.knowledgeTagList) }}
@@ -89,7 +89,7 @@
               <span style="margin-right: 52px; color: #999; font-size: 12px">
                 {{
                   n.orgName.length > 10
-                    ? n.orgName.substring(0, 10) + "..."
+                    ? n.orgName.substring(0, 10) + '...'
                     : n.orgName
                 }}
               </span>
@@ -97,11 +97,11 @@
             <div v-if="n.share" class="publishType" style="right: 22px">
               <span v-if="n.share" class="publishType-tag">
                 <span class="el-icon-unlock"></span>
-                {{ $t("knowledgeManage.public") }}
+                {{ $t('knowledgeManage.public') }}
               </span>
               <span v-else class="publishType-tag">
                 <span class="el-icon-lock"></span>
-                {{ $t("knowledgeManage.private") }}
+                {{ $t('knowledgeManage.private') }}
               </span>
             </div>
             <el-dropdown @command="handleClick($event, n)" placement="top">
@@ -113,22 +113,22 @@
                   command="edit"
                   v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(n.permissionType)"
                 >
-                  {{ $t("common.button.edit") }}
+                  {{ $t('common.button.edit') }}
                 </el-dropdown-item>
                 <el-dropdown-item
                   command="delete"
                   v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(n.permissionType)"
                 >
-                  {{ $t("common.button.delete") }}
+                  {{ $t('common.button.delete') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="export">
-                  {{ $t("common.button.export") }}
+                  {{ $t('common.button.export') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="exportRecord">
-                  {{ $t("knowledgeManage.qaDatabase.exportRecord") }}
+                  {{ $t('knowledgeManage.qaDatabase.exportRecord') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="power">
-                  {{ $t("knowledgeSelect.power") }}
+                  {{ $t('knowledgeSelect.power') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -147,28 +147,28 @@
       type="knowledge"
       :title="title"
     />
-    <PowerManagement ref="powerManagement"/>
-    <exportRecord ref="exportRecord"/>
+    <PowerManagement ref="powerManagement" />
+    <exportRecord ref="exportRecord" />
   </div>
 </template>
 
 <script>
-import {delKnowledgeItem} from "@/api/knowledge";
-import {AppType} from "@/utils/commonSet";
-import tagDialog from "./tagDialog.vue";
-import PowerManagement from "./power/index.vue";
-import exportRecord from "@/views/knowledge/qaDatabase/exportRecord.vue"
-import {mapActions} from "vuex";
+import { delKnowledgeItem } from '@/api/knowledge';
+import { AppType } from '@/utils/commonSet';
+import tagDialog from './tagDialog.vue';
+import PowerManagement from './power/index.vue';
+import exportRecord from '@/views/knowledge/qaDatabase/exportRecord.vue';
+import { mapActions } from 'vuex';
 import {
   INITIAL,
   POWER_TYPE_READ,
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
-} from "@/views/knowledge/constants";
+} from '@/views/knowledge/constants';
 
 export default {
-  components: {tagDialog, PowerManagement, exportRecord},
+  components: { tagDialog, PowerManagement, exportRecord },
   props: {
     appData: {
       type: Array,
@@ -195,7 +195,7 @@ export default {
       apptype: AppType,
       basePath: this.$basePath,
       listData: [],
-      title: this.$t("knowledgeManage.createTag"),
+      title: this.$t('knowledgeManage.createTag'),
       INITIAL,
       POWER_TYPE_READ,
       POWER_TYPE_EDIT,
@@ -205,23 +205,23 @@ export default {
   },
 
   methods: {
-    ...mapActions("app", ["setPermissionType", "clearPermissionType"]),
+    ...mapActions('app', ['setPermissionType', 'clearPermissionType']),
     formattedTagNames(data) {
       if (data.length === 0) {
         return [];
       }
       const tags = data
-        .filter((item) => item.selected)
-        .map((item) => item.tagName)
-        .join(", ");
+        .filter(item => item.selected)
+        .map(item => item.tagName)
+        .join(', ');
       if (tags.length > 30) {
-        return tags.slice(0, 30) + "...";
+        return tags.slice(0, 30) + '...';
       }
       return tags;
     },
     addTag(id, n) {
       if ([POWER_TYPE_READ].includes(n.permissionType)) {
-        this.$message.warning(this.$t("knowledgeSelect.noOperationPermission"));
+        this.$message.warning(this.$t('knowledgeSelect.noOperationPermission'));
         return;
       }
       this.$nextTick(() => {
@@ -233,57 +233,56 @@ export default {
     },
     handleClick(command, n) {
       switch (command) {
-        case "edit":
+        case 'edit':
           this.editItem(n);
           break;
-        case "delete":
+        case 'delete':
           this.deleteItem(n.knowledgeId);
           break;
-        case "export":
+        case 'export':
           this.exportItem(n);
           break;
-        case "exportRecord":
+        case 'exportRecord':
           this.exportRecord(n.knowledgeId);
           break;
-        case "power":
+        case 'power':
           this.showPowerManagement(n);
           break;
       }
     },
     exportItem(row) {
-      this.$emit("exportItem", row);
+      this.$emit('exportItem', row);
     },
     exportRecord(knowledgeId) {
-      this.$refs.exportRecord.showDialog(knowledgeId)
+      this.$refs.exportRecord.showDialog(knowledgeId);
     },
     editItem(row) {
-      this.$emit("editItem", row);
+      this.$emit('editItem', row);
     },
     reloadData(category) {
-      this.$emit("reloadData", category);
+      this.$emit('reloadData', category);
     },
     deleteItem(knowledgeId) {
       this.$confirm(
-        this.$t("knowledgeManage.delKnowledgeTips"),
-        this.$t("knowledgeManage.tip"),
+        this.$t('knowledgeManage.delKnowledgeTips'),
+        this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: this.$t("common.confirm.confirm"),
-          cancelButtonText: this.$t("common.confirm.cancel"),
-          type: "warning",
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
+          type: 'warning',
           beforeClose: (action, instance, done) => {
-            if (action === "confirm") {
+            if (action === 'confirm') {
               instance.confirmButtonLoading = true;
-              delKnowledgeItem({knowledgeId})
-                .then((res) => {
+              delKnowledgeItem({ knowledgeId })
+                .then(res => {
                   if (res.code === 0) {
                     this.$message.success(
-                      this.$t("knowledgeManage.operateSuccess")
+                      this.$t('knowledgeManage.operateSuccess'),
                     );
-                    this.$emit("reloadData", this.category);
+                    this.$emit('reloadData', this.category);
                   }
                 })
-                .catch(() => {
-                })
+                .catch(() => {})
                 .finally(() => {
                   done();
                   setTimeout(() => {
@@ -294,15 +293,14 @@ export default {
               done();
             }
           },
-        }
-      ).then(() => {
-      });
+        },
+      ).then(() => {});
     },
     toDocList(n) {
       if (this.category === 0) {
-        this.$router.push({path: `/knowledge/doclist/${n.knowledgeId}`});
+        this.$router.push({ path: `/knowledge/doclist/${n.knowledgeId}` });
       } else {
-        this.$router.push({path: `/knowledge/qa/docList/${n.knowledgeId}`});
+        this.$router.push({ path: `/knowledge/qa/docList/${n.knowledgeId}` });
       }
 
       this.setPermissionType(n.permissionType);
@@ -318,7 +316,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/appCard.scss";
+@import '@/style/appCard.scss';
 
 .app-card {
   .smart {

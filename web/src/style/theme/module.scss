@@ -8,7 +8,9 @@
   .title {
     //width: 96px;
     height: 22px;
-    font-family: Microsoft YaHei, Microsoft YaHei;
+    font-family:
+      Microsoft YaHei,
+      Microsoft YaHei;
     font-weight: bold;
     font-size: 16px;
     color: $color_title;
@@ -50,9 +52,9 @@
     width: 32px;
     height: 32px;
     display: inline-flex;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #DDDDDD;
+    border: 1px solid #dddddd;
     justify-content: center;
     align-items: center;
   }
@@ -74,7 +76,8 @@
       //box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.15);
     }
 
-    .btn-prev, .btn-next {
+    .btn-prev,
+    .btn-next {
       width: 28px;
       border-radius: 4px;
       min-width: 28px;
@@ -97,7 +100,9 @@
   }
 
   .el-table th.el-table__cell .cell {
-    font-family: Abhaya Libre ExtraBold, Abhaya Libre ExtraBold;
+    font-family:
+      Abhaya Libre ExtraBold,
+      Abhaya Libre ExtraBold;
     font-weight: 400;
     font-size: 13px;
     color: $txt_color;

@@ -9,7 +9,7 @@
                 <span
                   v-for="item in typeList"
                   :key="item.key"
-                  :class="['tab-span', {'is-active': typeRadio === item.key}]"
+                  :class="['tab-span', { 'is-active': typeRadio === item.key }]"
                   @click="changeTab(item.key)"
                 >
                   {{ item.name }}
@@ -41,13 +41,16 @@
                       <span class="mcp_name">{{ item.name }}</span>
                       <span class="mcp_from">
                         <label>
-                          {{$t('tempSquare.author')}}：{{ item.author }}
+                          {{ $t('tempSquare.author') }}：{{ item.author }}
                         </label>
                       </span>
                     </div>
                   </div>
                   <div class="card-des">{{ item.desc }}</div>
-                  <div class="card-bottom" style="display: block; width: 100%; text-align: right">
+                  <div
+                    class="card-bottom"
+                    style="display: block; width: 100%; text-align: right"
+                  >
                     <i
                       v-if="!isPublic"
                       class="el-icon-copy-document"
@@ -69,14 +72,14 @@
   </div>
 </template>
 <script>
-import { getPromptTempList } from "@/api/templateSquare"
-import SearchInput from "@/components/searchInput.vue"
-import CreatePrompt from "@/components/createApp/createPrompt.vue"
+import { getPromptTempList } from '@/api/templateSquare';
+import SearchInput from '@/components/searchInput.vue';
+import CreatePrompt from '@/components/createApp/createPrompt.vue';
 export default {
   components: { SearchInput, CreatePrompt },
   props: {
     isPublic: true,
-    type: ''
+    type: '',
   },
   data() {
     return {
@@ -87,59 +90,59 @@ export default {
       promptType: 'copy',
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('square.all'), key: 'all'},
-        {name: this.$t('tempSquare.learn'), key: 'learn'},
-        {name: this.$t('tempSquare.media'), key: 'media'},
-        {name: this.$t('tempSquare.role'), key: 'role'},
-        {name: this.$t('tempSquare.work'), key: 'work'},
-        {name: this.$t('tempSquare.emotion'), key: 'emotion'},
-        {name: this.$t('tempSquare.legal'), key: 'legal'},
-        {name: this.$t('tempSquare.life'), key: 'life'},
-        {name: this.$t('tempSquare.health'), key: 'health'},
-        {name: this.$t('tempSquare.email'), key: 'email'},
-        {name: this.$t('tempSquare.text'), key: 'copy'},
-      ]
+        { name: this.$t('square.all'), key: 'all' },
+        { name: this.$t('tempSquare.learn'), key: 'learn' },
+        { name: this.$t('tempSquare.media'), key: 'media' },
+        { name: this.$t('tempSquare.role'), key: 'role' },
+        { name: this.$t('tempSquare.work'), key: 'work' },
+        { name: this.$t('tempSquare.emotion'), key: 'emotion' },
+        { name: this.$t('tempSquare.legal'), key: 'legal' },
+        { name: this.$t('tempSquare.life'), key: 'life' },
+        { name: this.$t('tempSquare.health'), key: 'health' },
+        { name: this.$t('tempSquare.email'), key: 'email' },
+        { name: this.$t('tempSquare.text'), key: 'copy' },
+      ],
     };
   },
   mounted() {
-    this.doGetPromptTempList()
+    this.doGetPromptTempList();
   },
   methods: {
     changeTab(key) {
-      this.typeRadio = key
-      this.$refs.searchInput.value = ''
-      this.doGetPromptTempList()
+      this.typeRadio = key;
+      this.$refs.searchInput.value = '';
+      this.doGetPromptTempList();
     },
     doGetPromptTempList() {
-      const searchInput = this.$refs.searchInput
+      const searchInput = this.$refs.searchInput;
       let params = {
         name: searchInput.value,
         category: this.typeRadio,
-      }
+      };
 
       getPromptTempList(params)
-        .then((res) => {
-          const {list} = res.data || {}
-          this.list = list || []
-          this.loading = false
+        .then(res => {
+          const { list } = res.data || {};
+          this.list = list || [];
+          this.loading = false;
         })
-        .catch(() => this.loading = false)
+        .catch(() => (this.loading = false));
     },
     showPromptDialog(item) {
-      this.$refs.clonePromptDialog.openDialog(item)
+      this.$refs.clonePromptDialog.openDialog(item);
     },
     copyPromptTemplate(item) {
-      this.promptType = 'copy'
-      this.showPromptDialog(item)
+      this.promptType = 'copy';
+      this.showPromptDialog(item);
     },
     handleClick(item) {
-      this.promptType = 'detail'
-      this.showPromptDialog(item)
+      this.promptType = 'detail';
+      this.showPromptDialog(item);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/tempSquare.scss";
+@import '@/style/tempSquare.scss';
 </style>

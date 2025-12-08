@@ -15,13 +15,16 @@
           label-width="130px"
         >
           <el-form-item :label="$t('tool.integrate.name')">
-            <div>{{detail.name}}</div>
+            <div>{{ detail.name }}</div>
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.from')">
-            <div>{{detail.from}}</div>
+            <div>{{ detail.from }}</div>
           </el-form-item>
-          <el-form-item :label="$t('tool.integrate.desc')" class="description-text">
-            <div>{{detail.desc}}</div>
+          <el-form-item
+            :label="$t('tool.integrate.desc')"
+            class="description-text"
+          >
+            <div>{{ detail.desc }}</div>
           </el-form-item>
           <el-form-item label="MCP ServerURL" prop="serverUrl">
             <el-input v-model="ruleForm.serverUrl"></el-input>
@@ -34,7 +37,7 @@
               :disabled="isGetMCP"
               :loading="toolsLoading"
             >
-              {{$t('tool.integrate.action')}}
+              {{ $t('tool.integrate.action') }}
             </el-button>
           </el-form-item>
         </el-form>
@@ -51,19 +54,21 @@
           @click="submitForm('ruleForm')"
           :loading="publishLoading"
         >
-          {{$t('tool.integrate.publish')}}
+          {{ $t('tool.integrate.publish') }}
         </el-button>
-        <el-button @click="handleCancel" size="mini">{{ $t('common.button.cancel') }}</el-button>
+        <el-button @click="handleCancel" size="mini">{{
+          $t('common.button.cancel')
+        }}</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import { getTools, setCreate } from "@/api/mcp.js";
-import { isValidURL } from "@/utils/util";
+import { getTools, setCreate } from '@/api/mcp.js';
+import { isValidURL } from '@/utils/util';
 
 export default {
-  props: ["dialogVisible", "detail"],
+  props: ['dialogVisible', 'detail'],
   data() {
     const validateUrl = (rule, value, callback) => {
       if (!isValidURL(value)) {
@@ -75,64 +80,68 @@ export default {
     return {
       mcpList: [],
       ruleForm: {
-        serverUrl: "",
+        serverUrl: '',
       },
       rules: {
         serverUrl: [
           {
             required: true,
             message: this.$t('tool.integrate.serverUrlMsg'),
-            trigger: "blur",
+            trigger: 'blur',
           },
-          { validator: validateUrl, trigger: "blur" },
+          { validator: validateUrl, trigger: 'blur' },
         ],
       },
       toolsLoading: false,
-      publishLoading: false
+      publishLoading: false,
     };
   },
   methods: {
     handleCancel() {
       this.clearForm();
-      this.$refs["ruleForm"].clearValidate();
-      this.$emit("handleClose", false);
+      this.$refs['ruleForm'].clearValidate();
+      this.$emit('handleClose', false);
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           const params = {
             name: this.detail.name,
             from: this.detail.from,
             sseUrl: this.ruleForm.serverUrl,
             desc: this.detail.desc,
-            mcpSquareId: this.detail.mcpSquareId
-          }
-          this.publishLoading = true
-          setCreate(params).then((res) => {
-            if(res.code === 0){
-              this.$message.success(this.$t('common.info.publish'))
-              this.publishLoading = false
-              this.handleCancel()
-              // 更新发送按钮状态
-              this.$emit("getIsCanSendStatus");
-            }
-          }).finally(() => this.publishLoading = false)
+            mcpSquareId: this.detail.mcpSquareId,
+          };
+          this.publishLoading = true;
+          setCreate(params)
+            .then(res => {
+              if (res.code === 0) {
+                this.$message.success(this.$t('common.info.publish'));
+                this.publishLoading = false;
+                this.handleCancel();
+                // 更新发送按钮状态
+                this.$emit('getIsCanSendStatus');
+              }
+            })
+            .finally(() => (this.publishLoading = false));
         }
-      })
+      });
     },
-    clearForm(){
-      this.ruleForm.serverUrl = ''
-      this.mcpList = []
+    clearForm() {
+      this.ruleForm.serverUrl = '';
+      this.mcpList = [];
     },
     handleTools() {
-      this.toolsLoading = true
-      this.$refs['ruleForm'].validate((valid) => {
+      this.toolsLoading = true;
+      this.$refs['ruleForm'].validate(valid => {
         if (valid) {
           getTools({
             serverUrl: this.ruleForm.serverUrl,
-          }).then((res) => {
-            this.mcpList = res.data.tools || []
-          }).finally(() => this.toolsLoading = false)
+          })
+            .then(res => {
+              this.mcpList = res.data.tools || [];
+            })
+            .finally(() => (this.toolsLoading = false));
         }
       });
     },
@@ -162,8 +171,8 @@ export default {
       background: #fff;
     }
   }
-  .description-text .el-form-item__content{
-    line-height: 24px!important;
+  .description-text .el-form-item__content {
+    line-height: 24px !important;
     padding: 10px 0;
   }
 }

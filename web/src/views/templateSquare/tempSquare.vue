@@ -9,7 +9,7 @@
                 <span
                   v-for="item in typeList"
                   :key="item.key"
-                  :class="['tab-span', {'is-active': typeRadio === item.key}]"
+                  :class="['tab-span', { 'is-active': typeRadio === item.key }]"
                   @click="changeTab(item.key)"
                 >
                   {{ item.name }}
@@ -41,14 +41,18 @@
                       <span class="mcp_name">{{ item.name }}</span>
                       <span class="mcp_from">
                         <label>
-                          {{$t('tempSquare.author')}}：{{ item.author }}
+                          {{ $t('tempSquare.author') }}：{{ item.author }}
                         </label>
                       </span>
                     </div>
                   </div>
                   <div class="card-des">{{ item.desc }}</div>
                   <div class="card-bottom">
-                    <div class="card-bottom-left">{{$t('tempSquare.downloadCount')}}：{{item.downloadCount || 0}}</div>
+                    <div class="card-bottom-left">
+                      {{ $t('tempSquare.downloadCount') }}：{{
+                        item.downloadCount || 0
+                      }}
+                    </div>
                     <div class="card-bottom-right">
                       <i
                         v-if="!isPublic"
@@ -78,15 +82,15 @@
   </div>
 </template>
 <script>
-import { getWorkflowTempList, downloadWorkflow } from "@/api/templateSquare"
-import SearchInput from "@/components/searchInput.vue"
-import HintDialog from "./components/hintDialog.vue"
-import CreateWorkflow from "@/components/createApp/createWorkflow.vue"
+import { getWorkflowTempList, downloadWorkflow } from '@/api/templateSquare';
+import SearchInput from '@/components/searchInput.vue';
+import HintDialog from './components/hintDialog.vue';
+import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
 export default {
   components: { SearchInput, HintDialog, CreateWorkflow },
   props: {
     isPublic: true,
-    type: ''
+    type: '',
   },
   data() {
     return {
@@ -97,71 +101,74 @@ export default {
       loading: false,
       typeRadio: 'all',
       typeList: [
-        {name: this.$t('square.all'), key: 'all'},
-        {name: this.$t('square.gov'), key: 'gov'},
-        {name: this.$t('square.industry'), key: 'industry'},
-        {name: this.$t('square.edu'), key: 'edu'},
-        {name: this.$t('square.tourism'), key: 'tourism'},
+        { name: this.$t('square.all'), key: 'all' },
+        { name: this.$t('square.gov'), key: 'gov' },
+        { name: this.$t('square.industry'), key: 'industry' },
+        { name: this.$t('square.edu'), key: 'edu' },
+        { name: this.$t('square.tourism'), key: 'tourism' },
         // {name: this.$t('square.medical'), key: 'medical'},
-        {name: this.$t('square.data'), key: 'data'},
-        {name: this.$t('square.creator'), key: 'create'},
-        {name: this.$t('square.search'), key: 'search'},
-      ]
+        { name: this.$t('square.data'), key: 'data' },
+        { name: this.$t('square.creator'), key: 'create' },
+        { name: this.$t('square.search'), key: 'search' },
+      ],
     };
   },
   mounted() {
-    this.doGetWorkflowTempList()
+    this.doGetWorkflowTempList();
   },
   methods: {
     changeTab(key) {
-      this.typeRadio = key
-      this.$refs.searchInput.value = ''
-      this.doGetWorkflowTempList()
+      this.typeRadio = key;
+      this.$refs.searchInput.value = '';
+      this.doGetWorkflowTempList();
     },
     showHintDialog() {
-      this.$refs.hintDialog.openDialog()
+      this.$refs.hintDialog.openDialog();
     },
     doGetWorkflowTempList() {
-      const searchInput = this.$refs.searchInput
+      const searchInput = this.$refs.searchInput;
       let params = {
         name: searchInput.value,
         category: this.typeRadio,
-      }
+      };
 
       getWorkflowTempList(params)
-        .then((res) => {
-          const {downloadLink = {}, list} = res.data || {}
-          this.templateUrl = downloadLink.url
-          if (downloadLink.url) this.showHintDialog()
+        .then(res => {
+          const { downloadLink = {}, list } = res.data || {};
+          this.templateUrl = downloadLink.url;
+          if (downloadLink.url) this.showHintDialog();
 
-          this.list = list || []
-          this.loading = false
+          this.list = list || [];
+          this.loading = false;
         })
-        .catch(() => this.loading = false)
+        .catch(() => (this.loading = false));
     },
     copyTemplate(item) {
-      this.$refs.cloneWorkflowDialog.openDialog(item)
+      this.$refs.cloneWorkflowDialog.openDialog(item);
     },
     downloadTemplate(item) {
-      downloadWorkflow({ templateId : item.templateId }).then(response => {
-        const blob = new Blob([response], { type: response.type })
+      downloadWorkflow({ templateId: item.templateId }).then(response => {
+        const blob = new Blob([response], { type: response.type });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a")
-        link.href = url
-        link.download = item.name + '.json'
-        link.click()
-        window.URL.revokeObjectURL(link.href)
-        this.doGetWorkflowTempList()
-      })
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = item.name + '.json';
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+        this.doGetWorkflowTempList();
+      });
     },
     handleClick(val) {
-      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`
-      this.$router.push({path, query: { templateSquareId: val.templateId, type: this.type }})
+      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`;
+      this.$router.push({
+        path,
+        query: { templateSquareId: val.templateId, type: this.type },
+      });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/tempSquare.scss";
+@import '@/style/tempSquare.scss';
 </style>

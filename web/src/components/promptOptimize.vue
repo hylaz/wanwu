@@ -28,7 +28,10 @@
             >
               <div class="model-option-content">
                 <span class="model-name">{{ item.displayName }}</span>
-                <div class="model-select-tags" v-if="item.tags && item.tags.length > 0">
+                <div
+                  class="model-select-tags"
+                  v-if="item.tags && item.tags.length > 0"
+                >
                   <span
                     v-for="(tag, tagIdx) in item.tags"
                     :key="tagIdx"
@@ -40,8 +43,14 @@
               </div>
             </el-option>
           </el-select>
-          <el-button :disabled="!(prompt && modelId)" size="mini" type="primary" @click="promptOptimize" :loading="loading">
-            {{$t('tempSquare.optimize')}}
+          <el-button
+            :disabled="!(prompt && modelId)"
+            size="mini"
+            type="primary"
+            @click="promptOptimize"
+            :loading="loading"
+          >
+            {{ $t('tempSquare.optimize') }}
           </el-button>
         </div>
         <div v-if="optimizedPrompt" class="answer-content">
@@ -53,8 +62,12 @@
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button :disabled="!optimizedPrompt" type="primary" @click="doSubmit">
-          {{$t('tempSquare.replace')}}
+        <el-button
+          :disabled="!optimizedPrompt"
+          type="primary"
+          @click="doSubmit"
+        >
+          {{ $t('tempSquare.replace') }}
         </el-button>
       </span>
     </el-dialog>
@@ -62,10 +75,10 @@
 </template>
 
 <script>
-import { selectModelList } from "@/api/modelAccess"
-import Print from '@/utils/printPlus2.js'
-import { fetchEventSource } from "@/sse/index.js"
-import {USER_API} from "@/utils/requestConstants"
+import { selectModelList } from '@/api/modelAccess';
+import Print from '@/utils/printPlus2.js';
+import { fetchEventSource } from '@/sse/index.js';
+import { USER_API } from '@/utils/requestConstants';
 
 export default {
   data() {
@@ -82,97 +95,107 @@ export default {
     };
   },
   created() {
-    this.getModelData()
+    this.getModelData();
   },
   beforeDestroy() {
-    this.stopEventSource()
-    this._print && this._print.stop()
+    this.stopEventSource();
+    this._print && this._print.stop();
   },
   methods: {
     getModelData() {
-      this.modelLoading = true
-      selectModelList().then(res => {
-        this.modelOptions = (res.data.list || [])
-          .filter(item => item.config && item.config.visionSupport !== 'support')
-        this.modelLoading = false
-      }).catch(() => this.modelLoading = false)
+      this.modelLoading = true;
+      selectModelList()
+        .then(res => {
+          this.modelOptions = (res.data.list || []).filter(
+            item => item.config && item.config.visionSupport !== 'support',
+          );
+          this.modelLoading = false;
+        })
+        .catch(() => (this.modelLoading = false));
     },
     visibleChange(val) {
-      if (val) this.getModelData()
+      if (val) this.getModelData();
     },
     openDialog(item) {
-      const { prompt } = item || {}
-      this.dialogVisible = true
-      this.prompt = prompt || ''
-      this.optimizedPrompt = ''
-      this.modelId = ''
+      const { prompt } = item || {};
+      this.dialogVisible = true;
+      this.prompt = prompt || '';
+      this.optimizedPrompt = '';
+      this.modelId = '';
     },
     handleClose() {
-      this.stopEventSource()
-      this.prompt = ''
-      this.dialogVisible = false
-      this.loading = false
+      this.stopEventSource();
+      this.prompt = '';
+      this.dialogVisible = false;
+      this.loading = false;
     },
     stopEventSource() {
-      this.ctrlAbort && this.ctrlAbort.abort()
-      this.eventSource = null
+      this.ctrlAbort && this.ctrlAbort.abort();
+      this.eventSource = null;
     },
     promptOptimize() {
       const params = {
         modelId: this.modelId,
-        prompt: this.prompt
-      }
-      this.loading = true
+        prompt: this.prompt,
+      };
+      this.loading = true;
 
-      const origin = window.location.origin + this.$basePath
-      const user = this.$store.state.user || {}
-      const token = user.token
-      const userInfo = user.userInfo || {}
-      this._print = new Print({})
-      let endStr = ''
+      const origin = window.location.origin + this.$basePath;
+      const user = this.$store.state.user || {};
+      const token = user.token;
+      const userInfo = user.userInfo || {};
+      this._print = new Print({});
+      let endStr = '';
 
-      this.ctrlAbort = new AbortController()
-      this.eventSource = new fetchEventSource(origin + `${USER_API}/prompt/optimize`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": 'application/json',
-          'Authorization': 'Bearer ' + token,
-          "x-user-id": userInfo.uid,
-          "x-org-id": userInfo.orgId,
+      this.ctrlAbort = new AbortController();
+      this.eventSource = new fetchEventSource(
+        origin + `${USER_API}/prompt/optimize`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token,
+            'x-user-id': userInfo.uid,
+            'x-org-id': userInfo.orgId,
+          },
+          openWhenHidden: true,
+          signal: this.ctrlAbort.signal,
+          body: JSON.stringify({ ...params }),
+          onopen: async e => {
+            if (e.status !== 200) {
+              this.$message.error(e.statusText);
+              this.stopEventSource();
+              this.loading = false;
+            }
+          },
+          onmessage: e => {
+            if (e && e.data) {
+              const data = JSON.parse(e.data) || {};
+              let _sentence = data.response;
+              this._print.print(
+                {
+                  response: _sentence,
+                  finish: data.finish,
+                },
+                {},
+                worldObj => {
+                  endStr = endStr + worldObj.world;
+                  this.optimizedPrompt = endStr;
+                  if (Boolean(worldObj.finish)) this.loading = false;
+                },
+              );
+            }
+          },
+          onerror: () => {
+            this.loading = false;
+            this.stopEventSource();
+          },
         },
-        openWhenHidden: true,
-        signal: this.ctrlAbort.signal,
-        body: JSON.stringify({...params}),
-        onopen: async (e) => {
-          if (e.status !== 200) {
-            this.$message.error(e.statusText)
-            this.stopEventSource()
-            this.loading = false
-          }
-        },
-        onmessage: (e) => {
-          if (e && e.data) {
-            const data = JSON.parse(e.data) || {}
-            let _sentence = data.response
-            this._print.print({
-              response: _sentence,
-              finish: data.finish
-            },{},(worldObj) => {
-              endStr = endStr + worldObj.world
-              this.optimizedPrompt = endStr
-              if (Boolean(worldObj.finish)) this.loading = false
-            })
-          }
-        },
-        onerror: () => {
-          this.loading = false
-          this.stopEventSource()
-        }
-      })
+      );
     },
     doSubmit() {
-      this.$emit('promptSubmit', this.optimizedPrompt)
-      this.handleClose()
+      this.$emit('promptSubmit', this.optimizedPrompt);
+      this.handleClose();
     },
   },
 };

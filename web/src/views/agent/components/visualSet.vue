@@ -45,35 +45,35 @@ export default {
           maxPicNum: 6,
         },
       },
-    }
+    };
   },
   methods: {
     handleClose() {
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     showDialog(visionConfig = null) {
-      this.dialogVisible = true
+      this.dialogVisible = true;
       this.$nextTick(() => {
-        const form = this.$refs.ruleForm
+        const form = this.$refs.ruleForm;
         if (form) {
-          form.clearValidate()
-          if (!visionConfig) form.resetFields()
+          form.clearValidate();
+          if (!visionConfig) form.resetFields();
         }
-        this.ruleForm.visionConfig = visionConfig
-      })
+        this.ruleForm.visionConfig = visionConfig;
+      });
     },
     submit(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$emit("sendVisual", this.ruleForm.visionConfig)
-          this.dialogVisible = false
+          this.$emit('sendVisual', this.ruleForm.visionConfig);
+          this.dialogVisible = false;
         } else {
-          return false
+          return false;
         }
-      })
+      });
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 /deep/.el-input-number--small {
