@@ -116,9 +116,8 @@ type RagKnowledgeConfig struct {
 }
 
 type WorkflowTemplatePathConfig struct {
-	ServerMode string `json:"server_mode" mapstructure:"server_mode"`
-	ConfigPath string `json:"configPath" mapstructure:"configPath"`
-
+	ServerMode       string `json:"server_mode" mapstructure:"server_mode"`
+	ConfigPath       string `json:"configPath" mapstructure:"configPath"`
 	GlobalWebListUrl string `json:"global_web_list_url" mapstructure:"global_web_list_url"`
 
 	ListUrl      string `json:"list_url" mapstructure:"list_url"`

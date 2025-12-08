@@ -55,7 +55,6 @@ func GetPromptTemplateList(ctx *gin.Context, category, name string) (*response.L
 		}
 		promptTemplateList = append(promptTemplateList, buildPromptTempDetail(*promptCfg))
 	}
-	fmt.Println()
 	return &response.ListResult{
 		List:  promptTemplateList,
 		Total: int64(len(promptTemplateList)),

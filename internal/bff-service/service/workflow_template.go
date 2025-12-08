@@ -36,6 +36,7 @@ func GetWorkflowTemplateList(ctx *gin.Context, clientId, category, name string) 
 			log.Errorf("record template browse count error: %v", err)
 		}
 	}
+
 	// 记录client数据
 	if _, err := operate.AddClientRecord(ctx.Request.Context(), &operate_service.AddClientRecordReq{
 		ClientId: clientId,

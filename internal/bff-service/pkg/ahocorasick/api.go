@@ -78,7 +78,6 @@ func ContentContain(content string, dicts []DictConfig) (*DictConfig, error) {
 	return _ac.contentContain(content, dicts)
 }
 
-// ------------ init -----------
 func Init(useLRU bool) error {
 	if _ac != nil {
 		return fmt.Errorf("aho-corasick already init")
@@ -106,6 +105,7 @@ func (a *acMgr) startCleanup() {
 	go func() {
 		defer util.PrintPanicStack()
 		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ticker.C:

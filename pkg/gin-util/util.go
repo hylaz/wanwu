@@ -147,12 +147,12 @@ func ResponseOKWithData(ctx *gin.Context, data interface{}) {
 	ResponseDetail(ctx, http.StatusOK, codes.OK, data, "")
 }
 
-// ResponseDetail 返回400与err信息，err有i18n
+// ResponseErr 返回400与err信息，err有i18n
 func ResponseErr(ctx *gin.Context, err error) {
 	ResponseErrWithStatus(ctx, http.StatusBadRequest, err)
 }
 
-// ResponseDetail 返回httpStatus与err信息，err有i18n
+// ResponseErrWithStatus 返回httpStatus与err信息，err有i18n
 func ResponseErrWithStatus(ctx *gin.Context, httpStatus int, err error) {
 	st, ok := status.FromError(err)
 	if !ok {

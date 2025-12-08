@@ -127,11 +127,13 @@ func (w *wrapper) Reg(rg *gin.RouterGroup, relPath, method string, handler gin.H
 	if w == nil {
 		log.Panicf("wrapper nil")
 	}
+
 	absPath := path.Join(rg.BasePath(), relPath)
 	// check w.tag
 	if w.tag == "" {
 		log.Panicf("wrapper tag empty cannot register [%v]%v", method, absPath)
 	}
+
 	// check method & path
 	if w.paths.Get(absPath, method) != nil {
 		log.Panicf("wrapper %v register [%v]%v already exist", w.tag, method, absPath)

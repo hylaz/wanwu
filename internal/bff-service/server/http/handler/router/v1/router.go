@@ -5,6 +5,7 @@ import (
 )
 
 func Register(apiV1 *gin.RouterGroup) {
+
 	// guest
 	registerGuest(apiV1)
 

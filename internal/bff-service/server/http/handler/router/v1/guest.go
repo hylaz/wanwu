@@ -9,6 +9,7 @@ import (
 )
 
 func registerGuest(apiV1 *gin.RouterGroup) {
+
 	apiV1.Static("/static", "./configs/microservice/bff-service/static")
 	apiV1.Static("/cache", "./cache")
 

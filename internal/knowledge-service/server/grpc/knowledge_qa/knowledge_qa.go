@@ -58,6 +58,7 @@ func (s *Service) GetQAPairList(ctx context.Context, req *knowledgebase_qa_servi
 		log.Errorf("select QA knowledge failed err: (%v) req:(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeQABaseSelectFailed)
 	}
+
 	//入口层已经校验过用户权限，此处无需校验
 	list, total, err := orm.GetQAPairList(ctx, "", "", req.KnowledgeId,
 		req.Name, int(req.Status), req.PageSize, req.PageNum)
@@ -146,6 +147,7 @@ func (s *Service) UpdateQAPair(ctx context.Context, req *knowledgebase_qa_servic
 		log.Errorf("select QA knowledge failed err: (%v) req:(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeQABaseSelectFailed)
 	}
+
 	//3.校验问答对
 	question := strings.Trim(req.Question, " ")
 	answer := strings.Trim(req.Answer, " ")
@@ -153,6 +155,7 @@ func (s *Service) UpdateQAPair(ctx context.Context, req *knowledgebase_qa_servic
 	if qaPair.Question == question && qaPair.Answer == answer {
 		return nil, nil
 	}
+
 	questionOmitempty, answerOmitempty := qaPair.Question == question, qaPair.Answer == answer
 	// 4.更新问答对
 	qaPair, ragParams := buildUpdateQAPairParams(knowledgeBase, question, answer, questionMD5, req.QaPairId, questionOmitempty, answerOmitempty)

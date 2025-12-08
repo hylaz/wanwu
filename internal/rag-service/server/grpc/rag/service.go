@@ -52,6 +52,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 	if err1 != nil {
 		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", err1.Error())
 	}
+
 	knowledgeInfoList, errk := Knowledge.SelectKnowledgeDetailByIdList(ctx, &knowledgebase_service.KnowledgeDetailSelectListReq{
 		UserId:       rag.UserID,
 		OrgId:        rag.OrgID,
@@ -65,6 +66,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 		log.Errorf("knowledgeInfoList = nil")
 		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", "check knowledgeInfoList err: knowledgeInfoList is nil")
 	}
+
 	knowledgeIds, qaIds, knowledgeIDToName := splitKnowledgeIdList(knowledgeInfoList)
 	return message_builder.BuildMessage(ctx, &message_builder.RagContext{
 		MessageId:         generator.GetGenerator().NewID(),

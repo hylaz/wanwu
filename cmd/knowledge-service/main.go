@@ -3,16 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"os/signal"
-	"runtime"
-	"syscall"
-
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg"
 	_ "github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/minio"
 	_ "github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/tool-init"
 	_ "github.com/UnicomAI/wanwu/internal/knowledge-service/server/grpc"
 	_ "github.com/UnicomAI/wanwu/internal/knowledge-service/task"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
 )
 
 var (
