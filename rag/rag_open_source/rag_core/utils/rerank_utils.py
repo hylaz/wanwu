@@ -60,7 +60,8 @@ def get_openai_rerank(rerank_url, model_name, api_key, query, documents, raw_sea
     # 将请求体转换为JSON字符串用于日志记录
     request_body = json.dumps(rerank_data, ensure_ascii=False, indent=2)
     logger.info(f"Rerank request details:\nURL: {rerank_url}\nHeaders: {headers}\nBody: {request_body}")
-    
+
+    last_error = None
     for attempt in range(3):  # 重试3次
         try:
             # 发送请求（注意使用request_body变量会二次编码，应使用原始数据）
@@ -90,16 +91,22 @@ def get_openai_rerank(rerank_url, model_name, api_key, query, documents, raw_sea
                 sorted_scores.append(item['relevance_score'])
                 sorted_search_list.append(raw_search_list[item["index"]])
                 
-            return {"code": 0, "result": {
-                "sorted_scores": sorted_scores,
-                "sorted_search_list": sorted_search_list
-            }}
+            return {
+                "code": 0,
+                "message": "",
+                "data": {
+                    "sorted_scores": sorted_scores,
+                    "sorted_search_list": sorted_search_list
+                }
+            }
             
         except Exception as e:
+            last_error = str(e)
             logger.error(f"Attempt {attempt+1} failed: {str(e)}")
             time.sleep(0.5 * (attempt + 1))  # 指数退避
-    
-    return {"code": 1, "msg": f"{model_name} connection error after retries"}
+
+    error_msg = f"{model_name} connection error after retries. Last error: {last_error}"
+    return {"code": 1, "message": error_msg}
 
 
 def get_model_rerank(question, top_k, documents, raw_search_list, rerank_model_id):
@@ -118,8 +125,10 @@ def get_model_rerank(question, top_k, documents, raw_search_list, rerank_model_i
     logger.info("get_model_rerank, openapi doc = %s", repr(documents))
     # raw_search_list = gen_raw_list(searchList, es_list)
     result_data = get_openai_rerank(model_url, model_name, api_key, question, documents, raw_search_list, top_k)
-    sorted_scores = result_data['result']["sorted_scores"]
-    sorted_search_list = result_data['result']["sorted_search_list"]
+    return result_data
+
+    # sorted_scores = result_data['result']["sorted_scores"]
+    # sorted_search_list = result_data['result']["sorted_search_list"]
 
     # elif model_config.model_provider == "YuanJing":
     #     raw_search_list = gen_raw_list(searchList, es_list)
@@ -131,10 +140,10 @@ def get_model_rerank(question, top_k, documents, raw_search_list, rerank_model_i
     #     sorted_search_list = result_data['result']["sorted_search_list"]
 
 
-    return sorted_scores, sorted_search_list
+    # return sorted_scores, sorted_search_list
 
 
-def rerank_search(question, sorted_scores, search_list, threshold, return_meta, prompt_template, default_answer,
+def assemble_search_result(question, sorted_scores, search_list, threshold, return_meta, prompt_template, default_answer,
                   auto_citation):
     response_info = {'code': 0, "message": "成功", "data": {"prompt": "", "searchList": [], "score": []}}
 

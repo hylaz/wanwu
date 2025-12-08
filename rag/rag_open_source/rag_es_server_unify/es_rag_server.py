@@ -393,15 +393,14 @@ def es_knn_search():
     content_index_name = 'content_control_' + index_name
     userId = data.get("userId")
     display_kb_names = data.get("kb_names")  # list
-    kb_names = []
     top_k = data.get("topk", 10)
     query = data.get("question")
     min_score = data.get("threshold", 0)
     filter_file_name_list = data.get("filter_file_name_list", [])
     metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
     kb_id_2_kb_name = {}
-    embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, display_kb_names[0])
-    logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names},embedding_model_id:{embedding_model_id}")
+    emb_id2kb_names = {}
+    logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names}")
     logger.info(f"用户请求的query为:{query}")
     try:
         # ============= 先检查 kb_names 是不是都存在 =============
@@ -424,12 +423,15 @@ def es_knn_search():
                 return jsonarr
             # ======== kb_name 是存在的，则往 kb_names 里添加=======
             kb_id = kb_info_ops.get_uk_kb_id(userId, kb_name)
-            kb_names.append(kb_id)  # 从映射表中获取 kb_id ，这是真正的名字
             kb_id_2_kb_name[kb_id] = kb_name
             if kb_name in filtering_conditions:
                 condition = filtering_conditions[kb_name]
                 condition["filtering_kb_name"] = kb_id
                 final_conditions.append(deepcopy(condition))
+            embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, kb_name)
+            if embedding_model_id not in emb_id2kb_names:
+                emb_id2kb_names[embedding_model_id] = []
+            emb_id2kb_names[embedding_model_id].append(kb_id)
         meta_filter_file_name_list = []
         if final_conditions:
             meta_filter_file_name_list = meta_ops.search_with_doc_meta_filter(content_index_name, final_conditions)
@@ -444,18 +446,33 @@ def es_knn_search():
                     }
                 }
                 jsonarr = json.dumps(result, ensure_ascii=False)
-                logger.info(f"当前用户:{userId},知识库:{kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
+                logger.info(f"当前用户:{userId},知识库:{display_kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
                 return jsonarr
 
         if meta_filter_file_name_list:
             filter_file_name_list = filter_file_name_list + meta_filter_file_name_list
         # ============= 先检查 kb_names 是不是都存在 =============
         # ============= 开始检索召回 ===============
-        result_dict = es_ops.search_data_knn_recall(index_name, kb_names, query, top_k, min_score,
-                                                    filter_file_name_list=filter_file_name_list,
-                                                    embedding_model_id=embedding_model_id)
-        search_list = result_dict["search_list"]
-        scores = result_dict["scores"]
+        search_list = []
+        scores = []
+        for embedding_model_id, kb_names in emb_id2kb_names.items():
+            logger.info(f"用户:{index_name},请求查询的kb_names为:{kb_names},embedding_model_id:{embedding_model_id}")
+            result_dict = es_ops.search_data_knn_recall(index_name, kb_names, query, top_k, min_score,
+                                                        filter_file_name_list=filter_file_name_list,
+                                                        embedding_model_id=embedding_model_id)
+            search_list.extend(result_dict["search_list"])
+            scores.extend(result_dict["scores"])
+
+        if len(search_list) > top_k:
+            # 合并search_list和scores，按score降序排序
+            combined_results = list(zip(search_list, scores))
+            combined_results.sort(key=lambda x: x[1], reverse=True)
+
+            # 取前top_k个结果
+            top_results = combined_results[:top_k]
+            search_list = [item[0] for item in top_results]
+            scores = [item[1] for item in top_results]
+
         for item in search_list:  # 将 kb_id 转换为 kb_name
             item["kb_name"] = kb_id_2_kb_name[item["kb_name"]]
         result = {
@@ -467,7 +484,7 @@ def es_knn_search():
             }
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{userId},知识库:{kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{userId},知识库:{display_kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
     except Exception as e:
@@ -477,7 +494,7 @@ def es_knn_search():
             "message": str(e)
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{userId},知识库:{kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{userId},知识库:{display_kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
 
@@ -1658,13 +1675,12 @@ def search_community_reports():
     report_index_name = 'community_report_' + index_name
     userId = data.get("userId")
     display_kb_names = data.get("kb_names")  # list
-    kb_names = []
     top_k = data.get("topk", 10)
     query = data.get("question")
     min_score = data.get("threshold", 0)
     kb_id_2_kb_name = {}
-    embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, display_kb_names[0])
-    logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names},embedding_model_id:{embedding_model_id}")
+    emb_id2kb_names = {}
+    logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names}")
     logger.info(f"用户请求的query为:{query}")
     try:
         exists_kb_names = kb_info_ops.get_uk_kb_name_list(KBNAME_MAPPING_INDEX, userId)  # 从映射表中获取
@@ -1673,14 +1689,33 @@ def search_community_reports():
                 raise RuntimeError(f"用户:{index_name}里,{kb_name}知识库不存在")
             # ======== kb_name 是存在的，则往 kb_names 里添加=======
             kb_id = kb_info_ops.get_uk_kb_id(userId, kb_name)
-            kb_names.append(kb_id)  # 从映射表中获取 kb_id ，这是真正的名字
             kb_id_2_kb_name[kb_id] = kb_name
+            embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, kb_name)
+            if embedding_model_id not in emb_id2kb_names:
+                emb_id2kb_names[embedding_model_id] = []
+            emb_id2kb_names[embedding_model_id].append(kb_id)
 
         # ============= 开始检索召回 ===============
         es_ops.create_index_if_not_exists(report_index_name, mappings=es_mapping.community_report_mappings)
-        result_dict = es_ops.search_data_knn_recall(report_index_name, kb_names, query, top_k, min_score, embedding_model_id=embedding_model_id)
-        search_list = result_dict["search_list"]
-        scores = result_dict["scores"]
+
+        search_list = []
+        scores = []
+        for embedding_model_id, kb_names in emb_id2kb_names.items():
+            logger.info(f"用户:{index_name},请求查询的kb_names为:{kb_names},embedding_model_id:{embedding_model_id}")
+            result_dict = es_ops.search_data_knn_recall(report_index_name, kb_names, query, top_k, min_score, embedding_model_id=embedding_model_id)
+            search_list.extend(result_dict["search_list"])
+            scores.extend(result_dict["scores"])
+
+        if len(search_list) > top_k:
+            # 合并search_list和scores，按score降序排序
+            combined_results = list(zip(search_list, scores))
+            combined_results.sort(key=lambda x: x[1], reverse=True)
+
+            # 取前top_k个结果
+            top_results = combined_results[:top_k]
+            search_list = [item[0] for item in top_results]
+            scores = [item[1] for item in top_results]
+
         for item in search_list:  # 将 kb_id 转换为 kb_name
             item["kb_name"] = kb_id_2_kb_name[item["kb_name"]]
         result = {
@@ -1692,7 +1727,7 @@ def search_community_reports():
             }
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{userId},知识库:{kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{userId},知识库:{display_kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
     except Exception as e:
@@ -1702,7 +1737,7 @@ def search_community_reports():
             "message": str(e)
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{userId},知识库:{kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{userId},知识库:{display_kb_names},query:{query},向量库检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
 #-------------------------------       问答库       ------------------------------------
@@ -2106,15 +2141,14 @@ def vector_search():
     data = request.get_json()
     user_id = data.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    base_names = data.get("base_names")
+    all_base_names = data.get("base_names")
     top_k = data.get("topk", 10)
     query = data.get("question")
     min_score = data.get("threshold", 0)
     metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
-    embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, base_names[0])
-    logger.info(f"用户:{user_id},请求查询的base_names为:{base_names}, query: {query}, topK: {top_k}, "
-                f"threshold: {min_score}, metadata_filtering_conditions: {metadata_filtering_conditions},"
-                f"embedding_model_id:{embedding_model_id}")
+    emb_id2base_names = {}
+    logger.info(f"用户:{user_id},请求查询的base_names为:{all_base_names}, query: {query}, topK: {top_k}, "
+                f"threshold: {min_score}, metadata_filtering_conditions: {metadata_filtering_conditions}")
     try:
 
         exists_base_names = kb_info_ops.get_uk_qa_name_list(user_id)  # 从映射表中获取
@@ -2124,7 +2158,7 @@ def vector_search():
             filtering_conditions[base_name] = condition
 
         final_conditions = []
-        for base_name in base_names:
+        for base_name in all_base_names:
             if base_name not in exists_base_names:
                 raise RuntimeError(f"用户:{user_id}, {base_name}问答库不存在")
 
@@ -2132,10 +2166,29 @@ def vector_search():
                 condition = filtering_conditions[base_name]
                 final_conditions.append(deepcopy(condition))
 
-        result_dict = qa_ops.vector_search(qa_index_name, base_names, query, top_k, min_score,
-                                           embedding_model_id=embedding_model_id, meta_filter_list=final_conditions)
-        search_list = result_dict["search_list"]
-        scores = result_dict["scores"]
+            embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, base_name)
+            if embedding_model_id not in emb_id2base_names:
+                emb_id2base_names[embedding_model_id] = []
+            emb_id2base_names[embedding_model_id].append(base_name)
+
+        search_list = []
+        scores = []
+        for embedding_model_id, base_names in emb_id2base_names.items():
+            logger.info(f"用户:{user_id},请求查询的base_names为:{base_names}, query: {query}, embedding_model_id:{embedding_model_id}")
+            result_dict = qa_ops.vector_search(qa_index_name, base_names, query, top_k, min_score,
+                                               embedding_model_id=embedding_model_id, meta_filter_list=final_conditions)
+            search_list.extend(result_dict["search_list"])
+            scores.extend(result_dict["scores"])
+
+        if len(search_list) > top_k:
+            # 合并search_list和scores，按score降序排序
+            combined_results = list(zip(search_list, scores))
+            combined_results.sort(key=lambda x: x[1], reverse=True)
+
+            # 取前top_k个结果
+            top_results = combined_results[:top_k]
+            search_list = [item[0] for item in top_results]
+            scores = [item[1] for item in top_results]
 
         result = {
             "code": 0,
@@ -2146,7 +2199,7 @@ def vector_search():
             }
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{user_id},问答库:{base_names},query:{query},向量检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{user_id},问答库:{all_base_names},query:{query},向量检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
     except Exception as e:
@@ -2156,7 +2209,7 @@ def vector_search():
             "message": str(e)
         }
         jsonarr = json.dumps(result, ensure_ascii=False)
-        logger.info(f"当前用户:{user_id},问答库:{base_names},query:{query},向量检索的接口返回结果为：{jsonarr}")
+        logger.info(f"当前用户:{user_id},问答库:{all_base_names},query:{query},向量检索的接口返回结果为：{jsonarr}")
         return jsonarr
 
 
