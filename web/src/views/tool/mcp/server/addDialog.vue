@@ -22,7 +22,7 @@
             />
           </el-form-item>
           <el-form-item :label="$t('tool.server.name')" prop="name">
-            <el-input v-model="ruleForm.name"></el-input>
+            <el-input v-model="ruleForm.name" :placeholder="$t('common.hint.modelName')"></el-input>
           </el-form-item>
           <el-form-item :label="$t('tool.server.desc')" prop="desc">
             <el-input v-model="ruleForm.desc"></el-input>
@@ -68,7 +68,11 @@ export default {
         desc: ""
       },
       rules: {
-        name: [{required: true, message: this.$t('common.input.placeholder') + this.$t('tool.server.name'), trigger: "blur"}],
+        name: [
+          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
+          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
+          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+        ],
         desc: [{required: true, message: this.$t('common.input.placeholder') + this.$t('tool.server.desc'), trigger: "blur"}]
       },
       publishLoading: false

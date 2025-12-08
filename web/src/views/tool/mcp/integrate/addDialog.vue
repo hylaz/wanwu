@@ -23,7 +23,7 @@
             />
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.name')" prop="name">
-            <el-input v-model="ruleForm.name"></el-input>
+            <el-input v-model="ruleForm.name" :placeholder="$t('common.hint.modelName')"></el-input>
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.from')" prop="from">
             <el-input v-model="ruleForm.from"></el-input>
@@ -124,7 +124,11 @@ export default {
         },
       },
       rules: {
-        name: [{ required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.name'), trigger: "blur" }],
+        name: [
+          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
+          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
+          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+        ],
         from: [
           { required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.from'), trigger: "blur" },
         ],
@@ -156,6 +160,14 @@ export default {
       },
       immediate: true
     },
+    // 监听 sseUrl 变化
+    'ruleForm.sseUrl': {
+      handler(newVal, oldVal) {
+        if (oldVal && newVal !== oldVal) {
+          this.mcpList = [];
+        }
+      }
+    }
   },
   methods: {
     handleCancel() {
@@ -198,7 +210,7 @@ export default {
       getTools({
         serverUrl: this.ruleForm.sseUrl,
       }).then((res) => {
-        this.mcpList = res.data.tools;
+        if (res.code === 0) this.mcpList = res.data.tools;
       }).finally(() => this.toolsLoading = false)
     },
   },
