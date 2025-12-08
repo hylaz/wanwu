@@ -361,13 +361,12 @@ export default {
         ...item,
         showContent: item.value === n.value ? !item.showContent : false,
       }));
-      if(this.category === 0){
+      if (this.category === 0) {
         this.formInline.knowledgeMatchParams.priorityMatch =
         n.value !== 'mix' ? 0 : 1;
-      }else{
+      } else {
         this.formInline.knowledgeMatchParams.priorityMatch = 0;
       }
-      
       this.clear();
     },
     clear() {
