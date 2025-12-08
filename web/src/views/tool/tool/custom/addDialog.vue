@@ -3,7 +3,10 @@
     :title="title"
     :visible.sync="dialogBasicVisible"
     width="50%"
-    :before-close="cancel">
+    :before-close="cancel"
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
     <div class="action">
       <el-form
         :model="form"
@@ -23,8 +26,10 @@
               <p class="block-title required-label rl">
                 {{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
               <el-form-item prop="name">
-                <el-input class="name-input" v-model="form.name"
-                          :placeholder="$t('common.input.placeholder') + (dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool'))"/>
+                <el-input
+                  class="name-input"
+                  v-model="form.name"
+                  :placeholder="$t('common.hint.modelName')"/>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogToolVisible">
@@ -268,7 +273,11 @@ export default {
       dialogAuthVisible: false,
       rules: {
         description: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
-        name: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
+        name: [
+          { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"},
+          { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
+          { required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'},
+        ],
         schema: [{required: true, message: this.$t('common.input.placeholder'), trigger: 'blur'}],
         apiAuth: [{validator: validateApiAuthFields, message: this.$t('tool.custom.apiAuthPlaceholder'), trigger: 'blur'}],
         apiTable: [{validator: validateApiTableFields, message: this.$t('tool.custom.apiPlaceholder'), trigger: 'blur'}],
