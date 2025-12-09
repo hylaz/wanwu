@@ -160,6 +160,7 @@ type WorkflowServiceConfig struct {
 	GetProcessUri                 string               `json:"get_process_uri" mapstructure:"get_process_uri"`
 	TestRunWebUri                 string               `json:"test_run_web_uri" mapstructure:"test_run_web_uri"`
 	CreateChatflowConversationUri string               `json:"create_chatflow_conversation_uri" mapstructure:"create_chatflow_conversation_uri"`
+	GetConversationMessageListUri string               `json:"get_conversation_message_list_uri" mapstructure:"get_conversation_message_list_uri"`
 	ChatflowRunUri                string               `json:"chatflow_run_uri" mapstructure:"chatflow_run_uri"`
 	UploadActionUri               string               `json:"upload_action_uri" mapstructure:"upload_action_uri"`
 	UploadCommonUri               string               `json:"upload_common_uri" mapstructure:"upload_common_uri"`

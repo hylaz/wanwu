@@ -17,6 +17,7 @@ func Register(openAPI *gin.RouterGroup) {
 	mid.Sub("openapi").Reg(openAPI, "/rag/chat", http.MethodPost, openapi.ChatRag, "文本问答OpenAPI", middleware.AuthOpenAPI(constant.AppTypeRag))
 	mid.Sub("openapi").Reg(openAPI, "/workflow/run", http.MethodPost, openapi.WorkflowRun, "工作流OpenAPI", middleware.AuthOpenAPI(constant.AppTypeWorkflow))
 	mid.Sub("openapi").Reg(openAPI, "/chatflow/conversation", http.MethodPost, openapi.CreateChatflowConversation, "对话流创建对话OpenAPI", middleware.AuthOpenAPI(constant.AppTypeChatflow))
+	mid.Sub("openapi").Reg(openAPI, "/chatflow/conversation/message/list", http.MethodPost, openapi.GetConversationMessageList, "对话流根据conversationId获取历史对话", middleware.AuthOpenAPI(constant.AppTypeChatflow))
 	mid.Sub("openapi").Reg(openAPI, "/chatflow/chat", http.MethodPost, openapi.ChatflowChat, "对话流OpenAPI", middleware.AuthOpenAPI(constant.AppTypeChatflow))
 	mid.Sub("openapi").Reg(openAPI, "/workflow/file/upload", http.MethodPost, openapi.WorkflowFileUpload, "工作流OpenAPI文件上传", middleware.AuthOpenAPI(constant.AppTypeWorkflow))
 	mid.Sub("openapi").Reg(openAPI, "/mcp/server/sse", http.MethodGet, openapi.GetMCPServerSSE, "新建MCP服务sse连接", middleware.AuthOpenAPIByQuery(constant.AppTypeMCPServer))

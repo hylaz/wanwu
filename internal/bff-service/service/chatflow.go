@@ -93,6 +93,35 @@ func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, con
 	}, nil
 }
 
+func GetConversationMessageList(ctx *gin.Context, userId, orgId, appId, conversationId, limit string) (*response.OpenAPIChatflowGetConversationMessageListResponse, error) {
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetConversationMessageListUri)
+	ret := &response.CozeListMessageApiResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetQueryParam("conversation_id", conversationId).
+		SetBody(map[string]int64{
+			"limit": util.MustI64(limit),
+		}).
+		SetResult(ret).
+		Post(url); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), ret.Code, ret.Msg))
+	} else if ret.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", fmt.Sprintf("code %v msg %v", ret.Code, ret.Msg))
+	}
+	return &response.OpenAPIChatflowGetConversationMessageListResponse{
+		Messages: ret.Messages,
+		HasMore:  *ret.HasMore,
+		FirstID:  *ret.FirstID,
+		LastID:   *ret.LastID,
+	}, nil
+}
+
 func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, message string, parameters map[string]any) error {
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ChatflowRunUri)
 	p, err := json.Marshal(parameters)

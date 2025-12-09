@@ -193,6 +193,51 @@
                 }
             }
         },
+        "/chatflow/conversation/message/list": {
+            "post": {
+                "description": "对话流根据conversationId获取历史对话",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "对话流根据conversationId获取历史对话",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/request.OpenAPIChatflowGetConversationMessageListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.OpenAPIChatflowGetConversationMessageListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/mcp/server/message": {
             "post": {
                 "description": "获取MCPServer Message",
@@ -761,6 +806,20 @@
                 }
             }
         },
+        "request.OpenAPIChatflowGetConversationMessageListRequest": {
+            "type": "object",
+            "required": [
+                "conversation_id"
+            ],
+            "properties": {
+                "conversation_id": {
+                    "type": "string"
+                },
+                "limit": {
+                    "type": "string"
+                }
+            }
+        },
         "request.OpenAPIRagChatRequest": {
             "type": "object",
             "required": [
@@ -1020,6 +1079,26 @@
                 }
             }
         },
+        "response.OpenAPIChatflowGetConversationMessageListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.OpenMessageApi"
+                    }
+                },
+                "first_id": {
+                    "type": "integer"
+                },
+                "has_more": {
+                    "type": "boolean"
+                },
+                "last_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.OpenAPIRagChatData": {
             "type": "object",
             "properties": {
@@ -1057,6 +1136,57 @@
                 },
                 "msg_id": {
                     "type": "string"
+                }
+            }
+        },
+        "response.OpenMessageApi": {
+            "type": "object",
+            "properties": {
+                "bot_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "chat_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "conversation_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "meta_data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "reasoning_content": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "section_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
                 }
             }
         },

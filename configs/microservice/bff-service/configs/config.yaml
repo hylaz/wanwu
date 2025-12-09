@@ -264,6 +264,7 @@ workflow:
   upload_common_uri: /api/common/upload
   upload_file_uri: /api/bot/upload_file_by_wanwu
   sign_img_uri: /api/workflow_api/sign_image_url
+  get_conversation_message_list_uri: /v1/conversation/message/list_by_wanwu
 
   model_params:
     - name: temperature
