@@ -18,9 +18,8 @@ import (
 )
 
 var (
-	configFile string
-	isVersion  bool
-
+	configFile   string
+	isVersion    bool
 	buildTime    string //编译时间
 	buildVersion string //编译版本
 	gitCommitID  string //git的commit id
@@ -37,7 +36,6 @@ func main() {
 		versionPrint()
 		return
 	}
-
 	ctx := context.Background()
 
 	flag.Parse()

@@ -24,6 +24,7 @@ type funcSQLOption func(db *gorm.DB) *gorm.DB
 func (f funcSQLOption) Apply(db *gorm.DB) *gorm.DB {
 	return f(db)
 }
+
 func WithID(id uint32) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("id = ?", id)
@@ -48,10 +49,10 @@ func WithUserID(userID string) SQLOption {
 	})
 }
 
-func WithClientID(userID string) SQLOption {
+func WithClientID(clientID string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
-		if userID != "" {
-			return db.Where("client_id = ?", userID)
+		if clientID != "" {
+			return db.Where("client_id = ?", clientID)
 		}
 		return db
 	})

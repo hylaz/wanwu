@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"runtime/debug"
 	"time"
@@ -62,6 +63,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 	// register service
 	operate_service.RegisterOperateServiceServer(s.serv, s.operate)
+	reflection.Register(s.serv)
 
 	// listen
 	lis, err := net.Listen("tcp", s.cfg.Server.GrpcEndpoint)

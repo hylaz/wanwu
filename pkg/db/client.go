@@ -48,7 +48,6 @@ func New(cfg Config) (*gorm.DB, error) {
 			connCfg.Address,
 			connCfg.Database,
 			true,
-			// "Asia/Shanghai",
 			"Local")), buildGormConfig(connCfg))
 		if err != nil {
 			break

@@ -20,6 +20,7 @@ func (c *Client) AddClientRecord(ctx context.Context, clientId string) *err_code
 	nowTs := time.Now().UnixMilli()
 	if err := sqlopt.WithClientID(clientId).Apply(c.db).WithContext(ctx).First(existingRecord).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+
 			// 记录不存在，创建新记录
 			if err := sqlopt.WithClientID(clientId).Apply(c.db).WithContext(ctx).Create(&model.ClientRecord{
 				ClientId:  clientId,
@@ -31,11 +32,13 @@ func (c *Client) AddClientRecord(ctx context.Context, clientId string) *err_code
 			// 其他数据库错误
 			return toErrStatus("ope_client_record_create", err.Error())
 		}
+
 	} else {
 		// 记录已存在，更新updated_at字段
 		if err := c.db.WithContext(ctx).Model(existingRecord).Update("updated_at", nowTs).Error; err != nil {
 			return toErrStatus("ope_client_record_create", err.Error())
 		}
+
 	}
 	return nil
 }
@@ -67,6 +70,7 @@ func statisticClientOverView(ctx context.Context, db *gorm.DB, startDate, endDat
 	if err != nil {
 		return nil, err
 	}
+
 	newOverview, err := statisticNewClientOverview(ctx, db, startDate, endDate)
 	if err != nil {
 		return nil, err
@@ -197,6 +201,7 @@ func updateActiveDailyStats(ctx context.Context, db *gorm.DB, date string) error
 	if err != nil {
 		return err
 	}
+
 	endTs := startTs + 24*time.Hour.Milliseconds()
 	// 查询活跃client（更新时间在指定时间段内）
 	var activeCount int64

@@ -18,6 +18,7 @@ func (c *Client) CreateSystemCustom(ctx context.Context, orgID, userID string, k
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return toErrStatus("ope_system_custom_query", string(key), err.Error())
 		}
+
 		if err = c.db.WithContext(ctx).Create(&model.SystemCustom{
 			OrgID:  orgID,
 			UserID: userID,
@@ -44,7 +45,6 @@ func (c *Client) GetSystemCustom(ctx context.Context, mode SystemCustomMode) (*S
 		key2WithModeKey(SystemCustomLoginKey, mode),
 		key2WithModeKey(SystemCustomHomeKey, mode),
 	}
-
 	var records []model.SystemCustom
 	if err := c.db.WithContext(ctx).
 		Where("`key` IN (?)", keys).

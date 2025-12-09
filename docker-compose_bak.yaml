@@ -1,0 +1,856 @@
+services:
+
+  # ------ middleware ------
+
+  mysql:
+    restart: always
+    image: ${WANWU_MYSQL_IMAGE}
+    container_name: ${WANWU_MYSQL_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - "8896:3306"
+    volumes:
+      - wanwu_mysql_data:/var/lib/mysql
+      - ./configs/middleware/mysql/initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      TZ: Asia/Shanghai
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -u root -p$$MYSQL_ROOT_PASSWORD | grep 'mysqld is alive'"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  mysql-setup:
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+    image: ${WANWU_MYSQL_IMAGE}
+    container_name: ${WANWU_MYSQL_HOST}-setup
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    volumes:
+      - ./configs/middleware/mysql/initdb.d:/docker-entrypoint-initdb.d
+    entrypoint: "bash -c"
+    command:
+      - "exec mysql --host mysql -u root -p'${WANWU_MYSQL_PASSWORD}' < /docker-entrypoint-initdb.d/init.sql"
+  
+  redis:
+    restart: always
+    image: ${WANWU_REDIS_IMAGE}
+    container_name: ${WANWU_REDIS_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 6379:6379
+    volumes:
+      - wanwu_redis_data:/data
+    command: "redis-server --requirepass ${WANWU_REDIS_PASSWORD}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 5s
+  
+  minio:
+    restart: always
+    image: ${WANWU_MINIO_IMAGE}
+    container_name: ${WANWU_MINIO_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9000:9000
+    #   - 9001:9001
+    volumes:
+      - wanwu_minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${WANWU_MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${WANWU_MINIO_PASSWORD}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/9000' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  kafka:
+    restart: always
+    image: ${WANWU_KAFKA_IMAGE}
+    container_name: ${WANWU_KAFKA_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9092:9092
+    volumes:
+      - ./configs/middleware/kafka/configs/kafka-log4j.properties:/opt/bitnami/kafka/config/log4j.properties
+      - ${WANWU_PROJECT_DIR}/kafka/logs:/opt/bitnami/kafka/logs
+      - wanwu_kafka_data:/bitnami/kafka/data
+    environment:
+      # kraft
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@${WANWU_KAFKA_HOST}:9093
+      # listener
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: BROKER:SASL_PLAINTEXT,CONTROLLER:SASL_PLAINTEXT
+      KAFKA_CFG_LISTENERS: BROKER://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: BROKER://${WANWU_KAFKA_HOST}:9092,CONTROLLER://${WANWU_KAFKA_HOST}:9093
+      KAFKA_CLIENT_USERS: ${WANWU_KAFKA_USER}
+      KAFKA_CLIENT_PASSWORD: ${WANWU_KAFKA_PASSWORD}
+      # broker
+      KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_INTER_BROKER_USER: ${WANWU_KAFKA_USER}
+      KAFKA_INTER_BROKER_PASSWORD: ${WANWU_KAFKA_PASSWORD}
+      # controller
+      KAFKA_CFG_SASL_MECHANISM_CONTROLLER_PROTOCOL: PLAIN
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_USER: ${WANWU_KAFKA_USER}
+      KAFKA_CONTROLLER_PASSWORD: ${WANWU_KAFKA_PASSWORD}
+      # opt
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
+      KAFKA_CFG_HEAP_OPTS: -Xmx1G -Xms1G
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/9092' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  es-setup:
+    restart: on-failure
+    image: ${WANWU_ELASTIC_IMAGE}
+    container_name: ${WANWU_ELASTIC_HOST}-setup
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    volumes:
+      - wanwu_es_certs:/usr/share/elasticsearch/config/certs
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${WANWU_ELASTIC_PASSWORD} == x ]; then
+          echo "Set the WANWU_ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${WANWU_KIBANA_PASSWORD} == x ]; then
+          echo "Set the WANWU_KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f config/certs/certs.zip ]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: es\n"\
+          "    dns:\n"\
+          "      - es\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
+        echo "Setting file permissions"
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://es:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "Setting kibana user ${WANWU_KIBANA_USERNAME} password";
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${WANWU_ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://es:9200/_security/user/${WANWU_KIBANA_USERNAME}/_password -d "{\"password\":\"${WANWU_KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es/es.crt ]"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  es:
+    restart: always
+    image: ${WANWU_ELASTIC_IMAGE}
+    container_name: ${WANWU_ELASTIC_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9200:9200
+    volumes:
+      - ./configs/middleware/elastic/plugins:/usr/share/elasticsearch/plugins
+      - wanwu_es_certs:/usr/share/elasticsearch/config/certs
+      - wanwu_es_data:/usr/share/elasticsearch/data
+      - wanwu_es_logs:/usr/share/elasticsearch/logs
+      - wanwu_es_tmp:/tmp
+    environment:
+      - node.name=es
+      - cluster.name=wanwu-es-cluster
+      - cluster.initial_master_nodes=es
+      - discovery.seed_hosts=es
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es/es.key
+      - xpack.security.http.ssl.certificate=certs/es/es.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es/es.key
+      - xpack.security.transport.ssl.certificate=certs/es/es.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=basic
+      - ELASTIC_PASSWORD=${WANWU_ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    mem_limit: 4294967296 # 4GB
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 15s
+
+  # ------ microservice ------
+
+  bff-service:
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: bff-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 6668:6668
+    volumes:
+      - ${WANWU_PROJECT_DIR}/bff-service/log:/app/log
+      - ${WANWU_PROJECT_DIR}/bff-service/tmp:/app/tmp
+      - ${WANWU_BFF_OAUTH_RSA_PRIVATE_KEY_PATH}:/app/tmp/oauth_rsa_private.pem
+      - ${WANWU_BFF_OAUTH_RSA_PUBLIC_KEY_PATH}:/app/tmp/oauth_rsa_public.pem
+    environment:
+      CUSTOM_INFO_VERSION: ${WANWU_VERSION}
+      SERVER_WEB_BASE_URL: ${WANWU_WEB_BASE_URL}
+      SERVER_API_BASE_URL: ${WANWU_API_BASE_URL}
+      SERVER_APP_OPEN_BASE_URL: ${WANWU_APP_OPEN_BASE_URL}
+      WORKFLOW_TEMPLATE_SERVER_MODE: ${WANWU_BFF_WORKFLOW_TEMPLATE_SERVER_MODE}
+      WORKFLOW_TEMPLATE_GLOBAL_WEB_LIST_URL: ${WANWU_BFF_WORKFLOW_TEMPLATE_GLOBAL_WEB_LIST_URL}
+      WORKFLOW_TEMPLATE_LIST_URL: ${WANWU_BFF_WORKFLOW_TEMPLATE_LIST_URL}
+      WORKFLOW_TEMPLATE_RECOMMEND_URL: ${WANWU_BFF_WORKFLOW_TEMPLATE_RECOMMEND_URL}
+      WORKFLOW_TEMPLATE_DETAIL_URL: ${WANWU_BFF_WORKFLOW_TEMPLATE_DETAIL_URL}
+      WORKFLOW_TEMPLATE_DOWNLOAD_URL: ${WANWU_BFF_WORKFLOW_TEMPLATE_DOWNLOAD_URL}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      JWT_SIGNING_KEY: ${WANWU_BFF_JWT_SIGNING_KEY}
+      CUSTOM_INFO_REGISTER_BY_EMAIL: ${WANWU_BFF_REGISTER_BY_EMAIL}
+      CUSTOM_INFO_RESET_PASSWORD_BY_EMAIL: ${WANWU_BFF_RESET_PASSWORD_BY_EMAIL}
+      CUSTOM_INFO_LOGIN_BY_EMAIL: ${WANWU_BFF_LOGIN_BY_EMAIL}
+      OAUTH_SWITCH: ${WANWU_BFF_OAUTH_SWITCH}
+      AGENT_USE_NEW_AGENT: ${WANWU_BFF_USE_NEW_AGENT}
+    working_dir: /app
+    command: ./bin/bff-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "6668"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  iam-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: iam-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 8898:8888
+    volumes:
+      - ${WANWU_PROJECT_DIR}/iam-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      SMTP_HOST: ${WANWU_IAM_SMTP_HOST}
+      SMTP_PORT: ${WANWU_IAM_SMTP_PORT}
+      SMTP_USERNAME: ${WANWU_IAM_SMTP_USERNAME}
+      SMTP_PASSWORD: ${WANWU_IAM_SMTP_PASSWORD}
+      SMTP_DEFAULT_FROM_EMAIL: ${WANWU_IAM_SMTP_DEFAULT_FROM_EMAIL}
+      SMTP_DEFAULT_FROM_NAME: ${WANWU_IAM_SMTP_DEFAULT_FROM_NAME}
+    working_dir: /app
+    command: ./bin/iam-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8888"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  model-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: model-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8989:8989
+    volumes:
+      - ${WANWU_PROJECT_DIR}/model-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+    working_dir: /app
+    command: ./bin/model-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8989"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  mcp-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: mcp-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9898:9898
+    volumes:
+      - ${WANWU_PROJECT_DIR}/mcp-service/log:/app/log
+    environment:
+      SERVER_API_BASE_URL: ${WANWU_API_BASE_URL}
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+    working_dir: /app
+    command: ./bin/mcp-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9898"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  knowledge-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: knowledge-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8889:8889
+    volumes:
+      - ${WANWU_PROJECT_DIR}/knowledge-service/log:/app/log
+      - ${WANWU_PROJECT_DIR}/knowledge-service/static:/app/static
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      KAFKA_ADDR: ${WANWU_KAFKA_ADDRESS}
+      KAFKA_USER: ${WANWU_KAFKA_USER}
+      KAFKA_PASSWORD: ${WANWU_KAFKA_PASSWORD}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+    working_dir: /app
+    command: ./bin/knowledge-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8889"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  rag-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: rag-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9640:9640
+    volumes:
+      - ${WANWU_PROJECT_DIR}/rag-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+    working_dir: /app
+    command: ./bin/rag-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9640"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  assistant-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: assistant-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8890:8890
+    volumes:
+      - ${WANWU_PROJECT_DIR}/assistant-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      MINIO_DOWNLOAD_URL: ${WANWU_WEB_BASE_URL}/minio/download/api/
+      ES_ADDRESS: ${WANWU_ELASTIC_ADDRESS}
+      ES_USERNAME: ${WANWU_ELASTIC_USER}
+      ES_PASSWORD: ${WANWU_ELASTIC_PASSWORD}
+    working_dir: /app
+    command: ./bin/assistant-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8890"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+  agent-service:
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: agent-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8990:8990
+    volumes:
+      - ${WANWU_PROJECT_DIR}/agent-service/log:/app/log
+    environment:
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+    working_dir: /app
+    command: ./bin/agent-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8990"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+  operate-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: operate-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - "9797:9797"
+    volumes:
+      - ${WANWU_PROJECT_DIR}/operate-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+    working_dir: /app
+    command: ./bin/operate-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9797"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+  
+  app-service:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_BACKEND_IMAGE}
+    container_name: app-service
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 9988:9988
+    volumes:
+      - ${WANWU_PROJECT_DIR}/app-service/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+    working_dir: /app
+    command: ./bin/app-service
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9988"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+  callback:
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_CALLBACK_IMAGE}
+    container_name: callback-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8669:8669
+    volumes:
+      - ${WANWU_PROJECT_DIR}/callback-wanwu/log:/callback/log
+    environment:
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      URL_RAG_DOC_PARSER: http://rag-wanwu:8681/rag/doc_parser
+      URL_MINIO_DOWNLOAD: ${WANWU_WEB_BASE_URL}/minio/download/api
+  
+  workflow:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_WORKFLOW_IMAGE}
+    container_name: workflow-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8998:8998
+    #   - 8999:8999
+    volumes:
+      - ${WANWU_PROJECT_DIR}/workflow-wanwu/log:/app/log
+    environment:
+      DB_NAME: ${WANWU_DB_NAME}
+      DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
+      DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+      DB_TIDB_ADDRESS: ${WANWU_TIDB_ADDRESS}
+      DB_TIDB_PASSWORD: ${WANWU_TIDB_PASSWORD}
+      DB_OCEANBASE_USER: ${WANWU_OCEAN_BASE_USER}@${WANWU_OCEAN_BASE_TENANT_NAME}
+      DB_OCEANBASE_ADDRESS: ${WANWU_OCEAN_BASE_HOST}:${WANWU_OCEAN_BASE_PORT}
+      DB_OCEANBASE_PASSWORD: ${WANWU_OCEAN_BASE_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      JWT_SIGNING_KEY: ${WANWU_BFF_JWT_SIGNING_KEY}
+      # --- 以下env用于workflow-wanwu适配 ---
+      WANWU_EXTERNAL_ENDPOINT: ${WANWU_EXTERNAL_ENDPOINT}
+      WANWU_EXTERNAL_SCHEME: ${WANWU_EXTERNAL_SCHEME}
+      WANWU_CALLBACK_LLM_BASE_URL: http://bff-service:6668/callback/v1/model
+      WANWU_CALLBACK_SQUARE_TOOL_URL: http://bff-service:6668/callback/v1/workflow/tool/square
+      WANWU_CALLBACK_CUSTOM_TOOL_URL: http://bff-service:6668/callback/v1/workflow/tool/custom
+      WANWU_CALLBACK_WORKFLOW_LIST_URL: http://bff-service:6668/callback/v1/workflow/list
+      WANWU_CALLBACK_CHATFLOW_LIST_URL: http://bff-service:6668/callback/v1/chatflow/list
+      WANWU_KNOWLEDGE_SEARCH_URL: http://bff-service:6668/callback/v1/rag/search-knowledge-base
+      WANWU_FILE_GENERATOR_URL: http://callback-wanwu:8669/v1/generate_file
+      WANWU_FILE_PARSER_URL: http://rag-wanwu:8681/rag/doc_parser
+      WANWU_QA_SEARCH_URL: http://bff-service:6668/callback/v1/rag/search-QA-base
+      # 用于openapi调用workflow是否跳过execute history；默认0不跳过，会记录execute history；追求高并发为1不记录
+      WANWU_WORKFLOW_OPENAPI_RUN_SKIP_EXECUTE_HISTORY: ${WANWU_WORKFLOW_OPENAPI_RUN_SKIP_EXECUTE_HISTORY}
+      # 用于nginx 8081代理workflow-wanwu:8998 minio presign相关api
+      WANWU_MINIO_PROXY_ENDPOINT: ${WANWU_EXTERNAL_ENDPOINT}
+      WANWU_MINIO_PROXY_PREFIX: /workflow/minio/presign
+      # 用于workflow-wanwu:8998代理minio-wanwu:9000
+      MINIO_API_HOST: http://${WANWU_MINIO_ENDPOINT}
+      MINIO_PROXY_ENDPOINT: :8998
+      # 用于code节点运行
+      CODE_RUNNER_TYPE: ${WANWU_WORKFLOW_CODE_RUNNER_TYPE}
+      CODE_RUNNER_ALLOW_ENV:
+      CODE_RUNNER_ALLOW_READ:
+      CODE_RUNNER_ALLOW_WRITE:
+      CODE_RUNNER_ALLOW_RUN: "python"
+      CODE_RUNNER_ALLOW_NET: ${WANWU_EXTERNAL_IP},jsr.io,cdn.jsdelivr.net
+      CODE_RUNNER_ALLOW_FFI:
+      CODE_RUNNER_NODE_MODULES_DIR:
+      CODE_RUNNER_TIMEOUT_SECONDS:
+      CODE_RUNNER_MEMORY_LIMIT_MB:
+    working_dir: /app
+    command: ./bin/workflow-wanwu
+  
+  rag:
+    depends_on:
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_RAG_IMAGE}
+    container_name: rag-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 8613:8613
+    #   - 8681:8681
+    #   - 10891:10891
+    #   - 15000:15000
+    volumes:
+      - ${WANWU_PROJECT_DIR}/rag-wanwu/rag_core/logs:/model_extend/rag_core/logs
+      - ${WANWU_PROJECT_DIR}/rag-wanwu/rag_core/graph/logs:/model_extend/rag_core/graph/logs
+      - ${WANWU_PROJECT_DIR}/rag-wanwu/rag_core/graph/data:/model_extend/rag_core/graph/data
+      - ${WANWU_PROJECT_DIR}/rag-wanwu/rag_es_server_unify/logs:/model_extend/rag_es_server_unify/logs
+    environment:
+      MINIO_ADDRESS: ${WANWU_MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${WANWU_MINIO_USER}
+      MINIO_SECRET_KEY: ${WANWU_MINIO_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${WANWU_KAFKA_ADDRESS}
+      KAFKA_SASL_PLAIN_USERNAME: ${WANWU_KAFKA_USER}
+      KAFKA_SASL_PLAIN_PASSWORD: ${WANWU_KAFKA_PASSWORD}
+      ES_HOSTS: https://${WANWU_ELASTIC_ADDRESS}
+      ES_USER: ${WANWU_ELASTIC_USER}
+      ES_PASSWORD: ${WANWU_ELASTIC_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWD: ${WANWU_REDIS_PASSWORD}
+      # 用于rag调用外部API的env
+      GET_KB_ID_URL: http://bff-service:6668/v1/api/category/info
+      KAFKA_MQ_REL_URL: http://bff-service:6668/v1/api/docstatus
+      KAFKA_MQ_KB_STATUS_URL: http://bff-service:6668/v1/api/knowledge/status
+      KAFKA_DOC_STATUS_INIT_URL: http://bff-service:6668/v1/api/doc_status_init
+      MODEL_PROVIDER_URL: http://bff-service:6668
+      REPLACE_MINIO_DOWNLOAD_URL: ${WANWU_WEB_BASE_URL}/minio/download/api/
+
+  agent:
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: always
+    image: ${WANWU_AGENT_IMAGE}
+    container_name: agent-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    # ports:
+    #   - 7258:7258
+    #   - 1991:1991
+    #   - 1992:1992
+    #   - 15001:15001
+    #   - 15002:15002
+    #   - 15003:15003
+    volumes:
+      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/logs:/agent/agent_open_source/logs
+      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/logs:/agent/agent_open_source/minio/logs
+      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/file:/agent/agent_open_source/minio/file
+      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/agent_plugin/logs:/agent/agent_open_source/agent_plugin/logs
+    environment:
+      MINIO_ADDRESS: ${WANWU_MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${WANWU_MINIO_USER}
+      MINIO_SECRET_KEY: ${WANWU_MINIO_PASSWORD}
+      # 用于agent并发处理
+      WORKERS: 4
+      THREADS: 8
+      # 用于agent调用外部接口的API前缀
+      URL_MODEL: http://bff-service
+      URL_MINIO: http://bff-service
+      URL_RAG: http://rag-wanwu
+      URL_RAG_STREAM: http://bff-service:6668/callback/v1/rag/knowledge/stream/search
+
+  # agentscope:
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   restart: always
+  #   image: ${WANWU_AGENTSCOPE_IMAGE}
+  #   container_name: agentscope-wanwu
+  #   networks:
+  #     - ${WANWU_DOCKER_NETWORK}
+  #   ports:
+  #     - 6672:6672
+  #   volumes:
+  #     - ./configs/microservice/agentscope/configs/config.yaml:/agentscope/src/agentscope/aibigmodel_workflow/config.yaml
+  #     - ${WANWU_PROJECT_DIR}/agentscope/logs:/agentscope/logs
+  #   environment:
+  #     DB_NAME: ${WANWU_DB_NAME}
+  #     DATABASE_HOST: ${WANWU_MYSQL_HOST}
+  #     DATABASE_PORT: ${WANWU_MYSQL_PORT}
+  #     DATABASE_PASSWORD: ${WANWU_MYSQL_PASSWORD}
+  #     REDIS_HOST: ${WANWU_REDIS_HOST}
+  #     REDIS_PORT: ${WANWU_REDIS_PORT}
+  #     REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+  #   healthcheck:
+  #     test: ["CMD", "python", "-c", "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.settimeout(5); result = s.connect_ex(('localhost', 6672)); s.close(); exit(0 if result == 0 else 1)"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 99
+  #     start_period: 10s
+
+  # ------ nginx & frontend ------
+  
+  nginx:
+    restart: always
+    image: ${WANWU_FRONTEND_IMAGE}
+    container_name: ${WANWU_NGINX_HOST}
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - ${WANWU_EXTERNAL_PORT}:8081
+    volumes:
+      - ${WANWU_PROJECT_DIR}/nginx/log:/var/log/nginx
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/8081' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+networks:
+  wanwu-net:
+    external: true
+
+volumes:
+  wanwu_mysql_data:
+  wanwu_redis_data:
+  wanwu_minio_data:
+  wanwu_kafka_data:
+  wanwu_es_data:
+  wanwu_es_certs:
+  wanwu_es_logs:
+  wanwu_es_tmp:
+  

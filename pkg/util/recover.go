@@ -16,12 +16,10 @@ var (
 // 用法：defer util.PrintPanicStack()，注意 defer func() { util.PrintPanicStack() } 是无效的
 func PrintPanicStack() {
 	if r := recover(); r != nil {
-
 		buf := make([]byte, panicLogLen)
 		l := runtime.Stack(buf, false)
 		str := strings.ReplaceAll(string(buf[:l]), "\n", " ")
 		log.Errorf("%v: %s", r, str)
-
 	}
 }
 

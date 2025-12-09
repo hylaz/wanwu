@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"fmt"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"runtime/debug"
 	"time"
@@ -66,6 +67,8 @@ func (s *Server) Start() error {
 	// register service
 	iam_service.RegisterIAMServiceServer(s.serv, s.iam)
 	perm_service.RegisterPermServiceServer(s.serv, s.perm)
+
+	reflection.Register(s.serv)
 
 	// listen
 	lis, err := net.Listen("tcp", s.cfg.Server.GrpcEndpoint)

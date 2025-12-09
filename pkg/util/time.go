@@ -86,7 +86,7 @@ func DateRange(startTs, endTs int64) []string {
 	return ret
 }
 
-// 返回上一个周期和当前周期闭区间日期列表
+// PreviousDateRange  返回上一个周期和当前周期闭区间日期列表
 func PreviousDateRange(startDate, endDate string) ([]string, []string, error) {
 	// 1. 解析输入日期
 	startAt, err := Date2Time(startDate)

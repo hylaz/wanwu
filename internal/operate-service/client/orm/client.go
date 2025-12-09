@@ -34,6 +34,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 	); err != nil {
 		return nil, err
 	}
+
 	// init corn
 	if err := CronInit(db); err != nil {
 		log.Fatalf("init corn failed, err: %v", err)

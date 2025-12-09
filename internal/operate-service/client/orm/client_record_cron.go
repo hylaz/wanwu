@@ -25,7 +25,7 @@ type CronManager struct {
 	db   *gorm.DB
 }
 
-// 初始化定时任务
+// CronInit 初始化定时任务
 func CronInit(db *gorm.DB) error {
 	cronManager = &CronManager{
 		ctx:  context.TODO(),
@@ -39,12 +39,11 @@ func CronInit(db *gorm.DB) error {
 		return err
 	}
 	log.Infof("cron task (%v) registered successfully with entry ID: %d", cornTaskClientRecordSync, entryID)
-
 	cronManager.cron.Start()
 	return nil
 }
 
-// 停止定时任务
+// CronStop 停止定时任务
 func CronStop() {
 	if cronManager != nil {
 		cronManager.cron.Stop()
@@ -55,7 +54,6 @@ func CronStop() {
 // 执行工作流模板记录同步任务
 func executeClientRecordSync() {
 	util.PrintPanicStack()
-
 	// 计算活跃客户端数量并存储到新表
 	date := util.Time2Date(time.Now().UnixMilli())
 	if err := updateActiveDailyStats(cronManager.ctx, cronManager.db, date); err != nil {
