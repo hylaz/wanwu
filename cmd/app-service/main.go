@@ -32,15 +32,11 @@ func main() {
 	flag.StringVar(&configFile, "config", "configs/microservice/app-service/configs/config.yaml", "conf yaml file")
 	flag.BoolVar(&isVersion, "v", false, "build message")
 	flag.Parse()
-
 	if isVersion {
 		versionPrint()
 		return
 	}
-
 	ctx := context.Background()
-
-	flag.Parse()
 	if err := config.LoadConfig(configFile); err != nil {
 		log.Fatalf("init cfg err: %v", err)
 	}

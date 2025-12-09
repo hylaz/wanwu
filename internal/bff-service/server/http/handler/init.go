@@ -44,6 +44,7 @@ func Start(ctx context.Context) {
 	openapi.Register(r.Group("/openapi/v1"))
 	// callback v1
 	callback.Register(r.Group("/callback/v1"))
+
 	// openurl v1
 	openurl.Register(r.Group("/openurl/v1"))
 
@@ -78,7 +79,6 @@ func Start(ctx context.Context) {
 
 func Stop(ctx context.Context) {
 	log.Infof("closing http server...")
-	// stop http server
 	cancelCtx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 	if err := httpServ.Shutdown(cancelCtx); err != nil {

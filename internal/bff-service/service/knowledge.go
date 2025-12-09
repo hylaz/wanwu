@@ -116,6 +116,7 @@ func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKn
 			}
 		}
 	}
+
 	resp, err := knowledgeBase.CreateKnowledge(ctx.Request.Context(), &knowledgebase_service.CreateKnowledgeReq{
 		Name:        r.Name,
 		Description: r.Description,

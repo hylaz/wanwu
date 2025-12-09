@@ -52,6 +52,7 @@ func (s *Server) Start(ctx context.Context) error {
 			return status.Error(codes.Internal, fmt.Sprintf("panic: %v", p))
 		}),
 	}
+
 	serverOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(s.cfg.Server.MaxRecvMsgSize),
 		grpc.MaxSendMsgSize(s.cfg.Server.MaxRecvMsgSize),
