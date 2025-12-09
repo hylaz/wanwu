@@ -1,0 +1,8 @@
+{"level":"FATAL","ts":"2025-12-09T16:09:55.266+0800","caller":"iam-service/main.go:58","msg":"init db err: Error 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)"}
+{"level":"INFO","ts":"2025-12-09T16:10:35.452+0800","caller":"iam/service.go:48","msg":"system top org: 1"}
+{"level":"INFO","ts":"2025-12-09T16:10:35.478+0800","caller":"iam/service.go:54","msg":"system admin role: 1"}
+{"level":"INFO","ts":"2025-12-09T16:10:35.481+0800","caller":"iam/service.go:71","msg":"system admin user: 1"}
+{"level":"INFO","ts":"2025-12-09T16:10:35.481+0800","caller":"grpc/server.go:87","msg":"start grpc server at: 0.0.0.0:8888"}
+{"level":"INFO","ts":"2025-12-09T16:16:00.178+0800","caller":"grpc/server.go:96","msg":"closing grpc server..."}
+{"level":"INFO","ts":"2025-12-09T16:16:00.192+0800","caller":"grpc/server.go:101","msg":"close grpc server gracefully"}
+{"level":"INFO","ts":"2025-12-09T16:16:00.193+0800","caller":"redis/client.go:78","msg":"redis db(4) client stop"}
