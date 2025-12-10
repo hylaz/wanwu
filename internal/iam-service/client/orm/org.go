@@ -107,6 +107,32 @@ func (c *Client) GetOrgAndSubOrgSelectByUser(ctx context.Context, userID, orgID 
 	})
 }
 
+func (c *Client) GetFirstClassOrgAndSubs(ctx context.Context, userID, orgID uint32) ([]IDName, *errs.Status) {
+	var result []IDName
+	return result, c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
+		orgTree, err := getOrgTree(tx)
+		if err != nil {
+			return toErrStatus("iam_orgs_select", err.Error())
+		}
+		targetOrg := orgTree.GetOrg(orgID).GetFirstClassOrg()
+		if targetOrg == nil {
+			return nil
+		}
+		var dfs func(*model.OrgNode)
+		dfs = func(node *model.OrgNode) {
+			result = append(result, IDName{
+				ID:   node.GetOrgID(),
+				Name: node.GetFullName(node.GetOrgID()),
+			})
+			for _, child := range node.GetSubs(node.GetOrgID()) {
+				dfs(child)
+			}
+		}
+		dfs(targetOrg)
+		return nil
+	})
+}
+
 func (c *Client) CreateOrg(ctx context.Context, org *model.Org) (uint32, *errs.Status) {
 	if org.ID != 0 {
 		return 0, toErrStatus("iam_org_create", "create org but id err")

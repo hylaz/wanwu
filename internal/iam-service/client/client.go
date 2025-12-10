@@ -42,6 +42,7 @@ type IClient interface {
 	SelectOrgs(ctx context.Context, userID uint32) ([]orm.IDName, *errs.Status)
 	GetOrgByOrgIDs(ctx context.Context, orgIDs []uint32) ([]orm.IDName, *errs.Status)
 	GetOrgAndSubOrgSelectByUser(ctx context.Context, userID, orgID uint32) ([]orm.IDName, *errs.Status)
+	GetFirstClassOrgAndSubs(ctx context.Context, userID, orgID uint32) ([]orm.IDName, *errs.Status)
 
 	CreateOrg(ctx context.Context, org *model.Org) (uint32, *errs.Status)
 	UpdateOrg(ctx context.Context, org *model.Org) *errs.Status
