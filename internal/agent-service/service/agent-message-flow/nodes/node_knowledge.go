@@ -20,6 +20,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/UnicomAI/wanwu/internal/agent-service/service/agent-message-flow/prompt"
 	"strings"
 	"time"
 
@@ -34,11 +36,6 @@ import (
 const (
 	successCode = 0
 )
-
-var replaceMap = map[string]string{
-	"你是一个问答助手，主要任务是汇总参考信息回答用户问题, 请只根据参考信息中提供的上下文信息回答用户问题。": "你主要任务是汇总参考信息回答用户问题,如果参考信息对回答用户的问题均无帮助，不用说明你无法使用参考信息，直接忽略此参考信息。",
-	"如果提供的参考信息中的所有上下文对回答问题均无帮助，请直接输出:根据已知信息，无法回答您的问题。":     "如果提供的参考信息中的所有上下文对回答问题均无帮助，不用说明你无法使用参考信息，直接忽略此参考信息，仅根据用户问题回答。",
-}
 
 type KnowledgeRetriever struct {
 }
@@ -58,14 +55,19 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 	}
 	reqContext.KnowledgeHitData = hit.Data
 	packedRes := strings.Builder{}
-	//for idx, doc := range hit.Data.SearchList {
-	//	if doc == nil {
-	//		continue
-	//	}
-	//	packedRes.WriteString(fmt.Sprintf("---\nrecall slice %d: %s\n", idx+1, doc.Snippet))
-	//}
-	packedRes.WriteString(formatPrompt(hit.Data.Prompt))
-	return packedRes.String(), nil
+	for idx, doc := range hit.Data.SearchList {
+		if doc == nil {
+			continue
+		}
+		packedRes.WriteString(fmt.Sprintf("---\nrecall slice %d: %s\n", idx+1, doc.Snippet))
+	}
+	knowledgeData := packedRes.String()
+	if len(knowledgeData) > 0 {
+		knowledgeData = fmt.Sprintf(prompt.REACT_SYSTEM_PROMPT_KNOWLEDGE, knowledgeData)
+		return knowledgeData, nil
+	}
+	//如果没有知识库时，尽量减少输入token大小
+	return "", nil
 }
 
 // RagKnowledgeHit rag命中测试
@@ -95,14 +97,4 @@ func ragKnowledgeHit(ctx context.Context, knowledgeHitParams *request.KnowledgeP
 		return nil, errors.New(resp.Message)
 	}
 	return &resp, nil
-}
-
-func formatPrompt(prompt string) string {
-	if len(prompt) > 0 {
-		for key, value := range replaceMap {
-			prompt = strings.ReplaceAll(prompt, key, value)
-		}
-		return prompt
-	}
-	return ""
 }

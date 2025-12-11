@@ -27,9 +27,14 @@ type AgentBaseParams struct {
 }
 
 type ModelParams struct {
-	ModelId    string                              `json:"modelId"`
-	History    []config.AssistantConversionHistory `json:"history,omitempty"`
-	MaxHistory int                                 `json:"maxHistory"`
+	ModelId          string                              `json:"modelId"`
+	History          []config.AssistantConversionHistory `json:"history,omitempty"`
+	MaxHistory       int                                 `json:"maxHistory"`
+	Temperature      *float32                            `json:"temperature,omitempty"`      //温度
+	TopP             *float32                            `json:"topP,omitempty"`             //topP
+	FrequencyPenalty *float32                            `json:"frequencyPenalty,omitempty"` //频率惩罚
+	PresencePenalty  *float32                            `json:"presence_penalty,omitempty"` //存在惩罚
+	MaxTokens        *int                                `json:"max_tokens,omitempty"`       //模型输出最大token数，这个字段暂时不设置，因为模型可能触发接口调用不确定是否会超，先不传
 }
 
 type KnowledgeParams struct {
@@ -101,11 +106,35 @@ func buildAgentBaseParams(assistant *model.Assistant) *AgentBaseParams {
 }
 
 func buildAgentModelParams(sseRequest *config.AgentSSERequest) *ModelParams {
-	return &ModelParams{
+	modelParamsReq := sseRequest.ModelParams
+	modelParams := &ModelParams{
 		ModelId:    sseRequest.ModelId,
 		History:    sseRequest.History,
 		MaxHistory: maxHistory,
 	}
+	return buildModelParams(modelParamsReq, modelParams)
+}
+
+func buildModelParams(params map[string]interface{}, modelParams *ModelParams) *ModelParams {
+	if len(params) == 0 {
+		return modelParams
+	}
+	modelParams.Temperature = toFloat(params["temperature"])
+	modelParams.TopP = toFloat(params["top_p"])
+	modelParams.FrequencyPenalty = toFloat(params["frequency_penalty"])
+	modelParams.PresencePenalty = toFloat(params["presence_penalty"])
+	return modelParams
+}
+
+func toFloat(data interface{}) *float32 {
+	if data == nil {
+		return nil
+	}
+	f, ok := data.(float32)
+	if !ok {
+		return nil
+	}
+	return &f
 }
 
 func buildKnowledgeParams(sseRequest *config.AgentSSERequest, assistant *model.Assistant) *KnowledgeParams {

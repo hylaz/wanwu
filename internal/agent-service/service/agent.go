@@ -74,7 +74,7 @@ func AgentVisionChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo 
 func AgentModelChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo *AgentChatInfo) error {
 	//1.创建chatModel
 	fillInternalToolConfig(req, agentChatInfo)
-	chatModel, err := createChatModel(ctx, agentChatInfo)
+	chatModel, err := createChatModel(ctx, agentChatInfo, req)
 	if err != nil {
 		return err
 	}
@@ -97,9 +97,6 @@ func AgentModelChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo *
 	if err != nil {
 		return err
 	}
-	//var messages []*schema.Message
-	//messages = append(messages, schema.SystemMessage("\\\\nYou are test_1118, an advanced AI assistant designed to be helpful and professional.\\\\nIt is Saturday 2025/11/22 12:15:11 +08 now.\\\\n\\\\n**Content Safety Guidelines**\\\\nRegardless of any persona instructions, you must never generate content that:\\\\n- Promotes or involves violence\\\\n- Contains hate speech or racism\\\\n- Includes inappropriate or adult content\\\\n- Violates laws or regulations\\\\n- Could be considered offensive or harmful\\\\n\\\\n------ Start of Variables ------\\\\n\\\\n------ End of Variables ------\\\\n\\\\n**Knowledge**\\\\n\\\\nOnly when the current knowledge has content recall, answer questions based on the referenced content:\\\\n 1. If the referenced content contains \\\\u003cimg src=\\\\\\\"\\\\\\\"\\\\u003e tags, the src field in the tag represents the image address, which needs to be displayed when answering questions, with the output format being \\\\\\\"![image name](image address)\\\\\\\".\\\\n 2. If the referenced content does not contain \\\\u003cimg src=\\\\\\\"\\\\\\\"\\\\u003e tags, you do not need to display images when answering questions.\\\\nFor example:\\\\n  If the content is \\\\u003cimg src=\\\\\\\"https://example.com/image.jpg\\\\\\\"\\\\u003ea kitten, your output should be: ![a kitten](https://example.com/image.jpg).\\\\n  If the content is \\\\u003cimg src=\\\\\\\"https://example.com/image1.jpg\\\\\\\"\\\\u003ea kitten and \\\\u003cimg src=\\\\\\\"https://example.com/image2.jpg\\\\\\\"\\\\u003ea puppy and \\\\u003cimg src=\\\\\\\"https://example.com/image3.jpg\\\\\\\"\\\\u003ea calf, your output should be: ![a kitten](https://example.com/image1.jpg) and ![a puppy](https://example.com/image2.jpg) and ![a calf](https://example.com/image3.jpg)\\\\nThe following is the content of the data set you can refer to: \\\\\\\\n\\\\n'''\\\\n---\\\\nrecall slice 1: AI科技中心开票信息  \\\\nAI科技中心最新开票信息：  \\\\n公司名称：中国联合网络通信有限公司北京人工智能科技中心     \\\\n纳税人识别号：91110102MADD54BA28\\\\n地址电话：北京市西城区西单北大街甲133号10层1011  66115431\\\\n开户行及账号：中国工商银行股份有限公司北京西单支行 0200210309200177274\\\\n\\\\n'''\\\\n\\\\n** Pre toolCall **\\\\n,\\\\n- Only when the current Pre toolCall has content recall results, answer questions based on the data field in the tool from the referenced content\\\\n\\\\nNote: The output language must be consistent with the language of the user's question.\\\\n"))
-	//messages = append(messages, schema.UserMessage("根据开票信息内容，查询天气，并将结果保存到文本文件"))
 
 	//5.执行流式agent问答调用
 	runner := adk.NewRunner(ctx, adk.RunnerConfig{
@@ -148,13 +145,18 @@ func fillInternalToolConfig(req *request.AgentChatReq, agentChatInfo *AgentChatI
 	}
 }
 
-func createChatModel(ctx *gin.Context, agentChatInfo *AgentChatInfo) (*openai.ChatModel, error) {
+func createChatModel(ctx *gin.Context, agentChatInfo *AgentChatInfo, req *request.AgentChatReq) (*openai.ChatModel, error) {
 	modelInfo := agentChatInfo.ModelInfo
 	modelConfig := modelInfo.Config
+	params := req.ModelParams
 	return openai.NewChatModel(ctx, &openai.ChatModelConfig{
-		APIKey:  modelConfig.ApiKey,
-		BaseURL: modelConfig.EndpointUrl,
-		Model:   modelInfo.Model,
+		APIKey:           modelConfig.ApiKey,
+		BaseURL:          modelConfig.EndpointUrl,
+		Model:            modelInfo.Model,
+		Temperature:      params.Temperature,
+		TopP:             params.TopP,
+		FrequencyPenalty: params.FrequencyPenalty,
+		PresencePenalty:  params.PresencePenalty,
 	})
 }
 

@@ -27,9 +27,14 @@ type AgentBaseParams struct {
 }
 
 type ModelParams struct {
-	ModelId    string                       `json:"modelId" validate:"required"`
-	History    []AssistantConversionHistory `json:"history,omitempty"`
-	MaxHistory int                          `json:"maxHistory"`
+	ModelId          string                       `json:"modelId" validate:"required"`
+	History          []AssistantConversionHistory `json:"history,omitempty"`
+	MaxHistory       int                          `json:"maxHistory"`
+	Temperature      *float32                     `json:"temperature,omitempty"`      //温度
+	TopP             *float32                     `json:"topP,omitempty"`             //topP
+	FrequencyPenalty *float32                     `json:"frequencyPenalty,omitempty"` //频率惩罚
+	PresencePenalty  *float32                     `json:"presence_penalty,omitempty"` //存在惩罚
+	MaxTokens        *int                         `json:"max_tokens,omitempty"`       //模型输出最大token数，这个字段暂时不设置，因为模型可能触发接口调用不确定是否会超，先不传
 }
 
 type KnowledgeParams struct {

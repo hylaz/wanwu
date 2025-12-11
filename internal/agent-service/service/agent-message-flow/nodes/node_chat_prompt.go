@@ -24,7 +24,7 @@ import (
 
 var (
 	ChatPrompt = prompt.FromMessages(schema.Jinja2,
-		schema.SystemMessage(agentPrompt.REACT_SYSTEM_PROMPT_JINJA2),
+		schema.SystemMessage(agentPrompt.REACT_SYSTEM_PROMPT_JINJA3),
 		schema.MessagesPlaceholder(placeholderOfChatHistory, true),
 		schema.MessagesPlaceholder(placeholderOfUserInput, false),
 	)
