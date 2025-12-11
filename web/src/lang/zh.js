@@ -67,6 +67,7 @@ export default {
       agent: '智能体',
       rag: '文本问答',
       workflow: '工作流',
+      chatflow: '对话流',
       custom: '自定义工具',
       openapi: 'OpenAPI',
       builtIn: '内置工具',

@@ -45,6 +45,13 @@
               :appFrom="'explore'"
             />
           </el-tab-pane>
+          <el-tab-pane :label="$t('menu.app.chatflow')" name="chatflow">
+            <AppList
+              :appData="listData"
+              :isShowTool="false"
+              :appFrom="'explore'"
+            />
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>

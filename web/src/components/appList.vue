@@ -539,6 +539,12 @@ export default {
           break;
       }
     },
+    jumpToWorkflowRun(row) {
+      this.$router.push({
+        path: '/explore/workflow',
+        query: { id: row.appId },
+      });
+    },
     commonToChat(row) {
       const type = row.appType;
       switch (type) {
@@ -552,10 +558,10 @@ export default {
           this.$router.push({ path: '/explore/rag', query: { id: row.appId } });
           break;
         case WORKFLOW:
-          this.$router.push({
-            path: '/explore/workflow',
-            query: { id: row.appId },
-          });
+          this.jumpToWorkflowRun(row);
+          break;
+        case CHAT:
+          this.jumpToWorkflowRun(row);
           break;
       }
     },
