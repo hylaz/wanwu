@@ -280,6 +280,19 @@
                     <el-button
                       size="mini"
                       round
+                      @click="handleConfig(scope.row)"
+                      :disabled="
+                        ![KNOWLEDGE_STATUS_FINISH].includes(
+                          Number(scope.row.status),
+                        )
+                      "
+                      v-if="hasManagePerm"
+                    >
+                      {{ $t('knowledgeManage.segmentConfig') }}
+                    </el-button>
+                    <el-button
+                      size="mini"
+                      round
                       :type="
                         [
                           KNOWLEDGE_STATUS_PENDING_PROCESSING,
@@ -750,6 +763,18 @@ export default {
           this.handleDelete([data.docId]);
         })
         .catch(() => {});
+    },
+    handleConfig(data) {
+      this.$router.push({
+        path: '/knowledge/fileUpload',
+        query: {
+          id: this.docQuery.knowledgeId,
+          name: this.knowledgeName,
+          mode: 'config',
+          title: data.docName,
+          docId: data.docId,
+        },
+      });
     },
     handleBatchDelete() {
       this.$confirm(

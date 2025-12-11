@@ -2,14 +2,15 @@
   <div class="apiEchartBox">
     <span class="title">{{ name }}</span>
     <div ref="api" id="api">
-      <el-empty :description="$t('common.noData')"></el-empty>
+      <el-empty v-if="!hasData" :description="$t('common.noData')"></el-empty>
     </div>
   </div>
 </template>
+
 <script>
 import * as echarts from 'echarts';
 import { i18n } from '@/lang';
-import { formatAmount } from '@/utils/util.js';
+import { formatAmount } from '@/utils/util';
 
 const units = i18n.t('statisticsEcharts.units');
 
@@ -28,12 +29,27 @@ export default {
       api: null,
     };
   },
+  computed: {
+    hasData() {
+      return (
+        this.content &&
+        this.content.length > 0 &&
+        this.content.some(item => item.items && item.items.length > 0)
+      );
+    },
+    isLong() {
+      const values = this.content.flatMap(item => item.items || []);
+      if (values.some(item => (item.value || item) >= 100000000)) return 2;
+      else if (values.some(item => (item.value || item) >= 100000)) return 1;
+      return 0;
+    },
+  },
   watch: {
     content: {
       handler(val) {
         if (val.length > 0) {
           if (this.api) {
-            this.api.dispose(); // 销毁之前的实例
+            this.api.dispose();
           }
           this.api = echarts.init(this.$refs.api);
 
@@ -49,12 +65,68 @@ export default {
   mounted() {},
   methods: {
     handleLine() {
-      let yData = [];
+      let seriesData = [];
+      let legendData = [];
       let xTime = [];
-      const { items = [], lineName } = this.content[0] || {};
-      items.map(item => {
-        xTime.push(item.key);
-        yData.push(item.value);
+
+      // 获取x轴数据
+      if (this.content.length > 0 && this.content[0].items) {
+        xTime = this.content[0].items.map(item => item.key);
+      }
+
+      // 构建每个系列的数据
+      this.content.forEach((line, index) => {
+        legendData.push(line.lineName);
+
+        let yData = [];
+        if (line.items) {
+          yData = line.items.map(item => item.value);
+        }
+
+        seriesData.push({
+          name: line.lineName,
+          data: yData,
+          type: 'line',
+          symbolSize: 5,
+          smooth: true,
+          zlevel: 1,
+          label: {
+            position: 'right',
+            show: false,
+            color: '#333',
+            fontSize: 13,
+            formatter: function (params) {
+              return params.data + i18n.t('statisticsEcharts.minute');
+            },
+          },
+          itemStyle: {
+            color: this.getColorByIndex(index),
+            borderColor: this.getColorByIndex(index),
+            borderWidth: 2,
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {
+                offset: 0,
+                color: this.getAreaColorByIndex(index, 0.39),
+              },
+              {
+                offset: 0.34,
+                color: this.getAreaColorByIndex(index, 0.05),
+              },
+              {
+                offset: 1,
+                color: this.getAreaColorByIndex(index, 0.0),
+              },
+            ]),
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              color: '#4CF8C5',
+            },
+          },
+        });
       });
 
       let option = {
@@ -68,7 +140,7 @@ export default {
             fontSize: 13,
           },
           backgroundColor: 'rgba(13,5,30,.6)',
-          extraCssText: 'z-index:1', // 层级
+          extraCssText: 'z-index:1',
         },
         toolbox: {
           show: true,
@@ -82,11 +154,9 @@ export default {
               ],
               readOnly: false,
               optionToContent: function (opt) {
-                // console.log(opt)
-                //该函数可以自定义列表为table，opt是给我们提供的原始数据的obj。 可打印出来数据结构查看
-                var axisData = opt.xAxis[0].data; //坐标轴
-                var series = opt.series; //折线图的数据
-                var tdHeads = `<td  style="margin-top:10px; padding: 0 15px">${i18n.t('statisticsEcharts.date')}</td>`; //表头
+                var axisData = opt.xAxis[0].data;
+                var series = opt.series;
+                var tdHeads = `<td  style="margin-top:10px; padding: 0 15px">${i18n.t('statisticsEcharts.date')}</td>`;
                 var tdBodys = '';
                 series.forEach(function (item) {
                   tdHeads += `<td style="padding:5px 15px">${item.name}</td>`;
@@ -114,10 +184,9 @@ export default {
         },
         legend: {
           show: true,
-          data: [lineName],
+          data: legendData,
           x: 'center',
           bottom: 10,
-          // orient: 'vertical', // 纵向分布
           textStyle: {
             fontSize: 12,
           },
@@ -151,69 +220,33 @@ export default {
           },
           axisLabel: {
             formatter: value => {
-              return formatAmount(value, 'object', true).value; // 2位小数
+              return formatAmount(value, 'object', true).value;
             },
           },
         },
-        series: [
-          {
-            name: lineName,
-            data: yData,
-            type: 'line',
-            symbolSize: 5, // 原点大小
-            smooth: true,
-            zlevel: 1, // 层级
-            label: {
-              position: 'right',
-              show: false,
-              color: '#333',
-              fontSize: 13,
-              formatter: function (params) {
-                return params.data + i18n.t('statisticsEcharts.minute');
-              },
-            },
-            // 折线拐点的样式
-            itemStyle: {
-              // 静止时：
-              color: '#0088FF',
-              borderColor: '#0088FF', //拐点的边框颜色
-              borderWidth: 2,
-            },
-            areaStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                {
-                  offset: 0,
-                  color: 'rgba(80,141,255,0.39)',
-                },
-                {
-                  offset: 0.34,
-                  color: 'rgba(56,155,255,0.05)',
-                },
-                {
-                  offset: 1,
-                  color: 'rgba(38,197,254,0.00)',
-                },
-              ]),
-            },
-            emphasis: {
-              focus: 'series',
-              // 鼠标经过时：
-              itemStyle: {
-                color: '#4CF8C5',
-              },
-            },
-          },
-        ],
+        series: seriesData,
       };
+
       this.api.setOption(option);
     },
-  },
-  computed: {
-    isLong() {
-      const values = this.content.flatMap(item => item.items);
-      if (values.some(item => (item.value || item) >= 100000000)) return 2;
-      else if (values.some(item => (item.value || item) >= 100000)) return 1;
-      return 0;
+
+    // 根据索引获取不同颜色
+    getColorByIndex(index) {
+      const colors = ['#0088FF', '#FF9F40', '#1DD1A1', '#FF6B6B', '#5F27CD'];
+      return colors[index % colors.length];
+    },
+
+    // 根据索引获取区域颜色
+    getAreaColorByIndex(index, opacity) {
+      const baseColors = [
+        '80,141,255',
+        '255,159,64',
+        '29,209,161',
+        '255,107,107',
+        '95,39,205',
+      ];
+      const baseColor = baseColors[index % baseColors.length];
+      return `rgba(${baseColor},${opacity})`;
     },
   },
   beforeDestroy() {
@@ -223,6 +256,7 @@ export default {
   },
 };
 </script>
+
 <style lang="sass">
-@import "@/style/echart.sass"
+@import "@/style/echart"
 </style>

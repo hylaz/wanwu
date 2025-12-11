@@ -769,7 +769,7 @@ export default {
         this.limitMaxTokens = maxTokens && maxTokens > 0 ? maxTokens : 4096;
       } else {
         this.editForm.modelParams = '';
-        this.$message.warning(this.$t('agent.form.modelNotSupport'));
+        if (val) this.$message.warning(this.$t('agent.form.modelNotSupport'));
       }
     },
     submitMeta() {

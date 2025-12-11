@@ -2,7 +2,11 @@
   <div class="page-wrapper full-content">
     <div class="page-title">
       <span class="el-icon-arrow-left back" @click="goBack"></span>
-      {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile') }}
+      {{
+        mode === 'config'
+          ? title
+          : $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile')
+      }}
       <LinkIcon type="knowledge" />
     </div>
     <div class="table-box">
@@ -487,7 +491,7 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item prop="docAnalyzer">
+            <el-form-item prop="docAnalyzer" v-if="mode !== 'config'">
               <template #label>
                 <span>
                   {{ $t('knowledgeManage.metadataManagement') }}
@@ -503,6 +507,7 @@
                 ref="mataData"
                 @updateMeta="updateMeta"
                 :knowledgeId="knowledgeId"
+                :withCompressed="withCompressed"
               />
             </el-form-item>
           </el-form>
@@ -564,7 +569,7 @@
             type="primary"
             size="mini"
             @click="preStep"
-            v-if="active === 2"
+            v-if="active === 2 && mode !== 'config'"
           >
             {{ $t('knowledgeManage.prevStep') }}
           </el-button>
@@ -615,6 +620,8 @@ import {
   createSplitter,
   editSplitter,
   parserSelect,
+  updateDocConfig,
+  getDocConfig,
 } from '@/api/knowledge';
 import { delfile } from '@/api/chunkFile';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -628,6 +635,7 @@ import {
   FAT_SON_BLOCK,
   MODEL_TYPE_TIP,
 } from '../config';
+import { deepMerge } from '@/utils/util';
 
 export default {
   components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
@@ -650,11 +658,14 @@ export default {
       tableData: [],
       modelOptions: [],
       urlValidate: false,
-      active: 1,
+      active: this.$route.query.mode === 'config' ? 2 : 1,
       fileType: 'file',
       withCompressed: false,
       knowledgeId: this.$route.query.id,
       knowledgeName: this.$route.query.name,
+      mode: this.$route.query.mode,
+      title: this.$route.query.title,
+      docId: this.$route.query.docId,
       fileList: [],
       fileUrl: '',
       docInfoList: [],
@@ -679,6 +690,7 @@ export default {
         knowledgeId: this.$route.query.id,
         parserModelId: '',
       },
+      ruleFormBackup: {},
       checkSplitter: {
         splitter: [],
         subSplitter: [],
@@ -693,10 +705,31 @@ export default {
     };
   },
   async created() {
+    const query = this.$route.query;
+    if (query.mode === 'config') {
+      await getDocConfig({
+        docId: this.docId,
+        knowledgeId: this.knowledgeId,
+      }).then(res => {
+        if (res.code === 0) {
+          this.ruleForm = deepMerge(this.ruleForm, res.data);
+          this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
+          this.ruleForm.docAnalyzer = [...this.ruleForm.docAnalyzer]
+          this.getModelOptions();
+        }
+      });
+    }
     await this.getSplitterList('');
     await this.custom();
   },
   methods: {
+    getModelOptions() {
+      if (this.ruleForm.docAnalyzer.includes('ocr')) {
+        this.getOcrList();
+      } else if (this.ruleForm.docAnalyzer.includes('model')) {
+        this.getParserList();
+      }
+    },
     maxSplitterChange(item) {
       if (item.level === 'parent') {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
@@ -740,11 +773,7 @@ export default {
       if (val.length === 3) {
         this.ruleForm.docAnalyzer = [val[0], val[2]];
       }
-      if (this.ruleForm.docAnalyzer.includes('ocr')) {
-        this.getOcrList();
-      } else if (val.includes('model')) {
-        this.getParserList();
-      }
+      this.getModelOptions();
     },
     segmentClick(label) {
       this.ruleForm.docSegment.segmentType = label;
@@ -1047,32 +1076,30 @@ export default {
         } else {
           data = this.ruleForm;
         }
-        docImport(data).then(res => {
-          if (res.code === 0) {
-            this.$router.push({
-              path: `/knowledge/doclist/${this.knowledgeId}`,
-              query: { name: this.knowledgeName, done: 'fileUpload' },
-            });
-          }
-        });
+
+        if (this.mode === 'config') {
+          data.docId = this.docId;
+          updateDocConfig(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({
+                path: `/knowledge/doclist/${this.knowledgeId}`,
+                query: { name: this.knowledgeName, done: 'fileUpload' },
+              });
+            }
+          });
+        } else
+          docImport(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({
+                path: `/knowledge/doclist/${this.knowledgeId}`,
+                query: { name: this.knowledgeName, done: 'fileUpload' },
+              });
+            }
+          });
       });
     },
     formReset() {
-      this.ruleForm = {
-        docAnalyzer: ['text'],
-        docMetaData: [], //元数据管理数据
-        docPreprocess: ['replaceSymbols'], //'deleteLinks','replaceSymbols'
-        docSegment: {
-          segmentType: this.ruleForm.docSegment.segmentType,
-          splitter: [], //"！","。","？","?","!",".","......"
-          maxSplitter: 200,
-          overlap: 0.2,
-        },
-        docInfoList: [],
-        docImportType: 0,
-        knowledgeId: this.$route.query.id,
-        ocrModelId: '',
-      };
+      this.ruleForm = JSON.parse(JSON.stringify(this.ruleFormBackup));
       this.checkSplitter = {
         splitter: [],
         subSplitter: [],
@@ -1081,6 +1108,7 @@ export default {
         ...item,
         checked: false,
       }));
+      this.getModelOptions();
       this.$refs.ruleForm.clearValidate();
     },
     uploadOnChange(file, fileList) {

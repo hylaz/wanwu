@@ -485,7 +485,7 @@ export default {
         this.editForm.modelParams = val;
       } else {
         this.editForm.modelParams = '';
-        this.$message.warning(this.$t('agent.form.modelNotSupport'));
+        if (val) this.$message.warning(this.$t('agent.form.modelNotSupport'));
       }
     },
     getRerankData() {

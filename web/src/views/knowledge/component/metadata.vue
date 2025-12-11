@@ -187,7 +187,7 @@
 import { metaSelect, updateDocMeta } from '@/api/knowledge';
 
 export default {
-  props: ['metaData', 'type', 'knowledgeId'],
+  props: ['metaData', 'type', 'knowledgeId', 'withCompressed'],
   watch: {
     metaData: {
       handler(val) {
@@ -338,7 +338,9 @@ export default {
       item.metaValueType = opt ? opt.metaValueType : '';
       item.typeWithFolderOptions = [
         this.typeOptions.find(item => item.value === opt.metaValueType),
-        ...(opt.metaValueType === 'string' ? this.folderOptions : []),
+        ...(opt.metaValueType === 'string' && this.withCompressed
+          ? this.folderOptions
+          : []),
       ];
     },
     createMetaData() {

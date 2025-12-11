@@ -267,6 +267,22 @@ export const docImport = data => {
   });
 };
 
+export const getDocConfig = params => {
+  return service({
+    url: `${USER_API}/knowledge/doc/config`,
+    method: 'get',
+    params,
+  });
+};
+
+export const updateDocConfig = data => {
+  return service({
+    url: `${USER_API}/knowledge/doc/update/config`,
+    method: 'post',
+    data,
+  });
+};
+
 //删除知识库标签
 export const delTag = data => {
   return service({
