@@ -179,8 +179,7 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
 	ctx := stream.Context()
 	reqUserId := req.Identity.UserId
-	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s",
-		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
+	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s", req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
 
 	// 用于跟踪流式响应状态的变量
 	var fullResponse strings.Builder
@@ -191,6 +190,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 
 	// 使用defer统一处理上下文取消的情况
 	defer func() {
+
 		// 只有在上下文被手动取消且还未保存过对话时，才保存"已被终止"消息
 		if ctx.Err() != nil && !req.Trial && !conversationSaved {
 			var terminationMessage string
@@ -449,8 +449,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
 	ctx := stream.Context()
 	reqUserId := req.Identity.UserId
-	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s",
-		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
+	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s", req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
 
 	// 用于跟踪流式响应状态的变量
 	var fullResponse strings.Builder

@@ -39,7 +39,7 @@ type RagEvent struct {
 	Skip          bool
 	Stop          bool
 	Streaming     bool
-	Message       []string      //当非流式的时候读这个
+	Message       []string      // 当非流式的时候读这个
 	StreamMessage <-chan string // 单流式的时候读这个
 	Error         error
 }
@@ -72,6 +72,7 @@ type RagHistory struct {
 
 func BuildMessage(ctx context.Context, ragContext *RagContext, stream grpc.ServerStreamingServer[rag_service.ChatRagResp]) error {
 	for _, builder := range ragMessageProcessChain {
+
 		ragEvent := builder.Build(ctx, ragContext)
 		if ragEvent.Skip {
 			continue
@@ -79,6 +80,7 @@ func BuildMessage(ctx context.Context, ragContext *RagContext, stream grpc.Serve
 		if ragEvent.Error != nil {
 			return ragEvent.Error
 		}
+
 		//发送消息
 		err := sendMessage(ragEvent, stream)
 		if err != nil {

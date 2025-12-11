@@ -18,6 +18,7 @@ func (QAFinishBuilder) Build(ctx context.Context, ragContext *RagContext) *RagEv
 	if len(ragContext.QAIds) == 0 {
 		return &RagEvent{Skip: true}
 	}
+
 	params, err := rag_manage_service.BuildQaHitParams(ragContext.Req, ragContext.Rag, ragContext.KnowledgeIDToName, ragContext.QAIds)
 	if err != nil {
 		return &RagEvent{

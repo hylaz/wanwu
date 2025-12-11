@@ -76,25 +76,6 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 		KnowledgeIds:      knowledgeIds,
 		QAIds:             qaIds,
 	}, stream)
-	//  请求rag
-	//buildParams, errk := rag_manage_service.BuildChatConsultParams(req, rag, knowledgeInfoList, knowledgeIds)
-	//if errk != nil {
-	//	log.Errorf("errk = %s", errk.Error())
-	//	return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errk.Error())
-	//}
-	//chatChan, errg := rag_manage_service.RagStreamChat(ctx, rag.UserID, buildParams)
-	//if errg != nil {
-	//	return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errg.Error())
-	//}
-	//for text := range chatChan {
-	//	resp := &rag_service.ChatRagResp{
-	//		Content: text,
-	//	}
-	//	if err := stream.Send(resp); err != nil {
-	//		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", err.Error())
-	//	}
-	//}
-	//return nil
 }
 
 func (s *Service) CreateRag(ctx context.Context, in *rag_service.CreateRagReq) (*rag_service.CreateRagResp, error) {

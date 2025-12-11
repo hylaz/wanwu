@@ -197,6 +197,7 @@ func statisticActiveClient(ctx context.Context, db *gorm.DB, startDate, endDate 
 }
 
 func updateActiveDailyStats(ctx context.Context, db *gorm.DB, date string) error {
+
 	startTs, err := util.Date2Time(date)
 	if err != nil {
 		return err

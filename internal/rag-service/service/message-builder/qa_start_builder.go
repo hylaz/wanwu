@@ -16,6 +16,7 @@ func (QAStartBuilder) Build(ctx context.Context, ragContext *RagContext) *RagEve
 	if len(ragContext.QAIds) == 0 {
 		return &RagEvent{Skip: true}
 	}
+
 	ragMessage := &RagMessage{
 		Code:    0,
 		Message: "success",
@@ -27,6 +28,7 @@ func (QAStartBuilder) Build(ctx context.Context, ragContext *RagContext) *RagEve
 			SearchList: make([]interface{}, 0),
 		},
 	}
+
 	data, err := json.Marshal(ragMessage)
 	if err != nil {
 		return &RagEvent{

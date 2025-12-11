@@ -29,11 +29,11 @@ func main() {
 		flag.Usage()
 		return
 	}
-
 	if isVersion {
 		versionPrint()
 		return
 	}
+
 	err := pkg.InitAllService()
 	if err != nil {
 		panic(err)

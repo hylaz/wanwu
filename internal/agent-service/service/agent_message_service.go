@@ -25,10 +25,12 @@ func AgentMessage(ctx *gin.Context, iter *adk.AsyncIterator[*adk.AgentEvent], re
 		respContext := response.NewAgentChatRespContext()
 
 		for {
+
 			event, ok := iter.Next()
 			if !ok {
 				break
 			}
+
 			if event.Err != nil {
 				log.Errorf("agent event result error %v", event.Err)
 				err = event.Err
@@ -58,6 +60,7 @@ func streamReceive(sseCh chan string, output *adk.MessageVariant, respContext *r
 		}
 
 	} else {
+
 		msg = output.Message
 		respList, err := response.NewAgentChatRespWithTool(msg, respContext, req)
 		if err != nil {
@@ -71,6 +74,7 @@ func streamReceive(sseCh chan string, output *adk.MessageVariant, respContext *r
 	return nil
 }
 
+// streamMessage 处理流信息
 func streamMessage(sseCh chan string, s *schema.StreamReader[*schema.Message], respContext *response.AgentChatRespContext, req *request.AgentChatContext) error {
 	defer s.Close()
 
@@ -83,6 +87,7 @@ func streamMessage(sseCh chan string, s *schema.StreamReader[*schema.Message], r
 
 			return err
 		}
+
 		messageJSON, _ := json.Marshal(msg)
 		log.Infof("stream message %v", string(messageJSON))
 		respList, err := response.NewAgentChatRespWithTool(msg, respContext, req)

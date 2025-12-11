@@ -30,6 +30,7 @@ func (KnowledgeContentBuilder) Build(ctx context.Context, ragContext *RagContext
 			Error: err,
 		}
 	}
+
 	return &RagEvent{
 		Streaming:     true,
 		Stop:          true,

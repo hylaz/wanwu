@@ -103,6 +103,7 @@ func RagStreamChat(ctx context.Context, userId string, req *RagChatParams) (<-ch
 	}
 	ret := make(chan string, 1024)
 	go func() {
+
 		// 确保通道最终被关闭
 		defer close(ret)
 
@@ -117,6 +118,7 @@ func RagStreamChat(ctx context.Context, userId string, req *RagChatParams) (<-ch
 		if params.Timeout == 0 {
 			params.Timeout = time.Minute * 10
 		}
+
 		ctx, cancel := context.WithTimeout(ctx, params.Timeout)
 		defer cancel()
 
@@ -127,6 +129,7 @@ func RagStreamChat(ctx context.Context, userId string, req *RagChatParams) (<-ch
 			ret <- errMsg
 			return
 		}
+
 		defer resp.Body.Close() // 确保响应体关闭
 
 		if resp.StatusCode != http.StatusOK {
@@ -144,6 +147,7 @@ func RagStreamChat(ctx context.Context, userId string, req *RagChatParams) (<-ch
 		for scan.Scan() {
 			ret <- scan.Text()
 		}
+
 		if err := scan.Err(); err != nil {
 			errMsg := fmt.Sprintf("error: 调用下游服务异常: %v", err)
 			log.Errorf(errMsg)
