@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"database/sql"
-
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_client "github.com/UnicomAI/wanwu/internal/model-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/orm/sqlopt"
@@ -72,18 +71,23 @@ func (c *Client) DeleteModel(ctx context.Context, tab *model_client.ModelImporte
 }
 
 func (c *Client) UpdateModel(ctx context.Context, tab *model_client.ModelImported) *errs.Status {
-	// 查询
+	// 模型显示名称判重
 	var existing model_client.ModelImported
 	if err := sqlopt.SQLOptions(
-		sqlopt.WithID(tab.ID),
-	).Apply(c.db).WithContext(ctx).First(&existing).Error; err != nil {
+		sqlopt.WithDisplayName(tab.DisplayName),
+		sqlopt.WithOrgID(tab.OrgID),
+		sqlopt.WithUserID(tab.UserID),
+	).Apply(c.db).WithContext(ctx).Select("id").First(&existing).Error; err == nil {
+		if tab.ID != existing.ID {
+			return toErrStatus("model_update_err", "model with same display name exist")
+		}
+	} else if err != gorm.ErrRecordNotFound {
 		return toErrStatus("model_update_err", err.Error())
 	}
-	if existing.ModelType != tab.ModelType || existing.Model != tab.Model || existing.Provider != tab.Provider {
-		return toErrStatus("model_update_err", "type,model,provider can not update!")
-	}
 	// 更新
-	if err := c.db.WithContext(ctx).Model(existing).Updates(map[string]interface{}{
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithID(tab.ID),
+	).Apply(c.db).WithContext(ctx).Model(tab).Updates(map[string]interface{}{
 		"display_name":    tab.DisplayName,
 		"model_desc":      tab.ModelDesc,
 		"model_icon_path": tab.ModelIconPath,
