@@ -23,6 +23,7 @@ import (
 
 const (
 	batchSize = 20
+	lineLimit = 1000
 )
 
 var knowledgeQAPairImportTask = &KnowledgeQAPairImportTask{Del: true}
@@ -248,6 +249,9 @@ func processCsvFileBatchLine(ctx context.Context, docInfo *model.DocInfo,
 			continue
 		}
 		lineCount++
+		if lineCount > lineLimit {
+			break
+		}
 		if len(record) < 2 {
 			err = fmt.Errorf("line data not ok lineCount %d", lineCount)
 			// 可以选择记录错误并继续，或者直接返回错误
