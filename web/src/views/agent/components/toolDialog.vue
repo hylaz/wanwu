@@ -46,7 +46,12 @@
                       v-show="item.avatar && item.avatar.path"
                     />
                   </div>
-                  <span>{{ item.name }}</span>
+                  <div>
+                    <div>{{ item.name }}</div>
+                    <span class="tag" v-if="tagMap[item.appType]">
+                      {{ tagMap[item.appType] }}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <el-button
@@ -162,7 +167,7 @@ export default {
         },
         {
           value: 'workflow',
-          name: '工作流',
+          name: this.$t('appSpace.workflow'),
         },
       ],
     };
@@ -174,6 +179,12 @@ export default {
         builtIn: this.builtInInfos,
         mcp: this.mcpInfos,
         workflow: this.workFlowInfos,
+      };
+    },
+    tagMap() {
+      return {
+        workflow: this.$t('appSpace.workflow'),
+        chatflow: this.$t('appSpace.chat'),
       };
     },
   },
@@ -460,6 +471,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .tag {
+      padding: 0 8px;
+      background: rgba(139, 139, 149, 0.15);
+      color: #4b4a58;
+      font-size: 12px;
+      border-radius: 6px;
+    }
     .tool_box {
       display: flex;
       align-items: center;

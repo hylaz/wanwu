@@ -97,7 +97,7 @@ export default {
   methods: {
     formatScore,
     // 显示弹框
-    showDiaglog(data) {
+    showDialog(data) {
       if (data) {
         // 更新父分段数据
         if (data.searchList) {

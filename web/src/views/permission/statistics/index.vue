@@ -76,9 +76,9 @@
   </div>
 </template>
 <script>
-import Search from './components/search.vue';
-import UserEchart from './components/userEchart.vue';
-import PcuEchart from './components/pcuEchart.vue';
+import Search from '@/components/searchDate.vue';
+import UserEchart from '@/components/echart/userEchart.vue';
+import PcuEchart from '@/components/echart/pcuEchart.vue';
 import { formatAmount } from '@/utils/util.js';
 import { getData } from '@/api/permission/statistic.js';
 

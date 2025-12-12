@@ -180,11 +180,11 @@
           </p>
         </div>
         <!-- 闲聊模式 -->
-        <chiChat
+        <!-- <chiChat
           @chiSwitchChange="chiSwitchChange"
           :isDisabled="!editForm.knowledgeBaseConfig.knowledgebases.length"
           :chiChatSwitch="editForm.knowledgeBaseConfig.config.chiChat"
-        />
+        /> -->
       </div>
       <div class="drawer-test">
         <Chat :chatType="'test'" :editForm="editForm" />
@@ -485,7 +485,7 @@ export default {
         this.editForm.modelParams = val;
       } else {
         this.editForm.modelParams = '';
-        this.$message.warning(this.$t('agent.form.modelNotSupport'));
+        if (val) this.$message.warning(this.$t('agent.form.modelNotSupport'));
       }
     },
     getRerankData() {
