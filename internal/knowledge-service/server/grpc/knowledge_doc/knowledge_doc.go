@@ -82,10 +82,18 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 func (s *Service) GetDocDetail(ctx context.Context, req *knowledgebase_doc_service.GetDocDetailReq) (*knowledgebase_doc_service.DocInfo, error) {
 	doc, err := orm.GetDocDetail(ctx, req.UserId, req.OrgId, req.DocId)
 	if err != nil {
-		log.Errorf("获取知识库列表失败(%v)  参数(%v)", err, req)
-		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
+		log.Errorf("获取知识库文档详情失败(%v)  参数(%v)", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocSearchFail)
 	}
-	return buildDocInfo(doc, make(map[string]*model.SegmentConfig)), nil
+	var importTask *model.KnowledgeImportTask
+	if req.NeedConfig {
+		importTask, err = orm.SelectKnowledgeImportTaskById(ctx, doc.ImportTaskId)
+		if err != nil {
+			log.Errorf("获取知识库文档详情失败(%v)  参数(%v)", err, req)
+			return nil, util.ErrCode(errs.Code_KnowledgeDocSearchFail)
+		}
+	}
+	return buildDocInfo(doc, make(map[string]*model.SegmentConfig), importTask), nil
 }
 
 func (s *Service) ImportDoc(ctx context.Context, req *knowledgebase_doc_service.ImportDocReq) (*emptypb.Empty, error) {
@@ -98,6 +106,29 @@ func (s *Service) ImportDoc(ctx context.Context, req *knowledgebase_doc_service.
 	if err != nil {
 		log.Errorf("import doc fail %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocImportFail)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// UpdateDocImportConfig 更新文档导入配置
+func (s *Service) UpdateDocImportConfig(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq) (*emptypb.Empty, error) {
+	//1.文档状态更新成待处理
+	//2.删除文档-copy 文档，删除rag
+	knowledgeDoc, err := orm.CopyDocAndRemoveRag(ctx, req)
+	if err != nil {
+		log.Errorf("import doc fail %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateConfigFail)
+	}
+	//3.提交导入任务，注意排队中的任务可以修改，如果文件被删除则忽略不处理
+	task, err := buildReImportTask(req, knowledgeDoc)
+	if err != nil {
+		return nil, err
+	}
+	//创建导入任务
+	err = orm.CreateKnowledgeReImportTask(ctx, task, knowledgeDoc)
+	if err != nil {
+		log.Errorf("import doc fail %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateConfigFail)
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -602,7 +633,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 			if item.GraphStatus == model.GraphSuccess {
 				showGraphReport = true
 			}
-			retList = append(retList, buildDocInfo(item, segmentConfigMap))
+			retList = append(retList, buildDocInfo(item, segmentConfigMap, nil))
 		}
 	}
 	return &knowledgebase_doc_service.GetDocListResp{
@@ -619,7 +650,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 	}
 }
 
-func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.SegmentConfig) *knowledgebase_doc_service.DocInfo {
+func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.SegmentConfig, importTask *model.KnowledgeImportTask) *knowledgebase_doc_service.DocInfo {
 	status, message := model.BuildGraphShowStatus(item.GraphStatus)
 	return &knowledgebase_doc_service.DocInfo{
 		DocId:         item.DocId,
@@ -634,6 +665,41 @@ func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.S
 		UserId:        item.UserId,
 		GraphStatus:   int32(status),
 		GraphErrMsg:   message,
+		DocConfigInfo: buildDocConfigInfo(importTask),
+	}
+}
+
+func buildDocConfigInfo(importTask *model.KnowledgeImportTask) *knowledgebase_doc_service.DocConfigInfo {
+	if importTask == nil {
+		return nil
+	}
+	var config = &knowledgebase_doc_service.DocSegment{}
+	err := json.Unmarshal([]byte(importTask.SegmentConfig), config)
+	if err != nil {
+		log.Errorf("SegmentConfig process error %s", err.Error())
+		return nil
+	}
+	var analyzer = &model.DocAnalyzer{}
+	err = json.Unmarshal([]byte(importTask.DocAnalyzer), analyzer)
+	if err != nil {
+		log.Errorf("DocAnalyzer process error %s", err.Error())
+
+		return nil
+	}
+	var preProcess = &model.DocPreProcess{}
+	if len(importTask.DocPreProcess) > 0 {
+		err = json.Unmarshal([]byte(importTask.DocPreProcess), preProcess)
+		if err != nil {
+			log.Errorf("DocPreprocess process error %s", err.Error())
+			return nil
+		}
+	}
+	return &knowledgebase_doc_service.DocConfigInfo{
+		DocImportType: int32(importTask.ImportType),
+		DocSegment:    config,
+		DocAnalyzer:   analyzer.AnalyzerList,
+		DocPreprocess: preProcess.PreProcessList,
+		OcrModelId:    importTask.OcrModelId,
 	}
 }
 
@@ -745,6 +811,63 @@ func buildImportTask(req *knowledgebase_doc_service.ImportDocReq) (*model.Knowle
 		MetaData:      docImportMetaData,
 		UserId:        req.UserId,
 		OrgId:         req.OrgId,
+	}, nil
+}
+
+// buildReImportTask 构造重新导入任务
+func buildReImportTask(req *knowledgebase_doc_service.UpdateDocImportConfigReq, knowledgeDoc *model.KnowledgeDoc) (*model.KnowledgeImportTask, error) {
+	docImportReq := req.ImportDocReq
+	//是否是自动分段类型
+	if autoSegmentType(docImportReq.DocSegment.SegmentType, docImportReq.DocSegment.SegmentMethod) {
+		docImportReq.DocSegment.Overlap = 0.0
+		docImportReq.DocSegment.MaxSplitter = 4000
+	}
+	segmentConfig, err := json.Marshal(docImportReq.DocSegment)
+	if err != nil {
+		return nil, err
+	}
+	analyzer, err := json.Marshal(&model.DocAnalyzer{
+		AnalyzerList: docImportReq.DocAnalyzer,
+	})
+	if err != nil {
+		return nil, err
+	}
+	docList := make([]*model.DocInfo, 0)
+	docList = append(docList, &model.DocInfo{
+		DocId:   knowledgeDoc.DocId,
+		DocName: knowledgeDoc.Name,
+		DocUrl:  knowledgeDoc.FilePath,
+		DocType: knowledgeDoc.FileType,
+		DocSize: knowledgeDoc.FileSize,
+	})
+	docImportInfo, err := json.Marshal(&model.DocImportInfo{
+		DocInfoList: docList,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	preprocess, err := json.Marshal(&model.DocPreProcess{
+		PreProcessList: docImportReq.DocPreprocess,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.KnowledgeImportTask{
+		ImportId:      generator.GetGenerator().NewID(),
+		KnowledgeId:   docImportReq.KnowledgeId,
+		ImportType:    int(docImportReq.DocImportType),
+		TaskType:      model.ImportTaskTypeUpdateConfig,
+		SegmentConfig: string(segmentConfig),
+		DocAnalyzer:   string(analyzer),
+		CreatedAt:     time.Now().UnixMilli(),
+		UpdatedAt:     time.Now().UnixMilli(),
+		DocInfo:       string(docImportInfo),
+		OcrModelId:    docImportReq.OcrModelId,
+		DocPreProcess: string(preprocess),
+		MetaData:      "",
+		UserId:        docImportReq.UserId,
+		OrgId:         docImportReq.OrgId,
 	}, nil
 }
 

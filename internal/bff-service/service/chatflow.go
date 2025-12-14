@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	net_url "net/url"
 	"strconv"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
@@ -62,7 +64,6 @@ func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, con
 			"space_id": orgId,
 		}).
 		SetBody(map[string]any{
-			"app_id":            workflowId,
 			"conversation_name": conversationName,
 			"connector_id":      "1024",
 			"draft_mode":        true,
@@ -90,6 +91,35 @@ func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, con
 	}
 	return &response.OpenAPIChatflowCreateConversationResponse{
 		ConversationId: strconv.Itoa(int(ret.ConversationData.Id)),
+	}, nil
+}
+
+func GetConversationMessageList(ctx *gin.Context, userId, orgId, appId, conversationId, limit string) (*response.OpenAPIChatflowGetConversationMessageListResponse, error) {
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetConversationMessageListUri)
+	ret := &response.CozeListMessageApiResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetQueryParam("conversation_id", conversationId).
+		SetBody(map[string]int64{
+			"limit": util.MustI64(limit),
+		}).
+		SetResult(ret).
+		Post(url); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), ret.Code, ret.Msg))
+	} else if ret.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_conversation_message_list", fmt.Sprintf("code %v msg %v", ret.Code, ret.Msg))
+	}
+	return &response.OpenAPIChatflowGetConversationMessageListResponse{
+		Messages: ret.Messages,
+		HasMore:  *ret.HasMore,
+		FirstID:  *ret.FirstID,
+		LastID:   *ret.LastID,
 	}, nil
 }
 
@@ -189,6 +219,137 @@ func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, m
 	return nil
 }
 
+func ChatflowApplicationList(ctx *gin.Context, userId, orgId, workflowId string) (*response.CozeDraftIntelligenceListData, error) {
+	// 1.先获取workflow-wanwu的draft intelligence list信息
+	getDraftUrl, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceListUri)
+	// 构造referer url
+	baseURL := config.Cfg().Server.WebBaseUrl // e.g. "http://172.25.214.210:8081"
+
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", err.Error())
+	}
+	u.Path = "/workflow" // 设置路径
+	q := u.Query()
+	q.Set("workflow_id", workflowId)
+	u.RawQuery = q.Encode()
+	getDraftRet := &response.CozeGetDraftIntelligenceListResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeader("Referer", u.String()).
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetBody(map[string]any{
+			"space_id": orgId,
+		}).
+		SetResult(getDraftRet).
+		Post(getDraftUrl); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), getDraftRet.Code, getDraftRet.Msg))
+	} else if getDraftRet.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", fmt.Sprintf("code %v msg %v", getDraftRet.Code, getDraftRet.Msg))
+	}
+	// 2.查询app-service, 看是否有对应的chatflow_application记录
+	appRet, err := app.GetChatflowApplication(ctx, &app_service.GetChatflowApplicationReq{
+		OrgId:      orgId,
+		UserId:     userId,
+		WorkflowId: workflowId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if appRet.ApplicationId != "" {
+		getDraftRet.Data.Intelligences[0].BasicInfo.ID, _ = strconv.ParseInt(appRet.ApplicationId, 10, 64)
+		// 构造 DraftIntelligenceListData
+		return &response.CozeDraftIntelligenceListData{
+			Intelligences: getDraftRet.Data.Intelligences,
+			Total:         1,
+			HasMore:       false,
+			NextCursorID:  "",
+		}, nil
+	}
+	// 3.如果没有记录，则通过workflow接口创建一条，并且替换掉返回值中的ID
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetProjectConversationDef)
+	ret := &response.CozeCreateProjectConversationDefResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetBody(map[string]any{
+			"space_id":          orgId,
+			"project_id":        workflowId,
+			"conversation_name": getDraftRet.Data.Intelligences[0].BasicInfo.Name,
+		}).
+		SetResult(ret).
+		Post(url); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), ret.Code, ret.Msg))
+	} else if ret.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_list", fmt.Sprintf("code %v msg %v", ret.Code, ret.Msg))
+	}
+	_, err = app.CreateChatflowApplication(ctx, &app_service.CreateChatflowApplicationReq{
+		WorkflowId:    workflowId,
+		UserId:        userId,
+		OrgId:         orgId,
+		ApplicationId: ret.UniqueID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	getDraftRet.Data.Intelligences[0].BasicInfo.ID, _ = strconv.ParseInt(ret.UniqueID, 10, 64)
+	// 构造 DraftIntelligenceListData
+	return &response.CozeDraftIntelligenceListData{
+		Intelligences: getDraftRet.Data.Intelligences,
+		Total:         1,
+		HasMore:       false,
+		NextCursorID:  "",
+	}, nil
+}
+
+func ChatflowApplicationInfo(ctx *gin.Context, userId, orgId string, req request.ChatflowApplicationInfoReq) (*response.CozeGetDraftIntelligenceInfoData, error) {
+	// 先去app通过applicationId和userId查出workflowId
+	resp, err := app.GetChatflowByApplicationID(ctx, &app_service.GetChatflowByApplicationIDReq{
+		OrgId:         orgId,
+		UserId:        userId,
+		ApplicationId: req.IntelligenceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// 再去workflow接口获取draft intelligence info
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceInfoUri)
+	// 构造请求
+	getDraftInfoResp := &response.CozeGetDraftIntelligenceInfoResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetQueryParams(map[string]string{
+			"intelligence_id":   resp.WorkflowId,
+			"intelligence_type": strconv.Itoa(int(req.IntelligenceType)),
+		}).
+		SetResult(getDraftInfoResp).
+		Post(url); err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_info", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_info", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), getDraftInfoResp.Code, getDraftInfoResp.Msg))
+	} else if getDraftInfoResp.Code != 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_application_info", fmt.Sprintf("code %v msg %v", getDraftInfoResp.Code, getDraftInfoResp.Msg))
+	}
+	// 把workflow返回的intelligence id替换成app-service的application id
+	getDraftInfoResp.Data.BasicInfo.ID, _ = strconv.ParseInt(req.IntelligenceID, 10, 64)
+	return getDraftInfoResp.Data, nil
+}
+
+// --- internal ---
 func cozeChatflowInfo2Model(chatflowInfo *response.CozeWorkflowListDataWorkflow) response.AppBriefInfo {
 	return response.AppBriefInfo{
 		AppId:     chatflowInfo.WorkflowId,

@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"path/filepath"
 	"strconv"
-
-	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
+	"strings"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
+	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
 	async_task "github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/async-task"
@@ -23,10 +25,34 @@ import (
 
 const (
 	MetaValueTypeNumber = "number"
+	MetaValueTypeString = "string"
 	MetaValueTypeTime   = "time"
+	MetaValueTypeDir1   = "dir_1"
+	MetaValueTypeDir2   = "dir_2"
+	MetaValueTypeDir3   = "dir_3"
+	MetaValueTypeDir4   = "dir_4"
+	MetaValueTypeDir5   = "dir_5"
+	MetaValueTypeDir6   = "dir_6"
+	MetaValueTypeDir7   = "dir_7"
+	MetaValueTypeDir8   = "dir_8"
+	MetaValueTypeDir9   = "dir_9"
+	MetaValueTypeDir10  = "dir_10"
 	PreprocessSymbol    = "replace_symbols"
 	PreprocessLink      = "delete_links"
 )
+
+var fileDirTypeMap = map[string]int{
+	MetaValueTypeDir1:  1,
+	MetaValueTypeDir2:  2,
+	MetaValueTypeDir3:  3,
+	MetaValueTypeDir4:  4,
+	MetaValueTypeDir5:  5,
+	MetaValueTypeDir6:  6,
+	MetaValueTypeDir7:  7,
+	MetaValueTypeDir8:  8,
+	MetaValueTypeDir9:  9,
+	MetaValueTypeDir10: 10,
+}
 
 type KnowledgeGraph struct {
 	KnowledgeGraphSwitch  bool   `json:"knowledgeGraphSwitch"`
@@ -177,16 +203,51 @@ func SelectDocByDocIdListAndFileTypeFilter(ctx context.Context, docIdList []stri
 }
 
 func buildKnowledgeDocMeta(doc *model.KnowledgeDoc, importTask *model.KnowledgeImportTask, meta *model.KnowledgeDocMeta) (*model.KnowledgeDocMeta, error) {
+	var valueType = meta.ValueType
+	if fileDirType(meta.ValueType) {
+		valueType = MetaValueTypeString
+		path := doc.DirFilePath
+		if len(path) == 0 {
+			return nil, nil
+		}
+		value := buildFileDirTypeValue(meta.ValueType)
+		//这里效率稍低，可以挪到外面分隔，但是为了代码逻辑清晰，还是保留
+		split := strings.Split(path, string(filepath.Separator))
+		if len(split) > 0 {
+			split = split[:len(split)-1]
+		}
+		log.Infof("path  %s", path)
+		for index, part := range split {
+			log.Infof("index  %d, part  %s, value %d", index, part, value)
+			if index == value {
+				meta.ValueMain = part //给value赋值
+				break
+			}
+		}
+		//如果valueMain为空，标识没有赋值，则返回nil
+		if len(meta.ValueMain) == 0 {
+			return nil, nil
+		}
+	}
 	return &model.KnowledgeDocMeta{
-		MetaId:    generator.GetGenerator().NewID(),
-		DocId:     doc.DocId,
-		Key:       meta.Key,
-		ValueMain: meta.ValueMain,
-		ValueType: meta.ValueType,
-		Rule:      meta.Rule,
-		UserId:    importTask.UserId,
-		OrgId:     importTask.OrgId,
+		KnowledgeId: importTask.KnowledgeId,
+		MetaId:      generator.GetGenerator().NewID(),
+		DocId:       doc.DocId,
+		Key:         meta.Key,
+		ValueMain:   meta.ValueMain,
+		ValueType:   valueType,
+		Rule:        meta.Rule,
+		UserId:      importTask.UserId,
+		OrgId:       importTask.OrgId,
 	}, nil
+}
+
+func fileDirType(valueType string) bool {
+	return fileDirTypeMap[valueType] > 0
+}
+
+func buildFileDirTypeValue(valueType string) int {
+	return fileDirTypeMap[valueType]
 }
 
 // CreateKnowledgeDoc 创建知识库文件
@@ -262,6 +323,127 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 	})
 }
 
+// ReImportKnowledgeDoc 创建知识库文件
+func ReImportKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask *model.KnowledgeImportTask) error {
+	knowledge, err := SelectKnowledgeById(ctx, doc.KnowledgeId, "", "")
+	if err != nil {
+		return err
+	}
+	var config = &model.SegmentConfig{}
+	err = json.Unmarshal([]byte(importTask.SegmentConfig), config)
+	if err != nil {
+		log.Errorf("SegmentConfig process error %s", err.Error())
+		return err
+	}
+	var analyzer = &model.DocAnalyzer{}
+	err = json.Unmarshal([]byte(importTask.DocAnalyzer), analyzer)
+	if err != nil {
+		log.Errorf("DocAnalyzer process error %s", err.Error())
+
+		return err
+	}
+	var preProcess = &model.DocPreProcess{}
+	if len(importTask.DocPreProcess) > 0 {
+		err = json.Unmarshal([]byte(importTask.DocPreProcess), preProcess)
+		if err != nil {
+			log.Errorf("DocPreprocess process error %s", err.Error())
+			return err
+		}
+		preProcess.PreProcessList = normalizeList(preProcess.PreProcessList)
+	}
+
+	_, objectName, _ := service.SplitFilePath(doc.FilePath)
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		ragMetaList, err := buildMetaData(doc.DocId)
+		if err != nil {
+			log.Errorf("buildAndCreateMetaData error %s", err.Error())
+		}
+		//非初始话状态的不需要rag 导入，因为有可能直接失败了
+		if doc.Status != model.DocInit {
+			return nil
+		}
+		//构造知识库图谱
+		knowledgeGraph := BuildKnowledgeGraph(knowledge.KnowledgeGraph)
+		//2.rag文档导入
+		return service.RagImportDoc(ctx, &service.RagImportDocParams{
+			DocId:                 doc.DocId,
+			KnowledgeName:         knowledge.RagName,
+			CategoryId:            knowledge.KnowledgeId,
+			UserId:                knowledge.UserId,
+			Overlap:               config.Overlap,
+			SegmentSize:           config.MaxSplitter,
+			SegmentType:           service.RebuildSegmentType(config.SegmentType, config.SegmentMethod),
+			SplitType:             service.RebuildSplitType(config.SegmentMethod),
+			Separators:            config.Splitter,
+			ParserChoices:         analyzer.AnalyzerList,
+			ObjectName:            objectName,
+			OriginalName:          doc.Name,
+			IsEnhanced:            "false",
+			OcrModelId:            importTask.OcrModelId,
+			PreProcess:            preProcess.PreProcessList,
+			RagMetaDataParams:     ragMetaList,
+			RagChildChunkConfig:   buildSubRagChunkConfig(config),
+			KnowledgeGraphSwitch:  knowledgeGraph.KnowledgeGraphSwitch,
+			GraphModelId:          knowledgeGraph.GraphModelId,
+			GraphSchemaObjectName: knowledgeGraph.GraphSchemaObjectName,
+			GraphSchemaFileName:   knowledgeGraph.GraphSchemaFileName,
+		})
+	})
+}
+
+// CopyDocAndRemoveRag 复制文档并删除rag
+func CopyDocAndRemoveRag(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq) (*model.KnowledgeDoc, error) {
+	knowledgeDoc, err := GetDocDetail(ctx, "", "", req.DocId)
+	if err != nil {
+		return nil, err
+	}
+	knowledge, err := SelectKnowledgeById(ctx, knowledgeDoc.KnowledgeId, "", "")
+	if err != nil {
+		return nil, err
+	}
+	copyFile, _, _, err := service.CopyFile(ctx, knowledgeDoc.FilePath, "", true)
+	if err != nil {
+		return nil, err
+	}
+	return knowledgeDoc, db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		//1.更新文档文件
+		err = UpdateDocInfo(tx, req.DocId, model.DocInit, copyFile, "")
+		if err != nil {
+			return err
+		}
+		//2.rag删除
+		var fileName = service.RebuildFileName(knowledgeDoc.DocId, knowledgeDoc.FileType, knowledgeDoc.Name)
+		return service.RagDeleteDoc(ctx, &service.RagDeleteDocParams{
+			UserId:        knowledge.UserId,
+			KnowledgeBase: knowledge.RagName,
+			FileName:      fileName,
+		})
+	})
+}
+
+// UpdateDocInfo 更新文档信息,由于status 0 是有含义的，所以不想更新status 请传-1
+func UpdateDocInfo(tx *gorm.DB, docId string, status int, fileUrl string, importTaskId string) error {
+	var updateParams = map[string]interface{}{}
+	if status >= 0 {
+		updateParams["status"] = status
+	}
+	if len(fileUrl) > 0 {
+		updateParams["file_path"] = fileUrl
+		updateParams["file_path_md5"] = util.MD5(fileUrl)
+	}
+	if len(importTaskId) > 0 {
+		updateParams["batch_id"] = importTaskId
+	}
+	if len(updateParams) == 0 {
+		return nil
+	}
+	err := tx.Model(&model.KnowledgeDoc{}).Where("doc_id = ?", docId).Updates(updateParams).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // BuildKnowledgeGraph 知识图谱构造
 func BuildKnowledgeGraph(knowledgeGraph string) *KnowledgeGraph {
 	if len(knowledgeGraph) > 0 {
@@ -309,6 +491,32 @@ func normalizeList(list []string) []string {
 	return list
 }
 
+func buildMetaData(docId string) ([]*service.RagMetaDataParams, error) {
+	metaList, err := SelectDocMetaList(context.Background(), "", "", docId)
+	if err != nil {
+		return nil, err
+	}
+	if len(metaList) == 0 {
+		return nil, nil
+	}
+	var ragMetaList []*service.RagMetaDataParams
+	for _, meta := range metaList {
+		// 构造rag参数
+		ragValue, err := convertMetaValue(meta)
+		if err != nil {
+			return nil, err
+		}
+		ragMetaList = append(ragMetaList, &service.RagMetaDataParams{
+			MetaId:    meta.MetaId,
+			Key:       meta.Key,
+			Value:     ragValue,
+			ValueType: buildMetaValueType(meta.ValueType),
+			Rule:      meta.Rule,
+		})
+	}
+	return ragMetaList, nil
+}
+
 func buildAndCreateMetaData(tx *gorm.DB, importTask *model.KnowledgeImportTask, doc *model.KnowledgeDoc) ([]*service.RagMetaDataParams, error) {
 	// 从importTask反序列化meta
 	if len(importTask.MetaData) == 0 {
@@ -328,6 +536,9 @@ func buildAndCreateMetaData(tx *gorm.DB, importTask *model.KnowledgeImportTask, 
 		if err != nil {
 			return nil, err
 		}
+		if meta == nil {
+			continue
+		}
 		metaList = append(metaList, meta)
 		// 构造rag参数
 		ragValue, err := convertMetaValue(meta)
@@ -338,7 +549,7 @@ func buildAndCreateMetaData(tx *gorm.DB, importTask *model.KnowledgeImportTask, 
 			MetaId:    meta.MetaId,
 			Key:       meta.Key,
 			Value:     ragValue,
-			ValueType: meta.ValueType,
+			ValueType: buildMetaValueType(meta.ValueType),
 			Rule:      meta.Rule,
 		})
 	}
@@ -350,6 +561,12 @@ func buildAndCreateMetaData(tx *gorm.DB, importTask *model.KnowledgeImportTask, 
 	return ragMetaList, nil
 }
 
+func buildMetaValueType(valueType string) string {
+	if fileDirType(valueType) {
+		return MetaValueTypeString
+	}
+	return valueType
+}
 func convertMetaValue(meta *model.KnowledgeDocMeta) (interface{}, error) {
 	if len(meta.ValueMain) == 0 {
 		return nil, nil

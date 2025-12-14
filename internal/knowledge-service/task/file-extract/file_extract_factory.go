@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
@@ -60,11 +61,11 @@ func DoFileExtract(ctx context.Context, doc *model.DocInfo) (docList []*model.Do
 		return nil, err
 	}
 	//4.执行文件上传
-	return uploadFile(ctx, extractDir)
+	return uploadFile(ctx, extractDir, destDir)
 }
 
 // uploadFile 上传文件到minio
-func uploadFile(ctx context.Context, extractDir string) (docList []*model.DocInfo, err error) {
+func uploadFile(ctx context.Context, extractDir, destDir string) (docList []*model.DocInfo, err error) {
 	defer func() {
 		log.Infof("remove file %s ", extractDir)
 		err1 := os.RemoveAll(extractDir)
@@ -74,7 +75,7 @@ func uploadFile(ctx context.Context, extractDir string) (docList []*model.DocInf
 	}()
 	var fileList []*DocFileInfo // 存储解压后所有文件路径的切片
 	// 使用filepath.Walk遍历目录
-	err = filepath.Walk(extractDir, walkFunc(&fileList))
+	err = filepath.Walk(extractDir, walkFunc(destDir, &fileList))
 	if err != nil {
 		log.Infof("upload file to %s", err)
 		return nil, err
@@ -125,20 +126,21 @@ func uploadFile(ctx context.Context, extractDir string) (docList []*model.DocInf
 //}
 
 // 使用闭包来捕获files变量，配合filepath.Walk来使用
-func walkFunc(files *[]*DocFileInfo) filepath.WalkFunc {
+func walkFunc(destDir string, files *[]*DocFileInfo) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Errorf(fmt.Sprintf("walkFunc error accessing path %s file: %v", path, err)) // 处理错误
 			return err                                                                      // 返回nil以继续遍历
 		}
-		log.Infof("walkFunc accessing path %s ", path)
+		log.Infof("walkFunc accessing destDir %s path %s ", destDir, path)
 		if !info.IsDir() {
 			*files = append(*files, &DocFileInfo{
 				DocLocalPath: path,
 				DocInfo: &model.DocInfo{
-					DocName: info.Name(),
-					DocType: filepath.Ext(info.Name()),
-					DocSize: info.Size(),
+					DocName:     info.Name(),
+					DocType:     filepath.Ext(info.Name()),
+					DocSize:     info.Size(),
+					DirFilePath: strings.TrimPrefix(path, destDir),
 				},
 			}) // 添加文件路径到切片
 		}

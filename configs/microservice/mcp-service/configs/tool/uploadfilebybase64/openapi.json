@@ -12,7 +12,7 @@
         "summary": "通过base64上传文件",
         "operationId": "upload_file_by_base64",
         "deprecated": false,
-        "description": "通过base64格式上传文件",
+        "description": "通过base64格式上传文件。文件扩展名（fileExt）必须提供，用于确定文件类型；文件名（fileName）可选，若未提供将使用默认名称。",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -23,14 +23,18 @@
                 "properties": {
                   "file": {
                     "type": "string",
-                    "description": "base64格式的文件数据"
+                    "description": "base64编码的文件数据（不含 data:xxx;base64, 前缀）"
                   },
                   "fileName": {
                     "type": "string",
-                    "description": "文件名"
+                    "description": "原始文件名（可选）。若未提供，系统将默认随机名称"
+                  },
+                  "fileExt": {
+                    "type": "string",
+                    "description": "文件扩展名，不带点（如 'png', 'pdf', 'mp4'）。用于生成最终文件名和 MIME 类型"
                   }
                 },
-                "required": ["file", "fileName"]
+                "required": ["file"]
               }
             }
           },

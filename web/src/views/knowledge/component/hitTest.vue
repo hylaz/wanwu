@@ -357,7 +357,7 @@ export default {
         searchList: currentItem,
         score: currentScore,
       };
-      this.$refs.sectionShow.showDiaglog(data);
+      this.$refs.sectionShow.showDialog(data);
     },
   },
 };

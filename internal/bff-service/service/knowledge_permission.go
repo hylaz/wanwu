@@ -18,7 +18,7 @@ const (
 
 // SelectKnowledgeOrg 查询知识库组织
 func SelectKnowledgeOrg(ctx *gin.Context, userId, orgId string, req *request.KnowledgeOrgSelectReq) (*response.KnowOrgInfoResp, error) {
-	orgInfo, err := iam.GetOrgAndSubOrgSelectByUser(ctx.Request.Context(), &iam_service.GetOrgAndSubOrgSelectByUserReq{
+	orgInfo, err := iam.GetFirstClassOrgAndSubs(ctx.Request.Context(), &iam_service.GetFirstClassOrgAndSubsReq{
 		UserId: userId,
 		OrgId:  orgId,
 	})
@@ -56,12 +56,7 @@ func SelectKnowledgeNoPermissionUser(ctx *gin.Context, userId, orgId string, req
 	}
 	idMap := make(map[string]bool)
 	if req.Transfer {
-		for _, user := range list.Users {
-			if user.UserId == userId && req.OrgId == orgId {
-				continue
-			}
-			idMap[user.UserId] = true
-		}
+		idMap[userId] = true
 	} else {
 		permissionList, err := knowledgeBasePermission.SelectKnowledgeUserPermission(ctx.Request.Context(), &knowledgebase_permission_service.KnowledgeUserPermissionReq{
 			KnowledgeId: req.KnowledgeId,
@@ -140,7 +135,7 @@ func TransferKnowledgeAdminUser(ctx *gin.Context, userId, orgId string, req *req
 	return err
 }
 
-func buildKnowOrgInfo(orgInfo *iam_service.GetOrgAndSubOrgSelectByUserResp) *response.KnowOrgInfoResp {
+func buildKnowOrgInfo(orgInfo *iam_service.GetFirstClassOrgAndSubsResp) *response.KnowOrgInfoResp {
 	var retList []*response.KnowOrgInfo
 	for _, org := range orgInfo.Orgs {
 		if org.Id == config.TopOrgID {

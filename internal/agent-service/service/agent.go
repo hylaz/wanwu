@@ -72,10 +72,9 @@ func AgentVisionChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo 
 }
 
 func AgentModelChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo *AgentChatInfo) error {
-
 	//1.创建chatModel
 	fillInternalToolConfig(req, agentChatInfo)
-	chatModel, err := createChatModel(ctx, agentChatInfo)
+	chatModel, err := createChatModel(ctx, agentChatInfo, req)
 	if err != nil {
 		return err
 	}
@@ -93,7 +92,6 @@ func AgentModelChat(ctx *gin.Context, req *request.AgentChatReq, agentChatInfo *
 	if err != nil {
 		return err
 	}
-
 	//4.生成前置消息
 	messages, err := messageBuilder.Invoke(ctx, agentChatContext)
 	if err != nil {
@@ -147,14 +145,18 @@ func fillInternalToolConfig(req *request.AgentChatReq, agentChatInfo *AgentChatI
 	}
 }
 
-// createChatModel 创建chatmodel
-func createChatModel(ctx *gin.Context, agentChatInfo *AgentChatInfo) (*openai.ChatModel, error) {
+func createChatModel(ctx *gin.Context, agentChatInfo *AgentChatInfo, req *request.AgentChatReq) (*openai.ChatModel, error) {
 	modelInfo := agentChatInfo.ModelInfo
 	modelConfig := modelInfo.Config
+	params := req.ModelParams
 	return openai.NewChatModel(ctx, &openai.ChatModelConfig{
-		APIKey:  modelConfig.ApiKey,
-		BaseURL: modelConfig.EndpointUrl,
-		Model:   modelInfo.Model,
+		APIKey:           modelConfig.ApiKey,
+		BaseURL:          modelConfig.EndpointUrl,
+		Model:            modelInfo.Model,
+		Temperature:      params.Temperature,
+		TopP:             params.TopP,
+		FrequencyPenalty: params.FrequencyPenalty,
+		PresencePenalty:  params.PresencePenalty,
 	})
 }
 
@@ -174,7 +176,6 @@ func createAgent(ctx *gin.Context, req *request.AgentChatReq, chatModel model.To
 	})
 }
 
-// createMessageBuilder 创建消息
 func createMessageBuilder(ctx *gin.Context, req *request.AgentChatContext) (compose.Runnable[*request.AgentChatContext, []*schema.Message], error) {
 	graph := agent_message_flow.NewAgentMessageFlow()
 	return graph.Compile(ctx)

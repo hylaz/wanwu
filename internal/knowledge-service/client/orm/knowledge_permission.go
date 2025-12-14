@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
@@ -148,6 +149,31 @@ func DeleteKnowledgePermissionById(ctx context.Context, permission *model.Knowle
 			permission,
 		})
 	})
+}
+
+// DeleteKnowledgePermissionByUser 删除知识库权限,有可能在事务中的一部分，所以方法第一个入参为db
+func DeleteKnowledgePermissionByUser(tx *gorm.DB, knowledgeId, userId, orgId string) error {
+	var count int64
+	var permission = model.KnowledgePermission{}
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithKnowledgeID(knowledgeId)).
+		Apply(tx, &model.KnowledgePermission{}).First(&permission).Count(&count).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if count > 0 {
+		if err = tx.Unscoped().Where("permission_id = ?", permission.PermissionId).
+			Delete(&model.KnowledgePermission{}).Error; err != nil {
+			return err
+		}
+		err = processKnowledgeShareCount(tx, permission.KnowledgeId)
+		if err != nil {
+			return err
+		}
+		return batchDeleteRecordKnowledgePermission(tx, []*model.KnowledgePermission{
+			&permission,
+		})
+	}
+	return nil
 }
 
 // processKnowledgeShareCount 处理知识库分享数量

@@ -3,6 +3,7 @@ import re
 from typing import List, Dict, Tuple
 from graph.config import get_config
 from graph.utils import call_llm_api
+from graph.utils.logger import logger
 
 def _levenshtein_distance(a: str, b: str) -> int:
     """Compute Levenshtein edit distance between two strings"""
@@ -50,15 +51,16 @@ class LLMEntityResolver:
         结合名称相似性和LLM判断进行实体解析
         返回映射关系: {new_entity_name: old_entity_name}
         """
+        logger.info("开始解析实体映射关系...")
         # 1. 基于名称找到候选对
         candidate_pairs = self._find_similar_entities(old_graph, new_graph)
-
+        logger.info(f"找到候选实体对: {len(candidate_pairs)}")
         # 2. 归一：每个node_i只保留最相似的目标
         best_pairs = self._select_best_match(candidate_pairs)
-
+        logger.info(f"归一后实体对: {len(best_pairs)}")
         # 3. 使用LLM辅助决策
         confirmed_mappings = self._llm_decision(best_pairs, old_graph, new_graph)
-
+        logger.info(f"最终确认实体对: {len(confirmed_mappings)}")
         return confirmed_mappings
 
     def _find_similar_entities(
@@ -136,10 +138,10 @@ class LLMEntityResolver:
 
         # 构造提示词
         prompt = self._build_llm_prompt(candidate_pairs, old_graph, new_graph)
-
+        logger.info(f"_llm_decision prompt: {prompt}")
         # 调用LLM
         response = self._llm_client.call_api(prompt)
-
+        logger.info(f"_llm_decision response: {response}")
         # 解析结果
         return self._parse_llm_response(response, candidate_pairs)
 

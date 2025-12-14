@@ -32,6 +32,40 @@ general_zh_prompt_template = """
 }}
 """
 
+
+general_eng_prompt_template = """
+You are a professional information-extraction expert and structured-data organizer.  
+Your task is to analyze the provided text and return a **minimal** (≤10 entities) JSON structure that captures valuable entities, their attributes, and their inter-relationships.
+
+Guidelines  
+1. Extract **only** information that matches the predefined schema below.  
+   ```{schema}```  
+2. Be concise: attributes and triples must complement each other—no semantic redundancy.  
+3. Entity strings must appear **verbatim** in the source text.  
+4. If the schema contains a category list, extract **strictly** within that list.  
+5. Never create triples whose subject or object is a single Chinese character.  
+6. Output **only** the JSON illustrated in the example—no extra prose.
+
+Input text  
+```{chunk}```
+
+Example output (return JSON only)  
+{{
+  "attributes": {{
+    "Golden Crown": ["Excavation: 1996"]
+  }},
+  "triples": [
+    ["Great Seal", "collected_by", "Tibet Museum"],
+    ["Gansu Museum", "key_artifact", "Golden Crown"]
+  ],
+  "entity_types": {{
+    "Tibet Museum": "Museum",
+    "Golden Crown": "Artifact"
+  }}
+}}
+"""
+
+
 COMMUNITY_REPORT_PROMPT = """
 You are an AI assistant that helps a human analyst to perform general information discovery. Information discovery is the process of identifying and assessing relevant information associated with certain entities (e.g., organizations and individuals) within a network.
 
@@ -199,5 +233,75 @@ attribute = "文物年代：战国时期"
       "explanation": "人形跽坐铜灯收藏于湖南博物馆，匈奴王金冠收藏于内蒙古博物馆，鲁国大玉璧收藏于山东博物馆，三者分属中国不同地理区域的重要文博机构。这种分布体现了战国时期多元文化在当代的传承格局，也说明这些文物在各自地区历史文化叙事中占据核心地位。各博物馆通过对文物的保护、研究与展示，促进了公众对战国时期历史与艺术的理解。"
     }
   ]
+}}
+"""
+
+
+GENERAL_ZH = """
+你是一位专业的信息提取专家和结构化数据组织者。你的任务是分析提供的文本，并以结构化的 JSON 格式提取有价值实体、它们的属性以及相互关系。
+实体数量应该控制的尽可能少(3个以内)，避免冗余。
+
+指导原则：
+1. 优先提取以下预定义的模式中的信息；
+   ```{schema}```
+2. 灵活性：如果上下文与预定义模式不匹配，请根据需要提取有价值的知识；
+3. 简洁性：你提取的属性和三元组应相互补充，避免语义冗余；
+4. 不要抽取单个字的三元组；
+5. 实体应与原文中出处一致；
+6. 输出格式：仅以**示例输出**的 JSON 格式返回：
+   - 属性：将每个实体映射到其描述性特征。
+   - 三元组：以 `[实体提及1, 关系, 实体提及2]` 格式列出实体之间的关系。
+   - 实体类型：根据提供的模式，将每个实体映射到其模式类型。
+
+```{chunk}```
+
+示例输出：
+{{
+  "attributes": {{
+    "黄金冠": ["出土时间：1996年"]
+  }},
+  "triples": [
+    ["大印", "收藏于", "西藏博物馆"],
+    ["甘肃博物馆", "重要文物", "黄金冠"]
+  ],
+  "entity_types": {{
+    "西藏博物馆": "博物馆",
+    "黄金冠": "文物",
+  }}
+}}
+"""
+
+
+GENERAL_ENG = """
+You are a professional information extraction expert and structured data organizer. Your task is to analyze the provided text and extract valuable entities, their attributes, and inter-relationships in a structured JSON format.
+The number of entities should be kept minimal (within 3), avoiding redundancy.
+
+Guidelines:
+1. Prioritize extracting information that matches the following predefined schema:
+   ```{schema}```
+2. Flexibility: If the context does not match the predefined schema, extract valuable knowledge as needed;
+3. Conciseness: The attributes and triples you extract should complement each other, avoiding semantic redundancy;
+4. Do not extract triples containing single-character entities;
+5. Entities should remain consistent with their mentions in the original text;
+6. Output format: Return only in the JSON format of the **Example Output**:
+   - attributes: Map each entity to its descriptive features.
+   - triples: List relationships between entities in the format `[entity mention1, relation, entity mention2]`.
+   - entity_types: Map each entity to its schema type based on the provided schema.
+
+```{chunk}```
+
+Example Output:
+{{
+  "attributes": {{
+    "Golden Crown": ["Excavation Year: 1996"]
+  }},
+  "triples": [
+    ["Great Seal", "Collected by", "Tibet Museum"],
+    ["Gansu Museum", "Key Artifact", "Golden Crown"]
+  ],
+  "entity_types": {{
+    "Tibet Museum": "Museum",
+    "Golden Crown": "Artifact"
+  }}
 }}
 """

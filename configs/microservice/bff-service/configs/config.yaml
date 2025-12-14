@@ -248,6 +248,7 @@ workflow:
   endpoint: http://workflow-wanwu:8999
   minio_proxy_endpoint: http://workflow-wanwu:8998
   minio_proxy_prefix: /workflow/minio/presign
+  # general
   list_uri: /api/workflow_api/workflow_list_by_wanwu
   create_uri: /api/workflow_api/create
   delete_uri: /api/workflow_api/delete
@@ -255,11 +256,18 @@ workflow:
   export_uri: /api/workflow_api/export
   import_uri: /api/workflow_api/import
   convert_uri: /api/workflow_api/update_meta_by_wanwu
+  # run
   test_run_uri: /v1/workflow/%v/run_by_wanwu
   test_run_web_uri: /api/workflow_api/test_run
   get_process_uri: /api/workflow_api/get_process
-  create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
   chatflow_run_uri: /v1/workflow/chat_by_wanwu
+  # conversation
+  create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
+  get_draft_intelligence_list_uri: /api/intelligence_api/search/get_draft_intelligence_list
+  get_draft_intelligence_info_uri: /api/intelligence_api/search/get_draft_intelligence_info
+  get_project_conversation_def: /api/workflow_api/project_conversation/create_by_wanwu
+  get_conversation_message_list_uri: /v1/conversation/message/list_by_wanwu
+  # upload
   upload_action_uri: /api/common/upload/apply_upload_action
   upload_common_uri: /api/common/upload
   upload_file_uri: /api/bot/upload_file_by_wanwu

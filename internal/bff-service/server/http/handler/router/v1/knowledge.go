@@ -19,8 +19,10 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/hit", http.MethodPost, v1.KnowledgeHit, "知识库命中测试")
 
 	// 知识库文档
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/config", http.MethodGet, v1.GetDocConfig, "获取文档配置信息", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/list", http.MethodGet, v1.GetDocList, "获取文档列表", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/import", http.MethodPost, v1.ImportDoc, "上传文档", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/update/config", http.MethodPost, v1.UpdateDocConfig, "更新文档配置", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/import/tip", http.MethodGet, v1.GetDocImportTip, "获取知识库文档上传状态", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/doc/export", http.MethodPost, v1.ExportKnowledgeDoc, "知识库文档导出", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 

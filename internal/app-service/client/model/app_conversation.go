@@ -1,5 +1,6 @@
 package model
 
+// 存储conversation和appID相关信息（应用于openapi场景）
 type AppConversation struct {
 	ID        uint32 `gorm:"primary_key"`
 	CreatedAt int64  `gorm:"autoCreateTime:milli;index:idx_app_conversation_created_at"`

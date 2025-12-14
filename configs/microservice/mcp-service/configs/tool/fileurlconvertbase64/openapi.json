@@ -24,6 +24,15 @@
                   "fileUrl": {
                     "type": "string",
                     "description": "文件URL"
+                  },
+                  "addPrefix": {
+                    "type": "boolean",
+                    "description": "是否自动添加标准 data:xxx;base64, 前缀（如 data:image/png;base64,）",
+                    "default": false
+                  },
+                  "customPrefix": {
+                    "type": "string",
+                    "description": "自定义前缀（例如 \"data:video/mp4;base64,\"）。"
                   }
                 },
                 "required": ["fileUrl"]

@@ -2,6 +2,7 @@ import json
 import os
 import threading
 import time
+import re
 from concurrent import futures
 from typing import Any, Dict, List, Tuple
 
@@ -91,6 +92,16 @@ class KTBuilder:
 
         return cleaned if cleaned else "[EMPTY_AFTER_CLEANING]"
 
+
+    def _is_english(self, text: str) -> bool:
+        """判断是否为英文文本"""
+        if not text:
+            return False
+        pattern = re.compile(r"[`a-zA-Z0-9\s.,':;/\"?<>!\(\)\-]")
+        eng_count = sum(1 for char in text if pattern.fullmatch(char))
+        return eng_count / len(text) > 0.8 if text else False
+
+
     def save_chunks_to_file(self):
         os.makedirs("output/chunks", exist_ok=True)
         chunk_file = f"output/chunks/{self.dataset_name}.txt"
@@ -137,9 +148,12 @@ class KTBuilder:
             "novel": "novel_chs",
             "novel_eng": "novel_eng"
         }
-
-        prompt_type = prompt_type_map.get(self.dataset_name, "general")
+        # 判断 chunk_str 是否是英文，选择不同模版
         chunk_str = f"{chunk['title']} {chunk['snippet']}".strip() if isinstance(chunk, dict) else str(chunk)
+        if self._is_english(chunk_str):
+            prompt_type = prompt_type_map.get(self.dataset_name, "general_eng")
+        else:
+            prompt_type = prompt_type_map.get(self.dataset_name, "general")
         return self.config.get_prompt_formatted("construction", prompt_type, schema=recommend_schema, chunk=chunk_str)
 
     def _validate_and_parse_llm_response(self, prompt: str, llm_response: str) -> dict:

@@ -34,6 +34,11 @@ service AppService {
    // --- conversation ---
   rpc GetConversationByID(GetConversationByIDReq) returns (ConversationInfo) {}
   rpc CreateConversation(CreateConversationReq) returns (google.protobuf.Empty) {}
+
+  // --- chatflowApplication ---
+  rpc GetChatflowApplication(GetChatflowApplicationReq) returns (ChatflowApplicationInfo) {}
+  rpc GetChatflowByApplicationID(GetChatflowByApplicationIDReq) returns (ChatflowApplicationInfo) {}
+  rpc CreateChatflowApplication(CreateChatflowApplicationReq) returns (google.protobuf.Empty) {}
 }
 
 message GenApiKeyReq {
@@ -224,4 +229,31 @@ message CreateConversationReq {
   string orgId = 4;
   string conversationName = 5;
   string conversationId = 6;
+}
+message GetChatflowApplicationReq {
+  string workflowId = 1;
+  string userId = 2;
+  string orgId = 3;
+}
+
+message CreateChatflowApplicationReq {
+  string workflowId = 1;
+  string applicationId = 2;
+  string userId = 3;
+  string orgId = 4;
+}
+
+message GetChatflowByApplicationIDReq {
+  string applicationId = 1;
+  string userId = 2;
+  string orgId = 3;
+}
+
+message ChatflowApplicationInfo {
+  string applicationId = 1;
+  string userId = 2;
+  string orgId = 3;
+  int64 createdAt = 4;
+  int64 updatedAt = 5;
+  string workflowId =6;
 }

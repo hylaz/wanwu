@@ -6,18 +6,20 @@ import (
 	"io"
 	"net/http"
 	net_url "net/url"
+	"strings"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
 
-func FileUrlConvertBase64(ctx *gin.Context, url string) (string, error) {
-	resp, err := http.Get(url)
+func FileUrlConvertBase64(ctx *gin.Context, req *request.FileUrlConvertBase64Req) (string, error) {
+	resp, err := http.Get(req.FileUrl)
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_http_get", err.Error())
 	}
@@ -29,7 +31,22 @@ func FileUrlConvertBase64(ctx *gin.Context, url string) (string, error) {
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_read", err.Error())
 	}
+	// 自动检测 MIME 类型
+	mimeType := http.DetectContentType(fileData)
 	base64Data := base64.StdEncoding.EncodeToString(fileData)
+
+	if req.AddPrefix {
+		var prefix string
+		if req.CustomPrefix != "" {
+			prefix = req.CustomPrefix
+		} else {
+			prefix = "data:" + mimeType + ";base64"
+		}
+		if !strings.HasSuffix(prefix, ",") {
+			prefix += ","
+		}
+		base64Data = prefix + base64Data
+	}
 
 	return base64Data, nil
 }
@@ -45,10 +62,23 @@ func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) 
 		return nil, err
 	}
 	base64Str := base64.StdEncoding.EncodeToString(fileBytes)
-	return UploadFileBase64ToWorkflow(ctx, req.FileName, base64Str)
+	return UploadFileByWorkflow(ctx, req.File.Filename, base64Str)
 }
 
-func UploadFileBase64ToWorkflow(ctx *gin.Context, fileName, file string) (*response.UploadFileByWorkflowResp, error) {
+func UploadFileBase64ToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileByBase64Req) (*response.UploadFileByWorkflowResp, error) {
+	ext := strings.TrimPrefix(req.FileExt, ".")
+	if req.FileName == "" {
+		req.FileName = util.GenUUID()
+	}
+	var finalFileName = req.FileName
+	if ext != "" {
+		finalFileName = finalFileName + "." + ext
+	}
+
+	return UploadFileByWorkflow(ctx, finalFileName, req.File)
+}
+
+func UploadFileByWorkflow(ctx *gin.Context, fileName, file string) (*response.UploadFileByWorkflowResp, error) {
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.UploadFileUri)
 	ret := &response.UploadFileByWorkflowResp{}
 	requestBody := map[string]string{

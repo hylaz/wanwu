@@ -53,3 +53,26 @@ type OpenAIChatHistory struct {
 type OpenAPIChatflowCreateConversationResponse struct {
 	ConversationId string `json:"conversation_id"`
 }
+
+type OpenAPIChatflowGetConversationMessageListResponse struct {
+	Messages []*OpenMessageApi `json:"data"`
+	HasMore  bool              `json:"has_more"`
+	FirstID  int64             `json:"first_id"`
+	LastID   int64             `json:"last_id"`
+}
+
+type OpenMessageApi struct {
+	ID               int64             `json:"id,string"`
+	BotID            int64             `json:"bot_id,string"`
+	Role             string            `json:"role"`
+	Content          string            `json:"content"`
+	ConversationID   int64             `json:"conversation_id,string"`
+	MetaData         map[string]string `json:"meta_data"`
+	CreatedAt        int64             `json:"created_at"`
+	UpdatedAt        int64             `json:"updated_at"`
+	ChatID           int64             `json:"chat_id,string"`
+	ContentType      string            `json:"content_type"`
+	Type             string            `json:"type"`
+	SectionID        string            `json:"section_id"`
+	ReasoningContent string            `json:"reasoning_content"`
+}

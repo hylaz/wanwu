@@ -935,7 +935,7 @@ func storeKnowledgeStoreSchema(knowledgeId string, knowledgeGraph *knowledgebase
 	if knowledgeGraph.Switch && knowledgeGraph.SchemaUrl != "" {
 		go func() {
 			defer pkg_util.PrintPanicStack()
-			copyFile, _, _, err := rag_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, "")
+			copyFile, _, _, err := rag_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, "", false)
 			if err != nil {
 				log.Errorf("store knowledge copy file (%v) err: %v", knowledgeGraph.SchemaUrl, err)
 				return

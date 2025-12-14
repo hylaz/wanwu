@@ -25,6 +25,7 @@ type KnowledgeDoc struct {
 	KnowledgeId  string      `gorm:"column:knowledge_id;index:idx_user_id_knowledge_id_name,priority:2;index:idx_user_id_knowledge_id_tag,priority:2;type:varchar(64);not null;default:''" json:"knowledgeId"`
 	FilePathMd5  string      `gorm:"column:file_path_md5;type:varchar(64);not null;default:'';comment:'文件的md5值'" json:"filePathMd5"`
 	FilePath     string      `gorm:"column:file_path;type:text;not null" json:"filePath"`
+	DirFilePath  string      `gorm:"column:dir_file_path;type:text;not null;comment:'文件在文件夹中的相对目录'" json:"dirFilePath"`
 	Name         string      `gorm:"column:name;index:idx_user_id_knowledge_id_name,priority:3;type:varchar(256);not null;default:''" json:"name"`
 	FileType     string      `gorm:"column:file_type;type:varchar(20);not null;default:''" json:"fileType"`
 	FileSize     int64       `gorm:"column:file_size;type:bigint(20);COMMENT:'文件大小，单位byte'" json:"fileSize"`

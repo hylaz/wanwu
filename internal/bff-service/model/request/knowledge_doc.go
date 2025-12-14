@@ -13,6 +13,12 @@ const (
 	UrlFileUpload        = 2   //url文件上传
 )
 
+type DocConfigReq struct {
+	KnowledgeId string `json:"knowledgeId" form:"knowledgeId" validate:"required"`
+	DocId       string `json:"docId" form:"docId" validate:"required"`
+	CommonCheck
+}
+
 type DocListReq struct {
 	KnowledgeId string `json:"knowledgeId" form:"knowledgeId" validate:"required"`
 	DocName     string `json:"docName" form:"docName"`
@@ -22,15 +28,26 @@ type DocListReq struct {
 	CommonCheck
 }
 
-type DocImportReq struct {
-	KnowledgeId   string         `json:"knowledgeId" validate:"required"` //知识库id
+type DocImportFileConfig struct {
 	DocImportType int            `json:"docImportType"`                   //文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
-	DocInfo       []*DocInfo     `json:"docInfoList" validate:"required"` //上传文档列表
 	DocSegment    *DocSegment    `json:"docSegment" validate:"required"`  //文档分段配置
 	DocAnalyzer   []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model
 	ParserModelId string         `json:"parserModelId"`                   //模型解析或ocr模型id
 	DocPreprocess []string       `json:"docPreprocess"`                   //文本预处理规则 replaceSymbols / deleteLinks
 	DocMetaData   []*DocMetaData `json:"docMetaData"`                     //元数据
+}
+
+type DocImportReq struct {
+	KnowledgeId         string     `json:"knowledgeId" validate:"required"` //知识库id
+	DocInfo             []*DocInfo `json:"docInfoList" validate:"required"` //上传文档列表
+	DocImportFileConfig            //文档导入配置
+}
+
+type DocConfigUpdateReq struct {
+	DocId       string `json:"docId"  validate:"required"`      //文档id，当更新配置时需要传
+	KnowledgeId string `json:"knowledgeId" validate:"required"` //知识库id
+	DocImportFileConfig
+	CommonCheck
 }
 
 type DocMetaDataReq struct {

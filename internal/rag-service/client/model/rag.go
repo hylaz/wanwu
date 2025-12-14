@@ -52,7 +52,6 @@ type KnowledgeBaseConfig struct {
 	TermWeightEnable  bool    `json:"term_weight_enable" gorm:"column:term_weight_enable;type:tinyint(1);not null;default:false;comment:是否启用关键词系数"`
 	MetaParams        string  `json:"metaParams" gorm:"column:meta_params;type:text;comment:元数据参数"`
 	UseGraph          bool    `json:"use_graph" gorm:"column:use_graph;type:tinyint(1);not null;default:false;comment:是否使用知识图谱"`
-	ChiChat           bool    `json:"chi_chat" gorm:"column:chi_chat;type:tinyint(1);not null;default:false;comment:是否闲聊模式"`
 }
 
 type SensitiveConfig struct {

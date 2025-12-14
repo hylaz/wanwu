@@ -150,7 +150,6 @@ message RagGlobalConfig{
   float termWeight = 8; // 关键词系数，默认为1
   bool termWeightEnable = 9; // 关键词系数开关
   bool useGraph = 10; // 知识图谱开关
-  bool chiChat = 11; // 闲聊模式开关
 }
 
 message RagSensitiveConfig{

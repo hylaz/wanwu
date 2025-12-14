@@ -68,6 +68,16 @@ func (s *Service) GetOrgAndSubOrgSelectByUser(ctx context.Context, req *iam_serv
 	}, nil
 }
 
+func (s *Service) GetFirstClassOrgAndSubs(ctx context.Context, req *iam_service.GetFirstClassOrgAndSubsReq) (*iam_service.GetFirstClassOrgAndSubsResp, error) {
+	orgTree, err := s.cli.GetFirstClassOrgAndSubs(ctx, util.MustU32(req.UserId), util.MustU32(req.OrgId))
+	if err != nil {
+		return nil, errStatus(errs.Code_IAMOrg, err)
+	}
+	return &iam_service.GetFirstClassOrgAndSubsResp{
+		Orgs: toIDNames(orgTree),
+	}, nil
+}
+
 func (s *Service) CreateOrg(ctx context.Context, req *iam_service.CreateOrgReq) (*iam_service.IDName, error) {
 	orgID, err := s.cli.CreateOrg(ctx, &model.Org{
 		Status:    true,

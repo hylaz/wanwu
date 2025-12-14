@@ -2,6 +2,7 @@ package request
 
 type KnowledgeOrgSelectReq struct {
 	KnowledgeId string `json:"knowledgeId" form:"knowledgeId" validate:"required"` //知识库id
+	Transfer    bool   `json:"transfer" form:"transfer"`
 	CommonCheck
 }
 

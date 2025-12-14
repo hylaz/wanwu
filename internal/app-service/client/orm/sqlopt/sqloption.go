@@ -223,3 +223,21 @@ func WithConversationID(id string) SQLOption {
 		return db.Where("conversation_id = ?", id)
 	})
 }
+
+func WithWorkflowID(workflowId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if workflowId != "" {
+			return db.Where("workflow_id = ?", workflowId)
+		}
+		return db
+	})
+}
+
+func WithApplicationID(applicationId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if applicationId != "" {
+			return db.Where("application_id = ?", applicationId)
+		}
+		return db
+	})
+}

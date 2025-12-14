@@ -165,7 +165,7 @@ export default {
           this.getList();
         });
     },
-    showDiaglog(id = '') {
+    showDialog(id = '') {
       this.dialogVisible = true;
       if (this.type !== 'section') {
         this.knowledgeId = id;

@@ -7,6 +7,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetDocConfig
+//
+//	@Tags			knowledge.doc
+//	@Summary		获取文档配置信息
+//	@Description	获取文档配置信息
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	query		request.DocConfigReq	true	"文档配置信息查询请求参数"
+//	@Success		200		{object}	response.Response{data=response.DocConfigResult}
+//	@Router			/knowledge/doc/config [get]
+func GetDocConfig(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.DocConfigReq
+	if !gin_util.BindQuery(ctx, &req) {
+		return
+	}
+	resp, err := service.GetDocConfig(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, resp, err)
+}
+
 // GetDocList
 //
 //	@Tags			knowledge.doc
@@ -46,6 +67,27 @@ func ImportDoc(ctx *gin.Context) {
 		return
 	}
 	err := service.ImportDoc(ctx, userId, orgId, &req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// UpdateDocConfig
+//
+//	@Tags			knowledge.doc
+//	@Summary		更新文档配置
+//	@Description	更新文档配置
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.DocConfigUpdateReq	true	"文更新文档配置请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/knowledge/doc/update/config [post]
+func UpdateDocConfig(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.DocConfigUpdateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.UpdateDocConfig(ctx, userId, orgId, &req)
 	gin_util.Response(ctx, nil, err)
 }
 

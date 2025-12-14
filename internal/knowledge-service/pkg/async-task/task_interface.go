@@ -14,7 +14,8 @@ const (
 	KnowledgeQAPairImportTaskType = 7  // 问答库导入
 	QAPairDeleteTaskType          = 8  // 问答对列表删除
 	KnowledgeQAPairExportTaskType = 9  // 问答库导出
-	KnowledgeDocExportTaskType    = 10 // 知识库导出
+	DocReImportTaskType           = 10 // 文档重新导入
+	KnowledgeDocExportTaskType    = 11 // 知识库导出
 )
 
 type KnowledgeDeleteParams struct {
@@ -47,6 +48,11 @@ type QAPairDeleteParams struct {
 
 type DocImportTaskParams struct {
 	TaskId string `json:"taskId"`
+}
+
+type DocReImportTaskParams struct {
+	TaskId string `json:"taskId"`
+	DocId  string `json:"docId"`
 }
 
 type DocSegmentImportTaskParams struct {

@@ -63,6 +63,8 @@ enum Code {
   KnowledgeDocSegmentFileCSVTypeFail = 142010; // 上传文档必须是csv，请修改后重试
   KnowledgeDocUpdateMetaSameKeyFailed = 142011; // 更新文档元数据失败，已存在重复key，请稍后重试
   KnowledgeDocExportFail = 142012; // 文档导出失败，请稍后重试
+  KnowledgeDocSearchFail = 142013; // 文档信息查询失败，请稍后重试
+  KnowledgeDocUpdateConfigFail = 142014; // 文档更新配置失败，请稍后重试
   KnowledgeTagCreateFailed = 143001; // 新建知识库标签失败，请稍后重试
   KnowledgeTagDeleteFailed = 143002; // 删除知识库标签失败，请稍后重试
   KnowledgeTagUpdateFailed = 143003; // 修改知识库标签失败，请稍后重试

@@ -778,7 +778,7 @@ export default {
         this.currentList = [];
       }
       this.contentId = id;
-      this.$refs.tagDialog.showDiaglog();
+      this.$refs.tagDialog.showDialog();
     },
     formattedTagNames(data) {
       let tags = '';

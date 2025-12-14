@@ -297,7 +297,7 @@
     >
       <mataData
         ref="mataData"
-        @updateMeata="updateMeata"
+        @updateMeta="updateMeta"
         type="create"
         :knowledgeId="docQuery.knowledgeId"
         class="mataData"
@@ -640,7 +640,7 @@ export default {
     showMeta() {
       this.metaVisible = true;
     },
-    updateMeata(data) {
+    updateMeta(data) {
       this.metaData = data;
     },
     handleClose() {

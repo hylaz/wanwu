@@ -62,7 +62,6 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 		TermWeightEnable:  knowledgeConfig.TermWeightEnable,
 		TermWeight:        float32(knowledgeConfig.TermWeight),
 		UseGraph:          knowledgeConfig.UseGraph,
-		ChiChat:           knowledgeConfig.ChiChat,
 	}
 
 	// 反序列化 - 知识库元数据
@@ -317,7 +316,6 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"kb_term_weight":        rag.KnowledgeBaseConfig.TermWeight,
 				"kb_term_weight_enable": rag.KnowledgeBaseConfig.TermWeightEnable,
 				"kb_use_graph":          rag.KnowledgeBaseConfig.UseGraph,
-				"kb_chi_chat":           rag.KnowledgeBaseConfig.ChiChat,
 
 				"qa_knowledgebase_config": rag.QAKnowledgebaseConfig,
 

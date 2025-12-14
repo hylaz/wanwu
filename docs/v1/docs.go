@@ -2877,6 +2877,108 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatflow/application/info": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "应用广场对话流关联应用信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "应用广场对话流关联应用信息",
+                "parameters": [
+                    {
+                        "description": "关联智能体请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChatflowApplicationInfoReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CozeGetDraftIntelligenceInfoData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/chatflow/application/list": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "应用广场对话流关联应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "应用广场对话流关联应用",
+                "parameters": [
+                    {
+                        "description": "关联智能体请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChatflowApplicationListReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CozeDraftIntelligenceListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/custom/home": {
             "post": {
                 "security": [
@@ -3731,6 +3833,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/knowledge/doc/config": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取文档配置信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.doc"
+                ],
+                "summary": "获取文档配置信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "docId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocConfigResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge/doc/export": {
             "post": {
                 "security": [
@@ -4462,6 +4618,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/knowledge/doc/update/config": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "更新文档配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.doc"
+                ],
+                "summary": "更新文档配置",
+                "parameters": [
+                    {
+                        "description": "文更新文档配置请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DocConfigUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge/doc/url/analysis": {
             "post": {
                 "security": [
@@ -5069,6 +5264,11 @@ const docTemplate = `{
                         "name": "knowledgeId",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "name": "transfer",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -13031,10 +13231,6 @@ const docTemplate = `{
         "request.AppKnowledgebaseParams": {
             "type": "object",
             "properties": {
-                "chiChat": {
-                    "description": "闲聊开关",
-                    "type": "boolean"
-                },
                 "keywordPriority": {
                     "description": "关键词权重",
                     "type": "number"
@@ -13820,6 +14016,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ragId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ChatflowApplicationInfoReq": {
+            "type": "object",
+            "required": [
+                "intelligence_id",
+                "intelligence_type"
+            ],
+            "properties": {
+                "intelligence_id": {
+                    "type": "string"
+                },
+                "intelligence_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ChatflowApplicationListReq": {
+            "type": "object",
+            "required": [
+                "workflow_id"
+            ],
+            "properties": {
+                "workflow_id": {
                     "type": "string"
                 }
             }
@@ -14641,6 +14863,62 @@ const docTemplate = `{
             "properties": {
                 "tableId": {
                     "description": "敏感词表id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocConfigUpdateReq": {
+            "type": "object",
+            "required": [
+                "docAnalyzer",
+                "docId",
+                "docSegment",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型 text / ocr  / model",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docId": {
+                    "description": "文档id，当更新配置时需要传",
+                    "type": "string"
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：单条url上传，2.文件url上传",
+                    "type": "integer"
+                },
+                "docMetaData": {
+                    "description": "元数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocMetaData"
+                    }
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则 replaceSymbols / deleteLinks",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "文档分段配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.DocSegment"
+                        }
+                    ]
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "parserModelId": {
+                    "description": "模型解析或ocr模型id",
                     "type": "string"
                 }
             }
@@ -17403,6 +17681,219 @@ const docTemplate = `{
                 }
             }
         },
+        "response.CozeConnectorInfo": {
+            "type": "object",
+            "properties": {
+                "connector_status": {
+                    "type": "integer"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "share_link": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CozeDraftIntelligenceListData": {
+            "type": "object",
+            "properties": {
+                "has_more": {
+                    "type": "boolean"
+                },
+                "intelligences": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.CozeIntelligenceData"
+                    }
+                },
+                "next_cursor_id": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.CozeFavoriteInfo": {
+            "type": "object",
+            "properties": {
+                "fav_time": {
+                    "type": "string"
+                },
+                "is_fav": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.CozeGetDraftIntelligenceInfoData": {
+            "type": "object",
+            "properties": {
+                "basic_info": {
+                    "$ref": "#/definitions/response.CozeIntelligenceBasicInfo"
+                },
+                "intelligence_type": {
+                    "type": "integer"
+                },
+                "owner_info": {
+                    "$ref": "#/definitions/response.CozeUser"
+                },
+                "publish_info": {
+                    "$ref": "#/definitions/response.CozeIntelligencePublishInfo"
+                }
+            }
+        },
+        "response.CozeIntelligenceBasicInfo": {
+            "type": "object",
+            "properties": {
+                "create_time": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enterprise_id": {
+                    "type": "string"
+                },
+                "icon_uri": {
+                    "type": "string"
+                },
+                "icon_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "publish_time": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "space_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "update_time": {
+                    "type": "string",
+                    "example": "0"
+                }
+            }
+        },
+        "response.CozeIntelligenceData": {
+            "type": "object",
+            "properties": {
+                "basic_info": {
+                    "$ref": "#/definitions/response.CozeIntelligenceBasicInfo"
+                },
+                "favorite_info": {
+                    "$ref": "#/definitions/response.CozeFavoriteInfo"
+                },
+                "owner_info": {
+                    "$ref": "#/definitions/response.CozeUser"
+                },
+                "permission_info": {
+                    "$ref": "#/definitions/response.CozeIntelligencePermissionInfo"
+                },
+                "publish_info": {
+                    "$ref": "#/definitions/response.CozeIntelligencePublishInfo"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.CozeIntelligencePermissionInfo": {
+            "type": "object",
+            "properties": {
+                "can_delete": {
+                    "type": "boolean"
+                },
+                "can_view": {
+                    "type": "boolean"
+                },
+                "in_collaboration": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.CozeIntelligencePublishInfo": {
+            "type": "object",
+            "properties": {
+                "connectors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.CozeConnectorInfo"
+                    }
+                },
+                "has_published": {
+                    "type": "boolean"
+                },
+                "publish_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CozeUser": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "user_label": {
+                    "$ref": "#/definitions/response.CozeUserLabel"
+                },
+                "user_unique_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CozeUserLabel": {
+            "type": "object",
+            "properties": {
+                "icon_uri": {
+                    "type": "string"
+                },
+                "icon_url": {
+                    "type": "string"
+                },
+                "jump_link": {
+                    "type": "string"
+                },
+                "label_id": {
+                    "type": "string"
+                },
+                "label_name": {
+                    "type": "string"
+                }
+            }
+        },
         "response.CozeWorkflowIDData": {
             "type": "object",
             "properties": {
@@ -17863,6 +18354,41 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DocConfigResult": {
+            "type": "object",
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：url上传，2.批量url上传",
+                    "type": "integer"
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "分段信息配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.DocSegment"
+                        }
+                    ]
+                },
+                "parserModelId": {
+                    "description": "ocr模型id",
+                    "type": "string"
+                }
+            }
+        },
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
@@ -17986,6 +18512,48 @@ const docTemplate = `{
                 "title": {
                     "description": "文档名",
                     "type": "string"
+                }
+            }
+        },
+        "response.DocSegment": {
+            "type": "object",
+            "required": [
+                "segmentMethod"
+            ],
+            "properties": {
+                "maxSplitter": {
+                    "description": "可分隔最大值（只有自定义分段必填）",
+                    "type": "integer"
+                },
+                "overlap": {
+                    "description": "可重叠值（只有自定义分段必填）",
+                    "type": "number"
+                },
+                "segmentMethod": {
+                    "description": "分段方法 0：通用分段；1：父子分段",
+                    "type": "string"
+                },
+                "segmentType": {
+                    "description": "分段方式，只有通用分段必填 0：自动分段；1：自定义分段",
+                    "type": "string"
+                },
+                "splitter": {
+                    "description": "分隔符（只有自定义分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subMaxSplitter": {
+                    "description": "可分隔最大值（只有父子分段必填）",
+                    "type": "integer"
+                },
+                "subSplitter": {
+                    "description": "分隔符（只有父子分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

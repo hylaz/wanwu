@@ -27,4 +27,8 @@ func registerExploration(apiV1 *gin.RouterGroup) {
 
 	// workflow 相关接口
 	mid.Sub("exploration").Reg(apiV1, "/workflow/run", http.MethodPost, v1.ExplorationWorkflowRun, "工作流运行接口", middleware.AppHistoryRecord("workflow_id", constant.AppTypeWorkflow))
+
+	// chatflow 相关接口
+	mid.Sub("exploration").Reg(apiV1, "/chatflow/application/list", http.MethodPost, v1.ChatflowApplicationList, "应用广场对话流关联应用")
+	mid.Sub("exploration").Reg(apiV1, "/chatflow/application/info", http.MethodPost, v1.ChatflowApplicationInfo, "应用广场对话流关联应用信息")
 }

@@ -172,7 +172,7 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    showDiaglog(n) {
+    showDialog(n) {
       this.dialogVisible = true;
       this.currentItem = n;
       if (n.toolId === 'bochawebsearch') {

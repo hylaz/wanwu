@@ -38,6 +38,7 @@ const (
 	IAMService_GetOrgInfo_FullMethodName                  = "/iam_service.IAMService/GetOrgInfo"
 	IAMService_GetOrgByOrgIDs_FullMethodName              = "/iam_service.IAMService/GetOrgByOrgIDs"
 	IAMService_GetOrgAndSubOrgSelectByUser_FullMethodName = "/iam_service.IAMService/GetOrgAndSubOrgSelectByUser"
+	IAMService_GetFirstClassOrgAndSubs_FullMethodName     = "/iam_service.IAMService/GetFirstClassOrgAndSubs"
 	IAMService_CreateOrg_FullMethodName                   = "/iam_service.IAMService/CreateOrg"
 	IAMService_UpdateOrg_FullMethodName                   = "/iam_service.IAMService/UpdateOrg"
 	IAMService_DeleteOrg_FullMethodName                   = "/iam_service.IAMService/DeleteOrg"
@@ -109,6 +110,8 @@ type IAMServiceClient interface {
 	GetOrgByOrgIDs(ctx context.Context, in *GetOrgByOrgIDsReq, opts ...grpc.CallOption) (*GetOrgByOrgIDsResp, error)
 	// 获取子组织信息
 	GetOrgAndSubOrgSelectByUser(ctx context.Context, in *GetOrgAndSubOrgSelectByUserReq, opts ...grpc.CallOption) (*GetOrgAndSubOrgSelectByUserResp, error)
+	// 获取组织树
+	GetFirstClassOrgAndSubs(ctx context.Context, in *GetFirstClassOrgAndSubsReq, opts ...grpc.CallOption) (*GetFirstClassOrgAndSubsResp, error)
 	// 创建组织
 	CreateOrg(ctx context.Context, in *CreateOrgReq, opts ...grpc.CallOption) (*IDName, error)
 	// 编辑组织
@@ -354,6 +357,16 @@ func (c *iAMServiceClient) GetOrgAndSubOrgSelectByUser(ctx context.Context, in *
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetOrgAndSubOrgSelectByUserResp)
 	err := c.cc.Invoke(ctx, IAMService_GetOrgAndSubOrgSelectByUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) GetFirstClassOrgAndSubs(ctx context.Context, in *GetFirstClassOrgAndSubsReq, opts ...grpc.CallOption) (*GetFirstClassOrgAndSubsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFirstClassOrgAndSubsResp)
+	err := c.cc.Invoke(ctx, IAMService_GetFirstClassOrgAndSubs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -690,6 +703,8 @@ type IAMServiceServer interface {
 	GetOrgByOrgIDs(context.Context, *GetOrgByOrgIDsReq) (*GetOrgByOrgIDsResp, error)
 	// 获取子组织信息
 	GetOrgAndSubOrgSelectByUser(context.Context, *GetOrgAndSubOrgSelectByUserReq) (*GetOrgAndSubOrgSelectByUserResp, error)
+	// 获取组织树
+	GetFirstClassOrgAndSubs(context.Context, *GetFirstClassOrgAndSubsReq) (*GetFirstClassOrgAndSubsResp, error)
 	// 创建组织
 	CreateOrg(context.Context, *CreateOrgReq) (*IDName, error)
 	// 编辑组织
@@ -814,6 +829,9 @@ func (UnimplementedIAMServiceServer) GetOrgByOrgIDs(context.Context, *GetOrgByOr
 }
 func (UnimplementedIAMServiceServer) GetOrgAndSubOrgSelectByUser(context.Context, *GetOrgAndSubOrgSelectByUserReq) (*GetOrgAndSubOrgSelectByUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrgAndSubOrgSelectByUser not implemented")
+}
+func (UnimplementedIAMServiceServer) GetFirstClassOrgAndSubs(context.Context, *GetFirstClassOrgAndSubsReq) (*GetFirstClassOrgAndSubsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFirstClassOrgAndSubs not implemented")
 }
 func (UnimplementedIAMServiceServer) CreateOrg(context.Context, *CreateOrgReq) (*IDName, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrg not implemented")
@@ -1243,6 +1261,24 @@ func _IAMService_GetOrgAndSubOrgSelectByUser_Handler(srv interface{}, ctx contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IAMServiceServer).GetOrgAndSubOrgSelectByUser(ctx, req.(*GetOrgAndSubOrgSelectByUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_GetFirstClassOrgAndSubs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFirstClassOrgAndSubsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).GetFirstClassOrgAndSubs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_GetFirstClassOrgAndSubs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).GetFirstClassOrgAndSubs(ctx, req.(*GetFirstClassOrgAndSubsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1847,6 +1883,10 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrgAndSubOrgSelectByUser",
 			Handler:    _IAMService_GetOrgAndSubOrgSelectByUser_Handler,
+		},
+		{
+			MethodName: "GetFirstClassOrgAndSubs",
+			Handler:    _IAMService_GetFirstClassOrgAndSubs_Handler,
 		},
 		{
 			MethodName: "CreateOrg",

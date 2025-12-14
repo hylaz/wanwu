@@ -94,6 +94,9 @@ func (s *Service) TransferKnowledgeAdminUser(ctx context.Context, req *knowledge
 				return err
 			}
 		}
+		if err := orm.DeleteKnowledgePermissionByUser(tx, req.KnowledgeId, req.KnowledgeUser.UserId, req.KnowledgeUser.OrgId); err != nil {
+			return err
+		}
 		if len(addList) > 0 {
 			if err := orm.BatchCreateKnowledgeIdPermission(tx, addList); err != nil {
 				return err

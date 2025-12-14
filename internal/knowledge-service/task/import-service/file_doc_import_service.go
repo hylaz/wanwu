@@ -165,7 +165,7 @@ func checkCompressedFile(doc *model.DocInfo) (bool, error) {
 func buildDocList(ctx context.Context, isCompress bool, file *model.DocInfo) ([]*model.DocInfo, error) {
 	var docList []*model.DocInfo
 	if !isCompress {
-		copyFile, _, _, err := service.CopyFile(ctx, file.DocUrl, "")
+		copyFile, _, _, err := service.CopyFile(ctx, file.DocUrl, "", false)
 		if err != nil {
 			return nil, err
 		}
@@ -192,6 +192,7 @@ func buildKnowledgeDoc(importTask *model.KnowledgeImportTask, checkFileResult *C
 		KnowledgeId:  importTask.KnowledgeId,
 		FilePath:     docInfo.DocUrl,
 		FilePathMd5:  util.MD5(docInfo.DocUrl),
+		DirFilePath:  docInfo.DirFilePath,
 		Name:         docInfo.DocName,
 		FileType:     docInfo.DocType,
 		FileSize:     docInfo.DocSize,

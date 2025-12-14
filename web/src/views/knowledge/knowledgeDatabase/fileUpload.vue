@@ -2,7 +2,11 @@
   <div class="page-wrapper full-content">
     <div class="page-title">
       <span class="el-icon-arrow-left back" @click="goBack"></span>
-      {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile') }}
+      {{
+        mode === 'config'
+          ? title
+          : $t('knowledgeManage.knowledgeDatabase.fileUpload.addFile')
+      }}
       <LinkIcon type="knowledge" />
     </div>
     <div class="table-box">
@@ -23,7 +27,7 @@
         <!-- 文件上传 -->
         <div v-if="active === 1">
           <div class="fileBtn">
-            <el-radio-group v-model="fileType" @change="fileTypeChage">
+            <el-radio-group v-model="fileType" @change="fileTypeChange">
               <el-radio-button label="file">
                 {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}
               </el-radio-button>
@@ -46,7 +50,7 @@
                 action=""
                 :show-file-list="false"
                 :auto-upload="false"
-                multiple
+                :multiple="fileType !== 'fileUrl'"
                 accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
                 :file-list="fileList"
                 :on-change="uploadOnChange"
@@ -487,14 +491,23 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item
-              :label="$t('knowledgeManage.metadataManagement')"
-              prop="docAnalyzer"
-            >
+            <el-form-item prop="docAnalyzer" v-if="mode !== 'config'">
+              <template #label>
+                <span>
+                  {{ $t('knowledgeManage.metadataManagement') }}
+                </span>
+                <el-tooltip
+                  :content="$t('knowledgeManage.metadataManagementTips')"
+                  placement="right"
+                >
+                  <span class="el-icon-question question"></span>
+                </el-tooltip>
+              </template>
               <mataData
                 ref="mataData"
-                @updateMeata="updateMeata"
+                @updateMeta="updateMeta"
                 :knowledgeId="knowledgeId"
+                :withCompressed="withCompressed"
               />
             </el-form-item>
           </el-form>
@@ -556,7 +569,7 @@
             type="primary"
             size="mini"
             @click="preStep"
-            v-if="active === 2"
+            v-if="active === 2 && mode !== 'config'"
           >
             {{ $t('knowledgeManage.prevStep') }}
           </el-button>
@@ -591,7 +604,7 @@
       @editItem="editItem"
       @createItem="createItem"
       @delItem="delSplitterItem"
-      @relodData="relodData"
+      @reloadData="reloadData"
       @checkData="checkData"
     />
   </div>
@@ -607,6 +620,8 @@ import {
   createSplitter,
   editSplitter,
   parserSelect,
+  updateDocConfig,
+  getDocConfig,
 } from '@/api/knowledge';
 import { delfile } from '@/api/chunkFile';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -620,6 +635,7 @@ import {
   FAT_SON_BLOCK,
   MODEL_TYPE_TIP,
 } from '../config';
+import { deepMerge } from '@/utils/util';
 
 export default {
   components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
@@ -642,10 +658,14 @@ export default {
       tableData: [],
       modelOptions: [],
       urlValidate: false,
-      active: 1,
+      active: this.$route.query.mode === 'config' ? 2 : 1,
       fileType: 'file',
+      withCompressed: false,
       knowledgeId: this.$route.query.id,
       knowledgeName: this.$route.query.name,
+      mode: this.$route.query.mode,
+      title: this.$route.query.title,
+      docId: this.$route.query.docId,
       fileList: [],
       fileUrl: '',
       docInfoList: [],
@@ -670,6 +690,7 @@ export default {
         knowledgeId: this.$route.query.id,
         parserModelId: '',
       },
+      ruleFormBackup: {},
       checkSplitter: {
         splitter: [],
         subSplitter: [],
@@ -684,10 +705,31 @@ export default {
     };
   },
   async created() {
+    const query = this.$route.query;
+    if (query.mode === 'config') {
+      await getDocConfig({
+        docId: this.docId,
+        knowledgeId: this.knowledgeId,
+      }).then(res => {
+        if (res.code === 0) {
+          this.ruleForm = deepMerge(this.ruleForm, res.data);
+          this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
+          this.ruleForm.docAnalyzer = [...this.ruleForm.docAnalyzer];
+          this.getModelOptions();
+        }
+      });
+    }
     await this.getSplitterList('');
     await this.custom();
   },
   methods: {
+    getModelOptions() {
+      if (this.ruleForm.docAnalyzer.includes('ocr')) {
+        this.getOcrList();
+      } else if (this.ruleForm.docAnalyzer.includes('model')) {
+        this.getParserList();
+      }
+    },
     maxSplitterChange(item) {
       if (item.level === 'parent') {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
@@ -731,11 +773,7 @@ export default {
       if (val.length === 3) {
         this.ruleForm.docAnalyzer = [val[0], val[2]];
       }
-      if (this.ruleForm.docAnalyzer.includes('ocr')) {
-        this.getOcrList();
-      } else if (val.includes('model')) {
-        this.getParserList();
-      }
+      this.getModelOptions();
     },
     segmentClick(label) {
       this.ruleForm.docSegment.segmentType = label;
@@ -750,17 +788,14 @@ export default {
       this.$nextTick(() => {
         const { splitter, subSplitter } = this.ruleForm.docSegment;
         const filterByType = values =>
-          this.splitOptions.filter(
-            item =>
-              values.includes(item.splitterValue) && item.type === 'preset',
-          );
+          this.splitOptions.filter(item => values.includes(item.splitterValue));
         this.checkSplitter = {
           splitter: filterByType(splitter),
           subSplitter: filterByType(subSplitter),
         };
       });
     },
-    updateMeata(data) {
+    updateMeta(data) {
       this.ruleForm.docMetaData = data;
     },
     validateMetaData() {
@@ -787,7 +822,7 @@ export default {
         item => item.splitterValue,
       );
     },
-    relodData(name) {
+    reloadData(name) {
       this.getSplitterList(name);
     },
     async getSplitterList(splitterName) {
@@ -852,7 +887,7 @@ export default {
     },
     showSplitterSet(type) {
       this.segmentType = type;
-      this.$refs.splitterDialog.showDiaglog(
+      this.$refs.splitterDialog.showDialog(
         this.checkSplitter[this.segmentType],
       );
     },
@@ -977,7 +1012,7 @@ export default {
         return (size / Math.pow(num, 3)).toFixed(2) + 'G'; //G
       return (size / Math.pow(num, 4)).toFixed(2) + 'T'; //T
     },
-    fileTypeChage() {
+    fileTypeChange() {
       // 取消所有正在进行的上传请求
       this.cancelAllRequests();
 
@@ -1038,32 +1073,30 @@ export default {
         } else {
           data = this.ruleForm;
         }
-        docImport(data).then(res => {
-          if (res.code === 0) {
-            this.$router.push({
-              path: `/knowledge/doclist/${this.knowledgeId}`,
-              query: { name: this.knowledgeName, done: 'fileUpload' },
-            });
-          }
-        });
+
+        if (this.mode === 'config') {
+          data.docId = this.docId;
+          updateDocConfig(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({
+                path: `/knowledge/doclist/${this.knowledgeId}`,
+                query: { name: this.knowledgeName, done: 'fileUpload' },
+              });
+            }
+          });
+        } else
+          docImport(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({
+                path: `/knowledge/doclist/${this.knowledgeId}`,
+                query: { name: this.knowledgeName, done: 'fileUpload' },
+              });
+            }
+          });
       });
     },
     formReset() {
-      this.ruleForm = {
-        docAnalyzer: ['text'],
-        docMetaData: [], //元数据管理数据
-        docPreprocess: ['replaceSymbols'], //'deleteLinks','replaceSymbols'
-        docSegment: {
-          segmentType: this.ruleForm.docSegment.segmentType,
-          splitter: [], //"！","。","？","?","!",".","......"
-          maxSplitter: 200,
-          overlap: 0.2,
-        },
-        docInfoList: [],
-        docImportType: 0,
-        knowledgeId: this.$route.query.id,
-        ocrModelId: '',
-      };
+      this.ruleForm = JSON.parse(JSON.stringify(this.ruleFormBackup));
       this.checkSplitter = {
         splitter: [],
         subSplitter: [],
@@ -1072,39 +1105,43 @@ export default {
         ...item,
         checked: false,
       }));
+      this.getModelOptions();
       this.$refs.ruleForm.clearValidate();
     },
     uploadOnChange(file, fileList) {
       if (!fileList.length) return;
-      this.fileList = fileList;
-      if (
-        this.verifyEmpty(file) !== false &&
-        this.verifyFormat(file) !== false &&
-        this.verifyRepeat(file) !== false
-      ) {
-        setTimeout(() => {
-          this.fileList.map((file, index) => {
-            if (file.progressStatus && file.progressStatus !== 'success') {
-              this.$set(file, 'progressStatus', 'exception');
-              this.$set(file, 'showRetry', 'false');
-              this.$set(file, 'showResume', 'false');
-              this.$set(file, 'showRemerge', 'false');
-              if (file.size > this.maxSizeBytes) {
-                this.$set(file, 'fileType', 'maxFile');
-              } else {
-                this.$set(file, 'fileType', 'minFile');
-              }
+      // 先进行验证
+      const isValid =
+        this.verifyEmpty(file) &&
+        this.verifyFormat(file) &&
+        this.verifyRepeat(file);
+
+      if (!isValid) return;
+
+      this.fileList.push(file);
+      setTimeout(() => {
+        this.fileList.map((file, index) => {
+          if (file.progressStatus && file.progressStatus !== 'success') {
+            this.$set(file, 'progressStatus', 'exception');
+            this.$set(file, 'showRetry', 'false');
+            this.$set(file, 'showResume', 'false');
+            this.$set(file, 'showRemerge', 'false');
+            if (file.size > this.maxSizeBytes) {
+              this.$set(file, 'fileType', 'maxFile');
+            } else {
+              this.$set(file, 'fileType', 'minFile');
             }
-          });
-        }, 10);
-        //开始切片上传(如果没有文件正在上传)
-        if (this.file === null) {
-          this.startUpload();
-        } else {
-          //如果上传当中有新的文件加入
-          if (this.file.progressStatus === 'success') {
-            this.startUpload(this.fileIndex);
           }
+        });
+      }, 10);
+
+      // 开始切片上传(如果没有文件正在上传)
+      if (this.file === null) {
+        this.startUpload();
+      } else {
+        // 如果上传当中有新的文件加入
+        if (this.file.progressStatus === 'success') {
+          this.startUpload(this.fileIndex);
         }
       }
     },
@@ -1140,16 +1177,10 @@ export default {
     },
     //  验证文件为空
     verifyEmpty(file) {
-      const isLt1GB = file.size / 1024 / 1024 / 1024 < 1;
       if (file.size <= 0) {
-        setTimeout(() => {
-          this.$message.warning(
-            file.name + this.$t('knowledgeManage.filterFile'),
-          );
-          this.fileList = this.fileList.filter(
-            files => files.name !== file.name,
-          );
-        }, 50);
+        this.$message.warning(
+          file.name + this.$t('knowledgeManage.filterFile'),
+        );
         return false;
       }
       return true;
@@ -1177,85 +1208,51 @@ export default {
         fileName.endsWith(`.${ext}`),
       );
       if (!isSupportedFormat) {
-        setTimeout(() => {
-          this.$message.warning(
-            file.name + this.$t('knowledgeManage.fileTypeError'),
-          );
-          this.fileList = this.fileList.filter(
-            files => files.name !== file.name,
-          );
-        }, 50);
+        this.$message.warning(
+          file.name + this.$t('knowledgeManage.fileTypeError'),
+        );
         return false;
-      } else {
-        const fileType = file.name.split('.').pop();
-        const limit200 = [
-          'pdf',
-          'docx',
-          'doc',
-          'pptx',
-          'zip',
-          'tar.gz',
-          'ofd',
-          'wps',
-        ];
-        const limit20 = ['xlsx', 'xls', 'csv', 'txt', 'html', 'md'];
-        let isLimit200 = file.size / 1024 / 1024 < 200;
-        let isLimit20 = file.size / 1024 / 1024 < 20;
-        let num = 0;
-        if (limit200.includes(fileType)) {
-          num = 200;
-          if (!isLimit200) {
-            setTimeout(() => {
-              this.$message.error(
-                this.$t('knowledgeManage.limitSize') + `${num}MB!`,
-              );
-              this.fileList = this.fileList.filter(
-                files => files.name !== file.name,
-              );
-            }, 50);
-            return false;
-          }
-          return true;
-        } else if (limit20.includes(fileType)) {
-          num = 20;
-          if (!isLimit20) {
-            setTimeout(() => {
-              this.$message.error(
-                this.$t('knowledgeManage.limitSize') + `${num}MB!`,
-              );
-              this.fileList = this.fileList.filter(
-                files => files.name !== file.name,
-              );
-            }, 50);
-            return false;
-          }
-          return true;
-        }
-        return true;
       }
+
+      const fileType = file.name.split('.').pop();
+      const limit200 = [
+        'pdf',
+        'docx',
+        'doc',
+        'pptx',
+        'zip',
+        'tar.gz',
+        'ofd',
+        'wps',
+      ];
+      const limit20 = ['xlsx', 'xls', 'csv', 'txt', 'html', 'md'];
+
+      if (limit200.includes(fileType) && file.size / 1024 / 1024 >= 200) {
+        this.$message.error(this.$t('knowledgeManage.limitSize') + '200MB!');
+        return false;
+      }
+
+      if (limit20.includes(fileType) && file.size / 1024 / 1024 >= 20) {
+        this.$message.error(this.$t('knowledgeManage.limitSize') + '20MB!');
+        return false;
+      }
+      return true;
     },
     //  验证文件格式
     verifyRepeat(file) {
-      let res = true;
-      setTimeout(() => {
-        this.fileList = this.fileList.reduce((accumulator, current) => {
-          const length = accumulator.filter(
-            obj => obj.name === current.name,
-          ).length;
-          if (length === 0) {
-            accumulator.push(current);
-          } else {
-            this.$message.warning(
-              current.name + this.$t('knowledgeManage.fileExist'),
-            );
-            res = false;
-          }
-          return accumulator;
-        }, []);
-        return res;
-      }, 50);
+      const isDuplicate = this.fileList.some(item => item.name === file.name);
+
+      if (isDuplicate) {
+        this.$message.warning(file.name + this.$t('knowledgeManage.fileExist'));
+        return false;
+      }
+      return true;
     },
     nextStep() {
+      this.withCompressed = this.fileList.some(file => {
+        const fileName = file.name;
+        return fileName.endsWith('.zip') || fileName.endsWith('.tar.gz');
+      });
       //上传文件类型
       if (this.fileType === 'file' || this.fileType === 'fileUrl') {
         if (this.fileIndex < this.fileList.length) {

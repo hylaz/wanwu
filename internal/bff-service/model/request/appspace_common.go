@@ -81,7 +81,6 @@ type AppKnowledgebaseParams struct {
 	TermWeight        float32 `json:"termWeight"`        // 关键词系数，默认为1
 	TermWeightEnable  bool    `json:"termWeightEnable"`  // 关键词系数开关
 	UseGraph          bool    `json:"useGraph"`          // 知识图谱开关
-	ChiChat           bool    `json:"chiChat"`           // 闲聊开关
 }
 
 type AppQAKnowledgebaseConfig struct {

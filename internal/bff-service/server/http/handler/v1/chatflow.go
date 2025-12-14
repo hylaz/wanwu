@@ -111,3 +111,43 @@ func ChatflowConvert(ctx *gin.Context) {
 	}
 	gin_util.Response(ctx, nil, service.WorkflowConvert(ctx, getOrgID(ctx), req.WorkflowID, constant.AppTypeWorkflow))
 }
+
+// ChatflowApplicationList
+//
+//	@Tags			chatflow
+//	@Summary		应用广场对话流关联应用
+//	@Description	应用广场对话流关联应用
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ChatflowApplicationListReq	true	"关联智能体请求参数"
+//	@Success		200		{object}	response.Response{data=response.CozeDraftIntelligenceListData}
+//	@Router			/chatflow/application/list [post]
+func ChatflowApplicationList(ctx *gin.Context) {
+	var req request.ChatflowApplicationListReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.ChatflowApplicationList(ctx, getUserID(ctx), getOrgID(ctx), req.WorkflowID)
+	gin_util.Response(ctx, resp, err)
+}
+
+// ChatflowApplicationInfo
+//
+//	@Tags			chatflow
+//	@Summary		应用广场对话流关联应用信息
+//	@Description	应用广场对话流关联应用信息
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ChatflowApplicationInfoReq	true	"关联智能体请求参数"
+//	@Success		200		{object}	response.Response{data=response.CozeGetDraftIntelligenceInfoData}
+//	@Router			/chatflow/application/info [post]
+func ChatflowApplicationInfo(ctx *gin.Context) {
+	var req request.ChatflowApplicationInfoReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	resp, err := service.ChatflowApplicationInfo(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}

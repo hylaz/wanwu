@@ -66,6 +66,33 @@ func CreateChatflowConversation(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, nil)
 }
 
+// GetConversationMessageList
+//
+//	@Tags			openapi
+//	@Summary		对话流根据conversationId获取历史对话
+//	@Description	对话流根据conversationId获取历史对话
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.OpenAPIChatflowGetConversationMessageListRequest	false	"请求参数"
+//	@Success		200		{object}	response.Response{data=response.OpenAPIChatflowGetConversationMessageListResponse}
+//	@Router			/chatflow/conversation/message/list [post]
+func GetConversationMessageList(ctx *gin.Context) {
+	var req request.OpenAPIChatflowGetConversationMessageListRequest
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	userID := getUserID(ctx)
+	orgID := getOrgID(ctx)
+	appID := getAppID(ctx)
+
+	resp, err := service.GetConversationMessageList(ctx, userID, orgID, appID, req.ConversationId, req.Limit)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+	gin_util.Response(ctx, resp, nil)
+}
+
 // ChatflowChat
 //
 //	@Tags			openapi

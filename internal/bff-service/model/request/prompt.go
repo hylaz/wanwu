@@ -1,5 +1,10 @@
 package request
 
+import (
+	"errors"
+	"strings"
+)
+
 type CustomPromptCreate struct {
 	Avatar Avatar `json:"avatar"`                     // 图标
 	Name   string `json:"name" validate:"required"`   // 名称
@@ -7,7 +12,13 @@ type CustomPromptCreate struct {
 	Prompt string `json:"prompt" validate:"required"` // 提示词
 }
 
-func (req *CustomPromptCreate) Check() error {
+func (c *CustomPromptCreate) Check() error {
+	if len(strings.TrimSpace(c.Name)) == 0 {
+		return errors.New("name is empty")
+	}
+	if len(strings.TrimSpace(c.Prompt)) == 0 {
+		return errors.New("prompt is empty")
+	}
 	return nil
 }
 
@@ -27,7 +38,13 @@ type UpdateCustomPrompt struct {
 	Prompt string `json:"prompt" validate:"required"` // 提示词
 }
 
-func (req *UpdateCustomPrompt) Check() error {
+func (u *UpdateCustomPrompt) Check() error {
+	if len(strings.TrimSpace(u.Name)) == 0 {
+		return errors.New("name is empty")
+	}
+	if len(strings.TrimSpace(u.Prompt)) == 0 {
+		return errors.New("prompt is empty")
+	}
 	return nil
 }
 

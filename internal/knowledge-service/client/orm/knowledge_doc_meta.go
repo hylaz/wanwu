@@ -220,7 +220,7 @@ func buildBatchDocMetaParamsList(docMetaList []*model.KnowledgeDocMeta, docNameM
 			valueData, err := buildValueData(meta.ValueType, meta.ValueMain)
 			if err != nil {
 				log.Errorf("buildValueData error %s", err.Error())
-				return nil, err
+				continue
 			}
 			metaDataList = append(metaDataList, &service.MetaData{
 				Key:       meta.Key,
@@ -251,7 +251,7 @@ func buildBatchQAMetaParamsList(qaMetaList []*model.KnowledgeDocMeta, qaPairIds 
 			valueData, err := buildValueData(meta.ValueType, meta.ValueMain)
 			if err != nil {
 				log.Errorf("buildValueData error %s", err.Error())
-				return nil, err
+				continue
 			}
 			metaDataList = append(metaDataList, &service.QAMetaData{
 				Key:       meta.Key,

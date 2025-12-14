@@ -160,7 +160,6 @@ func buildRagGlobalConfig(kbConfig request.AppKnowledgebaseParams) *rag_service.
 		TermWeight:        kbConfig.TermWeight,
 		TermWeightEnable:  kbConfig.TermWeightEnable,
 		UseGraph:          kbConfig.UseGraph,
-		ChiChat:           kbConfig.ChiChat,
 	}
 }
 
@@ -318,7 +317,6 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 		TermWeight:        globalConfig.TermWeight,
 		TermWeightEnable:  globalConfig.TermWeightEnable,
 		UseGraph:          globalConfig.UseGraph,
-		ChiChat:           globalConfig.ChiChat,
 	}
 	return request.AppKnowledgebaseConfig{
 		Knowledgebases: knowledgeList,

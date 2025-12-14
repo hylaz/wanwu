@@ -282,7 +282,11 @@ export default {
     getOrgUser(orgId) {
       if (!orgId) return;
       var self = this;
-      getOrgUser({ knowledgeId: this.knowledgeId, orgId }).then(res => {
+      getOrgUser({
+        knowledgeId: this.knowledgeId,
+        orgId,
+        transfer: this.transferMode,
+      }).then(res => {
         if (res.code === 0) {
           var userList = res.data.userInfoList || [];
           var orgIdValue = res.data.orgId;

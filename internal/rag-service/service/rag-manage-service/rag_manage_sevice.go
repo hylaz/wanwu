@@ -36,7 +36,7 @@ type RagChatParams struct {
 	Threshold            float32               `json:"threshold"` // Score阈值
 	TopK                 int32                 `json:"topK"`
 	Stream               bool                  `json:"stream"`
-	Chichat              bool                  `json:"chichat"` // 当知识库召回结果为空时是否使用默认话术（兜底），默认为true
+	Chichat              bool                  `json:"chichat"` // 当知识库召回结果为空时是否使用默认话术（兜底），默认为false
 	RerankModelId        string                `json:"rerank_model_id"`
 	CustomModelInfo      *CustomModelInfo      `json:"custom_model_info"`
 	History              []*HistoryItem        `json:"history"`
@@ -193,7 +193,7 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 	// RAG属性参数
 	ragChatParams.Question = req.Question
 	ragChatParams.Stream = true
-	ragChatParams.Chichat = knowledgeConfig.ChiChat
+	ragChatParams.Chichat = false // 默认false，不开启闲聊
 	ragChatParams.History = make([]*HistoryItem, 0)
 	ragChatParams.RewriteQuery = true
 	ragChatParams.ReturnMeta = true

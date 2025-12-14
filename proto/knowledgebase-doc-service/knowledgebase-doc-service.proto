@@ -13,6 +13,8 @@ service KnowledgeBaseDocService {
   rpc GetDocDetail(GetDocDetailReq) returns (DocInfo) {}
   // 上传文档
   rpc ImportDoc(ImportDocReq) returns (google.protobuf.Empty) {}
+  // 更新文档导入配置
+  rpc UpdateDocImportConfig(UpdateDocImportConfigReq) returns (google.protobuf.Empty) {}
   // 导出文档
   rpc ExportDoc(ExportDocReq) returns (google.protobuf.Empty) {}
   // 更新文档状态
@@ -69,6 +71,7 @@ message GetDocDetailReq{
   string docId = 1;
   string userId = 2;
   string orgId = 3;
+  bool needConfig = 4;
 }
 
 message GetDocListResp {
@@ -97,6 +100,12 @@ message ImportDocReq {
   string ocrModelId = 8; //ocr模型id
   repeated string docPreprocess = 9;//文本预处理规则
   repeated DocMetaData docMetaDataList = 10; // 元数据列表
+}
+
+
+message UpdateDocImportConfigReq {
+  ImportDocReq importDocReq = 1; //配置信息
+  string docId = 2; //文档id
 }
 
 message ExportDocReq {
@@ -226,6 +235,15 @@ message DocInfo{
   string userId = 10;
   int32 graphStatus = 11;//0:待处理，1.解析中，2.解析成功，3.解析失败
   string graphErrMsg = 12;//错误信息
+  DocConfigInfo docConfigInfo = 13;//文档配置信息,只有detail接口参数needConfig为true才会返回
+}
+
+message DocConfigInfo {
+  int32 docImportType = 1;//文档导入类型，0：文件上传，1：url上传，2.批量url上传
+  DocSegment docSegment = 2; //分段信息配置
+  repeated string docAnalyzer = 3;//文档解析类型
+  string ocrModelId = 4; //ocr模型id
+  repeated string docPreprocess = 5;//文本预处理规则
 }
 
 message DocSegmentListReq{

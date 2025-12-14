@@ -50,3 +50,49 @@ func (c *Client) CreateConversation(ctx context.Context, userId, orgId, appId, a
 	}
 	return nil
 }
+
+func (c *Client) GetChatflowApplication(ctx context.Context, orgId, userId, workflowId string) (*model.ChatflowApplcation, *errs.Status) {
+	//如果记录不存在就返回空字符串
+	var chatflowApp model.ChatflowApplcation
+	err := sqlopt.SQLOptions(
+		sqlopt.WithUserID(userId),
+		sqlopt.WithWorkflowID(workflowId),
+	).Apply(c.db.WithContext(ctx)).First(&chatflowApp).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &model.ChatflowApplcation{}, nil
+		}
+		return nil, toErrStatus("chatflow_application_get", workflowId, err.Error())
+	}
+	return &chatflowApp, nil
+}
+
+func (c *Client) GetChatflowApplicationByApplicationID(ctx context.Context, orgId, userId, applicationId string) (*model.ChatflowApplcation, *errs.Status) {
+	//如果记录不存在就返回空字符串
+	var chatflowApp model.ChatflowApplcation
+	err := sqlopt.SQLOptions(
+		sqlopt.WithUserID(userId),
+		sqlopt.WithApplicationID(applicationId),
+	).Apply(c.db.WithContext(ctx)).First(&chatflowApp).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &model.ChatflowApplcation{}, nil
+		}
+		return nil, toErrStatus("chatflow_application_get_by_application_id", applicationId, err.Error())
+	}
+	return &chatflowApp, nil
+}
+
+func (c *Client) CreateChatflowApplication(ctx context.Context, orgId, userId, workflowId, applicationId string) *errs.Status {
+	//存储关联关系
+	chatflowApp := &model.ChatflowApplcation{
+		OrgID:         orgId,
+		UserID:        userId,
+		ApplicationID: applicationId,
+		WorkflowID:    workflowId,
+	}
+	if err := c.db.WithContext(ctx).Create(chatflowApp).Error; err != nil {
+		return toErrStatus("chatflow_application_create", workflowId, err.Error())
+	}
+	return nil
+}

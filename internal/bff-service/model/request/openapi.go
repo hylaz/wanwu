@@ -45,3 +45,12 @@ type OpenAPIChatflowChatRequest struct {
 func (req *OpenAPIChatflowChatRequest) Check() error {
 	return nil
 }
+
+type OpenAPIChatflowGetConversationMessageListRequest struct {
+	ConversationId string `json:"conversation_id" validate:"required"`
+	Limit          string `json:"limit"`
+}
+
+func (req *OpenAPIChatflowGetConversationMessageListRequest) Check() error {
+	return nil
+}

@@ -7,7 +7,7 @@
       @click="createMetaData"
       v-if="type !== 'create'"
     >
-      创建
+      {{ $t('common.button.add') }}
     </el-button>
     <div class="docMetaData" v-loading="loading">
       <div
@@ -15,13 +15,13 @@
         class="docItem"
         :key="'meta' + index"
       >
-        <div class="docItem_data">
+        <div class="docItem_data" style="width: 220px">
           <span class="docItem_data_label">
             <span class="label">Key:</span>
             <el-tooltip
               class="item"
               effect="dark"
-              content="只能包含小写字母、数字和下划线，并且必须以小写字母开头"
+              :content="$t('knowledgeManage.meta.keyTips')"
               placement="top-start"
             >
               <span
@@ -32,17 +32,21 @@
           </span>
           <template v-if="type === 'create'">
             <el-input
+              style="margin-left: 7px"
               v-if="item.showEdit"
               v-model="item.metaKey"
               @blur="metakeyBlur(item, index)"
             ></el-input>
-            <span v-else class="metaItemKey">{{ item.metaKey }}</span>
+            <span v-else class="metaItemKey">
+              {{ item.metaKey }}
+            </span>
           </template>
           <el-select
             v-else
             v-model="item.metaKey"
-            placeholder="请选择"
+            :placeholder="$t('common.select.placeholder')"
             @change="keyChange($event, item)"
+            style="width: 160px"
           >
             <el-option
               v-for="meta in keyOptions"
@@ -53,13 +57,14 @@
           </el-select>
         </div>
         <el-divider direction="vertical"></el-divider>
-        <div class="docItem_data">
+        <div class="docItem_data" style="width: 370px">
           <span class="docItem_data_label label">type:</span>
           <el-select
             v-if="type === 'create'"
             v-model="item.metaValueType"
-            placeholder="请选择"
+            :placeholder="$t('common.select.placeholder')"
             :disabled="Boolean(item.metaId)"
+            style="width: 160px"
           >
             <el-option
               v-for="item in typeOptions"
@@ -68,15 +73,53 @@
               :value="item.value"
             ></el-option>
           </el-select>
-          <span v-else class="metaValueType">[{{ item.metaValueType }}]</span>
+          <el-select
+            v-if="type !== 'create'"
+            v-model="item.metaValueType"
+            :placeholder="$t('common.select.placeholder')"
+            :disabled="!item.metaKey"
+            style="width: 300px"
+          >
+            <el-option
+              v-for="option in item.typeWithFolderOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            ></el-option>
+          </el-select>
+          <el-tooltip
+            class="item"
+            style="margin-left: 5px"
+            effect="dark"
+            :content="$t('knowledgeManage.meta.typeTips')"
+            placement="top-start"
+          >
+            <span
+              class="el-icon-question question"
+              v-if="type !== 'create'"
+            ></span>
+          </el-tooltip>
         </div>
         <el-divider direction="vertical" v-if="type !== 'create'"></el-divider>
-        <div class="docItem_data" v-if="type !== 'create'">
+        <div
+          class="docItem_data"
+          style="width: 500px"
+          v-if="type !== 'create' && isFolder(item.metaValueType)"
+        >
+          <span class="docItem_data_label label">
+            value: {{ $t('knowledgeManage.meta.autoDetect') }}
+          </span>
+        </div>
+        <div
+          class="docItem_data"
+          style="width: 500px"
+          v-if="type !== 'create' && !isFolder(item.metaValueType)"
+        >
           <span class="docItem_data_label label">value:</span>
           <el-select
             v-model="item.metadataType"
-            placeholder="请选择"
-            style="margin-right: 5px"
+            :placeholder="$t('common.select.placeholder')"
+            style="margin-right: 5px; width: 160px"
             @change="valueChange(item)"
           >
             <el-option
@@ -86,40 +129,43 @@
               :value="item.value"
             ></el-option>
           </el-select>
-          <el-input
-            v-model="item.metaValue"
-            v-if="
-              item.metadataType === 'value' && item.metaValueType === 'string'
-            "
-            @blur="metaValueBlur(item)"
-            placeholder="string"
-          ></el-input>
-          <el-input
-            v-model="item.metaValue"
-            v-if="
-              item.metadataType === 'value' && item.metaValueType === 'number'
-            "
-            @blur="metaValueBlur(item)"
-            type="number"
-            placeholder="number"
-          ></el-input>
-          <el-input
-            v-model="item.metaRule"
-            v-if="item.metadataType === 'regExp'"
-            @blur="metaRuleBlur(item)"
-            placeholder="regExp"
-          ></el-input>
-          <el-date-picker
-            v-if="
-              item.metaValueType === 'time' && item.metadataType === 'value'
-            "
-            v-model="item.metaValue"
-            align="right"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="timestamp"
-            type="datetime"
-            placeholder="选择日期时间"
-          ></el-date-picker>
+          <span style="width: 100%">
+            <el-input
+              v-model="item.metaValue"
+              v-if="
+                item.metadataType === 'value' && item.metaValueType === 'string'
+              "
+              @blur="metaValueBlur(item)"
+              placeholder="string"
+            ></el-input>
+            <el-input
+              v-model="item.metaValue"
+              v-if="
+                item.metadataType === 'value' && item.metaValueType === 'number'
+              "
+              @blur="metaValueBlur(item)"
+              type="number"
+              placeholder="number"
+            ></el-input>
+            <el-input
+              v-model="item.metaRule"
+              v-if="item.metadataType === 'regExp'"
+              @blur="metaRuleBlur(item)"
+              placeholder="regExp"
+            ></el-input>
+            <el-date-picker
+              style="width: 100%"
+              v-if="
+                item.metaValueType === 'time' && item.metadataType === 'value'
+              "
+              v-model="item.metaValue"
+              align="right"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="timestamp"
+              type="datetime"
+              :placeholder="$t('common.datePicker.placeholder')"
+            ></el-date-picker>
+          </span>
         </div>
         <el-divider direction="vertical" v-if="type !== 'create'"></el-divider>
         <div class="docItem_data docItem_data_btn">
@@ -141,7 +187,7 @@
 import { metaSelect, updateDocMeta } from '@/api/knowledge';
 
 export default {
-  props: ['metaData', 'type', 'knowledgeId'],
+  props: ['metaData', 'type', 'knowledgeId', 'withCompressed'],
   watch: {
     metaData: {
       handler(val) {
@@ -168,7 +214,7 @@ export default {
         }));
 
         this.debounceTimer = setTimeout(() => {
-          this.$emit('updateMeata', payload);
+          this.$emit('updateMeta', payload);
         }, 500);
       },
       deep: true,
@@ -194,14 +240,56 @@ export default {
           value: 'time',
         },
       ],
+      folderOptions: [
+        {
+          label: this.$t('knowledgeManage.meta.folder1'),
+          value: 'dir_1',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder2'),
+          value: 'dir_2',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder3'),
+          value: 'dir_3',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder4'),
+          value: 'dir_4',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder5'),
+          value: 'dir_5',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder6'),
+          value: 'dir_6',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder7'),
+          value: 'dir_7',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder8'),
+          value: 'dir_8',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder9'),
+          value: 'dir_9',
+        },
+        {
+          label: this.$t('knowledgeManage.meta.folder10'),
+          value: 'dir_10',
+        },
+      ],
       valueOptions: [
         {
           value: 'value',
-          label: '确认值',
+          label: this.$t('knowledgeManage.meta.value'),
         },
         {
           value: 'regExp',
-          label: '正则表达式',
+          label: this.$t('knowledgeManage.meta.regExp'),
         },
       ],
       keyOptions: [],
@@ -211,6 +299,13 @@ export default {
     this.getList();
   },
   methods: {
+    isFolder(metaValueType) {
+      return (
+        metaValueType !== 'string' &&
+        metaValueType !== 'time' &&
+        metaValueType !== 'number'
+      );
+    },
     getList() {
       this.loading = true;
       metaSelect({ knowledgeId: this.knowledgeId })
@@ -241,6 +336,12 @@ export default {
         ? this.keyOptions.find(i => i.metaKey === val)
         : null;
       item.metaValueType = opt ? opt.metaValueType : '';
+      item.typeWithFolderOptions = [
+        this.typeOptions.find(item => item.value === opt.metaValueType),
+        ...(opt.metaValueType === 'string' && this.withCompressed
+          ? this.folderOptions
+          : []),
+      ];
     },
     createMetaData() {
       if (this.type === 'create' && this.docMetaData.length > 0) {
@@ -249,7 +350,7 @@ export default {
             item => item.metaKey === '' || item.metaValueType === '',
           )
         ) {
-          this.$message.error('元数据管理存在未填写的必填字段');
+          this.$message.error(this.$t('knowledgeManage.metadataRequired'));
           return;
         }
       } else {
@@ -270,6 +371,7 @@ export default {
         showEdit: true,
         metadataType: 'value',
         option: 'add',
+        typeWithFolderOptions: this.typeOptions,
       });
     },
     validateMetaData() {
@@ -285,7 +387,7 @@ export default {
         return isMetaKeyEmpty || isMetaRuleEmpty;
       });
       if (hasEmptyField) {
-        this.$message.error('元数据管理存在未填写的必填字段');
+        this.$message.error(this.$t('knowledgeManage.metadataRequired'));
         return false;
       }
       return true;
@@ -316,7 +418,7 @@ export default {
       };
       updateDocMeta(data).then(res => {
         if (res.code === 0) {
-          this.$message.success('操作成功');
+          this.$message.success(this.$t('common.message.success'));
           this.getList();
         }
       });
@@ -332,17 +434,17 @@ export default {
         typeof item.metaKey !== 'string' ||
         item.metaKey.trim() === ''
       ) {
-        this.$message.warning('请输入key值');
+        this.$message.warning(this.$t('knowledgeManage.meta.keyRequired'));
         return;
       }
       if (!regex.test(item.metaKey)) {
-        this.$message.warning('请输入符合标准的key值');
+        this.$message.warning(this.$t('knowledgeManage.meta.keyWrong'));
         item.metaKey = '';
         return;
       }
 
       if (this.isFound()) {
-        this.$message.warning('存在相同key值');
+        this.$message.warning(this.$t('knowledgeManage.meta.keySame'));
         item.metaKey = '';
         return;
       }
@@ -356,17 +458,17 @@ export default {
     },
     metaValueBlur(item) {
       if (!item.metaValue) {
-        this.$message.warning('请输入value值');
+        this.$message.warning(this.$t('knowledgeManage.meta.valueRequired'));
         return;
       }
     },
     metaRuleBlur(item) {
       if (!item.metaRule) {
-        this.showWarning('请输入正则值', item);
+        this.showWarning(this.$t('knowledgeManage.meta.regExpRequired'), item);
         return;
       }
       if (!this.isValidRegex(item.metaRule)) {
-        this.showWarning('请输入合法正则值', item);
+        this.showWarning(this.$t('knowledgeManage.meta.regExpWrong'), item);
         item.metaRule = '';
         return;
       }
@@ -404,8 +506,7 @@ export default {
     align-items: center;
     border-radius: 8px;
     background: #f7f8fa;
-
-    width: fit-content;
+    width: 100%;
 
     .docItem_data {
       display: flex;
@@ -413,7 +514,7 @@ export default {
       padding: 5px 10px;
 
       .metaItemKey {
-        padding: 0 15px;
+        margin-left: 15px;
       }
 
       .el-input,
@@ -453,6 +554,7 @@ export default {
     .docItem_data_btn {
       display: flex;
       justify-content: center;
+      flex-shrink: 0;
 
       .el-icon-delete {
         margin-left: 5px;

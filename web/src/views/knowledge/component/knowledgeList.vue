@@ -243,7 +243,7 @@ export default {
         return;
       }
       this.$nextTick(() => {
-        this.$refs.tagDialog.showDiaglog(id);
+        this.$refs.tagDialog.showDialog(id);
       });
     },
     showCreate() {

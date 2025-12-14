@@ -94,7 +94,7 @@ func WorkflowUploadFileByBase64(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	resp, err := service.UploadFileBase64ToWorkflow(ctx, req.FileName, req.File)
+	resp, err := service.UploadFileBase64ToWorkflow(ctx, &req)
 	gin_util.Response(ctx, resp, err)
 }
 

@@ -407,8 +407,8 @@
       :limitMaxTokens="limitMaxTokens"
     />
     <!-- 选择工具类型 -->
-    <ToolDiaglog
-      ref="toolDiaglog"
+    <ToolDialog
+      ref="toolDialog"
       @updateDetail="updateDetail"
       :assistantId="editForm.assistantId"
     />
@@ -479,7 +479,7 @@ import {
   delCustomBuiltIn,
   switchCustomBuiltIn,
 } from '@/api/agent';
-import ToolDiaglog from './toolDialog';
+import ToolDialog from './toolDialog';
 import ToolDeatail from './toolDetail';
 import { readWorkFlow } from '@/api/workflow';
 import Chat from './chat';
@@ -494,7 +494,7 @@ export default {
     Chat,
     CreateIntelligent,
     ModelSet,
-    ToolDiaglog,
+    ToolDialog,
     setSafety,
     visualSet,
     metaSet,
@@ -746,7 +746,7 @@ export default {
       this.editForm.instructions = prompt;
     },
     handleBuiltin(n) {
-      this.$refs.toolDeatail.showDiaglog(n);
+      this.$refs.toolDeatail.showDialog(n);
     },
     showVisualSet() {
       this.$refs.visualSet.showDialog(this.editForm.visionConfig);
@@ -769,7 +769,7 @@ export default {
         this.limitMaxTokens = maxTokens && maxTokens > 0 ? maxTokens : 4096;
       } else {
         this.editForm.modelParams = '';
-        this.$message.warning(this.$t('agent.form.modelNotSupport'));
+        if (val) this.$message.warning(this.$t('agent.form.modelNotSupport'));
       }
     },
     submitMeta() {
@@ -894,7 +894,7 @@ export default {
         workFlowInfos: this.workFlowInfos,
         customInfos: this.actionInfos,
       };
-      this.$refs.toolDiaglog.showDialog(data);
+      this.$refs.toolDialog.showDialog(data);
     },
     rerankVisible(val) {
       if (val) {

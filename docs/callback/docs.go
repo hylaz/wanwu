@@ -2720,6 +2720,14 @@ const docTemplate = `{
                 "fileUrl"
             ],
             "properties": {
+                "addPrefix": {
+                    "description": "是否添加 data:xxx;base64, 前缀",
+                    "type": "boolean"
+                },
+                "customPrefix": {
+                    "description": "自定义前缀（如 \"data:video/mp4;base64,\"）",
+                    "type": "string"
+                },
                 "fileUrl": {
                     "description": "文件URL",
                     "type": "string"
@@ -2802,7 +2810,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "chichat": {
-                    "description": "当知识库召回结果为空时是否使用默认话术（兜底），默认为true",
+                    "description": "当知识库召回结果为空时是否使用默认话术（兜底），默认为false",
                     "type": "boolean"
                 },
                 "custom_model_info": {
@@ -3104,12 +3112,15 @@ const docTemplate = `{
         "request.WorkflowUploadFileByBase64Req": {
             "type": "object",
             "required": [
-                "file",
-                "fileName"
+                "file"
             ],
             "properties": {
                 "file": {
                     "description": "base64格式",
+                    "type": "string"
+                },
+                "fileExt": {
+                    "description": "文件后缀名，如 \"png\", \"pdf\"",
                     "type": "string"
                 },
                 "fileName": {

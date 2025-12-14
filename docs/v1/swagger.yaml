@@ -862,9 +862,6 @@ definitions:
     type: object
   request.AppKnowledgebaseParams:
     properties:
-      chiChat:
-        description: 闲聊开关
-        type: boolean
       keywordPriority:
         description: 关键词权重
         type: number
@@ -1403,6 +1400,23 @@ definitions:
     required:
     - question
     - ragId
+    type: object
+  request.ChatflowApplicationInfoReq:
+    properties:
+      intelligence_id:
+        type: string
+      intelligence_type:
+        type: integer
+    required:
+    - intelligence_id
+    - intelligence_type
+    type: object
+  request.ChatflowApplicationListReq:
+    properties:
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
     type: object
   request.CheckFileListReq:
     properties:
@@ -1951,6 +1965,45 @@ definitions:
         type: string
     required:
     - tableId
+    type: object
+  request.DocConfigUpdateReq:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型 text / ocr  / model
+        items:
+          type: string
+        type: array
+      docId:
+        description: 文档id，当更新配置时需要传
+        type: string
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
+        type: integer
+      docMetaData:
+        description: 元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+      docPreprocess:
+        description: 文本预处理规则 replaceSymbols / deleteLinks
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/request.DocSegment'
+        description: 文档分段配置
+      knowledgeId:
+        description: 知识库id
+        type: string
+      parserModelId:
+        description: 模型解析或ocr模型id
+        type: string
+    required:
+    - docAnalyzer
+    - docId
+    - docSegment
+    - knowledgeId
     type: object
   request.DocImportReq:
     properties:
@@ -3824,6 +3877,147 @@ definitions:
       title:
         type: string
     type: object
+  response.CozeConnectorInfo:
+    properties:
+      connector_status:
+        type: integer
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      share_link:
+        type: string
+    type: object
+  response.CozeDraftIntelligenceListData:
+    properties:
+      has_more:
+        type: boolean
+      intelligences:
+        items:
+          $ref: '#/definitions/response.CozeIntelligenceData'
+        type: array
+      next_cursor_id:
+        type: string
+      total:
+        type: integer
+    type: object
+  response.CozeFavoriteInfo:
+    properties:
+      fav_time:
+        type: string
+      is_fav:
+        type: boolean
+    type: object
+  response.CozeGetDraftIntelligenceInfoData:
+    properties:
+      basic_info:
+        $ref: '#/definitions/response.CozeIntelligenceBasicInfo'
+      intelligence_type:
+        type: integer
+      owner_info:
+        $ref: '#/definitions/response.CozeUser'
+      publish_info:
+        $ref: '#/definitions/response.CozeIntelligencePublishInfo'
+    type: object
+  response.CozeIntelligenceBasicInfo:
+    properties:
+      create_time:
+        example: "0"
+        type: string
+      description:
+        type: string
+      enterprise_id:
+        type: string
+      icon_uri:
+        type: string
+      icon_url:
+        type: string
+      id:
+        example: "0"
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: integer
+      owner_id:
+        example: "0"
+        type: string
+      publish_time:
+        example: "0"
+        type: string
+      space_id:
+        example: "0"
+        type: string
+      status:
+        type: integer
+      update_time:
+        example: "0"
+        type: string
+    type: object
+  response.CozeIntelligenceData:
+    properties:
+      basic_info:
+        $ref: '#/definitions/response.CozeIntelligenceBasicInfo'
+      favorite_info:
+        $ref: '#/definitions/response.CozeFavoriteInfo'
+      owner_info:
+        $ref: '#/definitions/response.CozeUser'
+      permission_info:
+        $ref: '#/definitions/response.CozeIntelligencePermissionInfo'
+      publish_info:
+        $ref: '#/definitions/response.CozeIntelligencePublishInfo'
+      type:
+        type: integer
+    type: object
+  response.CozeIntelligencePermissionInfo:
+    properties:
+      can_delete:
+        type: boolean
+      can_view:
+        type: boolean
+      in_collaboration:
+        type: boolean
+    type: object
+  response.CozeIntelligencePublishInfo:
+    properties:
+      connectors:
+        items:
+          $ref: '#/definitions/response.CozeConnectorInfo'
+        type: array
+      has_published:
+        type: boolean
+      publish_time:
+        type: string
+    type: object
+  response.CozeUser:
+    properties:
+      avatar_url:
+        type: string
+      nickname:
+        type: string
+      user_id:
+        example: "0"
+        type: string
+      user_label:
+        $ref: '#/definitions/response.CozeUserLabel'
+      user_unique_name:
+        type: string
+    type: object
+  response.CozeUserLabel:
+    properties:
+      icon_uri:
+        type: string
+      icon_url:
+        type: string
+      jump_link:
+        type: string
+      label_id:
+        type: string
+      label_name:
+        type: string
+    type: object
   response.CozeWorkflowIDData:
     properties:
       workflow_id:
@@ -4118,6 +4312,29 @@ definitions:
           $ref: '#/definitions/response.ChildSegmentInfo'
         type: array
     type: object
+  response.DocConfigResult:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型
+        items:
+          type: string
+        type: array
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：url上传，2.批量url上传
+        type: integer
+      docPreprocess:
+        description: 文本预处理规则
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/response.DocSegment'
+        description: 分段信息配置
+      parserModelId:
+        description: ocr模型id
+        type: string
+    type: object
   response.DocKnowledgeInfo:
     properties:
       graphSwitch:
@@ -4204,6 +4421,36 @@ definitions:
       title:
         description: 文档名
         type: string
+    type: object
+  response.DocSegment:
+    properties:
+      maxSplitter:
+        description: 可分隔最大值（只有自定义分段必填）
+        type: integer
+      overlap:
+        description: 可重叠值（只有自定义分段必填）
+        type: number
+      segmentMethod:
+        description: 分段方法 0：通用分段；1：父子分段
+        type: string
+      segmentType:
+        description: 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
+        type: string
+      splitter:
+        description: 分隔符（只有自定义分段必填）
+        items:
+          type: string
+        type: array
+      subMaxSplitter:
+        description: 可分隔最大值（只有父子分段必填）
+        type: integer
+      subSplitter:
+        description: 分隔符（只有父子分段必填）
+        items:
+          type: string
+        type: array
+    required:
+    - segmentMethod
     type: object
   response.DocSegmentResp:
     properties:
@@ -7722,6 +7969,64 @@ paths:
       summary: 邮箱注册验证码发送
       tags:
       - guest
+  /chatflow/application/info:
+    post:
+      consumes:
+      - application/json
+      description: 应用广场对话流关联应用信息
+      parameters:
+      - description: 关联智能体请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChatflowApplicationInfoReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeGetDraftIntelligenceInfoData'
+              type: object
+      security:
+      - JWT: []
+      summary: 应用广场对话流关联应用信息
+      tags:
+      - chatflow
+  /chatflow/application/list:
+    post:
+      consumes:
+      - application/json
+      description: 应用广场对话流关联应用
+      parameters:
+      - description: 关联智能体请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChatflowApplicationListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeDraftIntelligenceListData'
+              type: object
+      security:
+      - JWT: []
+      summary: 应用广场对话流关联应用
+      tags:
+      - chatflow
   /custom/home:
     post:
       consumes:
@@ -8224,6 +8529,37 @@ paths:
       summary: 删除文档
       tags:
       - knowledge.doc
+  /knowledge/doc/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取文档配置信息
+      parameters:
+      - in: query
+        name: docId
+        required: true
+        type: string
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocConfigResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取文档配置信息
+      tags:
+      - knowledge.doc
   /knowledge/doc/export:
     post:
       consumes:
@@ -8667,6 +9003,30 @@ paths:
       summary: 更新文档切片
       tags:
       - knowledge.doc
+  /knowledge/doc/update/config:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档配置
+      parameters:
+      - description: 文更新文档配置请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DocConfigUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档配置
+      tags:
+      - knowledge.doc
   /knowledge/doc/url/analysis:
     post:
       consumes:
@@ -9022,6 +9382,9 @@ paths:
         name: knowledgeId
         required: true
         type: string
+      - in: query
+        name: transfer
+        type: boolean
       produces:
       - application/json
       responses:

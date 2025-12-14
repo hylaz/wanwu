@@ -1401,7 +1401,7 @@ func HttpRequestLlmStream(ctx context.Context, url, userId, xuid string, body io
 		return nil, err
 	}
 
-	log.Infof("HttpRequestLlmStream收到HTTP响应，url: %s, userId: %s, statusCode: %d, responseHeaders: %+v",
+	log.Debugf("HttpRequestLlmStream收到HTTP响应，url: %s, userId: %s, statusCode: %d, responseHeaders: %+v",
 		url, userId, response.StatusCode, response.Header)
 
 	return response, err

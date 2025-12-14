@@ -85,6 +85,27 @@ func CreateKnowledgeImportTask(ctx context.Context, importTask *model.KnowledgeI
 	})
 }
 
+// CreateKnowledgeReImportTask 导入任务
+func CreateKnowledgeReImportTask(ctx context.Context, importTask *model.KnowledgeImportTask, knowledgeDoc *model.KnowledgeDoc) error {
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		//1.创建知识库导入任务
+		err := createKnowledgeImportTask(tx, importTask)
+		if err != nil {
+			return err
+		}
+		//2.更新文档导入任务id
+		err = UpdateDocInfo(tx, knowledgeDoc.DocId, -1, "", importTask.ImportId)
+		if err != nil {
+			return err
+		}
+		//3.通知rag更新知识库
+		return async_task.SubmitTask(ctx, async_task.DocReImportTaskType, &async_task.DocReImportTaskParams{
+			TaskId: importTask.ImportId,
+			DocId:  knowledgeDoc.DocId,
+		})
+	})
+}
+
 // UpdateKnowledgeImportTaskStatus 更新导入任务状态
 func UpdateKnowledgeImportTaskStatus(ctx context.Context, tx *gorm.DB, id uint32, status int, errMsg string) error {
 	if tx == nil {

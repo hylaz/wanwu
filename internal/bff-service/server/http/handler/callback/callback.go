@@ -29,7 +29,7 @@ func FileUrlConvertBase64(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	resp, err := service.FileUrlConvertBase64(ctx, req.FileUrl)
+	resp, err := service.FileUrlConvertBase64(ctx, &req)
 	gin_util.Response(ctx, resp, err)
 }
 

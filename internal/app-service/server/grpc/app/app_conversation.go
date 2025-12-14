@@ -25,6 +25,43 @@ func (s *Service) CreateConversation(ctx context.Context, req *app_service.Creat
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) GetChatflowApplication(ctx context.Context, req *app_service.GetChatflowApplicationReq) (*app_service.ChatflowApplicationInfo, error) {
+	ret, err := s.cli.GetChatflowApplication(ctx, req.OrgId, req.UserId, req.WorkflowId)
+	if err != nil {
+		return nil, errStatus(errs.Code_AppConversation, err)
+	}
+	return &app_service.ChatflowApplicationInfo{
+		ApplicationId: ret.ApplicationID,
+		UserId:        ret.UserID,
+		OrgId:         ret.OrgID,
+		CreatedAt:     ret.CreatedAt,
+		UpdatedAt:     ret.UpdatedAt,
+	}, nil
+}
+
+func (s *Service) GetChatflowByApplicationID(ctx context.Context, req *app_service.GetChatflowByApplicationIDReq) (*app_service.ChatflowApplicationInfo, error) {
+	ret, err := s.cli.GetChatflowApplicationByApplicationID(ctx, req.OrgId, req.UserId, req.ApplicationId)
+	if err != nil {
+		return nil, errStatus(errs.Code_AppConversation, err)
+	}
+	return &app_service.ChatflowApplicationInfo{
+		WorkflowId: ret.WorkflowID,
+		UserId:     ret.UserID,
+		OrgId:      ret.OrgID,
+		CreatedAt:  ret.CreatedAt,
+		UpdatedAt:  ret.UpdatedAt,
+	}, nil
+}
+
+func (s *Service) CreateChatflowApplication(ctx context.Context, req *app_service.CreateChatflowApplicationReq) (*emptypb.Empty, error) {
+	err := s.cli.CreateChatflowApplication(ctx, req.OrgId, req.UserId, req.WorkflowId, req.ApplicationId)
+	if err != nil {
+		return nil, errStatus(errs.Code_AppConversation, err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// --- internal ---
 func toProtoConversation(record *model.AppConversation) *app_service.ConversationInfo {
 	return &app_service.ConversationInfo{
 		ConversationId:   record.ConversationID,

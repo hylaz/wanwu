@@ -40,6 +40,9 @@ const (
 	AppService_AppUrlStatusSwitch_FullMethodName           = "/app_service.AppService/AppUrlStatusSwitch"
 	AppService_GetConversationByID_FullMethodName          = "/app_service.AppService/GetConversationByID"
 	AppService_CreateConversation_FullMethodName           = "/app_service.AppService/CreateConversation"
+	AppService_GetChatflowApplication_FullMethodName       = "/app_service.AppService/GetChatflowApplication"
+	AppService_GetChatflowByApplicationID_FullMethodName   = "/app_service.AppService/GetChatflowByApplicationID"
+	AppService_CreateChatflowApplication_FullMethodName    = "/app_service.AppService/CreateChatflowApplication"
 )
 
 // AppServiceClient is the client API for AppService service.
@@ -71,6 +74,10 @@ type AppServiceClient interface {
 	// --- conversation ---
 	GetConversationByID(ctx context.Context, in *GetConversationByIDReq, opts ...grpc.CallOption) (*ConversationInfo, error)
 	CreateConversation(ctx context.Context, in *CreateConversationReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- chatflowApplication ---
+	GetChatflowApplication(ctx context.Context, in *GetChatflowApplicationReq, opts ...grpc.CallOption) (*ChatflowApplicationInfo, error)
+	GetChatflowByApplicationID(ctx context.Context, in *GetChatflowByApplicationIDReq, opts ...grpc.CallOption) (*ChatflowApplicationInfo, error)
+	CreateChatflowApplication(ctx context.Context, in *CreateChatflowApplicationReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type appServiceClient struct {
@@ -281,6 +288,36 @@ func (c *appServiceClient) CreateConversation(ctx context.Context, in *CreateCon
 	return out, nil
 }
 
+func (c *appServiceClient) GetChatflowApplication(ctx context.Context, in *GetChatflowApplicationReq, opts ...grpc.CallOption) (*ChatflowApplicationInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChatflowApplicationInfo)
+	err := c.cc.Invoke(ctx, AppService_GetChatflowApplication_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) GetChatflowByApplicationID(ctx context.Context, in *GetChatflowByApplicationIDReq, opts ...grpc.CallOption) (*ChatflowApplicationInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChatflowApplicationInfo)
+	err := c.cc.Invoke(ctx, AppService_GetChatflowByApplicationID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appServiceClient) CreateChatflowApplication(ctx context.Context, in *CreateChatflowApplicationReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_CreateChatflowApplication_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServiceServer is the server API for AppService service.
 // All implementations must embed UnimplementedAppServiceServer
 // for forward compatibility.
@@ -310,6 +347,10 @@ type AppServiceServer interface {
 	// --- conversation ---
 	GetConversationByID(context.Context, *GetConversationByIDReq) (*ConversationInfo, error)
 	CreateConversation(context.Context, *CreateConversationReq) (*emptypb.Empty, error)
+	// --- chatflowApplication ---
+	GetChatflowApplication(context.Context, *GetChatflowApplicationReq) (*ChatflowApplicationInfo, error)
+	GetChatflowByApplicationID(context.Context, *GetChatflowByApplicationIDReq) (*ChatflowApplicationInfo, error)
+	CreateChatflowApplication(context.Context, *CreateChatflowApplicationReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAppServiceServer()
 }
 
@@ -379,6 +420,15 @@ func (UnimplementedAppServiceServer) GetConversationByID(context.Context, *GetCo
 }
 func (UnimplementedAppServiceServer) CreateConversation(context.Context, *CreateConversationReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateConversation not implemented")
+}
+func (UnimplementedAppServiceServer) GetChatflowApplication(context.Context, *GetChatflowApplicationReq) (*ChatflowApplicationInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChatflowApplication not implemented")
+}
+func (UnimplementedAppServiceServer) GetChatflowByApplicationID(context.Context, *GetChatflowByApplicationIDReq) (*ChatflowApplicationInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChatflowByApplicationID not implemented")
+}
+func (UnimplementedAppServiceServer) CreateChatflowApplication(context.Context, *CreateChatflowApplicationReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateChatflowApplication not implemented")
 }
 func (UnimplementedAppServiceServer) mustEmbedUnimplementedAppServiceServer() {}
 func (UnimplementedAppServiceServer) testEmbeddedByValue()                    {}
@@ -761,6 +811,60 @@ func _AppService_CreateConversation_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AppService_GetChatflowApplication_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChatflowApplicationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).GetChatflowApplication(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_GetChatflowApplication_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).GetChatflowApplication(ctx, req.(*GetChatflowApplicationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_GetChatflowByApplicationID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChatflowByApplicationIDReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).GetChatflowByApplicationID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_GetChatflowByApplicationID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).GetChatflowByApplicationID(ctx, req.(*GetChatflowByApplicationIDReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AppService_CreateChatflowApplication_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateChatflowApplicationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).CreateChatflowApplication(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_CreateChatflowApplication_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).CreateChatflowApplication(ctx, req.(*CreateChatflowApplicationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AppService_ServiceDesc is the grpc.ServiceDesc for AppService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -847,6 +951,18 @@ var AppService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateConversation",
 			Handler:    _AppService_CreateConversation_Handler,
+		},
+		{
+			MethodName: "GetChatflowApplication",
+			Handler:    _AppService_GetChatflowApplication_Handler,
+		},
+		{
+			MethodName: "GetChatflowByApplicationID",
+			Handler:    _AppService_GetChatflowByApplicationID_Handler,
+		},
+		{
+			MethodName: "CreateChatflowApplication",
+			Handler:    _AppService_CreateChatflowApplication_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -8,6 +8,24 @@ type DocPageResult struct {
 	DocKnowledgeInfo *DocKnowledgeInfo `json:"docKnowledgeInfo"`
 }
 
+type DocConfigResult struct {
+	DocImportType int32       `json:"docImportType"` //文档导入类型，0：文件上传，1：url上传，2.批量url上传
+	DocSegment    *DocSegment `json:"docSegment"`    //分段信息配置
+	DocAnalyzer   []string    `json:"docAnalyzer"`   //文档解析类型
+	ParserModelId string      `json:"parserModelId"` //ocr模型id
+	DocPreprocess []string    `json:"docPreprocess"` //文本预处理规则
+}
+
+type DocSegment struct {
+	SegmentMethod  string   `json:"segmentMethod" validate:"required"` // 分段方法 0：通用分段；1：父子分段
+	SegmentType    string   `json:"segmentType"`                       // 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
+	Splitter       []string `json:"splitter,omitempty"`                // 分隔符（只有自定义分段必填）
+	MaxSplitter    *int     `json:"maxSplitter,omitempty"`             // 可分隔最大值（只有自定义分段必填）
+	Overlap        *float32 `json:"overlap,omitempty"`                 // 可重叠值（只有自定义分段必填）
+	SubSplitter    []string `json:"subSplitter,omitempty"`             // 分隔符（只有父子分段必填）
+	SubMaxSplitter *int     `json:"subMaxSplitter,omitempty"`          // 可分隔最大值（只有父子分段必填）
+}
+
 type DocKnowledgeInfo struct {
 	KnowledgeId     string `json:"knowledgeId"`
 	KnowledgeName   string `json:"knowledgeName"`

@@ -128,6 +128,17 @@ func (n *OrgNode) GetOrgID() uint32 {
 	return n.id
 }
 
+func (n *OrgNode) GetFirstClassOrg() *OrgNode {
+	if n == nil {
+		return nil
+	}
+	curr := n
+	for curr.parent != nil && curr.parent.parent != nil {
+		curr = curr.parent
+	}
+	return curr
+}
+
 // --- internal ---
 
 func (n *OrgNode) sel(orgIDs, roleIDs []uint32, list *[]idName) {

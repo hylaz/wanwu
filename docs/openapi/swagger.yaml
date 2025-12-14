@@ -72,6 +72,15 @@ definitions:
       conversation_name:
         type: string
     type: object
+  request.OpenAPIChatflowGetConversationMessageListRequest:
+    properties:
+      conversation_id:
+        type: string
+      limit:
+        type: string
+    required:
+    - conversation_id
+    type: object
   request.OpenAPIRagChatRequest:
     properties:
       history:
@@ -246,6 +255,19 @@ definitions:
       conversation_id:
         type: string
     type: object
+  response.OpenAPIChatflowGetConversationMessageListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.OpenMessageApi'
+        type: array
+      first_id:
+        type: integer
+      has_more:
+        type: boolean
+      last_id:
+        type: integer
+    type: object
   response.OpenAPIRagChatData:
     properties:
       output:
@@ -271,6 +293,41 @@ definitions:
         type: string
       msg_id:
         type: string
+    type: object
+  response.OpenMessageApi:
+    properties:
+      bot_id:
+        example: "0"
+        type: string
+      chat_id:
+        example: "0"
+        type: string
+      content:
+        type: string
+      content_type:
+        type: string
+      conversation_id:
+        example: "0"
+        type: string
+      created_at:
+        type: integer
+      id:
+        example: "0"
+        type: string
+      meta_data:
+        additionalProperties:
+          type: string
+        type: object
+      reasoning_content:
+        type: string
+      role:
+        type: string
+      section_id:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: integer
     type: object
   response.Response:
     properties:
@@ -398,6 +455,32 @@ paths:
                   $ref: '#/definitions/response.OpenAPIChatflowCreateConversationResponse'
               type: object
       summary: 对话流创建对话OpenAPI
+      tags:
+      - openapi
+  /chatflow/conversation/message/list:
+    post:
+      consumes:
+      - application/json
+      description: 对话流根据conversationId获取历史对话
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/request.OpenAPIChatflowGetConversationMessageListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.OpenAPIChatflowGetConversationMessageListResponse'
+              type: object
+      summary: 对话流根据conversationId获取历史对话
       tags:
       - openapi
   /mcp/server/message:

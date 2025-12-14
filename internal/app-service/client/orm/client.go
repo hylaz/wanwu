@@ -21,6 +21,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.SensitiveWordTable{},
 		model.SensitiveWordVocabulary{},
 		model.AppUrl{},
+		model.ChatflowApplcation{},
 	); err != nil {
 		return nil, err
 	}

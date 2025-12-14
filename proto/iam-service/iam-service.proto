@@ -50,6 +50,8 @@ service IAMService {
   rpc GetOrgByOrgIDs(GetOrgByOrgIDsReq) returns (GetOrgByOrgIDsResp) {}
   // 获取子组织信息
   rpc GetOrgAndSubOrgSelectByUser(GetOrgAndSubOrgSelectByUserReq) returns (GetOrgAndSubOrgSelectByUserResp) {}
+  // 获取组织树
+  rpc GetFirstClassOrgAndSubs(GetFirstClassOrgAndSubsReq) returns (GetFirstClassOrgAndSubsResp) {}
   // 创建组织
   rpc CreateOrg(CreateOrgReq) returns (IDName) {}
   // 编辑组织
@@ -285,6 +287,15 @@ message GetOrgAndSubOrgSelectByUserReq {
 
 message GetOrgAndSubOrgSelectByUserResp {
   repeated IDName orgs = 1;
+}
+
+message GetFirstClassOrgAndSubsReq {
+  string userId = 1;
+  string orgId = 2;
+}
+
+message GetFirstClassOrgAndSubsResp {
+ repeated IDName orgs = 1;
 }
 
 message GetOrgSelectReq {
