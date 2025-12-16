@@ -2897,7 +2897,7 @@ const docTemplate = `{
                 "summary": "应用广场对话流关联应用信息",
                 "parameters": [
                     {
-                        "description": "关联智能体请求参数",
+                        "description": "应用广场对话流关联应用信息参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -2948,7 +2948,7 @@ const docTemplate = `{
                 "summary": "应用广场对话流关联应用",
                 "parameters": [
                     {
-                        "description": "关联智能体请求参数",
+                        "description": "应用广场对话流关联应用参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -14871,7 +14871,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "docAnalyzer",
-                "docId",
+                "docIdList",
                 "docSegment",
                 "knowledgeId"
             ],
@@ -14883,9 +14883,12 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "docId": {
-                    "description": "文档id，当更新配置时需要传",
-                    "type": "string"
+                "docIdList": {
+                    "description": "文档id列表，当更新配置时需要传",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "docImportType": {
                     "description": "文档导入类型，0：文件上传，1：单条url上传，2.文件url上传",

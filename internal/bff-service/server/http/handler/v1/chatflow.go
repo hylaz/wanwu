@@ -120,7 +120,7 @@ func ChatflowConvert(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.ChatflowApplicationListReq	true	"关联智能体请求参数"
+//	@Param			data	body		request.ChatflowApplicationListReq	true	"应用广场对话流关联应用参数"
 //	@Success		200		{object}	response.Response{data=response.CozeDraftIntelligenceListData}
 //	@Router			/chatflow/application/list [post]
 func ChatflowApplicationList(ctx *gin.Context) {
@@ -140,7 +140,7 @@ func ChatflowApplicationList(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.ChatflowApplicationInfoReq	true	"关联智能体请求参数"
+//	@Param			data	body		request.ChatflowApplicationInfoReq	true	"应用广场对话流关联应用信息参数"
 //	@Success		200		{object}	response.Response{data=response.CozeGetDraftIntelligenceInfoData}
 //	@Router			/chatflow/application/info [post]
 func ChatflowApplicationInfo(ctx *gin.Context) {
