@@ -478,6 +478,7 @@ export default {
         });
     },
     setModelInfo(val) {
+      if (!val) return;
       const selectedModel = this.modleOptions.find(
         item => item.modelId === val,
       );

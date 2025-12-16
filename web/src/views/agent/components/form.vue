@@ -263,7 +263,10 @@
 
         <div class="block recommend-box tool-box">
           <p class="block-title tool-title">
-            <span>{{ $t('agent.form.tool') }}</span>
+            <span>
+              {{ $t('agent.form.tool') }} 
+              <span v-if="allTools.length">[{{allTools.length}}]</span>
+            </span>
             <span @click="addTool" class="common-add">
               <span class="el-icon-plus"></span>
               <span class="handleBtn">{{ $t('agent.add') }}</span>
@@ -758,6 +761,7 @@ export default {
       this.setModelInfo(val);
     },
     setModelInfo(val) {
+      if (!val) return;
       const selectedModel = this.modleOptions.find(
         item => item.modelId === val,
       );

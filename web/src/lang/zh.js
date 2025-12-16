@@ -1009,7 +1009,8 @@ export default {
       inputQuestion: '请输入问题',
       fileName: '文件名称',
       selectSearchType: '请选择检索方式',
-      selectRerankModel: '请选择Rerank模型',
+      selectRerankModel: '请选择关联知识库Rerank模型',
+      selectQaRerankModel: '请选择关联问答库Rerank模型',
       fillInMissingInfo: '存在未填信息,请补充',
     },
     docList: {
@@ -1369,6 +1370,7 @@ export default {
     fileTypeNotSupportedTips1: '部分文件类型不支持或超出数量限制，已自动忽略',
     fileTypeNotSupportedTips2: '部分文件类型不支持或体积过大，已自动忽略',
     answerOperationTip: '该内容由AI生成，内容仅供参考，请仔细甄别',
+    addWorkFlowTips: '工作流添加成功，默认自动使用最新版本',
     toolDetail: {
       modelLoadingText: '模型加载中...',
       selectRerank: '请选择rerank模型',
@@ -1379,6 +1381,18 @@ export default {
       required: '是否必填',
       yes: '是',
       no: '否',
+    },
+    toolDialog:{
+      tool: '工具',
+      addTool: '新增工具',
+      searchTool: '搜索工具',
+      add: '添加',
+      added: '已添加',
+      createAutoTool: '创建自定义工具',
+      importMcp: '导入MCP',
+      createWorkflow: '创建工作流',
+      errorApiKey: '该内置工具暂未绑定API Key，会导致调用失败!',
+      addSuccess: '工具添加成功',
     },
     agentDetail: {
       workFlowInstruction: '工作流配置说明',

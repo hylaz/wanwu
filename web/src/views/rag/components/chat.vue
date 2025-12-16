@@ -326,7 +326,7 @@ export default {
           check:
             this.editForm.qaKnowledgeBaseConfig.knowledgebases.length > 0 &&
             !qArerankModelId,
-          message: this.$t('knowledgeManage.hitTest.selectRerankModel'),
+          message: this.$t('knowledgeManage.hitTest.selectQaRerankModel'),
         },
       ];
       for (const condition of conditions) {
