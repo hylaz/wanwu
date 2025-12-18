@@ -72,6 +72,8 @@
 
 <script>
 import { getAppVersionList, rollbackAppVersion } from '@/api/appspace';
+import { exportWorkflow } from '@/api/workflow';
+
 export default {
   name: 'VersionPopover',
   props: {
@@ -137,7 +139,18 @@ export default {
       });
     },
     exportVersion(index) {
-      // TODO：导出版本
+      exportWorkflow(
+        { workflow_id: this.appId, version: this.versionList[index].version },
+        this.appType,
+      ).then(response => {
+        const blob = new Blob([response], { type: response.type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = row.name + '.json';
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      });
     },
   },
 };
