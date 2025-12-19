@@ -53,6 +53,8 @@
 {"code":110000,"key":"bff_file_upload_file_not_exist","langs":{"en":"the file does not exist, please try again later!","zh":"文件不存在，请稍后重试！(%v)"}}
 {"code":110000,"key":"bff_file_upload_file_open","langs":{"en":"file opening failed, please try again later!","zh":"文件打开失败，请稍后重试！(%v)"}}
 {"code":110000,"key":"bff_file_upload_not_empty","langs":{"en":"the file list cannot be empty","zh":"文件列表不能为空"}}
+{"code":110000,"key":"bff_file_upload_minio","langs":{"en":"the file list cannot be empty","zh":"文件上传minio失败：%v"}}
+{"code":110000,"key":"bff_file_upload_get_minio_path","langs":{"en":"the file list cannot be empty","zh":"获取上传文件路径失败：%v"}}
 {"code":0,"key":"------ appspace ------","langs":{}}
 {"code":110000,"key":"bff_model_params","langs":{"en":"model %v get app model config err: %v","zh":"模型(%v)获取应用模型配置错误: %v"}}
 {"code":110000,"key":"bff_model_config_string","langs":{"en":"model %v get app model config err: %v","zh":"模型(%v)获取应用模型配置错误: %v"}}
@@ -348,6 +350,7 @@
 {"code":150008,"key":"rag_chat_err","langs":{"zh":"问答错误：%v"}}
 {"code":150009,"key":"rag_list_by_ids_err","langs":{"zh":"id列表为空：%v"}}
 {"code":150010,"key":"rag_duplicate_name","langs":{"zh":"已存在同名文本问答"}}
+{"code":150011,"key":"rag_publish_err","langs":{"zh":"发布失败：%v"}}
 {"code":160001,"key":"assistant_create","langs":{"zh":"创建智能体错误: %v"}}
 {"code":160001,"key":"assistant_update","langs":{"zh":"更新智能体错误: %v"}}
 {"code":160001,"key":"assistant_delete","langs":{"zh":"删除智能体错误: %v"}}
@@ -409,6 +412,7 @@
 {"code":300002,"key":"app_publish_app_delete","langs":{"zh":"删除发布的App:%v错误:%v"}}
 {"code":300002,"key":"app_publish_app_exist","langs":{"zh":"发布应用(%v)已存在"}}
 {"code":300002,"key":"app_publish_apps_get","langs":{"zh":"获取发布应用列表错误:%v"}}
+{"code":300002,"key":"app_publish_app_get_by_id","langs":{"zh":"通过Id获取应用错误:%v"}}
 {"code":300002,"key":"app_publish_apps_get_by_ids","langs":{"zh":"通过Id列表获取应用列表错误:%v"}}
 {"code":300002,"key":"app_publish_status_query","langs":{"zh":"应用:%v发布状态查询错误:%v"}}
 {"code":300002,"key":"app_record_history_create","langs":{"zh":"应用:%v创建历史记录错误:%v"}}

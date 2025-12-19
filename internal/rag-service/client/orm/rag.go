@@ -373,7 +373,7 @@ func (c *Client) PublishRag(ctx context.Context, rag *model.RagPublish) *err_cod
 		// 查找是否已存在相同 ragID 和版本号的记录
 		if err := sqlopt.SQLOptions(sqlopt.WithRagID(rag.RagID), sqlopt.WithVersion(rag.Version)).
 			Apply(tx).First(&model.RagPublish{}).Error; err == nil {
-			return toErrStatus("rag_publish_err", "repeated version: "+rag.RagID+" "+rag.Version)
+			return toErrStatus("rag_publish_err", "repeated version: "+rag.Version)
 		}
 		if err := tx.Create(rag).Error; err != nil {
 			return toErrStatus("rag_publish_err", err.Error()) // todo

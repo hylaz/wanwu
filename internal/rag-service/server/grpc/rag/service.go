@@ -386,7 +386,8 @@ func (s *Service) PublishRag(ctx context.Context, req *rag_service.PublishRagReq
 	var ragInfo string
 	ragInfoBytes, errR := json.Marshal(draft)
 	if errR != nil {
-		return nil, grpc_util.ErrorStatusWithKey(errs.Code_RagCreateErr, "rag_publish_err", "marshal err:", errR.Error())
+		log.Errorf("marshal rag err: %s", errR.Error())
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_RagPublishErr, "rag_publish_err", "marshal err:", errR.Error())
 	}
 	ragInfo = string(ragInfoBytes)
 	//3.存入发布表
@@ -401,7 +402,7 @@ func (s *Service) PublishRag(ctx context.Context, req *rag_service.PublishRagReq
 		UpdatedAt:   time.Now().UnixMilli(),
 	})
 	if err != nil {
-		return nil, errStatus(errs.Code_RagCreateErr, err)
+		return nil, errStatus(errs.Code_RagPublishErr, err)
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -450,7 +451,7 @@ func (s *Service) OverwriteRagDraft(ctx context.Context, req *rag_service.Overwr
 	if rag.RagInfo != "" {
 		errU := json.Unmarshal([]byte(rag.RagInfo), ragInfo)
 		if errU != nil {
-			return nil, grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errU.Error())
+			return nil, grpc_util.ErrorStatusWithKey(errs.Code_RagUpdateErr, "rag_update_err", errU.Error())
 		}
 	}
 	//3.覆盖草稿

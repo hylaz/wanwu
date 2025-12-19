@@ -141,6 +141,7 @@ enum Code {
   RagChatErr = 150008; // rag流式传输问答错误
   RagListByIdsErr = 150009; // id列表为空
   RagDuplicateName = 150010; // 已存在同名文本问答
+  RagPublishErr = 150011; // 发布错误
 
   // --- assistant-service ---
   // [160000, 169999]

@@ -699,6 +699,9 @@ func buildKnowledgeTagMap(tagRelation *orm.TagRelation) map[string][]*orm.TagRel
 				})
 			}
 		}
+		if len(details) == 0 {
+			continue
+		}
 		knowledgeTagMap[relation.KnowledgeId] = details
 	}
 	return knowledgeTagMap
