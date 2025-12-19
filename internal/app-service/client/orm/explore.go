@@ -75,6 +75,9 @@ func (c *Client) GetExplorationAppList(ctx context.Context, userId, orgId, name,
 				PublishType: "",
 			}
 			for _, info := range apps {
+				if app.AppID == info.AppID && app.AppType == info.AppType {
+					appInfo.UserID = info.UserID
+				}
 				if app.AppID != info.AppID || app.AppType != info.AppType || !canAccessApp(info, userId, orgId) {
 					continue
 				}
@@ -110,6 +113,7 @@ func (c *Client) GetExplorationAppList(ctx context.Context, userId, orgId, name,
 		for _, historyApp := range historyApps {
 			var isValid bool
 			appInfo := &ExplorationAppInfo{
+				UserID:     "",
 				AppId:      historyApp.AppID,
 				AppType:    historyApp.AppType,
 				CreatedAt:  historyApp.CreatedAt,
@@ -123,6 +127,9 @@ func (c *Client) GetExplorationAppList(ctx context.Context, userId, orgId, name,
 				}
 			}
 			for _, info := range apps {
+				if historyApp.AppID == info.AppID && historyApp.AppType == info.AppType {
+					appInfo.UserID = info.UserID
+				}
 				if historyApp.AppID != info.AppID || historyApp.AppType != info.AppType || !canAccessApp(info, userId, orgId) {
 					continue
 				}

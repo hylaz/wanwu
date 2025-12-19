@@ -96,19 +96,27 @@ func GetWorkflowSelect(ctx *gin.Context, userId, orgId string, req request.GetEx
 	}
 	// 类型断言并合并
 	var combinedList []*response.ExplorationAppInfo
-
 	// 处理 wlist.List
 	if wlistSlice, ok := wlist.List.([]*response.ExplorationAppInfo); ok {
-		combinedList = append(combinedList, wlistSlice...)
+		for _, w := range wlistSlice {
+			if w.User.UserId == userId {
+				combinedList = append(combinedList, w)
+			}
+		}
 	}
 
 	// 处理 clist.List
 	if clistSlice, ok := clist.List.([]*response.ExplorationAppInfo); ok {
-		combinedList = append(combinedList, clistSlice...)
+		for _, c := range clistSlice {
+			if c.User.UserId == userId {
+				combinedList = append(combinedList, c)
+			}
+		}
 	}
+
 	return &response.ListResult{
 		List:  combinedList,
-		Total: wlist.Total + clist.Total,
+		Total: int64(len(combinedList)),
 	}, nil
 
 }
