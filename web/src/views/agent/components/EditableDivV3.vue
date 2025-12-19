@@ -179,7 +179,7 @@ export default {
       isPower: this.$platform === 'YWD_RAG' || this.$platform === 'HW_RAG',
       isLink: false,
       modelParams: null,
-      modleOptions: [],
+      modelOptions: [],
       colorArr: [
         '#dca3c2',
         '#aaa9db',
@@ -222,7 +222,7 @@ export default {
           this.modelParams = null;
           return;
         }
-        this.modleOptions.map(modelItem => {
+        this.modelOptions.map(modelItem => {
           if (
             modelItem.modelId == val.modelId &&
             modelItem.modelVersion == val.modelVersion
@@ -338,9 +338,9 @@ export default {
       getModelList({ modelType: '' })
         .then(res => {
           if (res.code === 0) {
-            this.modleOptions = res.data.list || [];
+            this.modelOptions = res.data.list || [];
             if (type === '') {
-              this.modelParams = this.modleOptions[0];
+              this.modelParams = this.modelOptions[0];
             }
             this.modelType =
               this.modelParams.modelSeries === 'deepseek'

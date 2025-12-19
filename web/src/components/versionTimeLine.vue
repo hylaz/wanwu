@@ -38,24 +38,23 @@
                   </div>
                   <div>
                     <strong>{{ $t('list.version.createdAt') }}:</strong>
-                    {{ item.created_at }}
+                    {{ item.createdAt }}
                   </div>
                 </div>
-                <el-dropdown
-                  v-if="appType === 'workflow'"
-                  trigger="click"
-                  @command="handleCommand"
-                >
+                <el-dropdown trigger="click" @command="handleCommand">
                   <span class="el-dropdown-link">
                     <i class="el-icon-more"></i>
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :command="{ action: 'export', index }">
+                    <el-dropdown-item
+                      v-if="appType === 'workflow'"
+                      :command="{ action: 'export', index }"
+                    >
                       {{ $t('common.button.export') }}
                     </el-dropdown-item>
                     <el-dropdown-item
                       :command="{ action: 'rollback', index }"
-                      divided
+                      :divided="appType === 'workflow'"
                     >
                       {{ $t('list.version.rollback') }}
                     </el-dropdown-item>
@@ -105,7 +104,6 @@ export default {
     getAppVersionList() {
       getAppVersionList({ appId: this.appId, appType: this.appType }).then(
         res => {
-          console.log(res);
           if (res.code === 0 && res.data.list) {
             this.versionList = [
               { isCurrent: true },
@@ -127,13 +125,13 @@ export default {
       }
     },
     rollbackVersion(index) {
-      rollbackAppVersion(
-        this.appId,
-        this.appType,
-        this.versionList[index].version,
-      ).then(res => {
+      rollbackAppVersion({
+        appId: this.appId,
+        appType: this.appType,
+        version: this.versionList[index].version,
+      }).then(res => {
         if (res.code === 0) {
-          this.$message.success('回滚成功');
+          this.$message.success(this.$t('common.info.rollback'));
           this.getAppVersionList();
         }
       });

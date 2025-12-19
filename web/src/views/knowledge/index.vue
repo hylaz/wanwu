@@ -122,8 +122,7 @@ export default {
         this.category = 0;
       }
     },
-    tabClick(status) {
-      this.category = status;
+    tabClick() {
       this.getTableData();
     },
     getList() {

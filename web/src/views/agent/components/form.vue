@@ -183,7 +183,6 @@
                 @visible-change="visibleChange"
                 :loading-text="$t('agent.toolDetail.modelLoadingText')"
                 class="cover-input-icon model-select"
-                :disabled="isPublish"
                 :loading="modelLoading"
                 filterable
                 value-key="modelId"
@@ -191,7 +190,7 @@
               >
                 <el-option
                   class="model-option-item"
-                  v-for="item in modleOptions"
+                  v-for="item in modelOptions"
                   :key="item.modelId"
                   :value="item.modelId"
                   :label="item.displayName"
@@ -715,9 +714,7 @@ export default {
       allTools: [], //所有的工具
       workflowList: [],
       modelParams: {},
-      isPublish: false,
-      publishType: '',
-      modleOptions: [],
+      modelOptions: [],
       selectKnowledge: [],
       knowledgeData: [],
       loadingPercent: 10,
@@ -763,10 +760,6 @@ export default {
       setTimeout(() => {
         this.getAppDetail();
       }, 500);
-    }
-    //判断是否发布
-    if (this.$route.query.publish) {
-      this.isPublish = true;
     }
     //判断是否有插件管理的权限
     const accessCert = localStorage.getItem('access_cert');
@@ -857,7 +850,7 @@ export default {
     },
     setModelInfo(val) {
       if (!val) return;
-      const selectedModel = this.modleOptions.find(
+      const selectedModel = this.modelOptions.find(
         item => item.modelId === val,
       );
       if (selectedModel) {
@@ -1109,7 +1102,7 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modleOptions = res.data.list || [];
+        this.modelOptions = res.data.list || [];
         this.modelLoading = false;
       }
       this.modelLoading = false;
@@ -1123,7 +1116,7 @@ export default {
       ) {
         modeInfo = this.editForm.modelParams;
       } else {
-        modeInfo = this.modleOptions.find(
+        modeInfo = this.modelOptions.find(
           item => item.modelId === this.editForm.modelParams,
         );
       }

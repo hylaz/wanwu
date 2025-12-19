@@ -245,6 +245,8 @@ export default {
       retryErr: '重试失败',
       save: '保存成功',
       saveErr: '保存失败',
+      rollback: '回滚成功',
+      rollbackErr: '回滚失败',
     },
     safetyType: {
       political: '涉政',
