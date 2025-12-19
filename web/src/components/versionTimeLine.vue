@@ -135,7 +135,7 @@ export default {
       }).then(res => {
         if (res.code === 0) {
           this.$message.success(this.$t('common.info.rollback'));
-          this.getAppVersionList();
+          this.$emit('reloadData');
         }
       });
     },

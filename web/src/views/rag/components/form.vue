@@ -30,6 +30,7 @@
           v-if="publishType"
           :appId="editForm.appId"
           :appType="RAG"
+          @reloadData="reloadData"
         />
         <el-button
           v-if="publishType"
@@ -227,19 +228,17 @@
       ref="modelSetDialog"
       :modelConfig="editForm.modelConfig"
     />
-    <!-- apikey -->
-    <ApiKeyDialog ref="apiKeyDialog" :appId="editForm.appId" :appType="RAG" />
+
     <setSafety ref="setSafety" @sendSafety="sendSafety" />
   </div>
 </template>
 
 <script>
-import { getApiKeyRoot, appPublish } from '@/api/appspace';
+import { appPublish } from '@/api/appspace';
 import CreateTxtQues from '@/components/createApp/createRag.vue';
 import ModelSet from './modelSetDialog.vue';
 import metaSet from '@/components/metaSet';
 import knowledgeSet from './knowledgeSetDialog.vue';
-import ApiKeyDialog from './ApiKeyDialog';
 import setSafety from '@/components/setSafety';
 import VersionPopover from '@/components/versionPopover';
 import { getRerankList, selectModelList } from '@/api/modelAccess';
@@ -258,7 +257,6 @@ export default {
     CreateTxtQues,
     ModelSet,
     knowledgeSet,
-    ApiKeyDialog,
     setSafety,
     VersionPopover,
     searchConfig,
@@ -357,7 +355,6 @@ export default {
         },
       },
       initialEditForm: null,
-      apiURL: '',
       modelLoading: false,
       wfDialogVisible: false,
       workFlowInfos: [],
@@ -422,17 +419,19 @@ export default {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
   },
   created() {
-    this.getModelData(); //获取模型列表
-    this.getRerankData(); //获取rerank模型
-    if (this.$route.query.id) {
-      this.editForm.appId = this.$route.query.id;
-      setTimeout(() => {
-        this.getDetail(); //获取详情
-        this.apiKeyRootUrl(); //获取api跟地址
-      }, 500);
-    }
+    this.reloadData();
   },
   methods: {
+    reloadData() {
+      this.getModelData(); //获取模型列表
+      this.getRerankData(); //获取rerank模型
+      if (this.$route.query.id) {
+        this.editForm.appId = this.$route.query.id;
+        setTimeout(() => {
+          this.getDetail(); //获取详情
+        }, 500);
+      }
+    },
     //获取知识库或问答库选中数据
     getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
@@ -604,17 +603,6 @@ export default {
         }
       });
     },
-    apiKeyRootUrl() {
-      const data = { appId: this.editForm.appId, appType: RAG };
-      getApiKeyRoot(data).then(res => {
-        if (res.code === 0) {
-          this.apiURL = res.data || '';
-        }
-      });
-    },
-    openApiDialog() {
-      this.$refs.apiKeyDialog.showDialog();
-    },
     setModelSet(data) {
       this.editForm.modelConfig = data;
     },
@@ -754,16 +742,6 @@ export default {
   }
 }
 /deep/ {
-  .apikeyBtn {
-    padding: 12px 10px;
-    border: 1px solid $btn_bg;
-    color: $btn_bg;
-    display: flex;
-    align-items: center;
-    img {
-      height: 14px;
-    }
-  }
   .metaSetVisible {
     .el-dialog__header {
       border-bottom: 1px solid #dbdbdb;

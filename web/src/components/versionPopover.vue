@@ -12,6 +12,7 @@
         ref="versionTimeLine"
         :appId="appId"
         :appType="appType"
+        @reloadData="reloadData"
       />
 
       <i slot="reference" :class="iconClass" :style="iconStyle" />
@@ -52,8 +53,8 @@ export default {
     },
   },
   methods: {
-    getAppVersionList() {
-      this.$refs.versionTimeLine.getAppVersionList();
+    reloadData() {
+      this.$emit('reloadData');
     },
     onPopoverHide() {
       this.$nextTick(() => {

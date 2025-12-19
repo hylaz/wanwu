@@ -47,13 +47,13 @@
 
     <div class="version-history">
       <h3>{{ $t('list.version.history') }}</h3>
-      <versionTimeLine :appId="appId" :appType="appType" />
+      <VersionTimeLine :appId="appId" :appType="appType" />
     </div>
   </div>
 </template>
 
 <script>
-import versionTimeLine from '@/components/versionTimeLine.vue';
+import VersionTimeLine from '@/components/versionTimeLine.vue';
 import { getAppLatestVersion, updateAppVersion } from '@/api/appspace';
 
 export default {
@@ -68,7 +68,7 @@ export default {
     },
   },
   components: {
-    versionTimeLine,
+    VersionTimeLine,
   },
   data() {
     return {

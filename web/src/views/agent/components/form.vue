@@ -39,6 +39,7 @@
           v-if="publishType"
           :appId="editForm.assistantId"
           :appType="AGENT"
+          @reloadData="reloadData"
         />
         <el-button
           v-if="publishType"
@@ -756,26 +757,29 @@ export default {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
   },
   created() {
-    this.getModelData(); //获取模型列表
-    this.getRerankData(); //获取rerank模型
-    if (this.$route.query.id) {
-      this.editForm.assistantId = this.$route.query.id;
-      setTimeout(() => {
-        this.getAppDetail();
-      }, 500);
-    }
-    //判断是否有插件管理的权限
-    const accessCert = localStorage.getItem('access_cert');
-    const permission = accessCert
-      ? JSON.parse(accessCert).user.permission.orgPermission
-      : '';
-    this.hasPluginPermission = permission.indexOf('plugin') !== -1;
+    this.reloadData();
   },
   beforeDestroy() {
     store.dispatch('app/initState');
     this.clearMaxPicNum();
   },
   methods: {
+    reloadData() {
+      this.getModelData(); //获取模型列表
+      this.getRerankData(); //获取rerank模型
+      if (this.$route.query.id) {
+        this.editForm.assistantId = this.$route.query.id;
+        setTimeout(() => {
+          this.getAppDetail();
+        }, 500);
+      }
+      //判断是否有插件管理的权限
+      const accessCert = localStorage.getItem('access_cert');
+      const permission = accessCert
+        ? JSON.parse(accessCert).user.permission.orgPermission
+        : '';
+      this.hasPluginPermission = permission.indexOf('plugin') !== -1;
+    },
     ...mapActions('app', ['setMaxPicNum', 'clearMaxPicNum']),
     //系统提示词失去焦点时，触发提示词更新
     handleInstructionsBlur(e) {
