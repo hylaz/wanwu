@@ -3,6 +3,13 @@ import { USER_API } from '@/utils/requestConstants';
 
 export const getRagInfo = params => {
   return service({
+    url: `${USER_API}/appspace/rag/draft`,
+    method: 'get',
+    params,
+  });
+};
+export const getRagRunInfo = params => {
+  return service({
     url: `${USER_API}/appspace/rag`,
     method: 'get',
     params,
@@ -33,13 +40,6 @@ export const delRag = data => {
   return service({
     url: `${USER_API}/appspace/rag`,
     method: 'delete',
-    data,
-  });
-};
-export const ragChat = data => {
-  return service({
-    url: `${USER_API}/rag/chat`,
-    method: 'post',
     data,
   });
 };

@@ -12,6 +12,8 @@ import $ from './jquery.min.js';
 import { file } from 'jszip';
 import { OPENURL_API, USER_API } from '@/utils/requestConstants';
 
+const AGENT_API_URL = `${USER_API}/assistant/stream`;
+const RAG_API_URL = `${USER_API}/rag/chat`;
 export default {
   data() {
     return {
@@ -31,8 +33,8 @@ export default {
       origin: window.location.origin,
       reconnectCount: 0,
       isEnd: true,
-      sseApi: `${USER_API}/assistant/stream`,
-      rag_sseApi: `${USER_API}/rag/chat`,
+      sseApi: AGENT_API_URL,
+      rag_sseApi: RAG_API_URL,
       token: store.getters['user/token'],
       lastIndex: 0,
       query: '',
@@ -45,6 +47,9 @@ export default {
     };
   },
   created() {
+    if (!this.isExplorePage()) {
+      this.rag_sseApi = `${RAG_API_URL}/draft`;
+    }
     const vuex = JSON.parse(localStorage.getItem('access_cert'));
     if (vuex) {
       this.access_token = vuex.user.token;
@@ -63,6 +68,9 @@ export default {
   },
   methods: {
     ...mapActions('app', ['setStoreSessionStatus']),
+    isExplorePage() {
+      return this.$route.path.includes('/explore/');
+    },
     newFetch(url, options) {
       // 可以调用原始的 fetch 函数
       if (this.isStoped) {
@@ -424,7 +432,11 @@ export default {
       let headers = null;
       //判断是是不是openurl对话
       if (this.type === 'agentChat') {
-        this.sseApi = `${USER_API}/assistant/stream`;
+        if (!this.isExplorePage()) {
+          this.sseApi = `${AGENT_API_URL}/draft`;
+        } else {
+          this.sseApi = AGENT_API_URL;
+        }
         const trial = this.isTestChat ? true : false;
         data = {
           ...this.sseParams,

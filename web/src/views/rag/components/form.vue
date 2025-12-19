@@ -1,5 +1,5 @@
 <template>
-  <div class="agent-from-content" :class="{ isDisabled: isPublish }">
+  <div class="agent-from-content">
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>
@@ -25,47 +25,79 @@
         </div>
       </div>
       <div class="header-right">
-        <div class="header-api">
-          <el-tag effect="plain" class="root-url">
-            {{ $t('rag.form.apiRootUrl') }}
-          </el-tag>
-          {{ apiURL }}
-        </div>
-        <el-button @click="openApiDialog" plain class="apikeyBtn" size="small">
-          <img :src="require('@/assets/imgs/apikey.png')" />
-          {{ $t('rag.form.apiKey') }}
-        </el-button>
+        <VersionPopover
+          ref="versionPopover"
+          v-if="publishType"
+          :appId="editForm.appId"
+          :appType="RAG"
+          @reloadData="reloadData"
+        />
         <el-button
+          v-if="publishType"
           size="small"
           type="primary"
-          @click="handlePublish"
           style="padding: 13px 12px"
+          @click="handlePublishSet"
         >
-          {{ $t('common.button.publish') }}
-          <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
+          <span class="el-icon-setting"></span>
+          {{ $t('agent.form.publishConfig') }}
         </el-button>
-        <div class="popover-operation" v-if="showOperation">
-          <div>
-            <el-radio :label="'private'" v-model="scope">
-              {{ $t('agent.form.publishType') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'organization'" v-model="scope">
-              {{ $t('agent.form.publishType1') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'public'" v-model="scope">
-              {{ $t('agent.form.publishType2') }}
-            </el-radio>
-          </div>
-          <div class="saveBtn">
-            <el-button size="mini" type="primary" @click="savePublish">
-              {{ $t('common.button.save') }}
-            </el-button>
-          </div>
-        </div>
+        <el-popover
+          placement="bottom-end"
+          trigger="click"
+          style="margin-left: 13px"
+        >
+          <el-button
+            slot="reference"
+            size="small"
+            type="primary"
+            style="padding: 13px 12px"
+          >
+            {{ $t('common.button.publish') }}
+            <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
+          </el-button>
+          <el-form ref="publishForm" :model="publishForm" :rules="publishRules">
+            <el-form-item :label="$t('list.version.no')" prop="version">
+              <el-input
+                v-model="publishForm.version"
+                :placeholder="$t('list.version.noPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('list.version.desc')" prop="desc">
+              <el-input
+                v-model="publishForm.desc"
+                :placeholder="$t('list.version.descPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              :label="$t('list.version.publishType')"
+              prop="publishType"
+            >
+              <el-radio-group v-model="publishForm.publishType">
+                <div>
+                  <el-radio label="private">
+                    {{ $t('agent.form.publishType') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="organization">
+                    {{ $t('agent.form.publishType1') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="public">
+                    {{ $t('agent.form.publishType2') }}
+                  </el-radio>
+                </div>
+              </el-radio-group>
+            </el-form-item>
+            <div class="saveBtn">
+              <el-button size="mini" type="primary" @click="savePublish">
+                {{ $t('common.button.save') }}
+              </el-button>
+            </div>
+          </el-form>
+        </el-popover>
       </div>
     </div>
     <div class="agent_form">
@@ -95,13 +127,12 @@
                 @visible-change="visibleChange"
                 :loading-text="$t('knowledgeManage.create.modelLoading')"
                 class="cover-input-icon model-select"
-                :disabled="isPublish"
                 :loading="modelLoading"
                 filterable
                 value-key="modelId"
               >
                 <el-option
-                  v-for="item in modleOptions"
+                  v-for="item in modelOptions"
                   :key="item.modelId"
                   :label="item.displayName"
                   :value="item.modelId"
@@ -179,12 +210,6 @@
             </span>
           </p>
         </div>
-        <!-- 闲聊模式 -->
-        <!-- <chiChat
-          @chiSwitchChange="chiSwitchChange"
-          :isDisabled="!editForm.knowledgeBaseConfig.knowledgebases.length"
-          :chiChatSwitch="editForm.knowledgeBaseConfig.config.chiChat"
-        /> -->
       </div>
       <div class="drawer-test">
         <Chat :chatType="'test'" :editForm="editForm" />
@@ -203,20 +228,19 @@
       ref="modelSetDialog"
       :modelConfig="editForm.modelConfig"
     />
-    <!-- apikey -->
-    <ApiKeyDialog ref="apiKeyDialog" :appId="editForm.appId" :appType="'rag'" />
+
     <setSafety ref="setSafety" @sendSafety="sendSafety" />
   </div>
 </template>
 
 <script>
-import { getApiKeyRoot, appPublish } from '@/api/appspace';
+import { appPublish } from '@/api/appspace';
 import CreateTxtQues from '@/components/createApp/createRag.vue';
 import ModelSet from './modelSetDialog.vue';
 import metaSet from '@/components/metaSet';
 import knowledgeSet from './knowledgeSetDialog.vue';
-import ApiKeyDialog from './ApiKeyDialog';
 import setSafety from '@/components/setSafety';
+import VersionPopover from '@/components/versionPopover';
 import { getRerankList, selectModelList } from '@/api/modelAccess';
 import { getRagInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
@@ -225,6 +249,7 @@ import chiChat from '@/components/app/chiChat.vue';
 import LinkIcon from '@/components/linkIcon.vue';
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
+import { RAG } from '@/utils/commonSet';
 export default {
   components: {
     LinkIcon,
@@ -232,8 +257,8 @@ export default {
     CreateTxtQues,
     ModelSet,
     knowledgeSet,
-    ApiKeyDialog,
     setSafety,
+    VersionPopover,
     searchConfig,
     knowledgeSelect,
     metaSet,
@@ -242,10 +267,43 @@ export default {
   },
   data() {
     return {
+      RAG,
       rerankOptions: [],
-      showOperation: false,
-      scope: 'public',
       localKnowledgeConfig: {},
+      publishType: this.$route.query.publishType,
+      publishForm: {
+        publishType: 'private',
+        version: '',
+        desc: '',
+      },
+      publishRules: {
+        version: [
+          {
+            required: true,
+            message: this.$t('list.version.noPlaceholder'),
+            trigger: 'blur',
+          },
+          {
+            pattern: /^v\d+\.\d+\.\d+$/,
+            message: this.$t('list.version.versionMsg'),
+            trigger: 'blur',
+          },
+        ],
+        desc: [
+          {
+            required: true,
+            message: this.$t('list.version.descPlaceholder'),
+            trigger: 'blur',
+          },
+        ],
+        publishType: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'change',
+          },
+        ],
+      },
       editForm: {
         appId: '',
         avatar: {},
@@ -297,15 +355,12 @@ export default {
         },
       },
       initialEditForm: null,
-      apiURL: '',
       modelLoading: false,
       wfDialogVisible: false,
       workFlowInfos: [],
       workflowList: [],
       modelParams: '',
-      platform: this.$platform,
-      isPublish: false,
-      modleOptions: [],
+      modelOptions: [],
       selectKnowledge: [],
       loadingPercent: 10,
       nameStatus: '',
@@ -364,21 +419,19 @@ export default {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
   },
   created() {
-    this.getModelData(); //获取模型列表
-    this.getRerankData(); //获取rerank模型
-    if (this.$route.query.id) {
-      this.editForm.appId = this.$route.query.id;
-      setTimeout(() => {
-        this.getDetail(); //获取详情
-        this.apiKeyRootUrl(); //获取api跟地址
-      }, 500);
-    }
-    //判断是否发布
-    if (this.$route.query.publish) {
-      this.isPublish = true;
-    }
+    this.reloadData();
   },
   methods: {
+    reloadData() {
+      this.getModelData(); //获取模型列表
+      this.getRerankData(); //获取rerank模型
+      if (this.$route.query.id) {
+        this.editForm.appId = this.$route.query.id;
+        setTimeout(() => {
+          this.getDetail(); //获取详情
+        }, 500);
+      }
+    },
     //获取知识库或问答库选中数据
     getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
@@ -424,6 +477,7 @@ export default {
       getRagInfo({ ragId: this.editForm.appId })
         .then(res => {
           if (res.code === 0) {
+            this.publishType = res.data.appPublishConfig.publishType;
             this.editForm.avatar = res.data.avatar;
             this.editForm.name = res.data.name;
             this.editForm.desc = res.data.desc;
@@ -478,7 +532,8 @@ export default {
         });
     },
     setModelInfo(val) {
-      const selectedModel = this.modleOptions.find(
+      if (!val) return;
+      const selectedModel = this.modelOptions.find(
         item => item.modelId === val,
       );
       if (selectedModel) {
@@ -495,8 +550,15 @@ export default {
         }
       });
     },
-    handlePublish() {
-      this.showOperation = !this.showOperation;
+    handlePublishSet() {
+      this.$router.push({
+        path: `/rag/publishSet`,
+        query: {
+          appId: this.editForm.appId,
+          appType: RAG,
+          name: this.editForm.name,
+        },
+      });
     },
     savePublish() {
       const { matchType, priorityMatch, rerankModelId } =
@@ -523,27 +585,23 @@ export default {
           return false;
         }
       }
-      const data = {
-        appId: this.editForm.appId,
-        appType: 'rag',
-        publishType: this.scope,
-      };
-      appPublish(data).then(res => {
-        if (res.code === 0) {
-          this.$router.push({ path: '/explore' });
+
+      this.$refs.publishForm.validate(valid => {
+        if (valid) {
+          const data = {
+            appId: this.editForm.appId,
+            appType: RAG,
+            publishType: this.publishForm.publishType,
+            desc: this.publishForm.desc,
+            version: this.publishForm.version,
+          };
+          appPublish(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({ path: '/explore' });
+            }
+          });
         }
       });
-    },
-    apiKeyRootUrl() {
-      const data = { appId: this.editForm.appId, appType: 'rag' };
-      getApiKeyRoot(data).then(res => {
-        if (res.code === 0) {
-          this.apiURL = res.data || '';
-        }
-      });
-    },
-    openApiDialog() {
-      this.$refs.apiKeyDialog.showDialog();
     },
     setModelSet(data) {
       this.editForm.modelConfig = data;
@@ -571,7 +629,7 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modleOptions = (res.data.list || []).filter(item => {
+        this.modelOptions = (res.data.list || []).filter(item => {
           return item.config && item.config.visionSupport !== 'support';
         });
 
@@ -585,7 +643,7 @@ export default {
       this.isUpdating = true;
       try {
         //模型数据
-        const modeInfo = this.modleOptions.find(
+        const modeInfo = this.modelOptions.find(
           item => item.modelId === this.editForm.modelParams,
         );
         if (
@@ -683,22 +741,7 @@ export default {
     }
   }
 }
-.isDisabled .header-right,
-.isDisabled .drawer-form > div {
-  user-select: none;
-  pointer-events: none !important;
-}
 /deep/ {
-  .apikeyBtn {
-    padding: 12px 10px;
-    border: 1px solid $btn_bg;
-    color: $btn_bg;
-    display: flex;
-    align-items: center;
-    img {
-      height: 14px;
-    }
-  }
   .metaSetVisible {
     .el-dialog__header {
       border-bottom: 1px solid #dbdbdb;
@@ -747,21 +790,6 @@ export default {
   padding: 0 20px;
   position: relative;
   border-bottom: 1px solid #dbdbdb;
-  .popover-operation {
-    position: absolute;
-    bottom: -122px;
-    right: 20px;
-    background: #fff;
-    box-shadow: 0px 1px 7px rgba(0, 0, 0, 0.3);
-    padding: 10px 20px;
-    border-radius: 6px;
-    z-index: 999;
-    .saveBtn {
-      display: flex;
-      justify-content: center;
-      padding: 10px 0;
-    }
-  }
   .header-left {
     display: flex;
     align-items: center;

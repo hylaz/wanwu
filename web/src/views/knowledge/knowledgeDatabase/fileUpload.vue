@@ -665,7 +665,7 @@ export default {
       knowledgeName: this.$route.query.name,
       mode: this.$route.query.mode,
       title: this.$route.query.title,
-      docId: this.$route.query.docId,
+      docIdList: this.$route.query.docIdList,
       fileList: [],
       fileUrl: '',
       docInfoList: [],
@@ -706,9 +706,9 @@ export default {
   },
   async created() {
     const query = this.$route.query;
-    if (query.mode === 'config') {
+    if (query.mode === 'config' && this.docIdList.length === 1) {
       await getDocConfig({
-        docId: this.docId,
+        docId: this.docIdList[0],
         knowledgeId: this.knowledgeId,
       }).then(res => {
         if (res.code === 0) {
@@ -1075,7 +1075,7 @@ export default {
         }
 
         if (this.mode === 'config') {
-          data.docId = this.docId;
+          data.docIdList = this.docIdList;
           updateDocConfig(data).then(res => {
             if (res.code === 0) {
               this.$router.push({

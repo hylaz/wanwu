@@ -70,8 +70,44 @@ export const deleteApp = data => {
   });
 };
 
+//获取应用最新版本信息
+export const getAppLatestVersion = params => {
+  return request({
+    url: `${USER_API}/appspace/app/version`,
+    method: 'get',
+    params,
+  });
+};
+
+//更新应用版本信息
+export const updateAppVersion = data => {
+  return request({
+    url: `${USER_API}/appspace/app/version`,
+    method: 'put',
+    data,
+  });
+};
+
+//获取应用版本列表
+export const getAppVersionList = params => {
+  return request({
+    url: `${USER_API}/appspace/app/version/list`,
+    method: 'get',
+    params,
+  });
+};
+
+//回滚应用到指定版本
+export const rollbackAppVersion = data => {
+  return request({
+    url: `${USER_API}/appspace/app/version/rollback`,
+    method: 'post',
+    data,
+  });
+};
+
 //智能体模版
-export const agnetTemplateList = params => {
+export const agentTemplateList = params => {
   return request({
     url: `${USER_API}/assistant/template/list`,
     method: 'get',
@@ -79,7 +115,7 @@ export const agnetTemplateList = params => {
   });
 };
 //复制智能体
-export const copyAgnetTemplate = data => {
+export const copyAgentTemplate = data => {
   return request({
     url: `${USER_API}/assistant/template`,
     method: 'post',
@@ -87,7 +123,7 @@ export const copyAgnetTemplate = data => {
   });
 };
 //智能体模版详情
-export const agnetTemplateDetail = params => {
+export const agentTemplateDetail = params => {
   return request({
     url: `${USER_API}/assistant/template`,
     method: 'get',

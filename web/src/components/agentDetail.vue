@@ -80,7 +80,7 @@
 </template>
 <script>
 import { md } from '@/mixins/marksown-it';
-import { agnetTemplateList, agnetTemplateDetail } from '@/api/appspace';
+import { agentTemplateList, agentTemplateDetail } from '@/api/appspace';
 
 export default {
   data() {
@@ -119,14 +119,14 @@ export default {
       if (main) main.scrollTop = 0;
     },
     getDetailData() {
-      agnetTemplateDetail({
+      agentTemplateDetail({
         assistantTemplateId: this.assistantTemplateId,
       }).then(res => {
         this.detail = res.data || {};
       });
     },
     getRecommendList() {
-      agnetTemplateList({ category: '', name: '' }).then(res => {
+      agentTemplateList({ category: '', name: '' }).then(res => {
         this.recommendList = [...(res.data.list || [])].splice(0, 5);
       });
     },

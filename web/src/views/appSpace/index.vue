@@ -74,7 +74,7 @@ import SearchInput from '@/components/searchInput.vue';
 import AppList from '@/components/appList.vue';
 import CreateTotalDialog from '@/components/createTotalDialog.vue';
 import UploadFileDialog from '@/components/uploadFileDialog.vue';
-import { getAppSpaceList, agnetTemplateList } from '@/api/appspace';
+import { getAppSpaceList, agentTemplateList } from '@/api/appspace';
 import { CHAT, WORKFLOW, RAG, AGENT } from '@/utils/commonSet';
 import { mapGetters } from 'vuex';
 import { fetchPermFirPath } from '@/utils/util';

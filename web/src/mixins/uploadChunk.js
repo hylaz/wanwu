@@ -82,7 +82,7 @@ export default {
       return chunks;
     },
     async processNextChunk() {
-      //进行下一个切片上传
+      if (this.isStop) return;
       //如果当前切片文件已经上传完停止上传
       if (this.nextChunkIndex >= this.chunks.length) {
         //所有执行完之后，失败切片进行重试
@@ -95,6 +95,7 @@ export default {
       const chunk = this.chunks[this.nextChunkIndex++];
       const uploadPromise = this.uploadChunk(chunk)
         .then(() => {
+          if (this.isStop) return;
           this.processNextChunk(); // 递归调用以处理下一个块
         })
         .catch(error => {
@@ -191,6 +192,7 @@ export default {
       const failedChunksCopy = [...this.failChunk];
       this.failChunk = [];
       for (const chunk of failedChunksCopy) {
+        if (this.isStop) break;
         try {
           await this.uploadChunk(chunk);
         } catch (error) {
@@ -203,6 +205,7 @@ export default {
       }
     },
     async mergeChunks() {
+      if (this.isStop) return;
       //合并切片
       try {
         let file_size = this.fileList[this.fileIndex]['size'];
@@ -257,6 +260,15 @@ export default {
       }
       this.cancelSources = [];
       this.failChunk = [];
+      this.uploadQueue = [];
+      if (this.fileList.length < 1) {
+        this.fileIndex = 0;
+        this.file = this.fileList[0] || null;
+      } else {
+        this.fileIndex = Math.max(0, this.fileIndex - 1);
+        this.file = this.fileList[this.fileIndex] || null;
+        this.startUpload(this.fileIndex);
+      }
     },
   },
 };

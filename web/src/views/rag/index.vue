@@ -11,7 +11,7 @@
 import CommonLayout from '@/components/exploreContainer.vue';
 import Chat from './components/chat.vue';
 import { getApiKeyRoot } from '@/api/appspace';
-import { getRagInfo } from '@/api/rag';
+import { getRagRunInfo } from '@/api/rag';
 export default {
   components: { CommonLayout, Chat },
   data() {
@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     getDetail() {
-      getRagInfo({ ragId: this.editForm.appId }).then(res => {
+      getRagRunInfo({ ragId: this.editForm.appId }).then(res => {
         if (res.code === 0) {
           this.editForm.avatar = res.data.avatar;
           this.editForm.name = res.data.name;

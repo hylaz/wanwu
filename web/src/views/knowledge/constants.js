@@ -1,5 +1,6 @@
 // 初始化标志常量
 export const INITIAL = -1;
+export const ALL = -1;
 
 // 通用状态常量
 export const STATUS_PENDING = 0;
@@ -32,7 +33,6 @@ export const REPORT_STATUS_GENERATION_FAILED = 3;
 
 // 知识库文档解析状态常量
 export const KNOWLEDGE_STATUS_UPLOADED = -2;
-export const KNOWLEDGE_STATUS_ALL = -1;
 export const KNOWLEDGE_STATUS_PENDING_PROCESSING = 0;
 export const KNOWLEDGE_STATUS_FINISH = 1;
 export const KNOWLEDGE_STATUS_CHECKING = 2;
@@ -41,7 +41,6 @@ export const KNOWLEDGE_STATUS_CHECK_FAIL = 4;
 export const KNOWLEDGE_STATUS_FAIL = 5;
 
 // 问答库文档解析状态常量
-export const QA_STATUS_ALL = -1;
 export const QA_STATUS_PENDING = 0;
 export const QA_STATUS_PROCESSING = 1;
 export const QA_STATUS_FINISHED = 2;

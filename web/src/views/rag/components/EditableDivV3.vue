@@ -150,7 +150,7 @@ export default {
       isPower: this.$platform === 'YWD_RAG' || this.$platform === 'HW_RAG',
       isLink: false,
       modelParams: null,
-      modleOptions: [],
+      modelOptions: [],
       colorArr: [
         '#dca3c2',
         '#aaa9db',

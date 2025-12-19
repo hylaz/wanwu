@@ -20,14 +20,13 @@ import {
   REPORT_STATUS_GENERATED,
   REPORT_STATUS_GENERATION_FAILED,
   KNOWLEDGE_STATUS_UPLOADED,
-  KNOWLEDGE_STATUS_ALL,
+  ALL,
   KNOWLEDGE_STATUS_PENDING_PROCESSING,
   KNOWLEDGE_STATUS_FINISH,
   KNOWLEDGE_STATUS_CHECKING,
   KNOWLEDGE_STATUS_ANALYSING,
   KNOWLEDGE_STATUS_CHECK_FAIL,
   KNOWLEDGE_STATUS_FAIL,
-  QA_STATUS_ALL,
   QA_STATUS_PENDING,
   QA_STATUS_PROCESSING,
   QA_STATUS_FINISHED,
@@ -137,12 +136,24 @@ export const COMMUNITY_REPORT_STATUS = {
     'knowledgeManage.config.generationFailed',
   ),
 };
-export const KNOWLEDGE_GRAPH_STATUS = {
-  [STATUS_PENDING]: i18n.t('knowledgeManage.config.pending'),
-  [STATUS_PROCESSING]: i18n.t('knowledgeManage.config.processing'),
-  [STATUS_FINISHED]: i18n.t('knowledgeManage.config.finished'),
-  [STATUS_FAILED]: i18n.t('knowledgeManage.config.failed'),
-};
+export const KNOWLEDGE_GRAPH_STATUS_OPTIONS = [
+  {
+    label: i18n.t('knowledgeManage.config.finished'),
+    value: STATUS_FINISHED,
+  },
+  {
+    label: i18n.t('knowledgeManage.config.failed'),
+    value: STATUS_FAILED,
+  },
+  {
+    label: i18n.t('knowledgeManage.config.processing'),
+    value: STATUS_PROCESSING,
+  },
+  {
+    label: i18n.t('knowledgeManage.config.pending'),
+    value: STATUS_PENDING,
+  },
+];
 export const COMMUNITY_IMPORT_STATUS = {
   [STATUS_PENDING]: i18n.t('knowledgeManage.communityReport.taskPending'),
   [STATUS_PROCESSING]: i18n.t('knowledgeManage.communityReport.taskProcessing'),
@@ -173,7 +184,10 @@ export const DROPDOWN_GROUPS = [
         command: 'createQaPair',
         label: i18n.t('knowledgeManage.qaDatabase.createQaPair'),
       },
-      { command: 'fileUpload', label: i18n.t('knowledgeManage.fileUpload') },
+      {
+        command: 'fileUpload',
+        label: i18n.t('knowledgeManage.fileUpload'),
+      },
     ],
   },
   {
@@ -193,30 +207,30 @@ export const DROPDOWN_GROUPS = [
 ];
 
 export const KNOWLEDGE_STATUS_OPTIONS = [
-  { label: i18n.t('knowledgeManage.all'), value: KNOWLEDGE_STATUS_ALL },
-  { label: i18n.t('knowledgeManage.finish'), value: KNOWLEDGE_STATUS_FINISH },
-  { label: i18n.t('knowledgeManage.fail'), value: KNOWLEDGE_STATUS_FAIL },
   {
-    label: i18n.t('knowledgeManage.analysing'),
+    label: i18n.t('knowledgeManage.config.finished'),
+    value: KNOWLEDGE_STATUS_FINISH,
+  },
+  {
+    label: i18n.t('knowledgeManage.config.failed'),
+    value: KNOWLEDGE_STATUS_FAIL,
+  },
+  {
+    label: i18n.t('knowledgeManage.config.processing'),
     value: KNOWLEDGE_STATUS_ANALYSING,
   },
   // {label: i18n.t("knowledgeManage.checkFail"), value: KNOWLEDGE_STATUS_CHECK_FAIL},
   {
-    label: i18n.t('knowledgeManage.pendingProcessing'),
+    label: i18n.t('knowledgeManage.config.pending'),
     value: KNOWLEDGE_STATUS_PENDING_PROCESSING,
   },
   // { label: i18n.t("knowledgeManage.checking"), value: KNOWLEDGE_STATUS_CHECKING }
 ];
 
 export const QA_STATUS_OPTIONS = [
-  { label: i18n.t('knowledgeManage.all'), value: QA_STATUS_ALL },
   {
-    label: i18n.t('knowledgeManage.communityReport.taskPending'),
-    value: QA_STATUS_PENDING,
-  },
-  {
-    label: i18n.t('knowledgeManage.communityReport.taskProcessing'),
-    value: QA_STATUS_PROCESSING,
+    label: i18n.t('knowledgeManage.all'),
+    value: ALL,
   },
   {
     label: i18n.t('knowledgeManage.communityReport.taskFinished'),
@@ -225,5 +239,13 @@ export const QA_STATUS_OPTIONS = [
   {
     label: i18n.t('knowledgeManage.communityReport.taskFailed'),
     value: QA_STATUS_FAILED,
+  },
+  {
+    label: i18n.t('knowledgeManage.communityReport.taskProcessing'),
+    value: QA_STATUS_PROCESSING,
+  },
+  {
+    label: i18n.t('knowledgeManage.communityReport.taskPending'),
+    value: QA_STATUS_PENDING,
   },
 ];

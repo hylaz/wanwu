@@ -9,7 +9,6 @@ export const AppType = {
   [CHAT]: i18n.t('appSpace.chat'),
   [RAG]: i18n.t('appSpace.rag'),
   [AGENT]: i18n.t('appSpace.agent'),
-  agentTemplate: i18n.t('appSpace.agentTemp'),
 };
 export const SafetyType = {
   Political: i18n.t('common.safetyType.political'),

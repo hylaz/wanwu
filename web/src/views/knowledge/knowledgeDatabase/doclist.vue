@@ -14,20 +14,6 @@
           <el-container>
             <el-header class="classifyTitle">
               <div class="searchInfo">
-                <el-select
-                  @change="changeOption($event)"
-                  v-model="docQuery.status"
-                  :placeholder="$t('knowledgeManage.please')"
-                  style="width: 150px"
-                  class="marginRight no-border-select cover-input-icon"
-                >
-                  <el-option
-                    v-for="item in knowLegOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
                 <search-input
                   class="cover-input-icon"
                   :placeholder="$t('knowledgeManage.docPlaceholder')"
@@ -191,11 +177,17 @@
                   :label="$t('knowledgeManage.importTime')"
                   width="200"
                 ></el-table-column>
-                <el-table-column
-                  prop="status"
-                  :label="$t('knowledgeManage.currentStatus')"
-                  width="150"
-                >
+                <el-table-column prop="status" width="150">
+                  <template #header>
+                    <div style="display: flex; align-items: center">
+                      <span>{{ $t('knowledgeManage.currentStatus') }}</span>
+                      <FilterPopover
+                        style="margin-left: 5px"
+                        :options="KNOWLEDGE_STATUS_OPTIONS"
+                        @applyFilter="filterCurrentStatus"
+                      />
+                    </div>
+                  </template>
                   <template slot-scope="scope">
                     <span
                       :class="[
@@ -207,7 +199,7 @@
                           : '',
                       ]"
                     >
-                      {{ filterStatus(scope.row.status) }}
+                      {{ getCurrentStatus(scope.row.status) }}
                     </span>
                     <el-tooltip
                       class="item"
@@ -222,16 +214,31 @@
                         style="margin-left: 5px; color: #e6a23c"
                       ></span>
                     </el-tooltip>
+                    <i
+                      class="el-icon-refresh"
+                      style="margin-left: 5px; color: #409eff"
+                      @click="handleRetry(scope.row)"
+                      v-if="
+                        scope.row.status === KNOWLEDGE_STATUS_FAIL &&
+                        scope.row.docType !== 'url'
+                      "
+                    ></i>
                   </template>
                 </el-table-column>
-                <el-table-column
-                  v-if="graphSwitch"
-                  prop="graphStatus"
-                  :label="$t('knowledgeManage.graph.graphStatus')"
-                >
+                <el-table-column v-if="graphSwitch" prop="graphStatus">
+                  <template #header>
+                    <div style="display: flex; align-items: center">
+                      <span>{{ $t('knowledgeManage.graph.graphStatus') }}</span>
+                      <FilterPopover
+                        style="margin-left: 5px"
+                        :options="KNOWLEDGE_GRAPH_STATUS_OPTIONS"
+                        @applyFilter="filterGraphStatus"
+                      />
+                    </div>
+                  </template>
                   <template slot-scope="scope">
                     <span>
-                      {{ knowledgeGraphStatus[scope.row.graphStatus] }}
+                      {{ getGraphStatus(scope.row.graphStatus) }}
                     </span>
                     <el-tooltip
                       class="item"
@@ -240,7 +247,7 @@
                         scope.row.graphErrMsg ? scope.row.graphErrMsg : ''
                       "
                       placement="top"
-                      v-if="scope.row.graphStatus === 3"
+                      v-if="scope.row.graphStatus === STATUS_FAILED"
                       popper-class="custom-tooltip"
                     >
                       <span
@@ -280,11 +287,11 @@
                     <el-button
                       size="mini"
                       round
-                      @click="handleConfig(scope.row)"
+                      @click="handleConfig([scope.row.docId])"
                       :disabled="
                         ![KNOWLEDGE_STATUS_FINISH].includes(
                           Number(scope.row.status),
-                        )
+                        ) || scope.row.docType === 'url'
                       "
                       v-if="hasManagePerm"
                     >
@@ -370,6 +377,7 @@
       @showBatchMeta="showBatchMeta"
       @handleBatchDelete="handleBatchDelete"
       @handleBatchExport="handleBatchExport"
+      @handleBatchConfig="handleBatchConfig"
       @handleMetaCancel="handleMetaCancel"
     />
     <!-- 导出记录 -->
@@ -383,26 +391,29 @@ import SearchInput from '@/components/searchInput.vue';
 import mataData from '../component/metadata.vue';
 import batchMetaData from '../component/meta/batchMetaData.vue';
 import BatchMetaButton from '../component/meta/batchMetaButton.vue';
+import FilterPopover from '@/components/filterPopover.vue';
 import {
   getDocList,
   delDocItem,
   uploadFileTips,
   updateDocMeta,
   exportDoc,
+  docReImport,
 } from '@/api/knowledge';
 import { mapGetters } from 'vuex';
 import {
   DROPDOWN_GROUPS,
-  KNOWLEDGE_GRAPH_STATUS,
+  KNOWLEDGE_GRAPH_STATUS_OPTIONS,
   KNOWLEDGE_STATUS_OPTIONS,
 } from '../config';
 import {
   INITIAL,
+  STATUS_FAILED,
   POWER_TYPE_EDIT,
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
   KNOWLEDGE_STATUS_UPLOADED,
-  KNOWLEDGE_STATUS_ALL,
+  ALL,
   KNOWLEDGE_STATUS_PENDING_PROCESSING,
   KNOWLEDGE_STATUS_FINISH,
   KNOWLEDGE_STATUS_CHECKING,
@@ -420,6 +431,7 @@ export default {
     mataData,
     batchMetaData,
     BatchMetaButton,
+    FilterPopover,
   },
   data() {
     return {
@@ -430,14 +442,15 @@ export default {
         docName: '',
         metaValue: '',
         knowledgeId: this.$route.params.id,
-        status: KNOWLEDGE_STATUS_ALL,
+        status: [ALL],
+        graphStatus: [ALL],
       },
       fileList: [],
       listApi: getDocList,
       title_tips: '',
       showTips: false,
       tableData: [],
-      knowLegOptions: KNOWLEDGE_STATUS_OPTIONS,
+      KNOWLEDGE_STATUS_OPTIONS,
       knowledgeData: [],
       currentKnowValue: null,
       timer: null,
@@ -450,13 +463,13 @@ export default {
       selectedDocIds: [],
       graphSwitch: false,
       showGraphReport: false,
-      knowledgeGraphStatus: KNOWLEDGE_GRAPH_STATUS,
+      KNOWLEDGE_GRAPH_STATUS_OPTIONS,
       dropdownGroups: DROPDOWN_GROUPS.slice(0, 1),
       graphDropdownGroups: DROPDOWN_GROUPS.slice(2),
+      STATUS_FAILED,
       POWER_TYPE_EDIT,
       POWER_TYPE_ADMIN,
       POWER_TYPE_SYSTEM_ADMIN,
-      KNOWLEDGE_STATUS_ALL,
       KNOWLEDGE_STATUS_PENDING_PROCESSING,
       KNOWLEDGE_STATUS_FINISH,
       KNOWLEDGE_STATUS_CHECKING,
@@ -709,30 +722,16 @@ export default {
       this.docQuery.metaValue = val;
       this.getTableData(this.docQuery);
     },
-    submitDocname(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          this.modifyDoc({
-            id: this.currentDocdata.id,
-            docName: this.ruleForm.docName,
-          });
+    handleRetry(data) {
+      docReImport({
+        docIdList: [data.docId],
+        knowledgeId: this.docQuery.knowledgeId,
+      }).then(res => {
+        if (res.code === 0) {
+          this.$message.success(this.$t('common.info.retry'));
+          this.reLoadDocList();
         }
       });
-    },
-    async modifyDoc(data) {
-      this.loading = true;
-      const res = await modifyDoc(data);
-      if (res.code === 0) {
-        this.$message.success(this.$t('knowledgeManage.operateSuccess'));
-        this.docListVisible = false;
-        this.getTableData(this.docQuery);
-      }
-      this.loading = false;
-    },
-    handleEdit(data) {
-      this.ruleForm.docName = data.docName;
-      this.docListVisible = true;
-      this.currentDocdata = data;
     },
     async handleDelete(docIdList) {
       this.loading = true;
@@ -764,15 +763,15 @@ export default {
         })
         .catch(() => {});
     },
-    handleConfig(data) {
+    handleConfig(docIdList) {
       this.$router.push({
         path: '/knowledge/fileUpload',
         query: {
           id: this.docQuery.knowledgeId,
           name: this.knowledgeName,
           mode: 'config',
-          title: data.docName,
-          docId: data.docId,
+          title: this.$t('knowledgeManage.segmentConfig'),
+          docIdList: docIdList,
         },
       });
     },
@@ -793,6 +792,40 @@ export default {
     },
     handleBatchExport() {
       this.exportData(this.selectedDocIds);
+    },
+    handleBatchConfig() {
+      const unprocessedDocs = this.selectedTableData.filter(
+        doc => doc.status !== KNOWLEDGE_STATUS_FINISH,
+      );
+      const allowedDocs = this.selectedTableData.filter(
+        doc => doc.status === KNOWLEDGE_STATUS_FINISH,
+      );
+
+      if (unprocessedDocs.length > 0) {
+        let message = this.$t('knowledgeManage.batchConfigTips', {
+          total: this.selectedTableData.length,
+          unprocessedNum: unprocessedDocs.length,
+        });
+        if (allowedDocs.length > 0) {
+          message += this.$t('knowledgeManage.continueTips');
+          this.$confirm(message, this.$t('knowledgeManage.tip'), {
+            confirmButtonText: this.$t('common.button.confirm'),
+            cancelButtonText: this.$t('common.button.cancel'),
+            type: 'warning',
+          })
+            .then(() => {
+              this.handleConfig(allowedDocs.map(doc => doc.docId));
+            })
+            .catch(() => {});
+        } else {
+          this.$alert(message, this.$t('knowledgeManage.tip'), {
+            confirmButtonText: this.$t('common.button.confirm'),
+            type: 'warning',
+          });
+        }
+      } else {
+        this.handleConfig(this.selectedDocIds);
+      }
     },
     async getTableData(data) {
       this.tableLoading = true;
@@ -816,16 +849,27 @@ export default {
         }
       });
     },
-    changeOption(data) {
-      //通过文档状态查找
+    filterCurrentStatus(data) {
       this.docQuery.status = data;
       this.getTableData({ ...this.docQuery, pageNo: 1 });
     },
-    filterStatus(status) {
+    filterGraphStatus(data) {
+      this.docQuery.graphStatus = data;
+      this.getTableData({ ...this.docQuery, pageNo: 1 });
+    },
+    getCurrentStatus(status) {
       if (status === KNOWLEDGE_STATUS_UPLOADED) {
         return this.$t('knowledgeManage.beUploaded');
       }
       const statusOption = KNOWLEDGE_STATUS_OPTIONS.find(
+        option => option.value === status,
+      );
+      return statusOption
+        ? statusOption.label
+        : this.$t('knowledgeManage.noStatus');
+    },
+    getGraphStatus(status) {
+      const statusOption = KNOWLEDGE_GRAPH_STATUS_OPTIONS.find(
         option => option.value === status,
       );
       return statusOption

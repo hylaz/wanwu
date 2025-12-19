@@ -129,10 +129,7 @@
               >
                 {{$t('common.button.publish')}}
               </el-dropdown-item>-->
-              <el-dropdown-item command="cancelPublish" v-if="n.publishType">
-                {{ $t('common.button.cancelPublish') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="publishSet">
+              <el-dropdown-item command="publishSet" v-if="n.publishType">
                 {{ $t('appSpace.publishSet') }}
               </el-dropdown-item>
               <el-dropdown-item
@@ -143,7 +140,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 command="transform"
-                v-if="[workflow, chat].includes(n.appType) && !n.publishType"
+                v-if="[workflow, chat].includes(n.appType)"
               >
                 {{
                   $t('common.button.transform') +
@@ -261,10 +258,11 @@ export default {
       this.dialogVisible = false;
     },
     isCanClick(n) {
-      return this.isShowTool
+      return true;
+      /*this.isShowTool
         ? ([WORKFLOW, CHAT].includes(n.appType) && !n.publishType) ||
             ![WORKFLOW, CHAT].includes(n.appType)
-        : true;
+        : true;*/
     },
     // 公用删除方法
     async handleDelete() {
@@ -446,6 +444,7 @@ export default {
         query: {
           id: row.appId,
           ...(row.publishType !== '' && { publish: true }),
+          publishType: row.publishType,
         },
       });
     },
@@ -496,6 +495,7 @@ export default {
         query: {
           id: row.appId,
           ...(row.publishType !== '' && { publish: true }),
+          publishType: row.publishType,
         },
       });
     },

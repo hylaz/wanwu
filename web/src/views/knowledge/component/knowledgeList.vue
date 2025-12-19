@@ -277,8 +277,8 @@ export default {
     editItem(row) {
       this.$emit('editItem', row);
     },
-    reloadData(category) {
-      this.$emit('reloadData', category);
+    reloadData() {
+      this.$emit('reloadData');
     },
     deleteItem(knowledgeId) {
       this.$confirm(

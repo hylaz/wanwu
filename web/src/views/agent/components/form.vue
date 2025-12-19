@@ -1,5 +1,5 @@
 <template>
-  <div class="agent-from-content" :class="{ isDisabled: isPublish }">
+  <div class="agent-from-content">
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>
@@ -34,7 +34,15 @@
         </div>
       </div>
       <div class="header-right">
+        <VersionPopover
+          ref="versionPopover"
+          v-if="publishType"
+          :appId="editForm.assistantId"
+          :appType="AGENT"
+          @reloadData="reloadData"
+        />
         <el-button
+          v-if="publishType"
           size="small"
           type="primary"
           style="padding: 13px 12px"
@@ -43,37 +51,62 @@
           <span class="el-icon-setting"></span>
           {{ $t('agent.form.publishConfig') }}
         </el-button>
-        <el-button
-          size="small"
-          type="primary"
-          @click="handlePublish"
-          style="padding: 13px 12px"
+        <el-popover
+          placement="bottom-end"
+          trigger="click"
+          style="margin-left: 13px"
         >
-          {{ $t('agent.form.publish') }}
-          <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
-        </el-button>
-        <div class="popover-operation" v-if="showOperation">
-          <div>
-            <el-radio :label="'private'" v-model="scope">
-              {{ $t('agent.form.publishType') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'organization'" v-model="scope">
-              {{ $t('agent.form.publishType1') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'public'" v-model="scope">
-              {{ $t('agent.form.publishType2') }}
-            </el-radio>
-          </div>
-          <div class="saveBtn">
-            <el-button size="mini" type="primary" @click="savePublish">
-              {{ $t('common.button.save') }}
-            </el-button>
-          </div>
-        </div>
+          <el-button
+            slot="reference"
+            size="small"
+            type="primary"
+            style="padding: 13px 12px"
+          >
+            {{ $t('common.button.publish') }}
+            <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
+          </el-button>
+          <el-form ref="publishForm" :model="publishForm" :rules="publishRules">
+            <el-form-item :label="$t('list.version.no')" prop="version">
+              <el-input
+                v-model="publishForm.version"
+                :placeholder="$t('list.version.noPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('list.version.desc')" prop="desc">
+              <el-input
+                v-model="publishForm.desc"
+                :placeholder="$t('list.version.descPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              :label="$t('list.version.publishType')"
+              prop="publishType"
+            >
+              <el-radio-group v-model="publishForm.publishType">
+                <div>
+                  <el-radio label="private">
+                    {{ $t('agent.form.publishType') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="organization">
+                    {{ $t('agent.form.publishType1') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="public">
+                    {{ $t('agent.form.publishType2') }}
+                  </el-radio>
+                </div>
+              </el-radio-group>
+            </el-form-item>
+            <div class="saveBtn">
+              <el-button size="mini" type="primary" @click="savePublish">
+                {{ $t('common.button.save') }}
+              </el-button>
+            </div>
+          </el-form>
+        </el-popover>
       </div>
     </div>
     <!-- 智能体配置 -->
@@ -122,12 +155,13 @@
             type="textarea"
             show-word-limit
             :rows="12"
+            @blur="handleInstructionsBlur"
           ></el-input>
         </div>
         <promptTemplate ref="promptTemplate" />
       </div>
       <div class="drawer-form">
-        <div class="agnetSet">
+        <div class="agentSet">
           <h3 class="labelTitle">{{ $t('agent.form.agentConfig') }}</h3>
           <div class="block prompt-box">
             <p class="block-title model-title">
@@ -150,7 +184,6 @@
                 @visible-change="visibleChange"
                 :loading-text="$t('agent.toolDetail.modelLoadingText')"
                 class="cover-input-icon model-select"
-                :disabled="isPublish"
                 :loading="modelLoading"
                 filterable
                 value-key="modelId"
@@ -158,7 +191,7 @@
               >
                 <el-option
                   class="model-option-item"
-                  v-for="item in modleOptions"
+                  v-for="item in modelOptions"
                   :key="item.modelId"
                   :value="item.modelId"
                   :label="item.displayName"
@@ -257,13 +290,16 @@
             @updateMetaData="updateMetaData"
             :labelText="$t('agent.form.linkKnowledge')"
             :type="'knowledgeBaseConfig'"
-            :appType="'agent'"
+            :appType="AGENT"
           />
         </div>
 
         <div class="block recommend-box tool-box">
           <p class="block-title tool-title">
-            <span>{{ $t('agent.form.tool') }}</span>
+            <span>
+              {{ $t('agent.form.tool') }}
+              <span v-if="allTools.length">[{{useToolNum}}/{{ allTools.length }}]</span>
+            </span>
             <span @click="addTool" class="common-add">
               <span class="el-icon-plus"></span>
               <span class="handleBtn">{{ $t('agent.add') }}</span>
@@ -417,7 +453,7 @@
     <!-- 视图设置 -->
     <visualSet ref="visualSet" @sendVisual="sendVisual" />
     <!-- 内置工具详情 -->
-    <ToolDeatail ref="toolDeatail" @updateDetail="updateDetail" />
+    <ToolDetail ref="toolDetail" @updateDetail="updateDetail" />
     <!-- 提交至提示词 -->
     <createPrompt
       :isCustom="true"
@@ -467,6 +503,7 @@ import visualSet from './visualSet';
 import metaSet from '@/components/metaSet';
 import ModelSet from './modelSetDialog';
 import { selectModelList, getRerankList } from '@/api/modelAccess';
+import { AGENT } from '@/utils/commonSet';
 import {
   deleteMcp,
   enableMcp,
@@ -480,7 +517,7 @@ import {
   switchCustomBuiltIn,
 } from '@/api/agent';
 import ToolDialog from './toolDialog';
-import ToolDeatail from './toolDetail';
+import ToolDetail from './toolDetail';
 import { readWorkFlow } from '@/api/workflow';
 import Chat from './chat';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -488,8 +525,10 @@ import promptTemplate from './prompt/index.vue';
 import createPrompt from '@/components/createApp/createPrompt.vue';
 import PromptOptimize from '@/components/promptOptimize.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
+import VersionPopover from '@/components/versionPopover.vue';
 export default {
   components: {
+    VersionPopover,
     LinkIcon,
     Chat,
     CreateIntelligent,
@@ -498,7 +537,7 @@ export default {
     setSafety,
     visualSet,
     metaSet,
-    ToolDeatail,
+    ToolDetail,
     promptTemplate,
     createPrompt,
     PromptOptimize,
@@ -510,35 +549,29 @@ export default {
     };
   },
   watch: {
-    editForm: {
-      handler(newVal, oldVal) {
-        // 如果是从详情设置的数据，不触发更新逻辑
+    agentFormParams: {
+      handler(newVal) {
         if (this.isSettingFromDetail) return;
 
         if (this.debounceTimer) {
           clearTimeout(this.debounceTimer);
         }
-        this.debounceTimer = setTimeout(() => {
-          const props = [
-            'modelParams',
-            'modelConfig',
-            'prologue',
-            'knowledgeBaseConfig',
-            'instructions',
-            'safetyConfig',
-            'recommendQuestion',
-            'visionConfig',
-          ];
 
-          const changed = props.some(prop => {
-            return (
-              JSON.stringify(newVal[prop]) !==
-              JSON.stringify((this.initialEditForm || {})[prop])
-            );
-          });
+        this.debounceTimer = setTimeout(() => {
+          if (!this.initialAutoSaveSnapshot) {
+            this.initialAutoSaveSnapshot = JSON.parse(JSON.stringify(newVal));
+            return;
+          }
+
+          const changed =
+            JSON.stringify(newVal) !==
+            JSON.stringify(this.initialAutoSaveSnapshot);
 
           if (changed) {
-            if (newVal['modelParams'] !== '' && newVal['prologue'] !== '') {
+            if (
+              this.editForm.modelParams !== '' &&
+              this.editForm.prologue !== ''
+            ) {
               this.updateInfo();
             }
           }
@@ -550,9 +583,34 @@ export default {
   computed: {
     ...mapGetters('app', ['cacheData']),
     ...mapGetters('user', ['commonInfo']),
+    agentFormParams() {
+      const {
+        modelParams,
+        modelConfig,
+        prologue,
+        knowledgeBaseConfig,
+        safetyConfig,
+        recommendQuestion,
+        visionConfig,
+      } = this.editForm;
+
+      return {
+        modelParams,
+        modelConfig,
+        prologue,
+        knowledgeBaseConfig,
+        safetyConfig,
+        recommendQuestion,
+        visionConfig,
+      };
+    },
+    useToolNum() {
+      return this.allTools.filter(item => item.enable).length;
+    }
   },
   data() {
     return {
+      AGENT,
       promptType: 'create',
       limitMaxTokens: 4096,
       knowledgeIndex: -1,
@@ -561,11 +619,42 @@ export default {
       metaSetVisible: false,
       knowledgeCheckData: [],
       activeIndex: -1,
-      showOperation: false,
-      appId: '',
-      scope: 'public',
       rerankOptions: [],
       initialEditForm: null,
+      publishType: this.$route.query.publishType,
+      publishForm: {
+        publishType: 'private',
+        version: '',
+        desc: '',
+      },
+      publishRules: {
+        version: [
+          {
+            required: true,
+            message: this.$t('list.version.noPlaceholder'),
+            trigger: 'blur',
+          },
+          {
+            pattern: /^v\d+\.\d+\.\d+$/,
+            message: this.$t('list.version.versionMsg'),
+            trigger: 'blur',
+          },
+        ],
+        desc: [
+          {
+            required: true,
+            message: this.$t('list.version.descPlaceholder'),
+            trigger: 'blur',
+          },
+        ],
+        publishType: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'change',
+          },
+        ],
+      },
       editForm: {
         newAgent: false,
         functionCalling: '',
@@ -629,9 +718,7 @@ export default {
       allTools: [], //所有的工具
       workflowList: [],
       modelParams: {},
-      platform: this.$platform,
-      isPublish: false,
-      modleOptions: [],
+      modelOptions: [],
       selectKnowledge: [],
       knowledgeData: [],
       loadingPercent: 10,
@@ -643,6 +730,7 @@ export default {
       imageUrl: '',
       defaultLogo: require('@/assets/imgs/bg-logo.png'),
       debounceTimer: null, //防抖计时器
+      initialAutoSaveSnapshot: null,
       isSettingFromDetail: false, // 防止详情数据触发更新标记
       nameMap: {
         workflow: {
@@ -669,31 +757,39 @@ export default {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
   },
   created() {
-    this.getModelData(); //获取模型列表
-    this.getRerankData(); //获取rerank模型
-    if (this.$route.query.id) {
-      this.editForm.assistantId = this.$route.query.id;
-      setTimeout(() => {
-        this.getAppDetail();
-      }, 500);
-    }
-    //判断是否发布
-    if (this.$route.query.publish) {
-      this.isPublish = true;
-    }
-    //判断是否有插件管理的权限
-    const accessCert = localStorage.getItem('access_cert');
-    const permission = accessCert
-      ? JSON.parse(accessCert).user.permission.orgPermission
-      : '';
-    this.hasPluginPermission = permission.indexOf('plugin') !== -1;
+    this.reloadData();
   },
   beforeDestroy() {
     store.dispatch('app/initState');
     this.clearMaxPicNum();
   },
   methods: {
+    reloadData() {
+      this.getModelData(); //获取模型列表
+      this.getRerankData(); //获取rerank模型
+      if (this.$route.query.id) {
+        this.editForm.assistantId = this.$route.query.id;
+        setTimeout(() => {
+          this.getAppDetail();
+        }, 500);
+      }
+      //判断是否有插件管理的权限
+      const accessCert = localStorage.getItem('access_cert');
+      const permission = accessCert
+        ? JSON.parse(accessCert).user.permission.orgPermission
+        : '';
+      this.hasPluginPermission = permission.indexOf('plugin') !== -1;
+    },
     ...mapActions('app', ['setMaxPicNum', 'clearMaxPicNum']),
+    //系统提示词失去焦点时，触发提示词更新
+    handleInstructionsBlur(e) {
+      this.updateInfo();
+    },
+    syncAutoSaveBaseline() {
+      this.initialAutoSaveSnapshot = JSON.parse(
+        JSON.stringify(this.agentFormParams),
+      );
+    },
     //获取知识库或问答库选中数据
     getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
@@ -741,12 +837,14 @@ export default {
     },
     promptSubmit(prompt) {
       this.editForm.instructions = prompt;
+      this.updateInfo();
     },
     getPrompt(prompt) {
       this.editForm.instructions = prompt;
+      this.updateInfo();
     },
     handleBuiltin(n) {
-      this.$refs.toolDeatail.showDialog(n);
+      this.$refs.toolDetail.showDialog(n);
     },
     showVisualSet() {
       this.$refs.visualSet.showDialog(this.editForm.visionConfig);
@@ -758,7 +856,8 @@ export default {
       this.setModelInfo(val);
     },
     setModelInfo(val) {
-      const selectedModel = this.modleOptions.find(
+      if (!val) return;
+      const selectedModel = this.modelOptions.find(
         item => item.modelId === val,
       );
       if (selectedModel) {
@@ -805,7 +904,7 @@ export default {
         path: `/agent/publishSet`,
         query: {
           appId: this.editForm.assistantId,
-          appType: 'agent',
+          appType: AGENT,
           name: this.editForm.name,
         },
       });
@@ -913,9 +1012,6 @@ export default {
         path: '/appSpace/agent',
       });
     },
-    handlePublish() {
-      this.showOperation = !this.showOperation;
-    },
     savePublish() {
       if (this.editForm.modelParams === '') {
         this.$message.warning(this.$t('agent.form.selectModel'));
@@ -925,15 +1021,20 @@ export default {
         this.$message.warning(this.$t('agent.form.inputPrologue'));
         return false;
       }
-      const data = {
-        appId: this.editForm.assistantId,
-        appType: 'agent',
-        publishType: this.scope,
-      };
-      appPublish(data).then(res => {
-        if (res.code === 0) {
-          this.$router.push({
-            path: '/explore',
+
+      this.$refs.publishForm.validate(valid => {
+        if (valid) {
+          const data = {
+            appId: this.editForm.assistantId,
+            appType: AGENT,
+            publishType: this.publishForm.publishType,
+            desc: this.publishForm.desc,
+            version: this.publishForm.version,
+          };
+          appPublish(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({ path: '/explore' });
+            }
           });
         }
       });
@@ -1008,7 +1109,7 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modleOptions = res.data.list || [];
+        this.modelOptions = res.data.list || [];
         this.modelLoading = false;
       }
       this.modelLoading = false;
@@ -1022,7 +1123,7 @@ export default {
       ) {
         modeInfo = this.editForm.modelParams;
       } else {
-        modeInfo = this.modleOptions.find(
+        modeInfo = this.modelOptions.find(
           item => item.modelId === this.editForm.modelParams,
         );
       }
@@ -1090,6 +1191,7 @@ export default {
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
+        this.publishType = data.publishType;
         //兼容后端知识库数据返回null
         if (
           res.data.knowledgeBaseConfig &&
@@ -1160,6 +1262,7 @@ export default {
 
         this.$nextTick(() => {
           this.isSettingFromDetail = false;
+          this.syncAutoSaveBaseline();
         });
       } else {
         this.isSettingFromDetail = false;
@@ -1219,12 +1322,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.isDisabled .header-right,
-.isDisabled .drawer-form > div {
-  user-select: none;
-  pointer-events: none !important;
-}
-
 /deep/ {
   .apikeyBtn {
     border: 1px solid $btn_bg;
@@ -1369,23 +1466,6 @@ export default {
   padding: 0 20px;
   position: relative;
   border-bottom: 1px solid #dbdbdb;
-
-  .popover-operation {
-    position: absolute;
-    bottom: -122px;
-    right: 20px;
-    background: #fff;
-    box-shadow: 0px 1px 7px rgba(0, 0, 0, 0.3);
-    padding: 10px 20px;
-    border-radius: 6px;
-    z-index: 999;
-
-    .saveBtn {
-      display: flex;
-      justify-content: center;
-      padding: 10px 0;
-    }
-  }
 
   .header-left {
     display: flex;
@@ -1537,7 +1617,7 @@ export default {
       padding: 10px 20px;
     }
 
-    .agnetSet {
+    .agentSet {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;

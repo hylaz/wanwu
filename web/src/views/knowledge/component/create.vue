@@ -585,7 +585,7 @@ export default {
             this.$message.success(
               this.$t('knowledgeManage.create.createSuccess'),
             );
-            this.$emit('reloadData', this.category);
+            this.$emit('reloadData');
             this.dialogVisible = false;
           }
         })
@@ -604,7 +604,7 @@ export default {
             this.$message.success(
               this.$t('knowledgeManage.create.editSuccess'),
             );
-            this.$emit('reloadData', this.category);
+            this.$emit('reloadData');
             this.clearform();
             this.dialogVisible = false;
           }

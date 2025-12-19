@@ -2,7 +2,9 @@
   <div class="weburl-container">
     <div class="weburl-title">
       <span class="el-icon-arrow-left goback" @click="goback"></span>
-      <span class="weburl-title-text">{{ name }} - 发布配置</span>
+      <span class="weburl-title-text">
+        {{ name }} - {{ $t('agent.form.publishConfig') }}
+      </span>
     </div>
     <CommonLayout
       :showAside="true"
@@ -14,11 +16,11 @@
         <template v-for="(item, index) in toolList">
           <div
             v-if="
-              (appType !== agent && item.type !== 'url') || appType === agent
+              (appType !== AGENT && item.type !== 'url') || appType === AGENT
             "
             :class="['toolList', item.type === active ? 'activeItem' : '']"
             @click="checkTool(item)"
-            :key="'agnet' + index"
+            :key="'agent' + index"
           >
             <h3>{{ item.name }}</h3>
             <p>{{ item.desc }}</p>
@@ -26,13 +28,24 @@
         </template>
       </template>
       <template #main-content>
+        <CreateUrl
+          ref="CreateUrl"
+          v-if="active === 'url'"
+          :appId="appId"
+          :appType="appType"
+        />
         <CreateApi
           ref="CreateApi"
           v-if="active === 'api'"
           :appId="appId"
           :appType="appType"
         />
-        <CreateUrl ref="CreateUrl" v-else :appId="appId" :appType="appType" />
+        <CreateScope
+          ref="CreateScope"
+          v-if="active === 'scope'"
+          :appId="appId"
+          :appType="appType"
+        />
       </template>
     </CommonLayout>
   </div>
@@ -41,14 +54,16 @@
 import CommonLayout from '@/components/exploreContainer.vue';
 import CreateApi from './createApi.vue';
 import CreateUrl from './createUrl.vue';
+import CreateScope from './createScope.vue';
+import { AGENT } from '@/utils/commonSet';
 export default {
-  components: { CommonLayout, CreateApi, CreateUrl },
+  components: { CommonLayout, CreateApi, CreateUrl, CreateScope },
   data() {
     return {
       name: '',
       appId: '',
       appType: '',
-      agent: 'agent',
+      AGENT,
       active: 'url',
       asideWidth: '260px',
       toolList: [
@@ -62,6 +77,11 @@ export default {
           desc: '支持嵌入第三方应用系统',
           type: 'api',
         },
+        {
+          name: '发布范围',
+          desc: '支持配置应用发布范围',
+          type: 'scope',
+        },
       ],
     };
   },
@@ -70,7 +90,7 @@ export default {
     this.appId = appId;
     this.appType = appType;
     this.name = name;
-    this.active = appType === this.agent ? 'url' : 'api';
+    this.active = appType === AGENT ? 'url' : 'api';
   },
   methods: {
     checkTool(item) {

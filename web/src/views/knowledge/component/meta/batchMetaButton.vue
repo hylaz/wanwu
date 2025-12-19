@@ -10,18 +10,30 @@
       </div>
       <div class="toolbar-divider"></div>
       <div class="toolbar-item" @click="handleMetadata">
-        <div class="icon-wrapper">
-          <i class="el-icon-document metadata-icon"></i>
-          <i class="el-icon-price-tag tag-icon"></i>
-        </div>
-        <span class="item-text">{{ $t('metaData.batchEdit') }}</span>
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('metaData.batchEdit')"
+          placement="top"
+        >
+          <div class="icon-wrapper">
+            <i class="el-icon-document metadata-icon"></i>
+            <i class="el-icon-price-tag tag-icon"></i>
+          </div>
+        </el-tooltip>
       </div>
       <div class="toolbar-divider"></div>
       <div class="toolbar-item" @click="handleBatchDelete">
-        <div class="icon-wrapper">
-          <i class="el-icon-delete metadata-icon"></i>
-        </div>
-        <span class="item-text">{{ $t('metaData.batchDelete') }}</span>
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('metaData.batchDelete')"
+          placement="top"
+        >
+          <div class="icon-wrapper">
+            <i class="el-icon-delete metadata-icon"></i>
+          </div>
+        </el-tooltip>
       </div>
       <div class="toolbar-divider" v-if="type === 'knowledge'"></div>
       <div
@@ -29,7 +41,33 @@
         v-if="type === 'knowledge'"
         @click="handleBatchExport"
       >
-        <span class="item-text">{{ $t('metaData.batchExport') }}</span>
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('metaData.batchExport')"
+          placement="top"
+        >
+          <div class="icon-wrapper">
+            <i class="el-icon-download metadata-icon"></i>
+          </div>
+        </el-tooltip>
+      </div>
+      <div class="toolbar-divider" v-if="type === 'knowledge'"></div>
+      <div
+        class="toolbar-item"
+        v-if="type === 'knowledge'"
+        @click="handleBatchConfig"
+      >
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('metaData.batchConfig')"
+          placement="top"
+        >
+          <div class="icon-wrapper">
+            <i class="el-icon-s-operation metadata-icon"></i>
+          </div>
+        </el-tooltip>
       </div>
       <div class="toolbar-divider"></div>
       <div class="toolbar-item" @click="handleCancel">
@@ -65,6 +103,9 @@ export default {
     },
     handleBatchExport() {
       this.$emit('handleBatchExport');
+    },
+    handleBatchConfig() {
+      this.$emit('handleBatchConfig');
     },
     handleCancel() {
       this.$emit('handleMetaCancel');

@@ -126,6 +126,10 @@ export default {
       }
     },
     validateFileSize(file) {
+      if (file.size === 0) {
+        this.$message.warning(this.$t('common.fileUpload.fileSizeError'));
+        return false;
+      }
       // 文件大小限制处理，maxSize为可选属性
       if (this.maxSize) {
         const maxSizeBytes = this.maxSize * 1024 * 1024;

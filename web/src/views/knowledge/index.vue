@@ -70,14 +70,14 @@
         :appData="knowledgeData"
         @editItem="editItem"
         @exportItem="exportItem"
-        @reloadData="tabClick"
+        @reloadData="getTableData"
         ref="knowledgeList"
         v-loading="tableLoading"
         :category="category"
       />
       <createKnowledge
         ref="createKnowledge"
-        @reloadData="tabClick"
+        @reloadData="getTableData"
         :category="category"
       />
     </div>
