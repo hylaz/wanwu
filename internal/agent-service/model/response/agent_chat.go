@@ -89,7 +89,7 @@ func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentCha
 func AgentChatFailResp() string {
 	var agentChatResp = &AgentChatResp{
 		Code:     agentFailCode,
-		Message:  "success",
+		Message:  "智能体处理异常，请稍后重试",
 		Response: "智能体处理异常，请稍后重试",
 		Finish:   finish,
 	}
@@ -117,27 +117,31 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 		respContext.ToolStart = true
 		respContext.HasTool = true
 		var retList []string
-		if len(respContext.ToolCountMap) == 0 {
-			retList = append(retList, toolStartTitle)
-		}
+		//if len(respContext.ToolCountMap) == 0 {
+		//	retList = append(retList, toolStartTitle)
+		//}
 
 		for _, tool := range chatMessage.ToolCalls {
+			if len(tool.Function.Arguments) > 0 {
+				retList = append(retList, tool.Function.Arguments)
+				continue
+			}
 			if tool.Type == "function" {
 				if respContext.ToolIndex == -1 {
 					respContext.ToolIndex = *tool.Index
-				} else if *tool.Index != respContext.ToolIndex {
+				} else if *tool.Index != respContext.ToolIndex { //模型触发并发请求工具的bad case
 					respContext.ToolIndex = *tool.Index
 					retList = append(retList, toolParamsEndFormat)
 				}
-				toolName := fmt.Sprintf(toolStartTitleFormat, tool.Function.Name)
-				retList = append(retList, toolName)
-				if len(tool.ID) > 0 && respContext.ToolCountMap[tool.ID] == 0 {
+				if len(tool.Function.Name) > 0 {
+					toolName := fmt.Sprintf(toolStartTitleFormat, tool.Function.Name)
+					retList = append(retList, toolName)
+				}
+
+				if isNewTool(tool, respContext) {
+					retList = append(retList, toolStartTitle)
 					retList = append(retList, toolParamsStartFormat)
 					respContext.ToolCountMap[tool.ID] = 1
-				}
-			} else {
-				if len(tool.Function.Arguments) > 0 {
-					retList = append(retList, tool.Function.Arguments)
 				}
 			}
 		}
@@ -196,6 +200,10 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 		}
 		return []string{chatMessage.Content}
 	}
+}
+
+func isNewTool(tool schema.ToolCall, respContext *AgentChatRespContext) bool {
+	return len(tool.ID) > 0 && respContext.ToolCountMap[tool.ID] == 0
 }
 
 func toolStart(chatMessage *schema.Message) bool {
